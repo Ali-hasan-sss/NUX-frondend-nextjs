@@ -4,6 +4,7 @@ import adminUsersReducer from "@/features/admin/users/adminUsersSlice";
 import adminRestaurantsReducer from "@/features/admin/restaurants/adminRestaurantsSlice";
 import adminPlansReducer from "@/features/admin/plans/adminPlansSlice";
 import aadminSubscriptionsReducer from "@/features/admin/subscriptions/adminSubscriptionsSlice";
+import notificationsReducer from "@/features/notifications/notificationsSlice";
 import { attachStoreToAxios } from "@/utils/axiosInstance";
 
 export const store = configureStore({
@@ -13,6 +14,7 @@ export const store = configureStore({
     adminRestaurants: adminRestaurantsReducer,
     adminPlans: adminPlansReducer,
     adminSubscriptions: aadminSubscriptionsReducer,
+    notifications: notificationsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -58,7 +58,10 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="py-20 flex items-center justify-center">
+    <section
+      id="pricing"
+      className="py-20 flex items-center justify-center animate-in fade-in-50 slide-in-from-bottom-2 duration-500"
+    >
       <div className="container">
         <div className="text-center mb-16">
           <h2 className="text-3xl lg:text-4xl font-bold text-balance mb-4">
@@ -72,7 +75,7 @@ export function Pricing() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
-            <Card
+            <div
               key={index}
               className={`relative ${
                 plan.popular
@@ -80,50 +83,52 @@ export function Pricing() {
                   : "border-border"
               }`}
             >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
+              <Card>
+                {plan.popular && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
+                      Most Popular
+                    </span>
+                  </div>
+                )}
 
-              <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription className="text-base">
-                  {plan.description}
-                </CardDescription>
-                <div className="mt-4">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-muted-foreground">{plan.period}</span>
-                </div>
-              </CardHeader>
+                <CardHeader className="text-center pb-8">
+                  <CardTitle className="text-2xl">{plan.name}</CardTitle>
+                  <CardDescription className="text-base">
+                    {plan.description}
+                  </CardDescription>
+                  <div className="mt-4">
+                    <span className="text-4xl font-bold">{plan.price}</span>
+                    <span className="text-muted-foreground">{plan.period}</span>
+                  </div>
+                </CardHeader>
 
-              <CardContent className="space-y-4">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li
-                      key={featureIndex}
-                      className="flex items-center space-x-3"
-                    >
-                      <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                <CardContent className="space-y-4">
+                  <ul className="space-y-3">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li
+                        key={featureIndex}
+                        className="flex items-center space-x-3"
+                      >
+                        <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                        <span className="text-sm">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                <div className="pt-6">
-                  <Link href="/auth/register" className="block">
-                    <Button
-                      className="w-full"
-                      variant={plan.popular ? "default" : "outline"}
-                    >
-                      Start Free Trial
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="pt-6">
+                    <Link href="/auth/register" className="block">
+                      <Button
+                        className="w-full"
+                        variant={plan.popular ? "default" : "outline"}
+                      >
+                        Start Free Trial
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           ))}
         </div>
       </div>

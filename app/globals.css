@@ -14,7 +14,7 @@
 
 :root {
   /* Brand: Purple + Orange (HSL) */
-  --background: 0 0% 100%;
+  --background: 294, 61%, 96%;
   --foreground: 222.2 47.4% 11.2%;
   --card: 0 0% 100%;
   --card-foreground: 222.2 47.4% 11.2%;
@@ -39,6 +39,14 @@
   --chart-4: 32 96% 60%;
   --chart-5: 258 89% 66%;
   --radius: 0.5rem;
+  --sidebar-background: 0 0% 80%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
 .dark {
@@ -66,4 +74,15 @@
   --chart-3: 288 96% 78%;
   --chart-4: 36 100% 70%;
   --chart-5: 263 89% 66%;
+  --sidebar-background: 276, 75%, 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+.k {
+  background-color: hsl(276, 75%, 13%);
 }

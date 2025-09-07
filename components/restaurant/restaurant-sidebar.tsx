@@ -34,6 +34,7 @@ export function RestaurantSidebar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { unreadCount } = useAppSelector((state) => state.notifications);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -97,7 +98,13 @@ export function RestaurantSidebar() {
                       : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
+                  <span className="relative mr-3 inline-flex">
+                    <item.icon className="h-5 w-5" />
+                    {item.href === "/dashboard/notifications" &&
+                      unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+                      )}
+                  </span>{" "}
                   {item.name}
                 </Link>
               );

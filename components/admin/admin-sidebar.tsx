@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { logout } from "@/features/auth/authSlice";
+import { fetchUnreadCount } from "@/features/notifications/notificationsThunks";
 import {
   LayoutDashboard,
   Users,
@@ -16,14 +17,17 @@ import {
   LogOut,
   Menu,
   X,
+  Bell,
+  Store,
 } from "lucide-react";
 
 const navigation = [
   { name: "Overview", href: "/admin", icon: LayoutDashboard },
   { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Restaurants", href: "/admin/restaurants", icon: Users },
+  { name: "Restaurants", href: "/admin/restaurants", icon: Store },
   { name: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
   { name: "Plans", href: "/admin/plans", icon: Package },
+  { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
@@ -32,6 +36,13 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+  const { unreadCount } = useAppSelector((state) => state.notifications);
+
+  // Fetch unread count once when sidebar mounts
+  // Keeps the bell badge in sync across admin pages
+  React.useEffect(() => {
+    dispatch(fetchUnreadCount());
+  }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -64,9 +75,9 @@ export function AdminSidebar() {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="flex items-center px-6 py-4 border-b border-sidebar-border">
-            <div className="h-8 w-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
+            <div className="p-y-1 px-2 rounded-lg bg-sidebar-primary flex items-center justify-center">
               <span className="text-sidebar-primary-foreground font-bold text-lg">
-                R
+                NUX
               </span>
             </div>
             <span className="ml-2 font-bold text-xl text-sidebar-foreground">
@@ -86,11 +97,17 @@ export function AdminSidebar() {
                   className={cn(
                     "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                      ? "bg-secondary text-sidebar-accent-foreground"
                       : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <item.icon className="mr-3 h-5 w-5" />
+                  <span className="relative mr-3 inline-flex">
+                    <item.icon className="h-5 w-5" />
+                    {item.href === "/admin/notifications" &&
+                      unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500" />
+                      )}
+                  </span>
                   {item.name}
                 </Link>
               );
@@ -130,7 +147,7 @@ export function AdminSidebar() {
       {/* Mobile overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/70 z-30 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}

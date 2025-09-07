@@ -1,33 +1,39 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Menu, X, LayoutDashboard } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import { useLanguage } from "@/hooks/use-language"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Menu, X, LayoutDashboard } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { useLanguage } from "@/hooks/use-language";
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { t } = useLanguage()
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 animate-in fade-in slide-in-from-top-2 duration-300">
+      <div className="mx-auto max-w-7xl w-full px-4 md:px-6 lg:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">R</span>
+            <span className="text-primary-foreground font-bold text-lg">N</span>
           </div>
-          <span className="font-bold text-xl text-foreground">RestaurantHub</span>
+          <span className="font-bold text-xl text-foreground">NUX</span>
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
+        <nav className="hidden md:flex items-center gap-5">
+          <Link
+            href="#features"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             {t("features")}
           </Link>
-          <Link href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            href="#pricing"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             {t("pricing")}
           </Link>
           <Link
@@ -37,7 +43,10 @@ export function Header() {
             <LayoutDashboard className="h-4 w-4" />
             {t("dashboard")}
           </Link>
-          <Link href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link
+            href="#contact"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             {t("contact")}
           </Link>
         </nav>
@@ -57,8 +66,17 @@ export function Header() {
         <div className="flex items-center space-x-2 md:hidden">
           <LanguageSwitcher />
           <ThemeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label="Toggle menu">
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
@@ -110,5 +128,5 @@ export function Header() {
         </div>
       )}
     </header>
-  )
+  );
 }

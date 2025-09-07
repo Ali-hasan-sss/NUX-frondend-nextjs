@@ -1,32 +1,20 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowRight, Star } from "lucide-react"
-import { motion } from "framer-motion"
-import { useLanguage } from "@/hooks/use-language"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import { useLanguage } from "@/hooks/use-language";
 
 export function Hero() {
-  const { t } = useLanguage()
+  const { t } = useLanguage();
 
   return (
     <section className="relative min-h-screen flex items-center justify-center py-20 lg:py-32 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-orange-50 dark:from-purple-950/20 dark:via-background dark:to-orange-950/20" />
 
       <div className="absolute inset-0 -z-10">
-        <motion.div
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "linear",
-          }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-400/30 to-purple-600/30 dark:from-purple-500/20 dark:to-purple-700/20 rounded-full blur-3xl"
-        />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-400/30 to-purple-600/30 dark:from-purple-500/20 dark:to-purple-700/20 rounded-full blur-3xl" />
         <motion.div
           animate={{
             x: [0, -100, 0],
@@ -75,7 +63,9 @@ export function Hero() {
                 </motion.div>
               ))}
             </div>
-            <span className="text-sm text-muted-foreground">{t("trustedBy")}</span>
+            <span className="text-sm text-muted-foreground">
+              {t("trustedBy")}
+            </span>
           </motion.div>
 
           <motion.h1
@@ -153,7 +143,9 @@ export function Hero() {
               >
                 500+
               </motion.div>
-              <div className="text-muted-foreground">{t("activeRestaurants")}</div>
+              <div className="text-muted-foreground">
+                {t("activeRestaurants")}
+              </div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
@@ -168,7 +160,9 @@ export function Hero() {
               >
                 1M+
               </motion.div>
-              <div className="text-muted-foreground">{t("loyaltyPointsIssued")}</div>
+              <div className="text-muted-foreground">
+                {t("loyaltyPointsIssued")}
+              </div>
             </motion.div>
             <motion.div
               whileHover={{ scale: 1.05, y: -5 }}
@@ -183,11 +177,13 @@ export function Hero() {
               >
                 99.9%
               </motion.div>
-              <div className="text-muted-foreground">{t("uptimeGuarantee")}</div>
+              <div className="text-muted-foreground">
+                {t("uptimeGuarantee")}
+              </div>
             </motion.div>
           </motion.div>
         </div>
       </div>
     </section>
-  )
+  );
 }
