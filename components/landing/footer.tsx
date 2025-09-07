@@ -5,7 +5,7 @@ export function Footer() {
   return (
     <footer
       id="contact"
-      className="bg-muted/50 py-16 flex items-center justify-center"
+      className="bg-muted/50 py-10 flex items-center justify-center"
     >
       <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -13,10 +13,10 @@ export function Footer() {
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">
-                  R
+                  N
                 </span>
               </div>
-              <span className="font-bold text-xl">RestaurantHub</span>
+              <span className="font-bold text-xl">NUX</span>
             </div>
             <p className="text-muted-foreground">
               The complete subscription management platform for modern
@@ -141,7 +141,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t mt-12 pt-8 text-center text-muted-foreground">
+        <div className="border-t mt-5 pt-8 text-center text-muted-foreground">
           <p>&copy; 2024 RestaurantHub. All rights reserved.</p>
         </div>
       </div>

@@ -1,256 +1,359 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { QrCode, Download, Eye, MoreHorizontal, Plus } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useEffect, useMemo, useRef } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { QrCode } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import {
+  fetchRestaurantAccount,
+  regenerateRestaurantQr,
+} from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
+// Render QR via external image endpoint to avoid extra deps
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 
-// Mock data - in real app, this would come from API
-const qrCodes = [
-  {
-    id: "qr_1",
-    name: "Table 1 - Loyalty Points",
-    type: "loyalty",
-    pointsValue: 50,
-    scans: 234,
-    status: "active",
-    createdDate: "2024-01-15",
-    lastScanned: "2024-01-30",
-  },
-  {
-    id: "qr_2",
-    name: "Table 2 - Loyalty Points",
-    type: "loyalty",
-    pointsValue: 50,
-    scans: 189,
-    status: "active",
-    createdDate: "2024-01-15",
-    lastScanned: "2024-01-29",
-  },
-  {
-    id: "qr_3",
-    name: "Special Promotion - Double Points",
-    type: "promotion",
-    pointsValue: 100,
-    scans: 67,
-    status: "active",
-    createdDate: "2024-01-20",
-    lastScanned: "2024-01-30",
-  },
-  {
-    id: "qr_4",
-    name: "Takeaway Counter",
-    type: "loyalty",
-    pointsValue: 25,
-    scans: 145,
-    status: "inactive",
-    createdDate: "2024-01-10",
-    lastScanned: "2024-01-25",
-  },
-]
+function PrintableFrame({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border rounded-lg p-4 w-[320px] bg-white text-black">
+      <div className="text-center space-y-1 mb-3">
+        <div className="text-lg font-bold">{title}</div>
+        {subtitle ? (
+          <div className="text-xs text-muted-foreground">{subtitle}</div>
+        ) : null}
+      </div>
+      <div className="flex justify-center items-center">{children}</div>
+    </div>
+  );
+}
 
 export function QRCodeManagement() {
-  const [isCreating, setIsCreating] = useState(false)
-  const [newQRCode, setNewQRCode] = useState({
-    name: "",
-    type: "loyalty",
-    pointsValue: 50,
-  })
+  const dispatch = useAppDispatch();
+  const { data, isLoading } = useAppSelector((s) => s.restaurantAccount);
+  const printRef = useRef<HTMLDivElement>(null);
+  const drinkRef = useRef<HTMLDivElement>(null);
+  const mealRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const autoRefreshRef = useRef<NodeJS.Timeout | null>(null);
+  const autoRefreshEnabledRef = useRef<boolean>(false);
 
-  const handleCreateQRCode = () => {
-    // In real app, this would make an API call
-    console.log("Creating QR code:", newQRCode)
-    setIsCreating(false)
-    setNewQRCode({ name: "", type: "loyalty", pointsValue: 50 })
-  }
+  useEffect(() => {
+    dispatch(fetchRestaurantAccount());
+  }, [dispatch]);
+
+  const appBaseUrl =
+    process.env.NEXT_PUBLIC_APP_BASE_URL ||
+    (typeof window !== "undefined" ? window.location.origin : "");
+  const menuUrl = useMemo(() => {
+    if (!data?.id) return "";
+    // Public menu URL generated from restaurant id
+    return `${appBaseUrl}/menu/${data.id}`;
+  }, [appBaseUrl, data?.id]);
+
+  const handlePrint = () => {
+    if (!printRef.current) return;
+    const printContents = printRef.current.innerHTML;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload();
+  };
+
+  const handleRegenerate = async () => {
+    await dispatch(regenerateRestaurantQr());
+  };
+
+  const printElement = (el: HTMLElement) => {
+    const win = window.open("", "_blank", "width=800,height=600");
+    if (!win) return;
+    win.document.write("<html><head><title>Print QR</title>");
+    win.document.write(
+      "<style>html,body{height:100%;} body{margin:0;padding:0;background:#fff;color:#000;display:flex;justify-content:center;align-items:center;} .frame{display:flex;justify-content:center;align-items:center;}</style>"
+    );
+    win.document.write("</head><body>");
+    win.document.write(el.outerHTML);
+    win.document.write("</body></html>");
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+  };
+
+  // Auto-refresh QR (drink/meal) every 5 minutes when enabled
+  const setAutoRefresh = (enabled: boolean) => {
+    autoRefreshEnabledRef.current = enabled;
+    if (autoRefreshRef.current) {
+      clearInterval(autoRefreshRef.current);
+      autoRefreshRef.current = null;
+    }
+    if (enabled) {
+      autoRefreshRef.current = setInterval(() => {
+        if (autoRefreshEnabledRef.current) {
+          dispatch(regenerateRestaurantQr());
+        }
+      }, 5 * 60 * 1000);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">QR Code Management</h1>
-          <p className="text-muted-foreground">Monitor and manage your loyalty point QR codes</p>
+          <h1 className="text-3xl font-bold text-foreground">QR Codes</h1>
+          <p className="text-muted-foreground">
+            Print and manage your restaurant QR codes
+          </p>
         </div>
-        <Button onClick={() => setIsCreating(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create QR Code
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Auto refresh</span>
+            <Switch
+              onCheckedChange={(checked) => setAutoRefresh(!!checked)}
+              aria-label="Auto refresh QR every 5 minutes"
+            />
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleRegenerate}
+            disabled={isLoading}
+          >
+            Regenerate Drink & Meal
+          </Button>
+          <Button onClick={handlePrint}>Print All</Button>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="flex flex-col gap-4" ref={printRef}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Drink QR</CardTitle>
+            <CardDescription>
+              Scan to collect drink stars at {data?.name ?? "your restaurant"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <div ref={drinkRef} className="frame">
+                <PrintableFrame
+                  title={data?.name ?? "Restaurant"}
+                  subtitle="Drink QR"
+                >
+                  {data?.qrCode_drink ? (
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                        data.qrCode_drink
+                      )}`}
+                      width={240}
+                      height={240}
+                      alt="Drink QR"
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No drink QR available
+                    </div>
+                  )}
+                </PrintableFrame>
+              </div>
+            </div>
+            <div className="mt-3 flex justify-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  drinkRef.current && printElement(drinkRef.current)
+                }
+              >
+                Print
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Fullscreen</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[640px]">
+                  <DialogHeader>
+                    <DialogTitle>Drink QR</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-center">
+                    {data?.qrCode_drink ? (
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
+                          data.qrCode_drink
+                        )}`}
+                        width={512}
+                        height={512}
+                        alt="Drink QR"
+                      />
+                    ) : null}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Meal QR</CardTitle>
+            <CardDescription>
+              Scan to collect meal stars at {data?.name ?? "your restaurant"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <div ref={mealRef} className="frame">
+                <PrintableFrame
+                  title={data?.name ?? "Restaurant"}
+                  subtitle="Meal QR"
+                >
+                  {data?.qrCode_meal ? (
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                        data.qrCode_meal
+                      )}`}
+                      width={240}
+                      height={240}
+                      alt="Meal QR"
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No meal QR available
+                    </div>
+                  )}
+                </PrintableFrame>
+              </div>
+            </div>
+            <div className="mt-3 flex justify-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => mealRef.current && printElement(mealRef.current)}
+              >
+                Print
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Fullscreen</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[640px]">
+                  <DialogHeader>
+                    <DialogTitle>Meal QR</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-center">
+                    {data?.qrCode_meal ? (
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
+                          data.qrCode_meal
+                        )}`}
+                        width={512}
+                        height={512}
+                        alt="Meal QR"
+                      />
+                    ) : null}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Menu QR</CardTitle>
+            <CardDescription>Scan to open the restaurant menu</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex justify-center">
+              <div ref={menuRef} className="frame">
+                <PrintableFrame
+                  title={data?.name ?? "Restaurant"}
+                  subtitle="Menu QR"
+                >
+                  {menuUrl ? (
+                    <img
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                        menuUrl
+                      )}`}
+                      width={240}
+                      height={240}
+                      alt="Menu QR"
+                    />
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Menu URL not available
+                    </div>
+                  )}
+                </PrintableFrame>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-muted-foreground break-all text-center">
+              {menuUrl}
+            </div>
+            <div className="mt-3 flex justify-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => menuRef.current && printElement(menuRef.current)}
+              >
+                Print
+              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button>Fullscreen</Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[640px]">
+                  <DialogHeader>
+                    <DialogTitle>Menu QR</DialogTitle>
+                  </DialogHeader>
+                  <div className="flex justify-center">
+                    {menuUrl ? (
+                      <img
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
+                          menuUrl
+                        )}`}
+                        width={512}
+                        height={512}
+                        alt="Menu QR"
+                      />
+                    ) : null}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <QrCode className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm font-medium">Total QR Codes</p>
-                <p className="text-2xl font-bold">{qrCodes.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Eye className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm font-medium">Total Scans</p>
-                <p className="text-2xl font-bold">{qrCodes.reduce((sum, qr) => sum + qr.scans, 0)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded-full bg-green-600"></div>
-              <div>
-                <p className="text-sm font-medium">Active Codes</p>
-                <p className="text-2xl font-bold">{qrCodes.filter((qr) => qr.status === "active").length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded-full bg-secondary"></div>
-              <div>
-                <p className="text-sm font-medium">Points Issued</p>
-                <p className="text-2xl font-bold">
-                  {qrCodes.reduce((sum, qr) => sum + qr.scans * qr.pointsValue, 0).toLocaleString()}
-                </p>
+                <p className="text-sm font-medium">Total Codes</p>
+                <p className="text-2xl font-bold">3</p>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Create QR Code Form */}
-      {isCreating && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Create New QR Code</CardTitle>
-            <CardDescription>Generate a new QR code for loyalty points</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="qr-name">QR Code Name</Label>
-                <Input
-                  id="qr-name"
-                  placeholder="e.g., Table 3 - Loyalty Points"
-                  value={newQRCode.name}
-                  onChange={(e) => setNewQRCode({ ...newQRCode, name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="qr-type">Type</Label>
-                <Select value={newQRCode.type} onValueChange={(value) => setNewQRCode({ ...newQRCode, type: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="loyalty">Loyalty Points</SelectItem>
-                    <SelectItem value="promotion">Special Promotion</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="points-value">Points Value</Label>
-                <Input
-                  id="points-value"
-                  type="number"
-                  value={newQRCode.pointsValue}
-                  onChange={(e) => setNewQRCode({ ...newQRCode, pointsValue: Number.parseInt(e.target.value) || 0 })}
-                />
-              </div>
-            </div>
-            <div className="flex space-x-2">
-              <Button onClick={handleCreateQRCode}>Create QR Code</Button>
-              <Button variant="outline" onClick={() => setIsCreating(false)} className="bg-transparent">
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* QR Codes Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Your QR Codes</CardTitle>
-          <CardDescription>Manage all your loyalty point QR codes</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Points Value</TableHead>
-                  <TableHead>Scans</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Last Scanned</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {qrCodes.map((qrCode) => (
-                  <TableRow key={qrCode.id}>
-                    <TableCell>
-                      <div className="font-medium">{qrCode.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        Created {new Date(qrCode.createdDate).toLocaleDateString()}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={qrCode.type === "promotion" ? "default" : "secondary"}>
-                        {qrCode.type === "loyalty" ? "Loyalty" : "Promotion"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{qrCode.pointsValue} pts</TableCell>
-                    <TableCell>{qrCode.scans}</TableCell>
-                    <TableCell>
-                      <Badge variant={qrCode.status === "active" ? "default" : "secondary"}>{qrCode.status}</Badge>
-                    </TableCell>
-                    <TableCell>{new Date(qrCode.lastScanned).toLocaleDateString()}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View QR Code
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
     </div>
-  )
+  );
 }

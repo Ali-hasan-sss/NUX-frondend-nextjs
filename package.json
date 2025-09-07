@@ -62,6 +62,7 @@
     "react-quill": "^2.0.0",
     "react-redux": "latest",
     "react-resizable-panels": "^2.1.7",
+    "qrcode.react": "^3.1.0",
     "recharts": "2.15.0",
     "redux": "latest",
     "sonner": "^1.7.1",

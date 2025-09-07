@@ -17,14 +17,17 @@ import {
   LogOut,
   Menu,
   X,
+  Package,
 } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "QR Codes", href: "/dashboard/qr-codes", icon: QrCode },
+  { name: "Menu", href: "/dashboard/menu", icon: Menu },
+  { name: "Packages", href: "/dashboard/packages", icon: Package },
   { name: "Groups", href: "/dashboard/groups", icon: Users },
   { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
-  { name: "Subscription", href: "/dashboard/subscription", icon: CreditCard }, // Added subscription link
+  { name: "Subscription", href: "/dashboard/subscription", icon: CreditCard },
   { name: "Payments", href: "/dashboard/payments", icon: CreditCard },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

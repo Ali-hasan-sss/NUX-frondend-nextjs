@@ -1,22 +1,30 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useAppDispatch, useAppSelector } from "@/app/hooks"
-import { registerRestaurant } from "@/features/auth/authThunks"
-import { clearError } from "@/features/auth/authSlice"
-import { Eye, EyeOff, Loader2, MapPin } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { registerRestaurant } from "@/features/auth/authThunks";
+import { clearError } from "@/features/auth/authSlice";
+import { Eye, EyeOff, Loader2, MapPin } from "lucide-react";
+import MapPickerModal from "./MapPickerModal";
 
 export function RegisterForm() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -25,48 +33,56 @@ export function RegisterForm() {
     address: "",
     latitude: 0,
     longitude: 0,
-  })
+  });
 
-  const dispatch = useAppDispatch()
-  const router = useRouter()
-  const { isLoading, error } = useAppSelector((state) => state.auth)
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { isLoading, error } = useAppSelector((state) => state.auth);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    dispatch(clearError())
+    e.preventDefault();
+    dispatch(clearError());
 
     try {
-      const result = await dispatch(registerRestaurant(formData))
+      const result = await dispatch(registerRestaurant(formData));
       if (registerRestaurant.fulfilled.match(result)) {
-        router.push("/dashboard")
+        router.push("/dashboard");
       }
     } catch (error) {
-      console.error("Registration failed:", error)
+      console.error("Registration failed:", error);
     }
-  }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleLocationSelect = () => {
-    // In a real app, this would open a map picker
-    // For demo purposes, we'll use a default location
+    setShowMapPicker(true);
+  };
+
+  const handleLocationConfirm = (coords: {
+    latitude: number;
+    longitude: number;
+  }) => {
     setFormData({
       ...formData,
-      latitude: 40.7128,
-      longitude: -74.006,
-    })
-  }
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    });
+    setShowMapPicker(false);
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Create Restaurant Account</CardTitle>
-        <CardDescription>Join RestaurantHub and start building customer loyalty</CardDescription>
+        <CardDescription>
+          Join RestaurantHub and start building customer loyalty
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,14 +146,29 @@ export function RegisterForm() {
                 required
                 className="flex-1"
               />
-              <Button type="button" variant="outline" onClick={handleLocationSelect} className="bg-transparent">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleLocationSelect}
+                className="bg-transparent"
+                title="Select location on map"
+              >
                 <MapPin className="h-4 w-4" />
               </Button>
             </div>
             {formData.latitude !== 0 && formData.longitude !== 0 && (
-              <p className="text-xs text-muted-foreground">
-                Location selected: {formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)}
-              </p>
+              <div className="text-xs text-muted-foreground bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800">
+                <div className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3 text-green-600" />
+                  <span className="font-medium text-green-700 dark:text-green-400">
+                    Location selected:
+                  </span>
+                </div>
+                <div className="mt-1">
+                  Lat: {formData.latitude.toFixed(6)}, Lng:{" "}
+                  {formData.longitude.toFixed(6)}
+                </div>
+              </div>
             )}
           </div>
 
@@ -160,7 +191,11 @@ export function RegisterForm() {
                 className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>
@@ -179,7 +214,16 @@ export function RegisterForm() {
             </p>
           </div>
         </form>
+
+        {/* Map Picker Modal */}
+        <MapPickerModal
+          open={showMapPicker}
+          onOpenChange={setShowMapPicker}
+          initialLat={formData.latitude}
+          initialLng={formData.longitude}
+          onSelect={handleLocationConfirm}
+        />
       </CardContent>
     </Card>
-  )
+  );
 }
