@@ -30,6 +30,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Pencil, Trash2, Euro } from "lucide-react";
 import ConfirmDialog from "@/components/confirmMessage";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Supported European currencies by Stripe
+const SUPPORTED_CURRENCIES = [
+  { code: "EUR", name: "Euro (€)", symbol: "€" },
+  { code: "USD", name: "US Dollar ($)", symbol: "$" },
+  { code: "GBP", name: "British Pound (£)", symbol: "£" },
+  { code: "CHF", name: "Swiss Franc (CHF)", symbol: "CHF" },
+  { code: "SEK", name: "Swedish Krona (SEK)", symbol: "kr" },
+];
 
 type FormState = {
   name: string;
@@ -49,6 +65,12 @@ const emptyForm: FormState = {
   description: "",
   isActive: true,
   isPublic: true,
+};
+
+// Helper function to get currency symbol
+const getCurrencySymbol = (currencyCode: string) => {
+  const currency = SUPPORTED_CURRENCIES.find((c) => c.code === currencyCode);
+  return currency?.symbol || currencyCode;
 };
 
 export default function PackagesManagement() {
@@ -158,8 +180,13 @@ export default function PackagesManagement() {
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex items-center gap-1">
-                <Euro className="h-4 w-4" />
+                <span className="text-lg font-bold text-primary">
+                  {getCurrencySymbol(pkg.currency)}
+                </span>
                 <span className="font-medium">{pkg.amount}</span>
+                <span className="text-xs text-muted-foreground">
+                  {pkg.currency}
+                </span>
                 {pkg.bonus > 0 && (
                   <span className="text-sm text-muted-foreground">
                     + {pkg.bonus} bonus
@@ -238,16 +265,28 @@ export default function PackagesManagement() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Currency</Label>
-                <Input
-                  value={form.currency}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, currency: e.target.value }))
-                  }
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Currency</Label>
+              <Select
+                value={form.currency}
+                onValueChange={(value) =>
+                  setForm((f) => ({ ...f, currency: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{currency.symbol}</span>
+                        <span>{currency.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
@@ -340,16 +379,28 @@ export default function PackagesManagement() {
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Currency</Label>
-                <Input
-                  value={form.currency}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, currency: e.target.value }))
-                  }
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Currency</Label>
+              <Select
+                value={form.currency}
+                onValueChange={(value) =>
+                  setForm((f) => ({ ...f, currency: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select currency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code}>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{currency.symbol}</span>
+                        <span>{currency.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Description</Label>

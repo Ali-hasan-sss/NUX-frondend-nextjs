@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
-  role: "ADMIN" | "RESTAURANT_OWNER";
+  role: "ADMIN" | "RESTAURANT_OWNER" | "USER";
   restaurantName?: string;
   address?: string;
   latitude?: number;
@@ -35,6 +35,13 @@ export interface RegisterRestaurantRequest {
   address: string;
   latitude: number;
   longitude: number;
+  logo?: string;
+}
+
+export interface RegisterUserRequest {
+  email: string;
+  password: string;
+  fullName?: string;
 }
 
 export interface AuthResponse {

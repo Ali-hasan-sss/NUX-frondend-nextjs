@@ -1,0 +1,87 @@
+/* QR Scanner Styles */
+#qr-scanner-element {
+  width: 100% !important;
+  height: 300px !important;
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 12px !important;
+  background: #000 !important;
+}
+
+#qr-scanner-element video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  /* Fix video orientation for mobile */
+  -webkit-transform: none !important;
+  transform: none !important;
+}
+
+#qr-scanner-element canvas {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  display: block !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+#qr-scanner-element__dashboard {
+  margin-top: 16px !important;
+}
+
+#qr-scanner-element__camera_selection {
+  margin-bottom: 16px !important;
+}
+
+#qr-scanner-element__start_button,
+#qr-scanner-element__stop_button {
+  background-color: #6366f1 !important;
+  border: none !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 6px !important;
+  cursor: pointer !important;
+}
+
+#qr-scanner-element__start_button:hover,
+#qr-scanner-element__stop_button:hover {
+  background-color: #4f46e5 !important;
+}
+
+/* Hide all dashboard elements - we want camera only */
+#qr-scanner-element__dashboard,
+#qr-scanner-element__dashboard_section_fsr,
+#qr-scanner-element__dashboard_section_csr,
+#qr-scanner-element__filescan_input,
+#qr-scanner-element__start_button,
+#qr-scanner-element__stop_button,
+#qr-scanner-element__header_message,
+div[id*="__dashboard"],
+div[id*="__filescan"],
+button[id*="__filescan"],
+[id*="filescan"],
+[id*="file-selection"] {
+  display: none !important;
+}
+
+/* Ensure video container fills the space properly */
+#qr-scanner-element > div {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+/* Style the scanning region overlay */
+#qr-scanner-element .qr-scanner-region {
+  border: 2px solid #fff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3) !important;
+}

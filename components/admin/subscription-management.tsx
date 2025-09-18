@@ -10,15 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import {
   Table,
   TableBody,
@@ -28,7 +21,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Search,
   AlertTriangle,
   CheckCircle,
   Clock,
@@ -318,6 +310,7 @@ export function SubscriptionManagement() {
                   <TableHead>Start Date</TableHead>
                   <TableHead>End Date</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Payment Method</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -346,6 +339,7 @@ export function SubscriptionManagement() {
                     <TableCell>{formatDate(subscription.startDate)}</TableCell>
                     <TableCell>{formatDate(subscription.endDate)}</TableCell>
                     <TableCell>${subscription.plan.price}</TableCell>
+                    <TableCell>${subscription.paymentMethod}</TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>

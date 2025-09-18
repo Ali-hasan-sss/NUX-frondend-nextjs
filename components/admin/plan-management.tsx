@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Users } from "lucide-react";
+import { Plus, Edit, Trash2, Users, Shield, Check, X } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { useEffect, useState } from "react";
 import {
@@ -27,6 +27,10 @@ import {
 } from "@/components/ui/dialog";
 import ConfirmDialog from "../confirmMessage";
 import { AdminPlan } from "@/features/admin/plans/adminPlansTypes";
+import {
+  PERMISSION_LABELS,
+  PERMISSION_CATEGORIES,
+} from "@/features/admin/plans/permissionsConstants";
 
 export function PlanManagement() {
   const dispatch = useAppDispatch();
@@ -51,6 +55,64 @@ export function PlanManagement() {
   };
   const handleDelete = async () => {
     if (deleting) await dispatch(deleteAdminPlan(deleting?.toString()));
+  };
+
+  const renderPermissions = (permissions: any[]) => {
+    if (!permissions || permissions.length === 0) {
+      return (
+        <div className="text-sm text-muted-foreground">
+          No permissions assigned
+        </div>
+      );
+    }
+
+    const groupedPermissions = permissions.reduce((acc, perm: any) => {
+      const category =
+        Object.keys(PERMISSION_CATEGORIES).find((cat) =>
+          (
+            PERMISSION_CATEGORIES[
+              cat as keyof typeof PERMISSION_CATEGORIES
+            ] as readonly string[]
+          ).includes(perm.type)
+        ) || "OTHER";
+
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(perm);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    return (
+      <div className="space-y-2">
+        {(Object.entries(groupedPermissions) as [string, any[]][]).map(
+          ([category, perms]) => (
+            <div key={category} className="space-y-1">
+              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {category}
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {perms.map((perm: any) => (
+                  <Badge
+                    key={perm.id}
+                    variant="secondary"
+                    className="text-xs flex items-center gap-1"
+                  >
+                    <Shield className="h-3 w-3" />
+                    {PERMISSION_LABELS[
+                      perm.type as keyof typeof PERMISSION_LABELS
+                    ] || perm.type}
+                    {perm.isUnlimited ? (
+                      <Check className="h-3 w-3 text-green-500" />
+                    ) : perm.value ? (
+                      <span className="text-xs">({perm.value})</span>
+                    ) : null}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )
+        )}
+      </div>
+    );
   };
 
   return (
@@ -111,6 +173,23 @@ export function PlanManagement() {
             </CardHeader>
 
             <CardContent className="space-y-4">
+              {/* Permissions */}
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-sm font-medium">
+                  <Shield className="h-4 w-4" />
+                  <span>Permissions</span>
+                </div>
+                {renderPermissions(plan.permissions)}
+              </div>
+
+              {/* Stripe Integration Status */}
+              {plan.stripeProductId && plan.stripePriceId && (
+                <div className="flex items-center space-x-2 text-sm text-green-600">
+                  <Check className="h-4 w-4" />
+                  <span>Stripe Integrated</span>
+                </div>
+              )}
+
               {/* Subscribers count */}
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                 <Users className="h-4 w-4" />

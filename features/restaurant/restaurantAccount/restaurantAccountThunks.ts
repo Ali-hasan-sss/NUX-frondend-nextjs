@@ -42,3 +42,17 @@ export const regenerateRestaurantQr = createAsyncThunk<
     return rejectWithValue(error?.message ?? "Failed to regenerate QR codes");
   }
 });
+
+export const updateRestaurantStatus = createAsyncThunk<
+  RestaurantAccountInfo,
+  { isActive: boolean },
+  { rejectValue: string }
+>("restaurantAccount/updateStatus", async (data, { rejectWithValue }) => {
+  try {
+    return await restaurantAccountService.updateMe({ isActive: data.isActive });
+  } catch (error: any) {
+    return rejectWithValue(
+      error?.message ?? "Failed to update restaurant status"
+    );
+  }
+});

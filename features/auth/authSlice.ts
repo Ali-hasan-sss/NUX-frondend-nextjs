@@ -1,6 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { AuthState, AuthTokens } from "./authTypes";
-import { loginUser, loginAdmin, registerRestaurant } from "./authThunks";
+import {
+  loginUser,
+  loginAdmin,
+  registerRestaurant,
+  registerUser,
+} from "./authThunks";
 
 const initialState: AuthState = {
   user: null,
@@ -146,6 +151,38 @@ const authSlice = createSlice({
         }
       })
       .addCase(registerRestaurant.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          (action.payload as string) ?? action.error.message ?? null;
+        state.isAuthenticated = false;
+      });
+
+    // Register user
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.tokens = action.payload.tokens;
+        state.isAuthenticated = true;
+        state.error = null;
+        // Save to localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem(
+            "accessToken",
+            action.payload.tokens.accessToken
+          );
+          localStorage.setItem(
+            "refreshToken",
+            action.payload.tokens.refreshToken
+          );
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
+      })
+      .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error =
           (action.payload as string) ?? action.error.message ?? null;

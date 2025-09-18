@@ -2,6 +2,7 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import type {
   LoginRequest,
   RegisterRestaurantRequest,
+  RegisterUserRequest,
   AuthResponse,
 } from "./authTypes";
 
@@ -32,6 +33,15 @@ export const authService = {
       "/auth/registerRestaurant",
       restaurantData
     );
+    const api = response.data;
+    return {
+      user: { ...api.data.user },
+      tokens: api.data.tokens,
+    };
+  },
+
+  async registerUser(userData: RegisterUserRequest): Promise<AuthResponse> {
+    const response = await axiosInstance.post("/auth/register", userData);
     const api = response.data;
     return {
       user: { ...api.data.user },

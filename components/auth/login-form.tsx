@@ -44,8 +44,11 @@ export function LoginForm() {
         // Redirect based on user role
         if (result.payload.user.role === "ADMIN") {
           router.push("/admin");
-        } else {
+        } else if (result.payload.user.role === "RESTAURANT_OWNER") {
           router.push("/dashboard");
+        } else {
+          // Regular users go to home page
+          router.push("/");
         }
       }
     } catch (error) {

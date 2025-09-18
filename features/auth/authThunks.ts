@@ -3,6 +3,7 @@ import { authService } from "./authService";
 import type {
   LoginRequest,
   RegisterRestaurantRequest,
+  RegisterUserRequest,
   AuthResponse,
 } from "./authTypes";
 
@@ -12,10 +13,15 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >("auth/loginUser", async (credentials, { rejectWithValue }) => {
   try {
+    console.log("🔐 Frontend login attempt:", { email: credentials.email });
     const response = await authService.login(credentials);
+    console.log("✅ Frontend login successful");
     return response;
   } catch (error: any) {
-    return rejectWithValue(error.message || "Login failed");
+    console.error("❌ Frontend login failed:", error);
+    const errorMessage =
+      error?.response?.data?.message || error.message || "Login failed";
+    return rejectWithValue(errorMessage);
   }
 });
 
@@ -42,5 +48,18 @@ export const registerRestaurant = createAsyncThunk<
     return response;
   } catch (error: any) {
     return rejectWithValue(error.message || "Restaurant registration failed");
+  }
+});
+
+export const registerUser = createAsyncThunk<
+  AuthResponse,
+  RegisterUserRequest,
+  { rejectValue: string }
+>("auth/registerUser", async (userData, { rejectWithValue }) => {
+  try {
+    const response = await authService.registerUser(userData);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue(error.message || "User registration failed");
   }
 });

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
@@ -19,6 +19,7 @@ import {
   X,
   Bell,
   Store,
+  FileText,
 } from "lucide-react";
 
 const navigation = [
@@ -27,6 +28,7 @@ const navigation = [
   { name: "Restaurants", href: "/admin/restaurants", icon: Store },
   { name: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
   { name: "Plans", href: "/admin/plans", icon: Package },
+  { name: "Invoices", href: "/admin/invoices", icon: FileText },
   { name: "Notifications", href: "/admin/notifications", icon: Bell },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];
@@ -37,7 +39,7 @@ export function AdminSidebar() {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { unreadCount } = useAppSelector((state) => state.notifications);
-
+  const router = useRouter();
   // Fetch unread count once when sidebar mounts
   // Keeps the bell badge in sync across admin pages
   React.useEffect(() => {
@@ -72,10 +74,13 @@ export function AdminSidebar() {
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full overflow-y-auto sidebar-scroll">
           {/* Logo */}
           <div className="flex items-center px-6 py-4 border-b border-sidebar-border">
-            <div className="p-y-1 px-2 rounded-lg bg-sidebar-primary flex items-center justify-center">
+            <div
+              onClick={() => router.push("/")}
+              className=" cursor-pointer p-y-1 px-2 rounded-lg bg-sidebar-primary flex items-center justify-center"
+            >
               <span className="text-sidebar-primary-foreground font-bold text-lg">
                 NUX
               </span>

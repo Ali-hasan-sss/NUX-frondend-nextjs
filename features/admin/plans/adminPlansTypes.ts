@@ -1,3 +1,10 @@
+export interface PlanPermission {
+  id: number;
+  type: string;
+  value: number | null;
+  isUnlimited: boolean;
+}
+
 export interface AdminPlan {
   id: number | string;
   title: string;
@@ -7,6 +14,9 @@ export interface AdminPlan {
   price: number;
   duration: number; // days
   isActive: boolean;
+  permissions: PlanPermission[];
+  stripeProductId?: string | null;
+  stripePriceId?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -25,6 +35,7 @@ export interface CreateAdminPlanRequest {
   price: number;
   duration: number;
   isActive?: boolean;
+  permissions?: PlanPermission[];
 }
 
 export interface UpdateAdminPlanRequest {
@@ -34,4 +45,5 @@ export interface UpdateAdminPlanRequest {
   price?: number;
   duration?: number;
   isActive?: boolean;
+  permissions?: PlanPermission[];
 }

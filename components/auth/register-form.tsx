@@ -20,7 +20,8 @@ import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { registerRestaurant } from "@/features/auth/authThunks";
 import { clearError } from "@/features/auth/authSlice";
 import { Eye, EyeOff, Loader2, MapPin } from "lucide-react";
-import MapPickerModal from "./MapPickerModal";
+import GoogleMapPicker from "@/components/common/GoogleMapPicker";
+import FileUploader from "@/components/upload/file-uploader";
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -33,6 +34,7 @@ export function RegisterForm() {
     address: "",
     latitude: 0,
     longitude: 0,
+    logo: "",
   });
 
   const dispatch = useAppDispatch();
@@ -134,6 +136,23 @@ export function RegisterForm() {
           </div>
 
           <div className="space-y-2">
+            <FileUploader
+              label="Restaurant Logo (Optional)"
+              value={formData.logo}
+              onChange={(url) =>
+                setFormData((prev) => ({ ...prev, logo: url || "" }))
+              }
+              accept="image/*"
+              maxSizeMb={5}
+              meta={{
+                folder: "restaurant-logos",
+                entityType: "restaurant",
+              }}
+              rounded="md"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="address">Restaurant Address</Label>
             <div className="flex space-x-2">
               <Input
@@ -215,8 +234,8 @@ export function RegisterForm() {
           </div>
         </form>
 
-        {/* Map Picker Modal */}
-        <MapPickerModal
+        {/* Google Map Picker Modal */}
+        <GoogleMapPicker
           open={showMapPicker}
           onOpenChange={setShowMapPicker}
           initialLat={formData.latitude}

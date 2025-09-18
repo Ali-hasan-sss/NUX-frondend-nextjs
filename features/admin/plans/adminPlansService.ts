@@ -3,6 +3,7 @@ import type {
   AdminPlan,
   CreateAdminPlanRequest,
   UpdateAdminPlanRequest,
+  PlanPermission,
 } from "./adminPlansTypes";
 
 function mapPlan(api: any): AdminPlan {
@@ -14,6 +15,15 @@ function mapPlan(api: any): AdminPlan {
     price: api.price,
     duration: api.duration,
     isActive: Boolean(api.isActive),
+    permissions:
+      api.permissions?.map((perm: any) => ({
+        id: perm.id,
+        type: perm.type,
+        value: perm.value,
+        isUnlimited: Boolean(perm.isUnlimited),
+      })) || [],
+    stripeProductId: api.stripeProductId ?? null,
+    stripePriceId: api.stripePriceId ?? null,
     createdAt: api.createdAt,
     updatedAt: api.updatedAt,
     subscriberCount: api.subscriberCount,

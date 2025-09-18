@@ -118,16 +118,20 @@ export function QRCodeManagement() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">QR Codes</h1>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
+            QR Codes
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground truncate">
             Print and manage your restaurant QR codes
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Auto refresh</span>
+            <span className="text-xs sm:text-sm text-muted-foreground">
+              Auto refresh
+            </span>
             <Switch
               onCheckedChange={(checked) => setAutoRefresh(!!checked)}
               aria-label="Auto refresh QR every 5 minutes"
@@ -137,10 +141,13 @@ export function QRCodeManagement() {
             variant="outline"
             onClick={handleRegenerate}
             disabled={isLoading}
+            className="h-9 px-3 sm:h-10 sm:px-4"
           >
             Regenerate Drink & Meal
           </Button>
-          <Button onClick={handlePrint}>Print All</Button>
+          <Button onClick={handlePrint} className="h-9 px-3 sm:h-10 sm:px-4">
+            Print All
+          </Button>
         </div>
       </div>
 

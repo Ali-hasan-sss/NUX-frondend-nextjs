@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -12,7 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Shield, Plus, Trash2 } from "lucide-react";
 import dynamic from "next/dynamic";
+import {
+  PERMISSION_TYPES,
+  PERMISSION_LABELS,
+  PERMISSION_CATEGORIES,
+} from "@/features/admin/plans/permissionsConstants";
+import { PlanPermission } from "@/features/admin/plans/adminPlansTypes";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
@@ -24,6 +35,7 @@ export interface PlanFormInput {
   currency: string;
   duration: number;
   isActive: boolean;
+  permissions: PlanPermission[];
 }
 
 interface PlanFormProps {
@@ -47,6 +59,7 @@ export function PlanForm({
       currency: "USD",
       duration: 30,
       isActive: true,
+      permissions: [],
     }
   );
   const [loading, setLoading] = useState(false);
@@ -68,6 +81,76 @@ export function PlanForm({
 
   const handleFocusSelectAll = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.select();
+  };
+
+  const addPermission = (type: string) => {
+    const newPermission: PlanPermission = {
+      id: Date.now(), // Temporary ID for new permissions
+      type,
+      value: null,
+      isUnlimited: true, // Default to unlimited
+    };
+    setFormData((prev) => ({
+      ...prev,
+      permissions: [...prev.permissions, newPermission],
+    }));
+  };
+
+  const addAllPermissions = () => {
+    const availablePermissions = getAvailablePermissions();
+    const newPermissions: PlanPermission[] = availablePermissions.map(
+      (type) => ({
+        id: Date.now() + Math.random(), // Unique ID for each permission
+        type,
+        value: null,
+        isUnlimited: true, // Default to unlimited
+      })
+    );
+    setFormData((prev) => ({
+      ...prev,
+      permissions: [...prev.permissions, ...newPermissions],
+    }));
+  };
+
+  const updatePermission = (
+    index: number,
+    updates: Partial<PlanPermission>
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      permissions: prev.permissions.map((perm, i) =>
+        i === index ? { ...perm, ...updates } : perm
+      ),
+    }));
+  };
+
+  const removePermission = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      permissions: prev.permissions.filter((_, i) => i !== index),
+    }));
+  };
+
+  const getAvailablePermissions = () => {
+    const usedTypes = formData.permissions.map((p) => p.type);
+    return Object.values(PERMISSION_TYPES).filter(
+      (type) => !usedTypes.includes(type)
+    );
+  };
+
+  const togglePermission = (type: string) => {
+    const existingIndex = formData.permissions.findIndex(
+      (p) => p.type === type
+    );
+    if (existingIndex >= 0) {
+      removePermission(existingIndex);
+    } else {
+      addPermission(type);
+    }
+  };
+
+  const isPermissionSelected = (type: string) => {
+    return formData.permissions.some((p) => p.type === type);
   };
 
   return (
@@ -147,6 +230,149 @@ export function PlanForm({
             onCheckedChange={(val) => handleChange("isActive", val)}
           />
         </div>
+      </div>
+
+      <Separator />
+
+      {/* Permissions Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label className="text-lg font-semibold flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Permissions
+          </Label>
+          {getAvailablePermissions().length > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addAllPermissions}
+              className="flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Select All
+            </Button>
+          )}
+        </div>
+
+        {/* Permission Categories with Checkboxes */}
+        <div className="space-y-4">
+          {Object.entries(PERMISSION_CATEGORIES).map(([category, types]) => (
+            <Card key={category}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                  {category}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {types.map((type) => (
+                  <div
+                    key={type}
+                    className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <Checkbox
+                      id={`permission-${type}`}
+                      checked={isPermissionSelected(type)}
+                      onCheckedChange={() => togglePermission(type)}
+                    />
+                    <Label
+                      htmlFor={`permission-${type}`}
+                      className="flex-1 cursor-pointer font-medium"
+                    >
+                      {PERMISSION_LABELS[
+                        type as keyof typeof PERMISSION_LABELS
+                      ] || type}
+                    </Label>
+                    {isPermissionSelected(type) && (
+                      <Badge variant="secondary" className="text-xs">
+                        Selected
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Selected Permissions Configuration */}
+        {formData.permissions.length > 0 && (
+          <div className="space-y-4">
+            <div className="text-lg font-semibold flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Configure Selected Permissions ({formData.permissions.length})
+            </div>
+            <div className="space-y-3">
+              {formData.permissions.map((permission, index) => (
+                <Card key={permission.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {PERMISSION_LABELS[
+                            permission.type as keyof typeof PERMISSION_LABELS
+                          ] || permission.type}
+                        </div>
+                        <div className="flex items-center space-x-4 mt-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`unlimited-${index}`}
+                              checked={permission.isUnlimited}
+                              onCheckedChange={(checked) =>
+                                updatePermission(index, {
+                                  isUnlimited: Boolean(checked),
+                                })
+                              }
+                            />
+                            <Label
+                              htmlFor={`unlimited-${index}`}
+                              className="text-sm"
+                            >
+                              Unlimited
+                            </Label>
+                          </div>
+                          {!permission.isUnlimited && (
+                            <div className="flex items-center space-x-2">
+                              <Label
+                                htmlFor={`value-${index}`}
+                                className="text-sm"
+                              >
+                                Limit:
+                              </Label>
+                              <Input
+                                id={`value-${index}`}
+                                type="number"
+                                value={permission.value || ""}
+                                onChange={(e) =>
+                                  updatePermission(index, {
+                                    value: e.target.value
+                                      ? parseInt(e.target.value)
+                                      : null,
+                                  })
+                                }
+                                className="w-20"
+                                min="1"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removePermission(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Actions */}

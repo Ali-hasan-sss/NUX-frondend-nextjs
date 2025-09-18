@@ -33,6 +33,7 @@ export interface RestaurantAccountInfo {
   qrCode_drink: string | null;
   qrCode_meal: string | null;
   isSubscriptionActive: boolean;
+  isActive: boolean;
   createdAt: string;
   group: RestaurantGroupInfo | null;
 }
@@ -43,6 +44,7 @@ export interface UpdateRestaurantAccountRequest {
   address?: string;
   latitude?: number;
   longitude?: number;
+  isActive?: boolean;
 }
 
 export interface RestaurantAccountState {

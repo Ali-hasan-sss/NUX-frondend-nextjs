@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Card,
   CardContent,
@@ -16,49 +18,73 @@ import {
   AlertTriangle,
   CheckCircle,
 } from "lucide-react";
-
-// Mock data - in real app, this would come from API
-const stats = {
-  totalUsers: 1247,
-  totalRestaurants: 523,
-  activeSubscriptions: 456,
-  revenue: 45670,
-  expiredSubscriptions: 12,
-  newSignups: 34,
-};
-
-const recentActivity = [
-  {
-    id: 1,
-    type: "subscription",
-    message: "New subscription: Pizza Palace upgraded to Professional",
-    time: "2 hours ago",
-    status: "success",
-  },
-  {
-    id: 2,
-    type: "user",
-    message: "New restaurant registered: Burger House",
-    time: "4 hours ago",
-    status: "info",
-  },
-  {
-    id: 3,
-    type: "alert",
-    message: "Subscription expired: Taco Bell (Professional Plan)",
-    time: "6 hours ago",
-    status: "warning",
-  },
-  {
-    id: 4,
-    type: "subscription",
-    message: "Payment successful: Sushi Master renewed Enterprise plan",
-    time: "8 hours ago",
-    status: "success",
-  },
-];
+import { AppDispatch, RootState } from "@/app/store";
+import { fetchAdminOverview } from "@/features/admin/overview/adminOverviewThunks";
 
 export function AdminOverview() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { stats, recentActivities, isLoading, error } = useSelector(
+    (state: RootState) => state.adminOverview
+  );
+
+  useEffect(() => {
+    dispatch(fetchAdminOverview());
+  }, [dispatch]);
+
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Overview of your restaurant subscription platform
+          </p>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <p>Loading dashboard data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Overview of your restaurant subscription platform
+          </p>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <p className="text-red-500">Error loading dashboard: {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Overview of your restaurant subscription platform
+          </p>
+        </div>
+        <div className="flex items-center justify-center h-64">
+          <p>No data available</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -80,8 +106,10 @@ export function AdminOverview() {
               {stats.totalUsers.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+{stats.newSignups}</span> new
-              this week
+              <span className="text-green-600">
+                +{stats.newSignupsThisWeek}
+              </span>{" "}
+              new this week
             </p>
           </CardContent>
         </Card>
@@ -98,7 +126,10 @@ export function AdminOverview() {
               {stats.totalRestaurants.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+12%</span> from last month
+              <span className="text-green-600">
+                +{stats.newRestaurantsThisWeek}
+              </span>{" "}
+              new this week
             </p>
           </CardContent>
         </Card>
@@ -130,10 +161,10 @@ export function AdminOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${stats.revenue.toLocaleString()}
+              €{stats.totalRevenue.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-600">+8.2%</span> from last month
+              Total revenue from paid invoices
             </p>
           </CardContent>
         </Card>
@@ -146,7 +177,9 @@ export function AdminOverview() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">97.4%</div>
+            <div className="text-2xl font-bold">
+              {stats.subscriptionHealth}%
+            </div>
             <p className="text-xs text-muted-foreground">
               Active subscription rate
             </p>
@@ -175,38 +208,51 @@ export function AdminOverview() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {recentActivity.map((activity) => (
-              <div key={activity.id} className="flex items-center space-x-4">
-                <div className="flex-shrink-0">
-                  {activity.status === "success" && (
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                  )}
-                  {activity.status === "warning" && (
-                    <AlertTriangle className="h-5 w-5 text-orange-600" />
-                  )}
-                  {activity.status === "info" && (
-                    <Users className="h-5 w-5 text-blue-600" />
-                  )}
+            {recentActivities.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No recent activity
+              </p>
+            ) : (
+              recentActivities.map((activity) => (
+                <div key={activity.id} className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    {activity.status === "success" && (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    )}
+                    {activity.status === "warning" && (
+                      <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    )}
+                    {activity.status === "info" && (
+                      <Users className="h-5 w-5 text-blue-600" />
+                    )}
+                    {activity.status === "error" && (
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-foreground">
+                      {activity.message}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {activity.time}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      activity.status === "success"
+                        ? "default"
+                        : activity.status === "warning"
+                        ? "destructive"
+                        : activity.status === "error"
+                        ? "destructive"
+                        : "secondary"
+                    }
+                  >
+                    {activity.type}
+                  </Badge>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground">{activity.message}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {activity.time}
-                  </p>
-                </div>
-                <Badge
-                  variant={
-                    activity.status === "success"
-                      ? "default"
-                      : activity.status === "warning"
-                      ? "destructive"
-                      : "secondary"
-                  }
-                >
-                  {activity.type}
-                </Badge>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </CardContent>
       </Card>

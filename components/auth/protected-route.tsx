@@ -48,26 +48,13 @@ export function ProtectedRoute({
     return null;
   }
 
-  if (user && user.role !== "ADMIN" && user.role !== "RESTAURANT_OWNER") {
-    const handleBackHome = () => {
-      dispatch(logout());
-      router.push("/");
-    };
-
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-center p-6">
-        <p className="text-red-600 dark:text-red-400 font-semibold text-lg mb-6">
-          You cannot log in from the web interface. <br />
-          Please use the mobile application.
-        </p>
-        <Button onClick={handleBackHome} variant="default" className="px-6">
-          Back to Home
-        </Button>
-      </div>
-    );
-  }
-
+  // Allow all authenticated users, but restrict dashboard access to specific roles
   if (requiredRole && user && user.role !== requiredRole) {
+    // If user doesn't have required role, redirect to appropriate page
+    if (user.role === "USER") {
+      router.push("/");
+      return null;
+    }
     return null;
   }
 
