@@ -71,77 +71,82 @@ export function ClientBalances() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {userBalances.map((balance) => (
-          <Card key={balance.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">
-                  {balance.restaurant.name}
-                </CardTitle>
-                <Badge
-                  variant={
-                    balance.restaurant.isActive ? "default" : "secondary"
-                  }
-                >
-                  {balance.restaurant.isActive ? "Active" : "Inactive"}
-                </Badge>
-              </div>
-              <CardDescription className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {balance.restaurant.address}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Balance */}
-              {balance.balance > 0 && (
-                <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Wallet className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-medium">Balance</span>
-                  </div>
-                  <span className="font-bold text-green-600">
-                    ${balance.balance}
-                  </span>
+        {userBalances
+          .filter((balance) => balance.restaurant)
+          .map((balance) => (
+            <Card
+              key={balance.id}
+              className="hover:shadow-lg transition-shadow"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">
+                    {balance.restaurant?.name || "Unknown Restaurant"}
+                  </CardTitle>
+                  <Badge
+                    variant={
+                      balance.restaurant?.isActive ? "default" : "secondary"
+                    }
+                  >
+                    {balance.restaurant?.isActive ? "Active" : "Inactive"}
+                  </Badge>
                 </div>
-              )}
-
-              {/* Meal Stars */}
-              {balance.stars_meal > 0 && (
-                <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-yellow-600" />
-                    <span className="text-sm font-medium">Meal Stars</span>
+                <CardDescription className="flex items-center gap-1">
+                  <MapPin className="h-3 w-3" />
+                  {balance.restaurant?.address || "Address not available"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Balance */}
+                {balance.balance > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-green-600" />
+                      <span className="text-sm font-medium">Balance</span>
+                    </div>
+                    <span className="font-bold text-green-600">
+                      ${balance.balance}
+                    </span>
                   </div>
-                  <span className="font-bold text-yellow-600">
-                    {balance.stars_meal}
-                  </span>
-                </div>
-              )}
-
-              {/* Drink Stars */}
-              {balance.stars_drink > 0 && (
-                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Star className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-medium">Drink Stars</span>
-                  </div>
-                  <span className="font-bold text-blue-600">
-                    {balance.stars_drink}
-                  </span>
-                </div>
-              )}
-
-              {/* No balance message */}
-              {balance.balance === 0 &&
-                balance.stars_meal === 0 &&
-                balance.stars_drink === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-2">
-                    No active balance or stars
-                  </p>
                 )}
-            </CardContent>
-          </Card>
-        ))}
+
+                {/* Meal Stars */}
+                {balance.stars_meal > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-950/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-yellow-600" />
+                      <span className="text-sm font-medium">Meal Stars</span>
+                    </div>
+                    <span className="font-bold text-yellow-600">
+                      {balance.stars_meal}
+                    </span>
+                  </div>
+                )}
+
+                {/* Drink Stars */}
+                {balance.stars_drink > 0 && (
+                  <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium">Drink Stars</span>
+                    </div>
+                    <span className="font-bold text-blue-600">
+                      {balance.stars_drink}
+                    </span>
+                  </div>
+                )}
+
+                {/* No balance message */}
+                {balance.balance === 0 &&
+                  balance.stars_meal === 0 &&
+                  balance.stars_drink === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-2">
+                      No active balance or stars
+                    </p>
+                  )}
+              </CardContent>
+            </Card>
+          ))}
       </div>
     </div>
   );

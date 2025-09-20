@@ -32,7 +32,7 @@ export interface UserRestaurantBalance {
   stars_drink: number;
   createdAt: string;
   updatedAt: string;
-  restaurant: Restaurant;
+  restaurant?: Restaurant;
 }
 
 export interface Package {

@@ -134,7 +134,7 @@ export function ClientDashboard() {
           {/* Balance Cards */}
           <div className="space-y-3">
             {/* Drink Points */}
-            <Card 
+            <Card
               className="bg-gray-800 border-gray-700 text-white cursor-pointer hover:bg-gray-700 transition-colors"
               onClick={() => setShowPaymentForm(true)}
             >
@@ -154,7 +154,7 @@ export function ClientDashboard() {
             </Card>
 
             {/* Meal Points */}
-            <Card 
+            <Card
               className="bg-gray-800 border-gray-700 text-white cursor-pointer hover:bg-gray-700 transition-colors"
               onClick={() => setShowPaymentForm(true)}
             >
@@ -174,7 +174,7 @@ export function ClientDashboard() {
             </Card>
 
             {/* Balance */}
-            <Card 
+            <Card
               className="bg-gray-800 border-gray-700 text-white cursor-pointer hover:bg-gray-700 transition-colors"
               onClick={() => setShowPaymentForm(true)}
             >
@@ -246,53 +246,68 @@ export function ClientDashboard() {
                     </p>
                   ) : (
                     <div className="grid gap-4">
-                      {userBalances.slice(0, 3).map((balance) => (
-                        <div
-                          key={balance.id}
-                          className="flex items-center justify-between p-4 border rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-10 w-10">
-                              <AvatarFallback>
-                                {balance.restaurant.name.charAt(0)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="font-medium">
-                                {balance.restaurant.name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                <MapPin className="h-3 w-3" />
-                                {balance.restaurant.address}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right space-y-1">
-                            {balance.balance > 0 && (
-                              <div className="text-sm font-medium text-green-600">
-                                ${balance.balance}
+                      {userBalances
+                        .filter((balance) => balance.restaurant)
+                        .slice(0, 3)
+                        .map((balance) => (
+                          <div
+                            key={balance.id}
+                            className="flex items-center justify-between p-4 border rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback>
+                                  {balance.restaurant?.name?.charAt(0) || "R"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <h3 className="font-medium">
+                                  {balance.restaurant?.name ||
+                                    "Unknown Restaurant"}
+                                </h3>
+                                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {balance.restaurant?.address ||
+                                    "Address not available"}
+                                </p>
                               </div>
-                            )}
-                            <div className="flex gap-2">
-                              {balance.stars_meal > 0 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  <Star className="h-3 w-3 mr-1" />
-                                  {balance.stars_meal}M
-                                </Badge>
+                            </div>
+                            <div className="text-right space-y-1">
+                              {balance.balance > 0 && (
+                                <div className="text-sm font-medium text-green-600">
+                                  ${balance.balance}
+                                </div>
                               )}
-                              {balance.stars_drink > 0 && (
-                                <Badge variant="secondary" className="text-xs">
-                                  <Coffee className="h-3 w-3 mr-1" />
-                                  {balance.stars_drink}D
-                                </Badge>
-                              )}
+                              <div className="flex gap-2">
+                                {balance.stars_meal > 0 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    <Star className="h-3 w-3 mr-1" />
+                                    {balance.stars_meal}M
+                                  </Badge>
+                                )}
+                                {balance.stars_drink > 0 && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    <Coffee className="h-3 w-3 mr-1" />
+                                    {balance.stars_drink}D
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                      {userBalances.length > 3 && (
+                        ))}
+                      {userBalances.filter((balance) => balance.restaurant)
+                        .length > 3 && (
                         <Button variant="ghost" className="w-full">
-                          View All ({userBalances.length - 3} more)
+                          View All (
+                          {userBalances.filter((balance) => balance.restaurant)
+                            .length - 3}{" "}
+                          more)
                         </Button>
                       )}
                     </div>
