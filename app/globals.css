@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "react-quill/dist/quill.snow.css";
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Sidebar thin scrollbar - light/dark themed, hide arrows */
+.sidebar-scroll {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: hsl(var(--sidebar-accent-foreground) / 0.3)
+    hsl(var(--sidebar-background));
+}
+.sidebar-scroll::-webkit-scrollbar {
+  width: 8px; /* thin */
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: hsl(var(--sidebar-background));
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--sidebar-accent-foreground) / 0.35);
+  border-radius: 9999px;
+  border: 2px solid hsl(var(--sidebar-background));
+}
+.dark .sidebar-scroll {
+  scrollbar-color: hsl(var(--sidebar-foreground) / 0.35)
+    hsl(var(--sidebar-background));
+}
+.dark .sidebar-scroll::-webkit-scrollbar-track {
+  background: hsl(var(--sidebar-background));
+}
+.dark .sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--sidebar-foreground) / 0.35);
+  border-color: hsl(var(--sidebar-background));
+}
+/* Hide classic scrollbar arrows in IE/old Edge (no effect in modern browsers) */
+.sidebar-scroll::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+:root {
+  /* Brand: Purple + Orange (HSL) */
+  --background: 294, 61%, 96%;
+  --foreground: 222.2 47.4% 11.2%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+  --primary: 271 81% 56%; /* approx Purple-600 */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 25 95% 53%; /* approx Orange-500 */
+  --secondary-foreground: 0 0% 100%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 25 95% 53%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 271 81% 56%;
+  --chart-1: 271 81% 56%;
+  --chart-2: 25 95% 53%;
+  --chart-3: 275 83% 67%;
+  --chart-4: 32 96% 60%;
+  --chart-5: 258 89% 66%;
+  --radius: 0.5rem;
+  --sidebar-background: 0 0% 80%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 5.9% 10%;
+  --sidebar-border: 220 13% 91%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 7.5%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 7.5%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 271 81% 60%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 32 96% 60%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 32 96% 60%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 271 81% 60%;
+  --chart-1: 271 81% 60%;
+  --chart-2: 32 96% 60%;
+  --chart-3: 288 96% 78%;
+  --chart-4: 36 100% 70%;
+  --chart-5: 263 89% 66%;
+  --sidebar-background: 276, 75%, 10%;
+  --sidebar-foreground: 240 4.8% 95.9%;
+  --sidebar-primary: 224.3 76.3% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 240 3.7% 15.9%;
+  --sidebar-accent-foreground: 240 4.8% 95.9%;
+  --sidebar-border: 240 3.7% 15.9%;
+  --sidebar-ring: 217.2 91.2% 59.8%;
+}
+.k {
+  background-color: hsl(276, 75%, 13%);
+}

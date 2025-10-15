@@ -1,0 +1,2442 @@
+{
+	"info": {
+		"_postman_id": "e70e2874-a41a-433f-9450-81a5bf0accb4",
+		"name": "loalityapp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37290988"
+	},
+	"item": [
+		{
+			"name": "client",
+			"item": [
+				{
+					"name": "auth",
+					"item": [
+						{
+							"name": "register for client",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"fullName\":\"hasan hasan\",\r\n    \"email\":\"hasan@email.com\",\r\n     \"password\":\"Ali12345\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/register",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "register for restaurant",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"res6@email.com\",\r\n  \"password\": \"Ali12345\",\r\n  \"fullName\": \"kheder\",\r\n  \"restaurantName\": \"abo ali 3\",\r\n  \"address\": \"123 Main St\",\r\n  \"latitude\": 0,\r\n  \"longitude\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/registerRestaurant",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"registerRestaurant"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "login client",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\":\"res6@email.com\",\r\n     \"password\":\"Ali12345\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/login",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "send verify code for email",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"ali@email.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/send-verification-code",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"send-verification-code"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "verify-email",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"ali@email.com\",\r\n  \"code\": \"123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/verify-email",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"verify-email"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "request for reset password",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"ali@email.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/request-password-reset",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"request-password-reset"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "reset-password",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n \"email\": \"ali@email.com\",\r\n  \"resetCode\": \"123456\",\r\n  \"newPassword\": \"NewPassword123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/reset-password",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"reset-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "refresh token",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"refreshToken\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzE1OTc4My05MDg1LTRmZTItYjNmZC1kZmRhMGQ2NmQzNjkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTE2NTY1NCwiZXhwIjoxNzU1NzcwNDU0fQ.LcD7mwyDiTol2HmEQHJoWzqCT2EZ4HQPSrDE9_uLB7k\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/refresh",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"refresh"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "auth management for client"
+				},
+				{
+					"name": "account",
+					"item": [
+						{
+							"name": "get account",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzE1OTc4My05MDg1LTRmZTItYjNmZC1kZmRhMGQ2NmQzNjkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTE3MTE1MSwiZXhwIjoxNzU1MTcyMDUxfQ.rop0pKVdVRaluLe1UpB5TQFUn_e_W7KawCcNzX0wKyY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/account/me",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"account",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update my account",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzE1OTc4My05MDg1LTRmZTItYjNmZC1kZmRhMGQ2NmQzNjkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTE3MTE1MSwiZXhwIjoxNzU1MTcyMDUxfQ.rop0pKVdVRaluLe1UpB5TQFUn_e_W7KawCcNzX0wKyY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"fullName\": \"John Doe\",\r\n  \"email\": \"johndoe@example.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/account/me",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"account",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "change password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzE1OTc4My05MDg1LTRmZTItYjNmZC1kZmRhMGQ2NmQzNjkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTE3MTE1MSwiZXhwIjoxNzU1MTcyMDUxfQ.rop0pKVdVRaluLe1UpB5TQFUn_e_W7KawCcNzX0wKyY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"currentPassword\": \"Ali12345\",\r\n  \"newPassword\": \"Ali123456\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/account/me/change-password",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"account",
+										"me",
+										"change-password"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete my account",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzNzE1OTc4My05MDg1LTRmZTItYjNmZC1kZmRhMGQ2NmQzNjkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTE3MTE1MSwiZXhwIjoxNzU1MTcyMDUxfQ.rop0pKVdVRaluLe1UpB5TQFUn_e_W7KawCcNzX0wKyY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"password\":\"Ali123456\"}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/account/me",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"account",
+										"me"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "balance",
+					"item": [
+						{
+							"name": "get all balances by restaurant",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWQzNjMwZC0wZWJiLTQ2NWMtOGVjZi0yZDViZTk5Mzk0MTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTc2Njg3OCwiZXhwIjoxNzU1NzY3Nzc4fQ.IlpJD9-y105guuJI4kytNDL6GsSSd2IguixVwQGpVS0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/balance/with-restaurants",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"balance",
+										"with-restaurants"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "scanQR for add stars",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWQzNjMwZC0wZWJiLTQ2NWMtOGVjZi0yZDViZTk5Mzk0MTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTc2MjE2NSwiZXhwIjoxNzU1NzYzMDY1fQ.VD0WUAnndYE3cKSc7Zgkm85WBP8BT2fakbf3TyzUTag",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"qrCode\":\"d4680564-50b4-4acf-b5d8-134649daffc7\",\r\n     \"latitude\": 0,\r\n     \"longitude\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/balance/scan-qr",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"balance",
+										"scan-qr"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "pay with stars or balance",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWQzNjMwZC0wZWJiLTQ2NWMtOGVjZi0yZDViZTk5Mzk0MTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTc2MzA4NiwiZXhwIjoxNzU1NzYzOTg2fQ.36-Z0D2uM3u4yQ4MhKOG60Lv538e3Ks9CdA9wu200To",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"targetId\": \"0c6c1552-cbb4-4b09-8eab-ad42b5e08eb3\",\r\n  \"currencyType\": \"stars_drink\",\r\n  \"amount\": 2\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/balance/pay",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"balance",
+										"pay"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "gift stars or balance",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWQzNjMwZC0wZWJiLTQ2NWMtOGVjZi0yZDViZTk5Mzk0MTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTc2Njg3OCwiZXhwIjoxNzU1NzY3Nzc4fQ.IlpJD9-y105guuJI4kytNDL6GsSSd2IguixVwQGpVS0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n{\r\n  \"qrCode\":\"849785bc-b6e6-449d-ab92-357ace516451\",\r\n  \"targetId\": \"0daad80d-76ed-476e-aa33-b0d7c2cea8c7\",\r\n  \"currencyType\": \"stars_drink\",\r\n  \"amount\": 5\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/balance/gift",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"balance",
+										"gift"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get all packages by restaurant id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWQzNjMwZC0wZWJiLTQ2NWMtOGVjZi0yZDViZTk5Mzk0MTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTc2NTUxNSwiZXhwIjoxNzU1NzY2NDE1fQ.UjDMtatNqHbvT-LmAXvynwkOCjIt1kHbEW94sxJfOaQ",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/balance/packages/0c6c1552-cbb4-4b09-8eab-ad42b5e08eb3",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"balance",
+										"packages",
+										"0c6c1552-cbb4-4b09-8eab-ad42b5e08eb3"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "menu",
+					"item": [
+						{
+							"name": "scan qr for get restaurant menu",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NjQwMTk5MCwiZXhwIjoxNzU2NDAyODkwfQ.oicdOKQPPWSCDmKangLsM5N2XCWrljtiZhBENsS1FM8",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/menu/0c6c1552-cbb4-4b09-8eab-ad42b5e08eb3",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"menu",
+										"0c6c1552-cbb4-4b09-8eab-ad42b5e08eb3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get items by categoryId",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NjQwMTAzOCwiZXhwIjoxNzU2NDAxOTM4fQ.xkVa50Aq4ZiSjjcknh_3ZfOlFpMaiA1mQy5W-f98N3I",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/client/menu/items/1",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"client",
+										"menu",
+										"items",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "admin",
+			"item": [
+				{
+					"name": "auth",
+					"item": [
+						{
+							"name": "login for admin",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\":\"admin@example.com\",\r\n     \"password\":\"Admin@123\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/auth/admin/login",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"admin",
+										"login"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "users",
+					"item": [
+						{
+							"name": "get all users",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOWI4OGQ5ZC1mMmRmLTRiMDYtYWMzZS05MGQ2ODYyZDEzMDUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTU2ODYzODUsImV4cCI6MTc1NTY4NzI4NX0.zix0ZBN6s5M2lopeP0ddrc2uDcOke1nN10Kvqs315YY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/users?isActive=true&email=",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users"
+									],
+									"query": [
+										{
+											"key": "isActive",
+											"value": "true"
+										},
+										{
+											"key": "email",
+											"value": ""
+										},
+										{
+											"key": "isRestaurant",
+											"value": "true",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get user by id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOWI4OGQ5ZC1mMmRmLTRiMDYtYWMzZS05MGQ2ODYyZDEzMDUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTU2ODYzODUsImV4cCI6MTc1NTY4NzI4NX0.zix0ZBN6s5M2lopeP0ddrc2uDcOke1nN10Kvqs315YY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/users/17fa8212-07ef-4b96-b26f-92bbea52a132",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"17fa8212-07ef-4b96-b26f-92bbea52a132"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create new user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOWI4OGQ5ZC1mMmRmLTRiMDYtYWMzZS05MGQ2ODYyZDEzMDUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTU2ODYzODUsImV4cCI6MTc1NTY4NzI4NX0.zix0ZBN6s5M2lopeP0ddrc2uDcOke1nN10Kvqs315YY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"admin@Gmail.com\",\r\n  \"password\": \"Ali12345\",\r\n  \"fullName\": \"ali Hasan\",\r\n  \"role\": \"ADMIN\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/users",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOWI4OGQ5ZC1mMmRmLTRiMDYtYWMzZS05MGQ2ODYyZDEzMDUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTU2ODYzODUsImV4cCI6MTc1NTY4NzI4NX0.zix0ZBN6s5M2lopeP0ddrc2uDcOke1nN10Kvqs315YY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"email\": \"admin@Gmail.com\",\r\n  \"password\": \"Ali12345\",\r\n  \"fullName\": \"Ali Hasan\",\r\n  \"isActive\": false,\r\n  \"role\": \"ADMIN\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/users/828b165d-71e9-42af-a967-1805a922728d",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"828b165d-71e9-42af-a967-1805a922728d"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOWI4OGQ5ZC1mMmRmLTRiMDYtYWMzZS05MGQ2ODYyZDEzMDUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTU2ODYzODUsImV4cCI6MTc1NTY4NzI4NX0.zix0ZBN6s5M2lopeP0ddrc2uDcOke1nN10Kvqs315YY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/users/828b165d-71e9-42af-a967-1805a922728d",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"users",
+										"828b165d-71e9-42af-a967-1805a922728d"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "restaurants",
+					"item": [
+						{
+							"name": "get all restaurants",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWE0NGM1MC0zY2RiLTQ4ZGUtYjNlYi00Y2QzZDgyZmNjZDIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTY0OTAxNjQsImV4cCI6MTc1NjQ5MTA2NH0.jCpQHgh7HwWbIeMjHUZZnqx32LcA6gqXM3qvYRpJOC8",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/restaurants?name=m&planId=base&subscriptionActive=false",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"restaurants"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "m"
+										},
+										{
+											"key": "planId",
+											"value": "base"
+										},
+										{
+											"key": "subscriptionActive",
+											"value": "false"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get restaurants by id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWE0NGM1MC0zY2RiLTQ4ZGUtYjNlYi00Y2QzZDgyZmNjZDIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTY0MDQwMTYsImV4cCI6MTc1NjQwNDkxNn0.EojCoGsY03UJ_Mjno_R7BcYR0e5b7xVjYrgvBy9xeis",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/restaurants/b9274d30-63ea-47a0-a006-ebcef4d8ec33",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"restaurants",
+										"b9274d30-63ea-47a0-a006-ebcef4d8ec33"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create restaurant from user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWE0NGM1MC0zY2RiLTQ4ZGUtYjNlYi00Y2QzZDgyZmNjZDIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTY0MDQwMTYsImV4cCI6MTc1NjQwNDkxNn0.EojCoGsY03UJ_Mjno_R7BcYR0e5b7xVjYrgvBy9xeis",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"address\": \"string\",\r\n  \"latitude\": 0,\r\n  \"longitude\": 0,\r\n  \"userId\": \"string\",\r\n  \"plan\": \"base\",\r\n  \"subscriptionActive\": true\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/restaurants",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"restaurants"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update restaurant",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWE0NGM1MC0zY2RiLTQ4ZGUtYjNlYi00Y2QzZDgyZmNjZDIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTY0OTAxNjQsImV4cCI6MTc1NjQ5MTA2NH0.jCpQHgh7HwWbIeMjHUZZnqx32LcA6gqXM3qvYRpJOC8",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"string\",\r\n  \"address\": \"string\",\r\n  \"latitude\": 0,\r\n  \"longitude\": 0,\r\n  \"planId\": 1,\r\n  \"subscriptionActive\": false\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/restaurants/b9274d30-63ea-47a0-a006-ebcef4d8ec33",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"restaurants",
+										"b9274d30-63ea-47a0-a006-ebcef4d8ec33"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete restaurant",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlOWI4OGQ5ZC1mMmRmLTRiMDYtYWMzZS05MGQ2ODYyZDEzMDUiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTU2ODYzODUsImV4cCI6MTc1NTY4NzI4NX0.zix0ZBN6s5M2lopeP0ddrc2uDcOke1nN10Kvqs315YY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/restaurants/a8d6c89a-73b4-4054-97a7-d72ed489b3e6",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"restaurants",
+										"a8d6c89a-73b4-4054-97a7-d72ed489b3e6"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "plans",
+					"item": [
+						{
+							"name": "get all plans",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlMWE0NGM1MC0zY2RiLTQ4ZGUtYjNlYi00Y2QzZDgyZmNjZDIiLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTY4OTkzNDgsImV4cCI6MTc1NjkwMDI0OH0.UPJ8S543hDHvTJFf3i-r-C4A-Rt4aBGJ_QSp4S-ZzDo",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/admin/plans",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"admin",
+										"plans"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "restaurant",
+			"item": [
+				{
+					"name": "packages",
+					"item": [
+						{
+							"name": "get all packages",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc2MTg3OSwiZXhwIjoxNzU1NzYyNzc5fQ.4qVaKTBrCxM3dYV8Ra1NqkP9wxUABZpQrSWq2zwYGjc",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/packages",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"packages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get package by id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTY4NTU0NSwiZXhwIjoxNzU1Njg2NDQ1fQ.HVKSvsfAQMtO3vczhmMPk2uOxLBBUxJCsmkT_Gn7bl0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/packages/1",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"packages",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "create new package",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTcyMTQ2NSwiZXhwIjoxNzU1NzIyMzY1fQ.SKWE_85zcJagm0g51NBhWNRWhgeGSbGV4qGe9Lk3uWI",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"summer\",\r\n    \"amount\":100.00,\r\n    \"bonus\":10.00\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/packages",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"packages"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update package",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyN2RkNzFjMy0yZmY0LTQ5Y2MtOWM3OS0xYWQyYjczYTNhZmEiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTYzMDE2OSwiZXhwIjoxNzU1NjMxMDY5fQ.rmFMMGddtHymESvDBy8eKkEH7Jx-FChbY0b8Zs5K0ko",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"winter1ddd521\",\r\n    \"amount\":100.00,\r\n    \"bonus\":10.00\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/packages/14",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"packages",
+										"14"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete package",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTYzMDI2NiwiZXhwIjoxNzU1NjMxMTY2fQ.6s_zdqirW--Iyjtcd3QNnjNMdIFNL28VjMostMNalqI",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/packages/6",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"packages",
+										"6"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add package to user",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTcyMTQ2NSwiZXhwIjoxNzU1NzIyMzY1fQ.SKWE_85zcJagm0g51NBhWNRWhgeGSbGV4qGe9Lk3uWI",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"packageId\": \"1\",\r\n  \"userQr\": \"a7709eec-a200-4907-b8d9-0ea657e45e60\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/balance/topup",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"balance",
+										"topup"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "groups",
+					"item": [
+						{
+							"name": "create group",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOTBiYjNjMy1hNjczLTQ2MWUtYTM2ZS00NDJhMzAwOWQwOGQiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTcyNzM1MCwiZXhwIjoxNzU1NzI4MjUwfQ.g6Cwfz64XTNCLOco0FeX9b2_JwCjxtBpWKSvvJB82xY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"shaheen\",\r\n  \"description\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update group",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc4NjgyMCwiZXhwIjoxNzU1Nzg3NzIwfQ.AodA7NB00l_lVx5iXgqH-8ayv-Rcbc1pvnjuoYJElN4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"asam\",\r\n  \"description\": \"string\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/82849669-eb0b-48ab-8dcf-db58bd412407",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"82849669-eb0b-48ab-8dcf-db58bd412407"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get group datails",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTU5NjUwMywiZXhwIjoxNzU1NTk3NDAzfQ.0XfLI_T_o6nD77GpQcLdtCoskeb1BjlCbYbnTIQdn4Q",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/82849669-eb0b-48ab-8dcf-db58bd412407",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"82849669-eb0b-48ab-8dcf-db58bd412407"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get group member",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTU5NzUwMCwiZXhwIjoxNzU1NTk4NDAwfQ.F6c3bCCTn1bLyr1hMt2ntz8yC9gG9qeEmK-rlmCo-WI",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/members/82849669-eb0b-48ab-8dcf-db58bd412407",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"members",
+										"82849669-eb0b-48ab-8dcf-db58bd412407"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "send invite to restaurant",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxOTBiYjNjMy1hNjczLTQ2MWUtYTM2ZS00NDJhMzAwOWQwOGQiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTcyNzM1MCwiZXhwIjoxNzU1NzI4MjUwfQ.g6Cwfz64XTNCLOco0FeX9b2_JwCjxtBpWKSvvJB82xY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"groupId\": \"0daad80d-76ed-476e-aa33-b0d7c2cea8c7\",\r\n  \"toRestaurantId\": \"0c6c1552-cbb4-4b09-8eab-ad42b5e08eb3\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/invite",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"invite"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get all invite request",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc4Nzc5MywiZXhwIjoxNzU1Nzg4NjkzfQ.H9ZtjcU03-LhJFOJRHSqPp95sYlpijFsBsBcxy1WHyM",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/JoinRequests",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"JoinRequests"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "accept or reject invite from restaurant",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc4Nzc5MywiZXhwIjoxNzU1Nzg4NjkzfQ.H9ZtjcU03-LhJFOJRHSqPp95sYlpijFsBsBcxy1WHyM",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"status\": \"ACCEPTED\",\r\n  \"restaurantId\": \"64e7b395-255d-475b-9a7c-803ecf0662d0\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/respond/2",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"respond",
+										"2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "remove restaurant from group",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTYwNTI3NCwiZXhwIjoxNzU1NjA2MTc0fQ.qZC5oCK8jUP__ydX9aN00VmN-Q3vYs1yDA4vzrUHdBg",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"groupId\": \"82849669-eb0b-48ab-8dcf-db58bd412407\",\r\n  \"restaurantId\": \"ed9571d4-6ffa-45fa-9466-bc4d514a97cf\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/remove",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"remove"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get user balances in group",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTY4NTU0NSwiZXhwIjoxNzU1Njg2NDQ1fQ.HVKSvsfAQMtO3vczhmMPk2uOxLBBUxJCsmkT_Gn7bl0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/groups/balances/82849669-eb0b-48ab-8dcf-db58bd412407",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"groups",
+										"balances",
+										"82849669-eb0b-48ab-8dcf-db58bd412407"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ads",
+					"item": [
+						{
+							"name": "get my ads",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc4NjgyMCwiZXhwIjoxNzU1Nzg3NzIwfQ.AodA7NB00l_lVx5iXgqH-8ayv-Rcbc1pvnjuoYJElN4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/ads/my",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"ads",
+										"my"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "add new ad if pro plan",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc4NjgyMCwiZXhwIjoxNzU1Nzg3NzIwfQ.AodA7NB00l_lVx5iXgqH-8ayv-Rcbc1pvnjuoYJElN4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"title\": \"shawarma\",\r\n  \"description\": \"the pasta fast dinner\",\r\n  \"image\": \"edit\",\r\n  \"category\": \"food\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/ads",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"ads"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "update ad",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTY4NTU0NSwiZXhwIjoxNzU1Njg2NDQ1fQ.HVKSvsfAQMtO3vczhmMPk2uOxLBBUxJCsmkT_Gn7bl0",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"title\": \"pasta\",\r\n  \"description\": \"the pasta fast dinner\",\r\n  \"image\": \"edit\",\r\n  \"category\": \"food\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/ads/1",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"ads",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "delete ad",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc4NjgyMCwiZXhwIjoxNzU1Nzg3NzIwfQ.AodA7NB00l_lVx5iXgqH-8ayv-Rcbc1pvnjuoYJElN4",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/ads/1",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"ads",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "menu",
+					"item": [
+						{
+							"name": "categories",
+							"item": [
+								{
+									"name": "get categories for restaurant",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc3ODI5MiwiZXhwIjoxNzU1Nzc5MTkyfQ.s-VpVlQMPRsLtYjVYZgEY_RSq-sJrA9L4SaG0cMmr8A",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "create category",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NjQwMTk5MCwiZXhwIjoxNzU2NDAyODkwfQ.oicdOKQPPWSCDmKangLsM5N2XCWrljtiZhBENsS1FM8",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"title\": \"pasta\",\r\n  \"description\": \"Starters and small dishes\",\r\n  \"image\":\"http\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/categories",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"categories"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update category",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NjQwMTk5MCwiZXhwIjoxNzU2NDAyODkwfQ.oicdOKQPPWSCDmKangLsM5N2XCWrljtiZhBENsS1FM8",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"title\": \"sandwich\",\r\n  \"description\": \"Starters and small dishes\",\r\n  \"image\":\"http\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/categories/1",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"categories",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete category",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc3MzM1MSwiZXhwIjoxNzU1Nzc0MjUxfQ.eWBojUJxfU1ljIGev6dA9dp7__XX87oM4rstc1UpKuY",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/categories/2",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"categories",
+												"2"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "menu items",
+							"item": [
+								{
+									"name": "get items by category",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc3ODI5MiwiZXhwIjoxNzU1Nzc5MTkyfQ.s-VpVlQMPRsLtYjVYZgEY_RSq-sJrA9L4SaG0cMmr8A",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/items/1",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"items",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "create item in category",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc3ODI5MiwiZXhwIjoxNzU1Nzc5MTkyfQ.s-VpVlQMPRsLtYjVYZgEY_RSq-sJrA9L4SaG0cMmr8A",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"title\": \"sheesh\",\r\n  \"description\": \"string\",\r\n  \"price\": 10,\r\n  \"image\": \"string\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/items/1",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"items",
+												"1"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "update item",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc3ODI5MiwiZXhwIjoxNzU1Nzc5MTkyfQ.s-VpVlQMPRsLtYjVYZgEY_RSq-sJrA9L4SaG0cMmr8A",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"title\": \"shawarma\",\r\n  \"description\": \"string\",\r\n  \"price\": 10,\r\n  \"image\": \"string\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/items/2",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"items",
+												"2"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "delete item",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTc3ODI5MiwiZXhwIjoxNzU1Nzc5MTkyfQ.s-VpVlQMPRsLtYjVYZgEY_RSq-sJrA9L4SaG0cMmr8A",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "http://{{baseURL}}/api/restaurants/menu/items/4",
+											"protocol": "http",
+											"host": [
+												"{{baseURL}}"
+											],
+											"path": [
+												"api",
+												"restaurants",
+												"menu",
+												"items",
+												"4"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "account",
+					"item": [
+						{
+							"name": "update restaurant account",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ZTZlM2NmZi1mMDgyLTQwMjUtOTViOS1jY2ViMTc3MTk2ZmUiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NjQwNDQzNywiZXhwIjoxNzU2NDA1MzM3fQ.zyJqqxUsuehAkqWDAOA-S6v6nry4bLcQJ2pcV4X1v0U",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"aboali1\",\r\n  \"address\": \"string\",\r\n  \"logo\": \"https://www.facebook.com\",\r\n  \"latitude\": 0,\r\n  \"longitude\": 0\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/restaurants/account/update",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"restaurants",
+										"account",
+										"update"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "common",
+			"item": [
+				{
+					"name": "firebase",
+					"item": [
+						{
+							"name": "edit firebace token",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIxN2ZhODIxMi0wN2VmLTRiOTYtYjI2Zi05MmJiZWE1MmExMzIiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTI2MTMwNiwiZXhwIjoxNzU1MjYyMjA2fQ.6sz5Svv9f26jk0wHtXyS9HeL4xKOYj3R8aHOopXqkeI",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"firebaseToken\":\"hggghg\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "http://{{baseURL}}/api/firebase/updateFirebaseToken",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"firebase",
+										"updateFirebaseToken"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "notifications",
+					"item": [
+						{
+							"name": "get all notifications",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2Yzc2ZjU3My04ZDUyLTRlNzgtYjNkNC1kZDk1MGNlNGY1MTQiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTY5ODI0OCwiZXhwIjoxNzU1Njk5MTQ4fQ.hK0kstcErNC_20g8zSOyGsFo8Q-3I-3anR_qomtUt8s",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/notifications",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"notifications"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "get unread count",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkNzY5OWVlNy02MjJmLTRjYmMtYjAyMy1lNjczNzRkNTQxZTEiLCJyb2xlIjoiUkVTVEFVUkFOVF9PV05FUiIsImlhdCI6MTc1NTYyNzc0MiwiZXhwIjoxNzU1NjI4NjQyfQ.p3EHTntWzKpcznEAFDYbcXNYS08k951YwSJ4lesSu-Q",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/notifications/count",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"notifications",
+										"count"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "mark notification as read",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiZTZlYjU0NC1jNzA2LTQ4YTctODdhMi01ZmMxMzNhOGU2NTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTI5MzE5OSwiZXhwIjoxNzU1Mjk0MDk5fQ.8dVSPT7VNqqIrTiJM-CjIsB1sOgJVYAK_-MdEp8FkXM",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/notifications/read/4",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"notifications",
+										"read",
+										"4"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "mark all notifications as read",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiZTZlYjU0NC1jNzA2LTQ4YTctODdhMi01ZmMxMzNhOGU2NTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTI5MzE5OSwiZXhwIjoxNzU1Mjk0MDk5fQ.8dVSPT7VNqqIrTiJM-CjIsB1sOgJVYAK_-MdEp8FkXM",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/notifications/read-all",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"notifications",
+										"read-all"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "ads",
+					"item": [
+						{
+							"name": "get all ads",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJiNWQzNjMwZC0wZWJiLTQ2NWMtOGVjZi0yZDViZTk5Mzk0MTkiLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc1NTc4NDE2MywiZXhwIjoxNzU1Nzg1MDYzfQ.U-VBkA6R0zDZp7zcEdutnHs-xsiEQEpibxIr4QC8v-8",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://{{baseURL}}/api/ads?radius=0.5&category=food&search=pas",
+									"protocol": "http",
+									"host": [
+										"{{baseURL}}"
+									],
+									"path": [
+										"api",
+										"ads"
+									],
+									"query": [
+										{
+											"key": "lng",
+											"value": "36.552",
+											"disabled": true
+										},
+										{
+											"key": "lat",
+											"value": "35.265",
+											"disabled": true
+										},
+										{
+											"key": "radius",
+											"value": "0.5",
+											"description": "km"
+										},
+										{
+											"key": "category",
+											"value": "food"
+										},
+										{
+											"key": "search",
+											"value": "pas"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
