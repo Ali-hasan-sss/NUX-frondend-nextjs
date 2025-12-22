@@ -1,0 +1,139 @@
+{
+  "home": {
+    "welcomeToNux": "Welcome to NUX",
+    "scanCode": "Scan Code",
+    "scanCodeDesc": "Scan restaurant QR code",
+    "payWallet": "Pay with Wallet",
+    "selectRestaurantFirst": "Select Restaurant First",
+    "noBalances": "No Balances",
+    "noBalancesDesc": "Scan QR codes to start earning points!",
+    "errorLoadingData": "Error Loading Data",
+    "retry": "Retry"
+  },
+  "tabs": {
+    "home": "Home",
+    "promotions": "Promotions",
+    "purchase": "Purchase",
+    "account": "Account"
+  },
+  "restaurant": {
+    "selectRestaurant": "Select Restaurant",
+    "restaurant": "Restaurant"
+  },
+  "payment": {
+    "selectPaymentMethod": "Select Payment Method",
+    "currentBalance": "Current Balance",
+    "selectedMethod": "Selected Method",
+    "paymentAmount": "Payment Amount",
+    "walletBalance": "Wallet Balance",
+    "drinkPoints": "Drink Points",
+    "mealPoints": "Meal Points",
+    "insufficientBalance": "Insufficient balance",
+    "slideToPay": "Slide to Pay",
+    "slideToConfirm": "Slide to Confirm",
+    "processingPayment": "Processing Payment..."
+  },
+  "drawer": {
+    "menu": "Menu",
+    "accountSettings": "Account Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System",
+    "termsOfUse": "Terms of Use",
+    "privacyPolicy": "Privacy Policy",
+    "aboutApp": "About App",
+    "logout": "Logout"
+  },
+  "promotions": {
+    "title": "Promotions",
+    "search": "Search promotions...",
+    "food": "Food",
+    "drinks": "Drinks",
+    "noPromotions": "No promotions available",
+    "openInMaps": "Open in Google Maps",
+    "mapLoadError": "Failed to load map",
+    "mapNotAvailable": "Map not available",
+    "clickToOpenInMaps": "Click to open in Google Maps"
+  },
+  "common": {
+    "loading": "Loading...",
+    "loadMore": "Load More",
+    "clear": "Clear",
+    "success": "Success",
+    "error": "Error"
+  },
+  "purchase": {
+    "title": "Purchase",
+    "mealPoints": "Meal Points",
+    "drinkPoints": "Drink Points",
+    "walletBalance": "Wallet Balance",
+    "recharge": "Recharge",
+    "rechargeDesc": "Purchase recharge packages",
+    "gift": "Gift",
+    "giftDesc": "Gift points to a friend",
+    "selectRestaurantFirst": "Please select a restaurant first"
+  },
+  "account": {
+    "title": "Account",
+    "profile": "Profile",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "save": "Save",
+    "saving": "Saving",
+    "profileUpdated": "Profile updated successfully",
+    "failedToUpdateProfile": "Failed to update profile",
+    "updatePassword": "Update Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "updating": "Updating",
+    "passwordUpdated": "Password updated successfully",
+    "failedToUpdatePassword": "Failed to update password",
+    "fillAllFields": "Please fill in all required fields",
+    "fillAllPasswordFields": "Please fill in all password fields",
+    "passwordsDoNotMatch": "New passwords do not match",
+    "passwordMinLength": "Password must be at least 6 characters",
+    "myQRCode": "My QR Code",
+    "qrCodeDesc": "Share this QR code to receive gifts from friends",
+    "noQRCode": "No QR Code Available",
+    "dangerZone": "Danger Zone",
+    "deleteAccountWarning": "Once you delete your account, there is no going back. Please be certain.",
+    "enterPasswordToDelete": "Enter your password to confirm deletion",
+    "deleteAccount": "Delete Account",
+    "deleting": "Deleting",
+    "accountDeleted": "Your account has been deleted successfully",
+    "failedToDeleteAccount": "Failed to delete account",
+    "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone."
+  },
+  "gift": {
+    "scanQRCode": "Scan QR Code",
+    "qrScanned": "QR Code Scanned",
+    "sendGift": "Send Gift",
+    "sending": "Sending",
+    "selectImage": "Upload QR Code Image",
+    "scanning": "Scanning",
+    "invalidImageType": "Invalid image type. Please select an image file.",
+    "noQRCodeFound": "No QR code found in the selected image.",
+    "scanError": "Failed to scan QR code from image"
+  },
+  "packages": {
+    "title": "Recharge Packages",
+    "noPackages": "No packages available",
+    "purchase": "Purchase",
+    "comingSoon": "Payment integration coming soon"
+  },
+  "menu": {
+    "title": "Menu",
+    "loadingCategories": "Loading categories",
+    "loadingItems": "Loading items",
+    "errorLoadingCategories": "Error Loading Categories",
+    "errorLoadingItems": "Error Loading Items",
+    "noCategories": "No Categories",
+    "noCategoriesDesc": "No menu categories available",
+    "noItems": "No Items",
+    "noItemsDesc": "No items available in this category"
+  }
+}

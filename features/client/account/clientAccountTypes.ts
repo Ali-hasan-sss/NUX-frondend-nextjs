@@ -5,6 +5,7 @@ export interface ClientProfile {
   role: string;
   isActive: boolean;
   createdAt: string;
+  qrCode?: string;
 }
 
 export interface ClientAccountState {

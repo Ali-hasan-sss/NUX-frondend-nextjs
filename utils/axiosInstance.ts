@@ -3,13 +3,12 @@ import { setTokens, logout } from "@/features/auth/authSlice";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://localhost:5000/api",
-  timeout: 10000,
-  // Allow self-signed certificates in development
-  ...(process.env.NODE_ENV === "development" && {
-    httpsAgent: {
-      rejectUnauthorized: false,
-    },
-  }),
+  timeout: 60000, // Increased to 60 seconds
+  withCredentials: false, // Important for CORS
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 });
 
 let reduxStore: {

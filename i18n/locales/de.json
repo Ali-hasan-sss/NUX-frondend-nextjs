@@ -1,0 +1,139 @@
+{
+  "home": {
+    "welcomeToNux": "Willkommen bei NUX",
+    "scanCode": "Code scannen",
+    "scanCodeDesc": "Restaurant QR-Code scannen",
+    "payWallet": "Mit Geldbörse bezahlen",
+    "selectRestaurantFirst": "Wählen Sie zuerst ein Restaurant aus",
+    "noBalances": "Keine Guthaben",
+    "noBalancesDesc": "Scannen Sie QR-Codes, um Punkte zu sammeln!",
+    "errorLoadingData": "Fehler beim Laden der Daten",
+    "retry": "Erneut versuchen"
+  },
+  "tabs": {
+    "home": "Startseite",
+    "promotions": "Angebote",
+    "purchase": "Kaufen",
+    "account": "Konto"
+  },
+  "restaurant": {
+    "selectRestaurant": "Restaurant auswählen",
+    "restaurant": "Restaurant"
+  },
+  "payment": {
+    "selectPaymentMethod": "Zahlungsmethode auswählen",
+    "currentBalance": "Aktuelles Guthaben",
+    "selectedMethod": "Ausgewählte Methode",
+    "paymentAmount": "Zahlungsbetrag",
+    "walletBalance": "Geldbörsenguthaben",
+    "drinkPoints": "Getränkepunkte",
+    "mealPoints": "Mahlzeitpunkte",
+    "insufficientBalance": "Unzureichendes Guthaben",
+    "slideToPay": "Zum Zahlen schieben",
+    "slideToConfirm": "Zum Bestätigen schieben",
+    "processingPayment": "Zahlung wird verarbeitet..."
+  },
+  "drawer": {
+    "menu": "Menü",
+    "accountSettings": "Kontoeinstellungen",
+    "language": "Sprache",
+    "theme": "Design",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "system": "System",
+    "termsOfUse": "Nutzungsbedingungen",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "aboutApp": "Über die App",
+    "logout": "Abmelden"
+  },
+  "promotions": {
+    "title": "Angebote",
+    "search": "Angebote suchen...",
+    "food": "Essen",
+    "drinks": "Getränke",
+    "noPromotions": "Keine Angebote verfügbar",
+    "openInMaps": "In Google Maps öffnen",
+    "mapLoadError": "Karte konnte nicht geladen werden",
+    "mapNotAvailable": "Karte nicht verfügbar",
+    "clickToOpenInMaps": "Klicken Sie, um in Google Maps zu öffnen"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "loadMore": "Mehr laden",
+    "clear": "Löschen",
+    "success": "Erfolg",
+    "error": "Fehler"
+  },
+  "purchase": {
+    "title": "Kaufen",
+    "mealPoints": "Mahlzeitpunkte",
+    "drinkPoints": "Getränkepunkte",
+    "walletBalance": "Geldbörsenguthaben",
+    "recharge": "Aufladen",
+    "rechargeDesc": "Aufladepakete kaufen",
+    "gift": "Geschenk",
+    "giftDesc": "Punkte an einen Freund verschenken",
+    "selectRestaurantFirst": "Bitte wählen Sie zuerst ein Restaurant aus"
+  },
+  "account": {
+    "title": "Konto",
+    "profile": "Profil",
+    "name": "Name",
+    "email": "E-Mail",
+    "phone": "Telefon",
+    "save": "Speichern",
+    "saving": "Wird gespeichert",
+    "profileUpdated": "Profil erfolgreich aktualisiert",
+    "failedToUpdateProfile": "Profil konnte nicht aktualisiert werden",
+    "updatePassword": "Passwort aktualisieren",
+    "currentPassword": "Aktuelles Passwort",
+    "newPassword": "Neues Passwort",
+    "confirmNewPassword": "Neues Passwort bestätigen",
+    "updating": "Wird aktualisiert",
+    "passwordUpdated": "Passwort erfolgreich aktualisiert",
+    "failedToUpdatePassword": "Passwort konnte nicht aktualisiert werden",
+    "fillAllFields": "Bitte füllen Sie alle erforderlichen Felder aus",
+    "fillAllPasswordFields": "Bitte füllen Sie alle Passwortfelder aus",
+    "passwordsDoNotMatch": "Neue Passwörter stimmen nicht überein",
+    "passwordMinLength": "Passwort muss mindestens 6 Zeichen lang sein",
+    "myQRCode": "Mein QR-Code",
+    "qrCodeDesc": "Teilen Sie diesen QR-Code, um Geschenke von Freunden zu erhalten",
+    "noQRCode": "Kein QR-Code verfügbar",
+    "dangerZone": "Gefahrenzone",
+    "deleteAccountWarning": "Sobald Sie Ihr Konto löschen, gibt es kein Zurück. Bitte seien Sie sicher.",
+    "enterPasswordToDelete": "Geben Sie Ihr Passwort ein, um die Löschung zu bestätigen",
+    "deleteAccount": "Konto löschen",
+    "deleting": "Wird gelöscht",
+    "accountDeleted": "Ihr Konto wurde erfolgreich gelöscht",
+    "failedToDeleteAccount": "Konto konnte nicht gelöscht werden",
+    "deleteAccountConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+  },
+  "gift": {
+    "scanQRCode": "QR-Code scannen",
+    "qrScanned": "QR-Code gescannt",
+    "sendGift": "Geschenk senden",
+    "sending": "Wird gesendet",
+    "selectImage": "QR-Code-Bild hochladen",
+    "scanning": "Wird gescannt",
+    "invalidImageType": "Ungültiger Bildtyp. Bitte wählen Sie eine Bilddatei aus.",
+    "noQRCodeFound": "Kein QR-Code im ausgewählten Bild gefunden.",
+    "scanError": "Fehler beim Scannen des QR-Codes aus dem Bild"
+  },
+  "packages": {
+    "title": "Aufladepakete",
+    "noPackages": "Keine Pakete verfügbar",
+    "purchase": "Kaufen",
+    "comingSoon": "Zahlungsintegration kommt bald"
+  },
+  "menu": {
+    "title": "Menü",
+    "loadingCategories": "Kategorien werden geladen",
+    "loadingItems": "Artikel werden geladen",
+    "errorLoadingCategories": "Fehler beim Laden der Kategorien",
+    "errorLoadingItems": "Fehler beim Laden der Artikel",
+    "noCategories": "Keine Kategorien",
+    "noCategoriesDesc": "Keine Menükategorien verfügbar",
+    "noItems": "Keine Artikel",
+    "noItemsDesc": "Keine Artikel in dieser Kategorie verfügbar"
+  }
+}

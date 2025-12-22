@@ -1,9 +1,8 @@
 export interface MenuCategory {
   id: number;
-  name: string;
+  title: string; // Changed from name to title to match backend schema
   description?: string;
   image?: string;
-  isActive: boolean;
   restaurantId: string;
   createdAt: string;
   updatedAt: string;
@@ -11,11 +10,10 @@ export interface MenuCategory {
 
 export interface MenuItem {
   id: number;
-  name: string;
+  title: string; // Changed from name to title to match backend schema
   description?: string;
   price: number;
   image?: string;
-  isActive: boolean;
   categoryId: number;
   createdAt: string;
   updatedAt: string;

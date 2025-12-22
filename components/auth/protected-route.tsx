@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: "ADMIN" | "RESTAURANT_OWNER";
+  requiredRole?: "ADMIN" | "RESTAURANT_OWNER" | "USER";
 }
 
 export function ProtectedRoute({

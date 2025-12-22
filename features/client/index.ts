@@ -27,3 +27,9 @@ export {
   setSelectedCategory,
   setCurrentRestaurantId,
 } from "./menu/menuSlice";
+
+export * from "./ads/adsTypes";
+export * from "./ads/adsService";
+export * from "./ads/adsThunks";
+export { default as clientAdsReducer } from "./ads/adsSlice";
+export { setFilters, clearFilters } from "./ads/adsSlice";

@@ -22,6 +22,7 @@ import {
   clientAccountReducer,
   balancesReducer,
   clientMenuReducer,
+  clientAdsReducer,
 } from "@/features/client";
 import { attachStoreToAxios } from "@/utils/axiosInstance";
 
@@ -49,6 +50,7 @@ export const store = configureStore({
     clientAccount: clientAccountReducer,
     clientBalances: balancesReducer,
     clientMenu: clientMenuReducer,
+    clientAds: clientAdsReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

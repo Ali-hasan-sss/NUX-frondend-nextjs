@@ -1,0 +1,139 @@
+{
+  "home": {
+    "welcomeToNux": "مرحباً بك في NUX",
+    "scanCode": "مسح الرمز",
+    "scanCodeDesc": "امسح رمز QR الخاص بالمطعم",
+    "payWallet": "ادفع من المحفظة",
+    "selectRestaurantFirst": "اختر مطعماً أولاً",
+    "noBalances": "لا توجد أرصدة",
+    "noBalancesDesc": "امسح رموز QR لبدء جمع النقاط!",
+    "errorLoadingData": "خطأ في تحميل البيانات",
+    "retry": "إعادة المحاولة"
+  },
+  "tabs": {
+    "home": "الرئيسية",
+    "promotions": "العروض",
+    "purchase": "الشراء",
+    "account": "الحساب"
+  },
+  "restaurant": {
+    "selectRestaurant": "اختر المطعم",
+    "restaurant": "المطعم"
+  },
+  "payment": {
+    "selectPaymentMethod": "اختر طريقة الدفع",
+    "currentBalance": "الرصيد الحالي",
+    "selectedMethod": "الطريقة المختارة",
+    "paymentAmount": "مبلغ الدفع",
+    "walletBalance": "رصيد المحفظة",
+    "drinkPoints": "نقاط المشروبات",
+    "mealPoints": "نقاط الوجبات",
+    "insufficientBalance": "رصيد غير كافٍ",
+    "slideToPay": "اسحب للدفع",
+    "slideToConfirm": "اسحب للتأكيد",
+    "processingPayment": "جاري معالجة الدفع..."
+  },
+  "drawer": {
+    "menu": "القائمة",
+    "accountSettings": "إعدادات الحساب",
+    "language": "اللغة",
+    "theme": "المظهر",
+    "dark": "داكن",
+    "light": "فاتح",
+    "system": "النظام",
+    "termsOfUse": "شروط الاستخدام",
+    "privacyPolicy": "سياسة الخصوصية",
+    "aboutApp": "حول التطبيق",
+    "logout": "تسجيل الخروج"
+  },
+  "promotions": {
+    "title": "العروض",
+    "search": "ابحث عن العروض...",
+    "food": "طعام",
+    "drinks": "مشروبات",
+    "noPromotions": "لا توجد عروض متاحة",
+    "openInMaps": "فتح في خرائط جوجل",
+    "mapLoadError": "فشل تحميل الخريطة",
+    "mapNotAvailable": "الخريطة غير متاحة",
+    "clickToOpenInMaps": "انقر لفتح في خرائط جوجل"
+  },
+  "common": {
+    "loading": "جاري التحميل...",
+    "loadMore": "تحميل المزيد",
+    "clear": "مسح",
+    "success": "نجح",
+    "error": "خطأ"
+  },
+  "purchase": {
+    "title": "الشراء",
+    "mealPoints": "نقاط الوجبات",
+    "drinkPoints": "نقاط المشروبات",
+    "walletBalance": "رصيد المحفظة",
+    "recharge": "شحن",
+    "rechargeDesc": "شراء باقات الشحن",
+    "gift": "إهداء",
+    "giftDesc": "إهداء نقاط لصديق",
+    "selectRestaurantFirst": "يرجى اختيار مطعم أولاً"
+  },
+  "account": {
+    "title": "الحساب",
+    "profile": "الملف الشخصي",
+    "name": "الاسم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "save": "حفظ",
+    "saving": "جاري الحفظ",
+    "profileUpdated": "تم تحديث الملف الشخصي بنجاح",
+    "failedToUpdateProfile": "فشل تحديث الملف الشخصي",
+    "updatePassword": "تغيير كلمة المرور",
+    "currentPassword": "كلمة المرور الحالية",
+    "newPassword": "كلمة المرور الجديدة",
+    "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+    "updating": "جاري التحديث",
+    "passwordUpdated": "تم تحديث كلمة المرور بنجاح",
+    "failedToUpdatePassword": "فشل تحديث كلمة المرور",
+    "fillAllFields": "يرجى ملء جميع الحقول المطلوبة",
+    "fillAllPasswordFields": "يرجى ملء جميع حقول كلمة المرور",
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+    "passwordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "myQRCode": "رمز QR الخاص بي",
+    "qrCodeDesc": "شارك هذا الرمز لاستقبال الهدايا من الأصدقاء",
+    "noQRCode": "لا يوجد رمز QR متاح",
+    "dangerZone": "منطقة الخطر",
+    "deleteAccountWarning": "بمجرد حذف حسابك، لا يمكن التراجع عن ذلك. يرجى التأكد.",
+    "enterPasswordToDelete": "أدخل كلمة المرور لتأكيد الحذف",
+    "deleteAccount": "حذف الحساب",
+    "deleting": "جاري الحذف",
+    "accountDeleted": "تم حذف حسابك بنجاح",
+    "failedToDeleteAccount": "فشل حذف الحساب",
+    "deleteAccountConfirm": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء."
+  },
+  "gift": {
+    "scanQRCode": "مسح رمز QR",
+    "qrScanned": "تم مسح رمز QR",
+    "sendGift": "إرسال الهدية",
+    "sending": "جاري الإرسال",
+    "selectImage": "ارفع صورة الكود",
+    "scanning": "جاري المسح",
+    "invalidImageType": "نوع الصورة غير صحيح. يرجى اختيار ملف صورة.",
+    "noQRCodeFound": "لم يتم العثور على رمز QR في الصورة المختارة.",
+    "scanError": "فشل في قراءة رمز QR من الصورة"
+  },
+  "packages": {
+    "title": "باقات الشحن",
+    "noPackages": "لا توجد باقات متاحة",
+    "purchase": "شراء",
+    "comingSoon": "تكامل الدفع قريباً"
+  },
+  "menu": {
+    "title": "القائمة",
+    "loadingCategories": "جاري تحميل الفئات",
+    "loadingItems": "جاري تحميل العناصر",
+    "errorLoadingCategories": "خطأ في تحميل الفئات",
+    "errorLoadingItems": "خطأ في تحميل العناصر",
+    "noCategories": "لا توجد فئات",
+    "noCategoriesDesc": "لا توجد فئات قائمة متاحة",
+    "noItems": "لا توجد عناصر",
+    "noItemsDesc": "لا توجد عناصر متاحة في هذه الفئة"
+  }
+}
