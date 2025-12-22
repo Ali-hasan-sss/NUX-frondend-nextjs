@@ -135,5 +135,105 @@
     "noCategoriesDesc": "Keine Menükategorien verfügbar",
     "noItems": "Keine Artikel",
     "noItemsDesc": "Keine Artikel in dieser Kategorie verfügbar"
+  },
+  "landing": {
+    "hero": {
+      "title": "Treten Sie der Smart Loyalty Experience bei",
+      "description": "Leistungsstarke Automatisierung, nahtloses Sammeln und Verfolgen von Belohnungen. Transformieren Sie das Kundenerlebnis mit unserer innovativen Treueplattform.",
+      "downloadAppStore": "Im App Store herunterladen",
+      "downloadGooglePlay": "Bei Google Play herunterladen",
+      "welcomeToNux": "Willkommen bei NUX",
+      "scanCode": "Code scannen",
+      "scanCodeDesc": "Restaurant QR-Code scannen",
+      "scanMenuCode": "Menücode scannen",
+      "scanMenuCodeDesc": "Restaurantmenü anzeigen",
+      "restaurantName": "Restaurantname",
+      "selectRestaurant": "Restaurant auswählen",
+      "payWithWallet": "Mit Geldbörse bezahlen"
+    },
+    "features": {
+      "title": "Verdienen. Sammeln. Genießen.",
+      "purchase": {
+        "title": "Kaufen",
+        "description": "Automatisierte Punkte, Treueverfolgung und sichere Transaktionen. Verwalten Sie Ihre Belohnungen mühelos."
+      },
+      "earnPoints": {
+        "title": "Punkte verdienen",
+        "description": "Digitale Belohnungen und Gutscheine für unvergessliche Erlebnisse. Sammeln Sie Punkte bei jedem Kauf."
+      },
+      "trustSupport": {
+        "title": "Vertrauen & Support",
+        "description": "Verdienen Sie täglich Belohnungen, Punkte und Support für Cafés & Restaurants. Aufbau langfristiger Kundenbeziehungen."
+      }
+    },
+    "pricing": {
+      "title": "Einfache, transparente Preise",
+      "subtitle": "Wählen Sie den perfekten Plan für Ihr Restaurant. Alle Pläne beinhalten eine 14-tägige kostenlose Testversion.",
+      "mostPopular": "Beliebteste",
+      "startFreeTrial": "Kostenlose Testversion starten",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "description": "Perfekt für kleine Restaurants, die gerade erst anfangen",
+          "features": [
+            "Bis zu 100 Treuepunkte/Monat",
+            "Grundlegende QR-Code-Verwaltung",
+            "E-Mail-Support",
+            "Zugriff auf mobile App",
+            "Grundlegende Analysen"
+          ]
+        },
+        "professional": {
+          "name": "Professional",
+          "description": "Ideal für wachsende Restaurantgeschäfte",
+          "features": [
+            "Bis zu 1.000 Treuepunkte/Monat",
+            "Erweiterte QR-Code-Verwaltung",
+            "Gruppenverwaltungsfunktionen",
+            "Prioritätssupport",
+            "Erweiterte Analysen & Berichte",
+            "Mehrsprachiger Support"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "Für große Restaurantketten und Franchises",
+          "features": [
+            "Unbegrenzte Treuepunkte",
+            "Vollzugriff auf die Plattform",
+            "Benutzerdefinierte Integrationen",
+            "24/7 dedizierter Support",
+            "White-Label-Optionen",
+            "Erweiterte Sicherheitsfunktionen"
+          ]
+        }
+      }
+    },
+    "cta": {
+      "title": "Bereit, Ihr Restaurantgeschäft zu transformieren?",
+      "description": "Schließen Sie sich Hunderten von Restaurants an, die bereits NUX nutzen, um Kundenbindung aufzubauen und ihre Abläufe zu optimieren. Starten Sie noch heute Ihre kostenlose Testversion.",
+      "startFreeTrial": "Kostenlose Testversion starten",
+      "contactSales": "Vertrieb kontaktieren"
+    },
+    "footer": {
+      "description": "Die vollständige Abonnementverwaltungsplattform für moderne Restaurants.",
+      "product": "Produkt",
+      "features": "Funktionen",
+      "pricing": "Preise",
+      "getStarted": "Loslegen",
+      "support": "Support",
+      "helpCenter": "Hilfezentrum",
+      "documentation": "Dokumentation",
+      "contactUs": "Kontaktieren Sie uns",
+      "legal": "Rechtliches",
+      "privacyPolicy": "Datenschutzrichtlinie",
+      "termsOfService": "Nutzungsbedingungen",
+      "cookiePolicy": "Cookie-Richtlinie",
+      "copyright": "© 2024 NUX. Alle Rechte vorbehalten."
+    },
+    "auth": {
+      "login": "Anmelden",
+      "signUp": "Registrieren"
+    }
   }
 }

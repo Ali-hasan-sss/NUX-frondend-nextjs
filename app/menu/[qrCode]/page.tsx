@@ -259,10 +259,13 @@ function PublicMenuPageContent() {
             onCartClick={() => setCartOpen(true)}
             cartCount={totalItems}
           />
-          <div className="flex-1 pb-20 px-4 py-5 max-w-7xl mx-auto w-full">
+          <div className="flex-1 pb-20 px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full">
             {/* Header */}
-            <div className="mb-6">
-              <h1 className="text-2xl font-bold" style={{ color: colors.text }}>
+            <div className="mb-4 sm:mb-6">
+              <h1
+                className="text-xl sm:text-2xl font-bold"
+                style={{ color: colors.text }}
+              >
                 {t("menu.title")}
               </h1>
             </div>
@@ -320,19 +323,24 @@ function PublicMenuPageContent() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {categories.map((category: any) => (
                   <button
                     key={category.id}
                     onClick={() => handleCategoryClick(category)}
                     className={cn(
                       "rounded-2xl overflow-hidden shadow-lg transition-all text-left",
-                      "hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl"
+                      "hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl",
+                      "flex flex-col h-full"
                     )}
-                    style={{ backgroundColor: colors.surface }}
+                    style={{
+                      backgroundColor: colors.surface,
+                      minHeight: "200px",
+                      maxHeight: "200px",
+                    }}
                   >
                     {category.image ? (
-                      <div className="relative w-full h-48">
+                      <div className="relative w-full h-32 flex-shrink-0">
                         <Image
                           src={category.image}
                           alt={category.title}
@@ -347,27 +355,27 @@ function PublicMenuPageContent() {
                       </div>
                     ) : (
                       <div
-                        className="w-full h-48 flex items-center justify-center"
+                        className="w-full h-32 flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: `${colors.primary}10` }}
                       >
                         <span
-                          className="text-4xl font-bold"
+                          className="text-3xl font-bold"
                           style={{ color: colors.primary }}
                         >
                           {category.title.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <div className="p-5">
+                    <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between min-h-0">
                       <h3
-                        className="font-bold text-lg mb-2"
+                        className="font-bold text-base sm:text-lg mb-1 line-clamp-1"
                         style={{ color: colors.text }}
                       >
                         {category.title}
                       </h3>
                       {category.description && (
                         <p
-                          className="text-sm line-clamp-2"
+                          className="text-xs sm:text-sm line-clamp-2 flex-shrink-0"
                           style={{ color: colors.textSecondary }}
                         >
                           {category.description}

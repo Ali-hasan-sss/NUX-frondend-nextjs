@@ -135,5 +135,105 @@
     "noCategoriesDesc": "No menu categories available",
     "noItems": "No Items",
     "noItemsDesc": "No items available in this category"
+  },
+  "landing": {
+    "hero": {
+      "title": "Join the Smart Loyalty Experience",
+      "description": "Power automation, collect and track rewards seamlessly. Transform your customer experience with our innovative loyalty platform.",
+      "downloadAppStore": "Download on the App Store",
+      "downloadGooglePlay": "Get it on Google Play",
+      "welcomeToNux": "Welcome to NUX",
+      "scanCode": "Scan Code",
+      "scanCodeDesc": "Scan QR code at restaurant",
+      "scanMenuCode": "Scan Menu Code",
+      "scanMenuCodeDesc": "View restaurant menu",
+      "restaurantName": "Restaurant Name",
+      "selectRestaurant": "Select a restaurant",
+      "payWithWallet": "Pay with Wallet"
+    },
+    "features": {
+      "title": "Earn. Collect. Enjoy.",
+      "purchase": {
+        "title": "Purchase",
+        "description": "Automated points, loyalty tracking and secure transactions. Manage your rewards effortlessly."
+      },
+      "earnPoints": {
+        "title": "Earn points",
+        "description": "Digital rewards and vouchers for memorable experiences. Collect points with every purchase."
+      },
+      "trustSupport": {
+        "title": "Trust & Support",
+        "description": "Earn rewards daily, points and support for cafes & restaurants. Build lasting customer relationships."
+      }
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "subtitle": "Choose the perfect plan for your restaurant. All plans include a 14-day free trial.",
+      "mostPopular": "Most Popular",
+      "startFreeTrial": "Start Free Trial",
+      "plans": {
+        "starter": {
+          "name": "Starter",
+          "description": "Perfect for small restaurants getting started",
+          "features": [
+            "Up to 100 loyalty points/month",
+            "Basic QR code management",
+            "Email support",
+            "Mobile app access",
+            "Basic analytics"
+          ]
+        },
+        "professional": {
+          "name": "Professional",
+          "description": "Ideal for growing restaurant businesses",
+          "features": [
+            "Up to 1,000 loyalty points/month",
+            "Advanced QR code management",
+            "Group management features",
+            "Priority support",
+            "Advanced analytics & reports",
+            "Multi-language support"
+          ]
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "description": "For large restaurant chains and franchises",
+          "features": [
+            "Unlimited loyalty points",
+            "Full platform access",
+            "Custom integrations",
+            "24/7 dedicated support",
+            "White-label options",
+            "Advanced security features"
+          ]
+        }
+      }
+    },
+    "cta": {
+      "title": "Ready to Transform Your Restaurant Business?",
+      "description": "Join hundreds of restaurants already using NUX to build customer loyalty and streamline their operations. Start your free trial today.",
+      "startFreeTrial": "Start Free Trial",
+      "contactSales": "Contact Sales"
+    },
+    "footer": {
+      "description": "The complete subscription management platform for modern restaurants.",
+      "product": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "getStarted": "Get Started",
+      "support": "Support",
+      "helpCenter": "Help Center",
+      "documentation": "Documentation",
+      "contactUs": "Contact Us",
+      "legal": "Legal",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "cookiePolicy": "Cookie Policy",
+      "copyright": "© 2024 NUX. All rights reserved."
+    },
+    "auth": {
+      "login": "Login",
+      "signUp": "Sign Up"
+    }
   }
 }
