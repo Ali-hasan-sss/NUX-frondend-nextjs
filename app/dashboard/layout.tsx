@@ -3,6 +3,7 @@ import { ProtectedRoute } from "@/components/auth/protected-route";
 import { RestaurantSidebar } from "@/components/restaurant/restaurant-sidebar";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { I18nProvider } from "@/components/client/i18n-provider";
 import Image from "next/image";
 
 export default function RestaurantLayout({
@@ -11,8 +12,9 @@ export default function RestaurantLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute requiredRole="RESTAURANT_OWNER">
-      <div className="flex h-screen bg-background">
+    <I18nProvider>
+      <ProtectedRoute requiredRole="RESTAURANT_OWNER">
+        <div className="flex h-screen bg-background">
         <RestaurantSidebar />
         <main className="flex-1 overflow-y-auto">
           <div className="sticky left-80 md:left-0 top-0 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full">
@@ -38,6 +40,7 @@ export default function RestaurantLayout({
           <div className="p-3 md:p-4">{children}</div>
         </main>
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
+    </I18nProvider>
   );
 }

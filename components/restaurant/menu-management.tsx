@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -38,6 +39,7 @@ import { Plus, Pencil, Trash2, PlusCircle, Edit, X } from "lucide-react";
 import FileUploader from "@/components/upload/file-uploader";
 
 export function MenuManagement() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { categories, itemsByCategory, isLoading } = useAppSelector(
     (s) => s.restaurantMenu
@@ -180,15 +182,15 @@ export function MenuManagement() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Menu Management
+{t("dashboard.menu.title")}
           </h1>
           <p className="text-muted-foreground">
-            Create categories and items for your restaurant menu
+            {t("dashboard.menu.description")}
           </p>
         </div>
         <div>
           <Button variant="outline" onClick={() => setOpenAddCategory(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Add Category
+            <Plus className="h-4 w-4 mr-2" /> {t("dashboard.menu.addCategory")}
           </Button>
         </div>
       </div>
@@ -196,9 +198,9 @@ export function MenuManagement() {
       {/* Categories Accordion */}
       <Card>
         <CardHeader>
-          <CardTitle>Categories</CardTitle>
+          <CardTitle>{t("dashboard.menu.categories")}</CardTitle>
           <CardDescription>
-            Expand a category to manage its items
+{t("dashboard.menu.expandToManage")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -349,23 +351,23 @@ export function MenuManagement() {
       <Dialog open={openAddCategory} onOpenChange={setOpenAddCategory}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Category</DialogTitle>
+            <DialogTitle>{t("dashboard.menu.addCategory")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Input
-              placeholder="Title"
+              placeholder={t("dashboard.menu.title")}
               value={newCat.title}
               onChange={(e) => setNewCat({ ...newCat, title: e.target.value })}
             />
             <Input
-              placeholder="Description (optional)"
+              placeholder={t("dashboard.menu.descriptionOptional")}
               value={newCat.description}
               onChange={(e) =>
                 setNewCat({ ...newCat, description: e.target.value })
               }
             />
             <FileUploader
-              label="Image"
+              label={t("dashboard.menu.image")}
               value={newCat.image}
               onChange={(url) => setNewCat({ ...newCat, image: url || "" })}
               onUploadingChange={setUploading}
@@ -376,13 +378,13 @@ export function MenuManagement() {
                 variant="outline"
                 onClick={() => setOpenAddCategory(false)}
               >
-                Cancel
+{t("dashboard.menu.cancel")}
               </Button>
               <Button
                 onClick={handleCreateCategory}
                 disabled={isLoading || uploading || !newCat.title.trim()}
               >
-                Save
+{t("dashboard.menu.save")}
               </Button>
             </div>
           </div>
@@ -392,25 +394,25 @@ export function MenuManagement() {
       <Dialog open={openEditCategory} onOpenChange={setOpenEditCategory}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Category</DialogTitle>
+            <DialogTitle>{t("dashboard.menu.editCategory")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Input
-              placeholder="Title"
+              placeholder={t("dashboard.menu.title")}
               value={editCat.title}
               onChange={(e) =>
                 setEditCat({ ...editCat, title: e.target.value })
               }
             />
             <Input
-              placeholder="Description (optional)"
+              placeholder={t("dashboard.menu.descriptionOptional")}
               value={editCat.description}
               onChange={(e) =>
                 setEditCat({ ...editCat, description: e.target.value })
               }
             />
             <FileUploader
-              label="Image"
+              label={t("dashboard.menu.image")}
               value={editCat.image}
               onChange={(url) => setEditCat({ ...editCat, image: url || "" })}
               onUploadingChange={setUploading}
@@ -421,13 +423,13 @@ export function MenuManagement() {
                 variant="outline"
                 onClick={() => setOpenEditCategory(false)}
               >
-                Cancel
+{t("dashboard.menu.cancel")}
               </Button>
               <Button
                 onClick={handleUpdateCategory}
                 disabled={isLoading || uploading || !editCat.title.trim()}
               >
-                Save
+{t("dashboard.menu.save")}
               </Button>
             </div>
           </div>
@@ -441,11 +443,11 @@ export function MenuManagement() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add Item</DialogTitle>
+            <DialogTitle>{t("dashboard.menu.addItem")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <Input
-              placeholder="Title"
+              placeholder={t("dashboard.menu.title")}
               value={newItem.title}
               onChange={(e) =>
                 setNewItem({ ...newItem, title: e.target.value })
@@ -459,14 +461,14 @@ export function MenuManagement() {
               }
             />
             <Input
-              placeholder="Price"
+              placeholder={t("dashboard.menu.price")}
               value={newItem.price}
               onChange={(e) =>
                 setNewItem({ ...newItem, price: e.target.value })
               }
             />
             <FileUploader
-              label="Image"
+              label={t("dashboard.menu.image")}
               value={newItem.image}
               onChange={(url) => setNewItem({ ...newItem, image: url || "" })}
               onUploadingChange={setUploading}
@@ -478,13 +480,13 @@ export function MenuManagement() {
             />
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setOpenAddItem(null)}>
-                Cancel
+{t("dashboard.menu.cancel")}
               </Button>
               <Button
                 onClick={handleCreateItem}
                 disabled={isLoading || uploading || !newItem.title.trim()}
               >
-                Save
+{t("dashboard.menu.save")}
               </Button>
             </div>
           </div>
@@ -497,12 +499,12 @@ export function MenuManagement() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
+            <DialogTitle>{t("dashboard.menu.editItem")}</DialogTitle>
           </DialogHeader>
           {openEditItem && (
             <div className="space-y-3">
               <Input
-                placeholder="Title"
+                placeholder={t("dashboard.menu.title")}
                 value={openEditItem.title}
                 onChange={(e) =>
                   setOpenEditItem({ ...openEditItem, title: e.target.value })
@@ -519,14 +521,14 @@ export function MenuManagement() {
                 }
               />
               <Input
-                placeholder="Price"
+                placeholder={t("dashboard.menu.price")}
                 value={openEditItem.price}
                 onChange={(e) =>
                   setOpenEditItem({ ...openEditItem, price: e.target.value })
                 }
               />
               <FileUploader
-                label="Image"
+                label={t("dashboard.menu.image")}
                 value={openEditItem.image}
                 onChange={(url) =>
                   setOpenEditItem({ ...openEditItem, image: url || "" })
@@ -540,7 +542,7 @@ export function MenuManagement() {
               />
               <div className="flex justify-end gap-2">
                 <Button variant="outline" onClick={() => setOpenEditItem(null)}>
-                  Cancel
+  {t("dashboard.menu.cancel")}
                 </Button>
                 <Button
                   onClick={handleUpdateItem}
@@ -548,7 +550,7 @@ export function MenuManagement() {
                     isLoading || uploading || !openEditItem.title.trim()
                   }
                 >
-                  Save
+  {t("dashboard.menu.save")}
                 </Button>
               </div>
             </div>
@@ -561,13 +563,13 @@ export function MenuManagement() {
         open={confirmOpen}
         setOpen={setConfirmOpen}
         title={
-          deleteTarget?.type === "category" ? "Delete Category" : "Delete Item"
+deleteTarget?.type === "category" ? t("dashboard.menu.deleteCategory") : t("dashboard.menu.deleteItem")
         }
         message={`Are you sure you want to delete ${deleteTarget?.type} "${
           deleteTarget?.title ?? ""
         }"?`}
-        confirmText="Delete"
-        cancelText="Cancel"
+confirmText={t("dashboard.menu.delete")}
+        cancelText={t("dashboard.menu.cancel")}
         onConfirm={async () => {
           if (!deleteTarget) return;
           if (

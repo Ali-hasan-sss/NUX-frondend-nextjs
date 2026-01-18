@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { useTranslation } from "react-i18next";
 import {
   createAdThunk,
   deleteAdThunk,
@@ -54,6 +55,7 @@ const emptyForm: FormState = {
 };
 
 export default function AdsManagement() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { items, isLoading } = useAppSelector((s) => s.restaurantAds);
   const restaurant = useSelector((s) => s.restaurantAccount.data);
@@ -122,13 +124,13 @@ export default function AdsManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between px-3 py-2">
         <div>
-          <h2 className="text-2xl font-semibold">Ads</h2>
+          <h2 className="text-2xl font-semibold">{t("dashboard.ads.title")}</h2>
           <p className="text-sm text-muted-foreground">
-            Manage your restaurant promotional ads.
+            {t("dashboard.ads.description")}
           </p>
         </div>
         <Button onClick={() => setOpenCreate(true)} className="px-4 py-2">
-          <Plus className="h-4 w-4 mr-2" /> New Ad
+          <Plus className="h-4 w-4 mr-2" /> {t("dashboard.ads.newAd")}
         </Button>
       </div>
 
@@ -146,7 +148,7 @@ export default function AdsManagement() {
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center justify-between">
                 <span className="truncate pr-2">{ad.title}</span>
-                <Badge variant="outline">{ad.category || "General"}</Badge>
+                <Badge variant="outline">{ad.category || t("dashboard.ads.general")}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 pt-0 flex-1">
@@ -174,15 +176,15 @@ export default function AdsManagement() {
                 size="sm"
                 onClick={() => setOpenEdit(ad)}
               >
-                <Pencil className="h-4 w-4 mr-1" /> Edit
+                <Pencil className="h-4 w-4 mr-1" /> {t("dashboard.ads.edit")}
               </Button>
               <ConfirmDialog
                 open={confirmDeleteId === ad.id}
                 setOpen={(v) => setConfirmDeleteId(v ? ad.id : null)}
-                title="Delete ad"
-                message="Are you sure you want to delete this ad?"
-                confirmText="Delete"
-                cancelText="Cancel"
+                title={t("dashboard.ads.deleteAd")}
+                message={t("dashboard.ads.deleteAdConfirm")}
+                confirmText={t("dashboard.ads.delete")}
+                cancelText={t("dashboard.ads.cancel")}
                 onConfirm={() => handleDelete(ad.id)}
                 trigger={
                   <Button variant="destructive" size="sm">
@@ -199,17 +201,17 @@ export default function AdsManagement() {
       <Dialog open={openCreate} onOpenChange={setOpenCreate}>
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create Ad</DialogTitle>
+            <DialogTitle>{t("dashboard.ads.createAd")}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label>Title</Label>
+              <Label>{t("dashboard.ads.titleLabel")}</Label>
               <Input
                 value={form.title}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, title: e.target.value }))
                 }
-                placeholder="Super Promo!"
+                placeholder={t("dashboard.ads.titlePlaceholder")}
               />
             </div>
 
@@ -224,7 +226,7 @@ export default function AdsManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t("dashboard.ads.descriptionLabel")}</Label>
               <Textarea
                 value={form.description}
                 onChange={(e) =>
@@ -234,26 +236,26 @@ export default function AdsManagement() {
             </div>
 
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("dashboard.ads.categoryLabel")}</Label>
               <Select
                 value={form.category}
                 onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t("dashboard.ads.selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Desserts">Desserts</SelectItem>
-                  <SelectItem value="Fast Food">Fast Food</SelectItem>
-                  <SelectItem value="Drinks">Drinks</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Desserts">{t("dashboard.ads.desserts")}</SelectItem>
+                  <SelectItem value="Fast Food">{t("dashboard.ads.fastFood")}</SelectItem>
+                  <SelectItem value="Drinks">{t("dashboard.ads.drinks")}</SelectItem>
+                  <SelectItem value="Other">{t("dashboard.ads.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpenCreate(false)}>
-              Cancel
+              {t("dashboard.ads.cancel")}
             </Button>
             <Button
               onClick={handleCreate}
@@ -264,7 +266,7 @@ export default function AdsManagement() {
                 !form.image.trim()
               }
             >
-              Save
+              {t("dashboard.ads.save")}
             </Button>
           </div>
         </DialogContent>
@@ -277,11 +279,11 @@ export default function AdsManagement() {
       >
         <DialogContent className="sm:max-w-lg max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Ad</DialogTitle>
+            <DialogTitle>{t("dashboard.ads.editAd")}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label>Title</Label>
+              <Label>{t("dashboard.ads.titleLabel")}</Label>
               <Input
                 value={form.title}
                 onChange={(e) =>
@@ -290,7 +292,7 @@ export default function AdsManagement() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Image</Label>
+              <Label>{t("dashboard.ads.imageLabel")}</Label>
               <FileUploader
                 value={form.image || null}
                 onChange={(url) => setForm((f) => ({ ...f, image: url || "" }))}
@@ -303,7 +305,7 @@ export default function AdsManagement() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t("dashboard.ads.descriptionLabel")}</Label>
               <Textarea
                 value={form.description}
                 onChange={(e) =>
@@ -312,26 +314,26 @@ export default function AdsManagement() {
               />
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("dashboard.ads.categoryLabel")}</Label>
               <Select
                 value={form.category}
                 onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder={t("dashboard.ads.selectCategory")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Desserts">Desserts</SelectItem>
-                  <SelectItem value="Fast Food">Fast Food</SelectItem>
-                  <SelectItem value="Drinks">Drinks</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Desserts">{t("dashboard.ads.desserts")}</SelectItem>
+                  <SelectItem value="Fast Food">{t("dashboard.ads.fastFood")}</SelectItem>
+                  <SelectItem value="Drinks">{t("dashboard.ads.drinks")}</SelectItem>
+                  <SelectItem value="Other">{t("dashboard.ads.other")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setOpenEdit(null)}>
-              Cancel
+              {t("dashboard.ads.cancel")}
             </Button>
             <Button
               onClick={handleUpdate}
@@ -342,7 +344,7 @@ export default function AdsManagement() {
                 !form.image.trim()
               }
             >
-              Save
+              {t("dashboard.ads.save")}
             </Button>
           </div>
         </DialogContent>
@@ -378,7 +380,7 @@ export default function AdsManagement() {
                 {openView.description}
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground">No description</p>
+              <p className="text-sm text-muted-foreground">{t("dashboard.ads.noDescription")}</p>
             )}
           </div>
         </DialogContent>

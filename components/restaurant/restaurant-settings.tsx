@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { useTranslation } from "react-i18next";
 import {
   fetchRestaurantAccount,
   updateRestaurantAccount,
@@ -73,6 +74,7 @@ const initialPasswordForm: PasswordFormData = {
 };
 
 export function RestaurantSettings() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const {
     data: restaurant,
@@ -152,9 +154,9 @@ export function RestaurantSettings() {
         })
       ).unwrap();
 
-      toast.success("Restaurant settings updated successfully");
+      toast.success(t("dashboard.settings.restaurantSettingsUpdated"));
     } catch (error: any) {
-      toast.error(error.message || "Failed to update restaurant settings");
+      toast.error(error.message || t("dashboard.settings.failedToUpdateSettings"));
     } finally {
       setIsUpdating(false);
     }
@@ -180,7 +182,7 @@ export function RestaurantSettings() {
           : "Restaurant opened successfully"
       );
     } catch (error: any) {
-      toast.error(error.message || "Failed to update restaurant status");
+      toast.error(error.message || t("dashboard.settings.failedToUpdateStatus"));
     } finally {
       setIsUpdatingStatus(false);
     }
@@ -312,10 +314,10 @@ export function RestaurantSettings() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Restaurant Settings
+{t("dashboard.settings.title")}
         </h1>
         <p className="text-muted-foreground">
-          Manage your restaurant information and preferences
+          {t("dashboard.settings.description")}
         </p>
       </div>
 
@@ -326,7 +328,7 @@ export function RestaurantSettings() {
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Building2 className="h-5 w-5" />
-                <span>Restaurant Information</span>
+                <span>{t("dashboard.settings.restaurantInformation")}</span>
               </div>
               <Button
                 variant="outline"
@@ -344,7 +346,7 @@ export function RestaurantSettings() {
           <CardContent className="space-y-4">
             {/* Restaurant Logo Display */}
             <div className="space-y-2">
-              <Label>Restaurant Logo</Label>
+              <Label>{t("dashboard.settings.logo")}</Label>
               {restaurantForm.logo ? (
                 <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
                   <div className="overflow-hidden bg-muted rounded-md h-16 w-16">
@@ -373,7 +375,7 @@ export function RestaurantSettings() {
 
             {/* Restaurant Name Display */}
             <div className="space-y-2">
-              <Label>Restaurant Name</Label>
+              <Label>{t("dashboard.settings.restaurantName")}</Label>
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm font-medium">
                   {restaurantForm.name || "Not set"}
@@ -383,7 +385,7 @@ export function RestaurantSettings() {
 
             {/* Address Display */}
             <div className="space-y-2">
-              <Label>Address</Label>
+              <Label>{t("dashboard.settings.address")}</Label>
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm">{restaurantForm.address || "Not set"}</p>
               </div>
@@ -391,7 +393,7 @@ export function RestaurantSettings() {
 
             {/* Location Display */}
             <div className="space-y-2">
-              <Label>Restaurant Location</Label>
+              <Label>{t("dashboard.settings.location")}</Label>
               <div className="p-3 bg-muted rounded-lg">
                 {restaurantForm.latitude !== 0 &&
                 restaurantForm.longitude !== 0 ? (

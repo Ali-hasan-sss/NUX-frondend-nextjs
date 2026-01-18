@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -73,6 +74,7 @@ const notifications = [
 ];
 
 export function NotificationCenter() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState("all");
   const [notificationList, setNotificationList] = useState(notifications);
 
@@ -117,7 +119,7 @@ export function NotificationCenter() {
     if (priority === "high") {
       return (
         <Badge variant="destructive" className="text-xs">
-          High
+          {t("dashboard.notifications.high")}
         </Badge>
       );
     }
@@ -128,10 +130,10 @@ export function NotificationCenter() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t("dashboard.notifications.title")}</h1>
           <p className="text-muted-foreground">
-            Stay updated with your restaurant activities{" "}
-            {unreadCount > 0 && `(${unreadCount} unread)`}
+            {t("dashboard.notifications.stayUpdated")}{" "}
+            {unreadCount > 0 && `(${unreadCount} ${t("dashboard.notifications.unread")})`}
           </p>
         </div>
         {unreadCount > 0 && (
@@ -141,7 +143,7 @@ export function NotificationCenter() {
             className="bg-transparent"
           >
             <Check className="mr-2 h-4 w-4" />
-            Mark All Read
+            {t("dashboard.notifications.markAllRead")}
           </Button>
         )}
       </div>
@@ -154,7 +156,7 @@ export function NotificationCenter() {
           onClick={() => setFilter("all")}
           className={filter !== "all" ? "bg-transparent" : ""}
         >
-          All ({notificationList.length})
+          {t("dashboard.notifications.all")} ({notificationList.length})
         </Button>
         <Button
           variant={filter === "unread" ? "default" : "outline"}
@@ -162,7 +164,7 @@ export function NotificationCenter() {
           onClick={() => setFilter("unread")}
           className={filter !== "unread" ? "bg-transparent" : ""}
         >
-          Unread ({unreadCount})
+          {t("dashboard.notifications.unreadFilter")} ({unreadCount})
         </Button>
         <Button
           variant={filter === "read" ? "default" : "outline"}
@@ -170,21 +172,21 @@ export function NotificationCenter() {
           onClick={() => setFilter("read")}
           className={filter !== "read" ? "bg-transparent" : ""}
         >
-          Read ({notificationList.length - unreadCount})
+          {t("dashboard.notifications.readFilter")} ({notificationList.length - unreadCount})
         </Button>
       </div>
 
       {/* Notifications List */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Notifications</CardTitle>
-          <CardDescription>Your latest updates and alerts</CardDescription>
+          <CardTitle>{t("dashboard.notifications.recentNotifications")}</CardTitle>
+          <CardDescription>{t("dashboard.notifications.latestUpdates")}</CardDescription>
         </CardHeader>
         <CardContent>
           {filteredNotifications.length === 0 ? (
             <div className="text-center py-8">
               <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No notifications found</p>
+              <p className="text-muted-foreground">{t("dashboard.notifications.noNotificationsFound")}</p>
             </div>
           ) : (
             <div className="space-y-4">

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/app/store";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/pagination";
 
 export function NotificationsPage() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { items, pagination, unreadCount, isLoading, error } = useSelector(
     (s: RootState) => s.notifications
@@ -65,27 +67,27 @@ export function NotificationsPage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Notifications</h1>
-          <p className="text-muted-foreground">All your recent updates</p>
+          <h1 className="text-3xl font-bold text-foreground">{t("dashboard.notifications.title")}</h1>
+          <p className="text-muted-foreground">{t("dashboard.notifications.stayUpdated")}</p>
         </div>
         <div className="flex items-center gap-3">
           <Badge variant={unreadCount > 0 ? "default" : "secondary"}>
-            Unread: {unreadCount}
+            {t("dashboard.notifications.unreadFilter")}: {unreadCount}
           </Badge>
           <Button
             variant="outline"
             onClick={handleMarkAll}
             disabled={unreadCount === 0}
           >
-            Mark all as read
+            {t("dashboard.notifications.markAllRead")}
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Notifications ({pagination.totalItems})</CardTitle>
-          <CardDescription>List of notifications</CardDescription>
+          <CardTitle>{t("dashboard.notifications.title")} ({pagination.totalItems})</CardTitle>
+          <CardDescription>{t("dashboard.notifications.listOfNotifications")}</CardDescription>
         </CardHeader>
         <CardContent>
           {error && (
@@ -95,8 +97,8 @@ export function NotificationsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Title</TableHead>
-                  <TableHead>Created</TableHead>
+                  <TableHead>{t("dashboard.notifications.title")}</TableHead>
+                  <TableHead>{t("dashboard.notifications.created")}</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -105,7 +107,7 @@ export function NotificationsPage() {
                   <TableRow>
                     <TableCell colSpan={3}>
                       <div className="py-6 text-center text-muted-foreground">
-                        Loading…
+                        {t("dashboard.notifications.loading")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -113,7 +115,7 @@ export function NotificationsPage() {
                   <TableRow>
                     <TableCell colSpan={3}>
                       <div className="py-6 text-center text-muted-foreground">
-                        No notifications
+                        {t("dashboard.notifications.noNotifications")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -138,7 +140,7 @@ export function NotificationsPage() {
                             variant="ghost"
                             onClick={() => handleMarkRead(n.id)}
                           >
-                            Mark read
+                            {t("dashboard.notifications.markRead")}
                           </Button>
                         )}
                       </TableCell>

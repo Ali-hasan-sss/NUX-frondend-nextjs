@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import GoogleMapPicker from "@/components/common/GoogleMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
+import { useTranslation } from "react-i18next";
 
 type AccountType = "user" | "restaurant";
 
@@ -53,6 +54,7 @@ interface RestaurantFormData {
 }
 
 export function MultiStepRegisterForm() {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
   const [accountType, setAccountType] = useState<AccountType | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -92,9 +94,9 @@ export function MultiStepRegisterForm() {
 
   const getPasswordErrors = (password: string) => {
     const errors = [];
-    if (password.length < 8) errors.push("At least 8 characters");
-    if (!/\d/.test(password)) errors.push("Contains a number");
-    if (!/[A-Z]/.test(password)) errors.push("Contains an uppercase letter");
+    if (password.length < 8) errors.push(t("landing.auth.atLeast8Chars"));
+    if (!/\d/.test(password)) errors.push(t("landing.auth.containsNumber"));
+    if (!/[A-Z]/.test(password)) errors.push(t("landing.auth.containsUppercase"));
     return errors;
   };
 
@@ -285,7 +287,7 @@ export function MultiStepRegisterForm() {
         {currentStep === 1 && (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-center mb-6">
-              What type of account do you want to create?
+              {t("landing.auth.whatAccountType")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Button
@@ -295,9 +297,9 @@ export function MultiStepRegisterForm() {
                 onClick={() => handleAccountTypeSelect("user")}
               >
                 <User className="h-8 w-8" />
-                <span className="font-medium">Personal Account</span>
+                <span className="font-medium">{t("landing.auth.personalAccount")}</span>
                 <span className="text-xs text-muted-foreground">
-                  For customers
+                  {t("landing.auth.forCustomers")}
                 </span>
               </Button>
               <Button
@@ -307,9 +309,9 @@ export function MultiStepRegisterForm() {
                 onClick={() => handleAccountTypeSelect("restaurant")}
               >
                 <Store className="h-8 w-8" />
-                <span className="font-medium">Restaurant Account</span>
+                <span className="font-medium">{t("landing.auth.restaurantAccount")}</span>
                 <span className="text-xs text-muted-foreground">
-                  For business owners
+                  {t("landing.auth.forBusinessOwners")}
                 </span>
               </Button>
             </div>
@@ -323,11 +325,11 @@ export function MultiStepRegisterForm() {
             {currentStep === 2 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold mb-4">
-                  Personal Information
+                  {t("landing.auth.personalInformation")}
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="email">{t("landing.auth.email")} *</Label>
                     <Input
                       id="email"
                       name="email"
@@ -339,12 +341,12 @@ export function MultiStepRegisterForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name (Optional)</Label>
+                    <Label htmlFor="fullName">{t("landing.auth.fullNameOptional")}</Label>
                     <Input
                       id="fullName"
                       name="fullName"
                       type="text"
-                      placeholder="Your full name"
+                      placeholder={t("landing.auth.yourFullName")}
                       value={userFormData.fullName}
                       onChange={handleUserFormChange}
                     />
@@ -353,13 +355,13 @@ export function MultiStepRegisterForm() {
                 <div className="flex justify-between pt-4">
                   <Button variant="outline" onClick={() => setCurrentStep(1)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
+                    {t("landing.auth.back")}
                   </Button>
                   <Button
                     onClick={() => setCurrentStep(3)}
                     disabled={!canProceedUserStep2()}
                   >
-                    Next
+                    {t("landing.auth.next")}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </div>
@@ -410,13 +412,13 @@ export function MultiStepRegisterForm() {
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
+                    <Label htmlFor="confirmPassword">{t("landing.auth.confirmPassword")}</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
                         name="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
+                        placeholder={t("landing.auth.confirmYourPassword")}
                         value={userFormData.confirmPassword}
                         onChange={handleUserFormChange}
                         required
@@ -441,7 +443,7 @@ export function MultiStepRegisterForm() {
                       userFormData.password !==
                         userFormData.confirmPassword && (
                         <div className="text-xs text-destructive">
-                          Passwords do not match
+                          {t("landing.auth.passwordsDoNotMatch")}
                         </div>
                       )}
                   </div>
@@ -449,7 +451,7 @@ export function MultiStepRegisterForm() {
                 <div className="flex justify-between pt-4">
                   <Button variant="outline" onClick={() => setCurrentStep(2)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
+                    {t("landing.auth.back")}
                   </Button>
                   <Button
                     onClick={handleSubmit}
@@ -458,7 +460,7 @@ export function MultiStepRegisterForm() {
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Create Account
+                    {t("landing.auth.createAccount")}
                   </Button>
                 </div>
               </div>
@@ -533,12 +535,12 @@ export function MultiStepRegisterForm() {
             {currentStep === 3 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold mb-4">
-                  Restaurant Location
+                  {t("landing.auth.restaurantLocation")}
                 </h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <FileUploader
-                      label="Restaurant Logo (Optional)"
+                      label={t("landing.auth.restaurantLogo")}
                       value={restaurantFormData.logo}
                       onChange={(url) =>
                         setRestaurantFormData((prev) => ({
@@ -556,13 +558,13 @@ export function MultiStepRegisterForm() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="address">Restaurant Address *</Label>
+                    <Label htmlFor="address">{t("landing.auth.restaurantAddress")} *</Label>
                     <div className="flex space-x-2">
                       <Input
                         id="address"
                         name="address"
                         type="text"
-                        placeholder="123 Main St, City, State"
+                        placeholder={t("landing.auth.addressPlaceholder")}
                         value={restaurantFormData.address}
                         onChange={handleRestaurantFormChange}
                         required
@@ -614,16 +616,16 @@ export function MultiStepRegisterForm() {
             {/* Step 4: Restaurant Password */}
             {currentStep === 4 && (
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-4">Create Password</h3>
+                <h3 className="text-lg font-semibold mb-4">{t("landing.auth.createPassword")}</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t("landing.auth.password")}</Label>
                     <div className="relative">
                       <Input
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Create a strong password"
+                        placeholder={t("landing.auth.createStrongPassword")}
                         value={restaurantFormData.password}
                         onChange={handleRestaurantFormChange}
                         required
@@ -686,7 +688,7 @@ export function MultiStepRegisterForm() {
                       restaurantFormData.password !==
                         restaurantFormData.confirmPassword && (
                         <div className="text-xs text-destructive">
-                          Passwords do not match
+                          {t("landing.auth.passwordsDoNotMatch")}
                         </div>
                       )}
                   </div>
@@ -694,7 +696,7 @@ export function MultiStepRegisterForm() {
                 <div className="flex justify-between pt-4">
                   <Button variant="outline" onClick={() => setCurrentStep(3)}>
                     <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
+                    {t("landing.auth.back")}
                   </Button>
                   <Button
                     onClick={handleSubmit}
@@ -703,7 +705,7 @@ export function MultiStepRegisterForm() {
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Create Restaurant Account
+                    {t("landing.auth.createRestaurantAccount")}
                   </Button>
                 </div>
               </div>
@@ -713,9 +715,9 @@ export function MultiStepRegisterForm() {
 
         <div className="text-center mt-6 pt-6 border-t">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t("landing.auth.alreadyHaveAccount")}{" "}
             <Link href="/auth/login" className="text-primary hover:underline">
-              Sign in
+              {t("landing.auth.signInLink")}
             </Link>
           </p>
         </div>

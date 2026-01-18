@@ -14,8 +14,10 @@ import { Button } from "@/components/ui/button";
 import { QrCode, Users, TrendingUp, Bell, Star } from "lucide-react";
 import { AppDispatch, RootState } from "@/app/store";
 import { fetchRestaurantOverview } from "@/features/restaurant/overview/restaurantOverviewThunks";
+import { useTranslation } from "react-i18next";
 
 export function RestaurantOverview() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
   const { restaurant, stats, recentActivities, isLoading, error } = useSelector(
@@ -31,14 +33,14 @@ export function RestaurantOverview() {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {user?.fullName}!
+            {t("dashboard.overview.welcomeBack")}, {user?.fullName}!
           </h1>
           <p className="text-muted-foreground">
-            Here's what's happening with {user?.restaurantName} today
+            {t("dashboard.overview.whatsHappeningToday")} {user?.restaurantName} {t("dashboard.overview.today")}
           </p>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p>Loading dashboard data...</p>
+          <p>{t("dashboard.overview.loadingDashboardData")}</p>
         </div>
       </div>
     );
@@ -49,14 +51,14 @@ export function RestaurantOverview() {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {user?.fullName}!
+            {t("dashboard.overview.welcomeBack")}, {user?.fullName}!
           </h1>
           <p className="text-muted-foreground">
-            Here's what's happening with {user?.restaurantName} today
+            {t("dashboard.overview.whatsHappeningToday")} {user?.restaurantName} {t("dashboard.overview.today")}
           </p>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p className="text-red-500">Error loading dashboard: {error}</p>
+          <p className="text-red-500">{t("dashboard.overview.errorLoadingDashboard")}: {error}</p>
         </div>
       </div>
     );
@@ -67,14 +69,14 @@ export function RestaurantOverview() {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {user?.fullName}!
+            {t("dashboard.overview.welcomeBack")}, {user?.fullName}!
           </h1>
           <p className="text-muted-foreground">
-            Here's what's happening with {user?.restaurantName} today
+            {t("dashboard.overview.whatsHappeningToday")} {user?.restaurantName} {t("dashboard.overview.today")}
           </p>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p>No data available</p>
+          <p>{t("dashboard.overview.noDataAvailable")}</p>
         </div>
       </div>
     );
@@ -84,10 +86,10 @@ export function RestaurantOverview() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Welcome back, {user?.fullName}!
+          {t("dashboard.overview.welcomeBack")}, {user?.fullName}!
         </h1>
         <p className="text-muted-foreground">
-          Here's what's happening with {restaurant.name} today
+          {t("dashboard.overview.whatsHappeningToday")} {restaurant.name} {t("dashboard.overview.today")}
         </p>
       </div>
 
@@ -95,21 +97,21 @@ export function RestaurantOverview() {
       <div className="flex flex-wrap gap-4">
         <Button className="flex items-center space-x-2">
           <QrCode className="h-4 w-4" />
-          <span>Generate QR Code</span>
+          <span>{t("dashboard.overview.generateQRCode")}</span>
         </Button>
         <Button
           variant="outline"
           className="flex items-center space-x-2 bg-transparent"
         >
           <Users className="h-4 w-4" />
-          <span>Invite Restaurant</span>
+          <span>{t("dashboard.overview.inviteRestaurant")}</span>
         </Button>
         <Button
           variant="outline"
           className="flex items-center space-x-2 bg-transparent"
         >
           <Bell className="h-4 w-4" />
-          <span>View Notifications</span>
+          <span>{t("dashboard.overview.viewNotifications")}</span>
         </Button>
       </div>
 
@@ -117,7 +119,7 @@ export function RestaurantOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">QR Code Scans</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.overview.qrCodeScans")}</CardTitle>
             <QrCode className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -128,7 +130,7 @@ export function RestaurantOverview() {
               <span className="text-green-600">
                 +{stats.scanGrowthPercentage}%
               </span>{" "}
-              from last month
+              {t("dashboard.overview.fromLastMonth")}
             </p>
           </CardContent>
         </Card>
@@ -136,7 +138,7 @@ export function RestaurantOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Loyalty Points Issued
+              {t("dashboard.overview.loyaltyPointsIssued")}
             </CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -145,20 +147,20 @@ export function RestaurantOverview() {
               {stats.loyaltyPointsIssued.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total points issued to customers
+              {t("dashboard.overview.totalPointsIssued")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Group Members</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("dashboard.overview.groupMembers")}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.groupMembers}</div>
             <p className="text-xs text-muted-foreground">
-              Total group memberships
+              {t("dashboard.overview.totalGroupMemberships")}
             </p>
           </CardContent>
         </Card>
@@ -166,7 +168,7 @@ export function RestaurantOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Monthly Revenue
+              {t("dashboard.overview.monthlyRevenue")}
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -178,7 +180,7 @@ export function RestaurantOverview() {
               <span className="text-green-600">
                 +{stats.revenueGrowthPercentage}%
               </span>{" "}
-              from last month
+              {t("dashboard.overview.fromLastMonth")}
             </p>
           </CardContent>
         </Card>
@@ -186,14 +188,14 @@ export function RestaurantOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Customers
+              {t("dashboard.overview.activeCustomers")}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.activeCustomers}</div>
             <p className="text-xs text-muted-foreground">
-              Customers who scanned QR codes
+              {t("dashboard.overview.customersWhoScanned")}
             </p>
           </CardContent>
         </Card>
@@ -201,14 +203,14 @@ export function RestaurantOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Average Rating
+              {t("dashboard.overview.averageRating")}
             </CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.averageRating}</div>
             <p className="text-xs text-muted-foreground">
-              Based on 156 reviews
+              {t("dashboard.overview.basedOnReviews")} 156 {t("dashboard.overview.reviews")}
             </p>
           </CardContent>
         </Card>
@@ -217,14 +219,14 @@ export function RestaurantOverview() {
       {/* Recent Activity */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest updates from your restaurant</CardDescription>
+          <CardTitle>{t("dashboard.overview.recentActivity")}</CardTitle>
+          <CardDescription>{t("dashboard.overview.latestUpdates")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {recentActivities.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No recent activity
+                {t("dashboard.overview.noRecentActivity")}
               </p>
             ) : (
               recentActivities.map((activity) => (
@@ -257,7 +259,7 @@ export function RestaurantOverview() {
                         variant="secondary"
                         className="bg-primary/10 text-primary"
                       >
-                        +{activity.points} pts
+                        +{activity.points} {t("dashboard.overview.pts")}
                       </Badge>
                     )}
                     {activity.amount && (

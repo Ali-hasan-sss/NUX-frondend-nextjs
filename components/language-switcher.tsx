@@ -7,6 +7,8 @@ import type { Locale } from "@/lib/i18n"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
+import i18n from "@/i18n/config"
 
 const languages = {
   en: { name: "English", flag: "🇺🇸" },
@@ -15,9 +17,13 @@ const languages = {
 }
 
 export function LanguageSwitcher() {
-  const { locale, setLocale } = useLanguage()
+  const { locale: contextLocale, setLocale } = useLanguage()
+  const { i18n: i18nInstance } = useTranslation()
   const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  
+  // Get current language from i18n
+  const currentLanguage = i18nInstance.language || "en"
 
   useEffect(() => {
     setMounted(true)
@@ -58,10 +64,17 @@ export function LanguageSwitcher() {
         {Object.entries(languages).map(([code, { name, flag }]) => (
           <DropdownMenuItem
             key={code}
-            onClick={() => setLocale(code as Locale)}
+            onClick={() => {
+              // Update both systems for compatibility
+              setLocale(code as Locale);
+              i18n.changeLanguage(code);
+              localStorage.setItem("language", code);
+              // Dispatch custom event to notify other components
+              window.dispatchEvent(new CustomEvent("languagechange", { detail: code }));
+            }}
             className={cn(
               "transition-colors",
-              locale === code
+              currentLanguage === code
                 ? isDark
                   ? "bg-purple-500/20 text-cyan-400"
                   : "bg-cyan-50 text-cyan-600"

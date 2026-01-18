@@ -22,6 +22,7 @@ import {
 import { InvoiceViewer } from "@/components/invoices/InvoiceViewer";
 import { FileText, Loader2, AlertCircle } from "lucide-react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { useTranslation } from "react-i18next";
 import {
   fetchInvoices,
   fetchInvoiceById,
@@ -29,6 +30,7 @@ import {
 } from "@/features/restaurant/invoices/invoicesThunks";
 
 export function InvoicesManagement() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
     null
@@ -138,21 +140,21 @@ export function InvoicesManagement() {
       {/* Invoices Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Billing History</CardTitle>
+          <CardTitle>{t("dashboard.invoices.billingHistory")}</CardTitle>
           <CardDescription>
-            All your subscription invoices and payment records
+            {t("dashboard.invoices.allSubscriptionInvoices")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {loading.invoices ? (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="h-8 w-8 animate-spin" />
-              <span className="ml-2">Loading invoices...</span>
+              <span className="ml-2">{t("dashboard.invoices.loadingInvoices")}</span>
             </div>
           ) : invoices.length === 0 ? (
             <div className="text-center p-8">
               <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No invoices found</p>
+              <p className="text-muted-foreground">{t("dashboard.invoices.noInvoicesFound")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -160,15 +162,15 @@ export function InvoicesManagement() {
                 <Table className="table-fixed w-full">
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-20">ID</TableHead>
-                      <TableHead className="w-32">Restaurant</TableHead>
-                      <TableHead className="w-24">Plan</TableHead>
-                      <TableHead className="w-20">Amount</TableHead>
-                      <TableHead className="w-24">Period</TableHead>
-                      <TableHead className="w-20">Payment</TableHead>
-                      <TableHead className="w-20">Status</TableHead>
-                      <TableHead className="w-20">Date</TableHead>
-                      <TableHead className="w-20">Actions</TableHead>
+                      <TableHead className="w-20">{t("dashboard.invoices.id")}</TableHead>
+                      <TableHead className="w-32">{t("dashboard.invoices.restaurant")}</TableHead>
+                      <TableHead className="w-24">{t("dashboard.invoices.plan")}</TableHead>
+                      <TableHead className="w-20">{t("dashboard.invoices.amount")}</TableHead>
+                      <TableHead className="w-24">{t("dashboard.invoices.period")}</TableHead>
+                      <TableHead className="w-20">{t("dashboard.invoices.payment")}</TableHead>
+                      <TableHead className="w-20">{t("dashboard.invoices.status")}</TableHead>
+                      <TableHead className="w-20">{t("dashboard.invoices.date")}</TableHead>
+                      <TableHead className="w-20">{t("dashboard.invoices.actions")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -243,7 +245,7 @@ export function InvoicesManagement() {
                             className="text-xs px-2 py-1 h-7"
                             onClick={() => handleInvoiceClick(invoice.id)}
                           >
-                            View
+                            {t("dashboard.invoices.view")}
                           </Button>
                         </TableCell>
                       </TableRow>

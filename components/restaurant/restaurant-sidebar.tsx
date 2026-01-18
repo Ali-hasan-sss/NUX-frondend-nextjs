@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { logout } from "@/features/auth/authSlice";
+import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
   QrCode,
@@ -30,37 +31,38 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-const singleNavigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
-  { name: "Subscription", href: "/dashboard/subscription", icon: CreditCard },
-  { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
-];
-
-const groupedNavigation = [
-  {
-    groupName: "QR & Payments",
-    groupIcon: Wallet,
-    items: [
-      { name: "QR Codes", href: "/dashboard/qr-codes", icon: QrCode },
-      { name: "QR Scans", href: "/dashboard/qr-scans", icon: ScanLine },
-      { name: "Payments", href: "/dashboard/payments", icon: Receipt },
-    ],
-  },
-  {
-    groupName: "Restaurant",
-    groupIcon: Store,
-    items: [
-      { name: "Menu", href: "/dashboard/menu", icon: Menu },
-      { name: "Packages", href: "/dashboard/packages", icon: Package },
-      { name: "Ads", href: "/dashboard/ads", icon: Megaphone },
-      { name: "Groups", href: "/dashboard/groups", icon: Users },
-    ],
-  },
-];
-
 export function RestaurantSidebar() {
+  const { t } = useTranslation();
+  
+  const singleNavigation = [
+    { name: t("dashboard.sidebar.dashboard"), href: "/dashboard", icon: LayoutDashboard },
+    { name: t("dashboard.sidebar.notifications"), href: "/dashboard/notifications", icon: Bell },
+    { name: t("dashboard.sidebar.subscription"), href: "/dashboard/subscription", icon: CreditCard },
+    { name: t("dashboard.sidebar.invoices"), href: "/dashboard/invoices", icon: FileText },
+    { name: t("dashboard.sidebar.settings"), href: "/dashboard/settings", icon: Settings },
+  ];
+
+  const groupedNavigation = [
+    {
+      groupName: t("dashboard.sidebar.qrAndPayments"),
+      groupIcon: Wallet,
+      items: [
+        { name: t("dashboard.sidebar.qrCodes"), href: "/dashboard/qr-codes", icon: QrCode },
+        { name: t("dashboard.sidebar.qrScans"), href: "/dashboard/qr-scans", icon: ScanLine },
+        { name: t("dashboard.sidebar.payments"), href: "/dashboard/payments", icon: Receipt },
+      ],
+    },
+    {
+      groupName: t("dashboard.sidebar.restaurant"),
+      groupIcon: Store,
+      items: [
+        { name: t("dashboard.sidebar.menu"), href: "/dashboard/menu", icon: Menu },
+        { name: t("dashboard.sidebar.packages"), href: "/dashboard/packages", icon: Package },
+        { name: t("dashboard.sidebar.ads"), href: "/dashboard/ads", icon: Megaphone },
+        { name: t("dashboard.sidebar.groups"), href: "/dashboard/groups", icon: Users },
+      ],
+    },
+  ];
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -280,7 +282,7 @@ export function RestaurantSidebar() {
               className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
+              {t("dashboard.sidebar.signOut")}
             </Button>
           </div>
         </div>

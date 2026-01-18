@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -48,6 +49,7 @@ function PrintableFrame({
 }
 
 export function QRCodeManagement() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { data, isLoading } = useAppSelector((s) => s.restaurantAccount);
   const printRef = useRef<HTMLDivElement>(null);
@@ -121,16 +123,16 @@ export function QRCodeManagement() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
-            QR Codes
+            {t("dashboard.qrCodes.title")}
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground truncate">
-            Print and manage your restaurant QR codes
+            {t("dashboard.qrCodes.description")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2">
             <span className="text-xs sm:text-sm text-muted-foreground">
-              Auto refresh
+              {t("dashboard.qrCodes.autoRefresh")}
             </span>
             <Switch
               onCheckedChange={(checked) => setAutoRefresh(!!checked)}
@@ -143,10 +145,10 @@ export function QRCodeManagement() {
             disabled={isLoading}
             className="h-9 px-3 sm:h-10 sm:px-4"
           >
-            Regenerate Drink & Meal
+            {t("dashboard.qrCodes.regenerateDrinkMeal")}
           </Button>
           <Button onClick={handlePrint} className="h-9 px-3 sm:h-10 sm:px-4">
-            Print All
+            {t("dashboard.qrCodes.printAll")}
           </Button>
         </div>
       </div>
@@ -154,9 +156,9 @@ export function QRCodeManagement() {
       <div className="flex flex-col gap-4" ref={printRef}>
         <Card>
           <CardHeader>
-            <CardTitle>Drink QR</CardTitle>
+            <CardTitle>{t("dashboard.qrCodes.drinkQR")}</CardTitle>
             <CardDescription>
-              Scan to collect drink stars at {data?.name ?? "your restaurant"}
+              {t("dashboard.qrCodes.scanToCollectDrink")} {data?.name ?? t("dashboard.qrCodes.drinkQR")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -164,7 +166,7 @@ export function QRCodeManagement() {
               <div ref={drinkRef} className="frame">
                 <PrintableFrame
                   title={data?.name ?? "Restaurant"}
-                  subtitle="Drink QR"
+                  subtitle={t("dashboard.qrCodes.drinkQR")}
                 >
                   {data?.qrCode_drink ? (
                     <img
@@ -173,11 +175,11 @@ export function QRCodeManagement() {
                       )}`}
                       width={240}
                       height={240}
-                      alt="Drink QR"
+                      alt={t("dashboard.qrCodes.drinkQR")}
                     />
                   ) : (
                     <div className="text-sm text-muted-foreground">
-                      No drink QR available
+{t("dashboard.qrCodes.noDrinkQRAvailable")}
                     </div>
                   )}
                 </PrintableFrame>
@@ -190,15 +192,15 @@ export function QRCodeManagement() {
                   drinkRef.current && printElement(drinkRef.current)
                 }
               >
-                Print
+{t("dashboard.qrCodes.print")}
               </Button>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button>Fullscreen</Button>
+                  <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[640px]">
                   <DialogHeader>
-                    <DialogTitle>Drink QR</DialogTitle>
+                    <DialogTitle>{t("dashboard.qrCodes.drinkQR")}</DialogTitle>
                   </DialogHeader>
                   <div className="flex justify-center">
                     {data?.qrCode_drink ? (
@@ -208,7 +210,7 @@ export function QRCodeManagement() {
                         )}`}
                         width={512}
                         height={512}
-                        alt="Drink QR"
+                        alt={t("dashboard.qrCodes.drinkQR")}
                       />
                     ) : null}
                   </div>
@@ -220,9 +222,9 @@ export function QRCodeManagement() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Meal QR</CardTitle>
+            <CardTitle>{t("dashboard.qrCodes.mealQR")}</CardTitle>
             <CardDescription>
-              Scan to collect meal stars at {data?.name ?? "your restaurant"}
+              {t("dashboard.qrCodes.scanToCollectMeal")} {data?.name ?? t("dashboard.qrCodes.mealQR")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -230,7 +232,7 @@ export function QRCodeManagement() {
               <div ref={mealRef} className="frame">
                 <PrintableFrame
                   title={data?.name ?? "Restaurant"}
-                  subtitle="Meal QR"
+                  subtitle={t("dashboard.qrCodes.mealQR")}
                 >
                   {data?.qrCode_meal ? (
                     <img
@@ -239,11 +241,11 @@ export function QRCodeManagement() {
                       )}`}
                       width={240}
                       height={240}
-                      alt="Meal QR"
+                      alt={t("dashboard.qrCodes.mealQR")}
                     />
                   ) : (
                     <div className="text-sm text-muted-foreground">
-                      No meal QR available
+{t("dashboard.qrCodes.noMealQRAvailable")}
                     </div>
                   )}
                 </PrintableFrame>
@@ -254,15 +256,15 @@ export function QRCodeManagement() {
                 variant="outline"
                 onClick={() => mealRef.current && printElement(mealRef.current)}
               >
-                Print
+{t("dashboard.qrCodes.print")}
               </Button>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button>Fullscreen</Button>
+                  <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[640px]">
                   <DialogHeader>
-                    <DialogTitle>Meal QR</DialogTitle>
+                    <DialogTitle>{t("dashboard.qrCodes.mealQR")}</DialogTitle>
                   </DialogHeader>
                   <div className="flex justify-center">
                     {data?.qrCode_meal ? (
@@ -272,7 +274,7 @@ export function QRCodeManagement() {
                         )}`}
                         width={512}
                         height={512}
-                        alt="Meal QR"
+                        alt={t("dashboard.qrCodes.mealQR")}
                       />
                     ) : null}
                   </div>
@@ -284,8 +286,8 @@ export function QRCodeManagement() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Menu QR</CardTitle>
-            <CardDescription>Scan to open the restaurant menu</CardDescription>
+            <CardTitle>{t("dashboard.qrCodes.menuQR")}</CardTitle>
+            <CardDescription>{t("dashboard.qrCodes.scanToViewMenu")} {data?.name ?? ""}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex justify-center">
@@ -301,7 +303,7 @@ export function QRCodeManagement() {
                       )}`}
                       width={240}
                       height={240}
-                      alt="Menu QR"
+                      alt={t("dashboard.qrCodes.menuQR")}
                     />
                   ) : (
                     <div className="text-sm text-muted-foreground">
@@ -319,15 +321,15 @@ export function QRCodeManagement() {
                 variant="outline"
                 onClick={() => menuRef.current && printElement(menuRef.current)}
               >
-                Print
+{t("dashboard.qrCodes.print")}
               </Button>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button>Fullscreen</Button>
+                  <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[640px]">
                   <DialogHeader>
-                    <DialogTitle>Menu QR</DialogTitle>
+                    <DialogTitle>{t("dashboard.qrCodes.menuQR")}</DialogTitle>
                   </DialogHeader>
                   <div className="flex justify-center">
                     {menuUrl ? (
@@ -337,7 +339,7 @@ export function QRCodeManagement() {
                         )}`}
                         width={512}
                         height={512}
-                        alt="Menu QR"
+                        alt={t("dashboard.qrCodes.menuQR")}
                       />
                     ) : null}
                   </div>

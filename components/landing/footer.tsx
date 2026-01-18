@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 export function Footer() {
   const { t } = useTranslation();
   const { theme } = useTheme();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -108,7 +110,7 @@ export function Footer() {
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="#features"
+                  href="/#features"
                   className={cn(
                     "transition-colors",
                     isDark
@@ -121,7 +123,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#pricing"
+                  href="/#pricing"
                   className={cn(
                     "transition-colors",
                     isDark
@@ -155,46 +157,58 @@ export function Footer() {
                 isDark ? "text-white" : "text-gray-900"
               )}
             >
-              {t("landing.footer.support")}
+              {t("landing.footer.company") || "Company"}
             </h3>
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="#"
+                  href="/about"
                   className={cn(
-                    "transition-colors",
-                    isDark
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    pathname === "/about"
+                      ? isDark
+                        ? "text-cyan-400 bg-purple-500/20"
+                        : "text-cyan-600 bg-cyan-50"
+                      : isDark
                       ? "text-white/70 hover:text-cyan-400"
                       : "text-gray-600 hover:text-cyan-600"
                   )}
                 >
-                  {t("landing.footer.helpCenter")}
+                  {t("landing.nav.about") || "About Us"}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/services"
                   className={cn(
-                    "transition-colors",
-                    isDark
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    pathname === "/services"
+                      ? isDark
+                        ? "text-cyan-400 bg-purple-500/20"
+                        : "text-cyan-600 bg-cyan-50"
+                      : isDark
                       ? "text-white/70 hover:text-cyan-400"
                       : "text-gray-600 hover:text-cyan-600"
                   )}
                 >
-                  {t("landing.footer.documentation")}
+                  {t("landing.nav.services") || "Services"}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/contact"
                   className={cn(
-                    "transition-colors",
-                    isDark
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    pathname === "/contact"
+                      ? isDark
+                        ? "text-cyan-400 bg-purple-500/20"
+                        : "text-cyan-600 bg-cyan-50"
+                      : isDark
                       ? "text-white/70 hover:text-cyan-400"
                       : "text-gray-600 hover:text-cyan-600"
                   )}
                 >
-                  {t("landing.footer.contactUs")}
+                  {t("landing.nav.contact") || "Contact Us"}
                 </Link>
               </li>
             </ul>
@@ -207,46 +221,41 @@ export function Footer() {
                 isDark ? "text-white" : "text-gray-900"
               )}
             >
-              {t("landing.footer.legal")}
+              {t("landing.footer.account") || "Account"}
             </h3>
             <ul className="space-y-2">
               <li>
                 <Link
-                  href="#"
+                  href="/auth/login"
                   className={cn(
-                    "transition-colors",
-                    isDark
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    pathname === "/auth/login"
+                      ? isDark
+                        ? "text-cyan-400 bg-purple-500/20"
+                        : "text-cyan-600 bg-cyan-50"
+                      : isDark
                       ? "text-white/70 hover:text-cyan-400"
                       : "text-gray-600 hover:text-cyan-600"
                   )}
                 >
-                  {t("landing.footer.privacyPolicy")}
+                  {t("landing.auth.login") || "Login"}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/auth/register"
                   className={cn(
-                    "transition-colors",
-                    isDark
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    pathname === "/auth/register"
+                      ? isDark
+                        ? "text-cyan-400 bg-purple-500/20"
+                        : "text-cyan-600 bg-cyan-50"
+                      : isDark
                       ? "text-white/70 hover:text-cyan-400"
                       : "text-gray-600 hover:text-cyan-600"
                   )}
                 >
-                  {t("landing.footer.termsOfService")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="#"
-                  className={cn(
-                    "transition-colors",
-                    isDark
-                      ? "text-white/70 hover:text-cyan-400"
-                      : "text-gray-600 hover:text-cyan-600"
-                  )}
-                >
-                  {t("landing.footer.cookiePolicy")}
+                  {t("landing.auth.signUp") || "Sign Up"}
                 </Link>
               </li>
             </ul>

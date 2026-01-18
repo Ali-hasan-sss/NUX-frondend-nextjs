@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -47,6 +48,7 @@ import {
 } from "@/components/ui/pagination";
 
 export function PaymentsManagement() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { payments, pagination, stats, isLoading, error } = useSelector(
     (state: RootState) => state.payments
@@ -191,21 +193,21 @@ export function PaymentsManagement() {
         return (
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             <DollarSign className="h-3 w-3 mr-1" />
-            Balance
+{t("dashboard.payments.balance")}
           </Badge>
         );
       case "stars_meal":
         return (
           <Badge variant="secondary" className="bg-orange-100 text-orange-800">
             <Star className="h-3 w-3 mr-1" />
-            Meal Stars
+{t("dashboard.payments.mealStarsType")}
           </Badge>
         );
       case "stars_drink":
         return (
           <Badge variant="secondary" className="bg-blue-100 text-blue-800">
             <Coins className="h-3 w-3 mr-1" />
-            Drink Stars
+{t("dashboard.payments.drinkStarsType")}
           </Badge>
         );
       default:
@@ -229,7 +231,7 @@ export function PaymentsManagement() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <p>Loading payment data...</p>
+          <p>{t("dashboard.payments.loadingPaymentData")}</p>
         </div>
       </div>
     );
@@ -239,7 +241,7 @@ export function PaymentsManagement() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <p className="text-red-500">Error loading data: {error}</p>
+          <p className="text-red-500">{t("dashboard.payments.errorLoadingData")}: {error}</p>
         </div>
       </div>
     );
@@ -249,10 +251,10 @@ export function PaymentsManagement() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Customer Payments
+          {t("dashboard.payments.title")}
         </h1>
         <p className="text-muted-foreground">
-          View and manage customer payments for the restaurant
+          {t("dashboard.payments.description")}
         </p>
       </div>
 
@@ -262,7 +264,7 @@ export function PaymentsManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Total Payments
+                {t("dashboard.payments.totalPayments")}
               </CardTitle>
               <CreditCard className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -271,7 +273,7 @@ export function PaymentsManagement() {
                 {stats.totalPayments.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                {formatCurrency(stats.totalAmount)} total
+                {formatCurrency(stats.totalAmount)} {t("dashboard.payments.total")}
               </p>
             </CardContent>
           </Card>
@@ -286,7 +288,7 @@ export function PaymentsManagement() {
             <CardContent>
               <div className="text-2xl font-bold">{stats.uniqueCustomers}</div>
               <p className="text-xs text-muted-foreground">
-                Different customers
+{t("dashboard.payments.differentCustomers")}
               </p>
             </CardContent>
           </Card>
@@ -294,14 +296,14 @@ export function PaymentsManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Today's Payments
+                {t("dashboard.payments.todaysPayments")}
               </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.paymentsToday}</div>
               <p className="text-xs text-muted-foreground">
-                This week: {stats.paymentsThisWeek}
+{t("dashboard.payments.thisWeeksPayments")}: {stats.paymentsThisWeek}
               </p>
             </CardContent>
           </Card>
@@ -309,7 +311,7 @@ export function PaymentsManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                This Month's Payments
+                {t("dashboard.payments.thisMonthsPayments")}
               </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -331,7 +333,7 @@ export function PaymentsManagement() {
               <div className="flex items-center space-x-2">
                 <DollarSign className="h-5 w-5 text-green-600" />
                 <div>
-                  <p className="text-sm font-medium">Balance Payments</p>
+                  <p className="text-sm font-medium">{t("dashboard.payments.balancePayments")}</p>
                   <p className="text-2xl font-bold">{stats.balancePayments}</p>
                 </div>
               </div>
@@ -342,7 +344,7 @@ export function PaymentsManagement() {
               <div className="flex items-center space-x-2">
                 <Star className="h-5 w-5 text-orange-600" />
                 <div>
-                  <p className="text-sm font-medium">Meal Stars</p>
+                  <p className="text-sm font-medium">{t("dashboard.payments.mealStars")}</p>
                   <p className="text-2xl font-bold">
                     {stats.starsMealPayments}
                   </p>
@@ -355,7 +357,7 @@ export function PaymentsManagement() {
               <div className="flex items-center space-x-2">
                 <Coins className="h-5 w-5 text-blue-600" />
                 <div>
-                  <p className="text-sm font-medium">Drink Stars</p>
+                  <p className="text-sm font-medium">{t("dashboard.payments.drinkStars")}</p>
                   <p className="text-2xl font-bold">
                     {stats.starsDrinkPayments}
                   </p>
@@ -371,26 +373,26 @@ export function PaymentsManagement() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Filter className="h-5 w-5" />
-            <span>Filter Data</span>
+            <span>{t("dashboard.payments.filterData")}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <FilterBar>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <LabeledSelect
-                label="Date Range"
+                label={t("dashboard.payments.dateRange")}
                 value={filters.dateRange}
                 onChange={(value) => handleFilterChange("dateRange", value)}
                 options={[
-                  { label: "All time", value: "all" },
-                  { label: "Last 24 hours", value: "last24h" },
-                  { label: "Last 7 days", value: "last7days" },
-                  { label: "Last 30 days", value: "last30days" },
+                  { label: t("dashboard.payments.allTime"), value: "all" },
+                  { label: t("dashboard.payments.last24Hours"), value: "last24h" },
+                  { label: t("dashboard.payments.last7Days"), value: "last7days" },
+                  { label: t("dashboard.payments.last30Days"), value: "last30days" },
                 ]}
               />
 
               <LabeledSelect
-                label="Payment Type"
+                label={t("dashboard.payments.paymentType")}
                 value={filters.paymentType}
                 onChange={(value) => handleFilterChange("paymentType", value)}
                 options={[
@@ -414,7 +416,7 @@ export function PaymentsManagement() {
                   onClick={clearFilters}
                   className="w-full"
                 >
-                  Clear Filters
+{t("dashboard.payments.clearFilters")}
                 </Button>
               </div>
             </div>
@@ -425,9 +427,9 @@ export function PaymentsManagement() {
       {/* Payments Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Payment Records</CardTitle>
+          <CardTitle>{t("dashboard.payments.paymentRecords")}</CardTitle>
           <CardDescription>
-            View all customer payments with details and timestamps
+            {t("dashboard.payments.viewAllPaymentRecords")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -436,7 +438,7 @@ export function PaymentsManagement() {
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                 <p className="text-muted-foreground">
-                  Loading payment records...
+{t("dashboard.payments.loadingPaymentRecords")}
                 </p>
               </div>
             </div>
@@ -451,18 +453,18 @@ export function PaymentsManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Payment Type</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Payment Date</TableHead>
+                      <TableHead>{t("dashboard.payments.customer")}</TableHead>
+                      <TableHead>{t("dashboard.payments.email")}</TableHead>
+                      <TableHead>{t("dashboard.payments.type")}</TableHead>
+                      <TableHead>{t("dashboard.payments.amount")}</TableHead>
+                      <TableHead>{t("dashboard.payments.date")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {payments.map((payment: RestaurantPayment) => (
                       <TableRow key={payment.id}>
                         <TableCell className="font-medium">
-                          {payment.user.fullName || "Not specified"}
+{payment.user.fullName || t("dashboard.payments.notSpecified")}
                         </TableCell>
                         <TableCell>{payment.user.email}</TableCell>
                         <TableCell>
@@ -484,14 +486,14 @@ export function PaymentsManagement() {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Showing{" "}
+{t("dashboard.payments.showing")}{" "}
                     {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}{" "}
-                    to{" "}
+                    {t("dashboard.payments.to")}{" "}
                     {Math.min(
                       pagination.currentPage * pagination.itemsPerPage,
                       pagination.totalItems
                     )}{" "}
-                    of {pagination.totalItems} items
+                    {t("dashboard.payments.of")} {pagination.totalItems} {t("dashboard.payments.items")}
                   </div>
                   <Pagination>
                     <PaginationContent>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -26,6 +27,7 @@ import { GroupFormModal } from "./group-form-modal";
 import { GroupInvitesManagement } from "./group-invites-management";
 
 export function GroupManagement() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { groupDetails, members, joinRequests, isLoading } = useAppSelector(
     (s) => s.restaurantGroups
@@ -132,10 +134,10 @@ export function GroupManagement() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Group Management
+            {t("dashboard.groups.title")}
           </h1>
           <p className="text-muted-foreground">
-            Manage your restaurant group and invitations
+            {t("dashboard.groups.description")}
           </p>
         </div>
       </div>
@@ -147,7 +149,7 @@ export function GroupManagement() {
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm font-medium">My Group</p>
+                <p className="text-sm font-medium">{t("dashboard.groups.myGroup")}</p>
                 <p className="text-2xl font-bold">{groupDetails ? 1 : 0}</p>
               </div>
             </div>
@@ -158,7 +160,7 @@ export function GroupManagement() {
             <div className="flex items-center space-x-2">
               <Send className="h-5 w-5 text-secondary" />
               <div>
-                <p className="text-sm font-medium">Pending Invites</p>
+                <p className="text-sm font-medium">{t("dashboard.groups.pendingInvites")}</p>
                 <p className="text-2xl font-bold">{pendingInvites.length}</p>
               </div>
             </div>
@@ -169,7 +171,7 @@ export function GroupManagement() {
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-green-600" />
               <div>
-                <p className="text-sm font-medium">Total Members</p>
+                <p className="text-sm font-medium">{t("dashboard.groups.totalMembers")}</p>
                 <p className="text-2xl font-bold">{members.length}</p>
               </div>
             </div>
@@ -182,7 +184,7 @@ export function GroupManagement() {
         <>
           <Card>
             <CardHeader>
-              <CardTitle>Create Group</CardTitle>
+              <CardTitle>{t("dashboard.groups.createGroup")}</CardTitle>
               <CardDescription>
                 Each restaurant can be in only one group
               </CardDescription>
@@ -190,7 +192,7 @@ export function GroupManagement() {
             <CardContent>
               <Button onClick={() => setIsCreateModalOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Create New Group
+{t("dashboard.groups.create")}
               </Button>
             </CardContent>
           </Card>
@@ -208,7 +210,7 @@ export function GroupManagement() {
               </div>
               <div className="flex items-center space-x-2">
                 <Badge variant={isOwner ? "default" : "secondary"}>
-                  {isOwner ? "owner" : "member"}
+{isOwner ? t("dashboard.groups.owner") : t("dashboard.groups.member")}
                 </Badge>
                 {isOwner && (
                   <Button
@@ -217,7 +219,7 @@ export function GroupManagement() {
                     onClick={() => setIsEditModalOpen(true)}
                   >
                     <Edit className="mr-2 h-4 w-4" />
-                    Edit
+{t("dashboard.groups.edit")}
                   </Button>
                 )}
               </div>
@@ -228,7 +230,7 @@ export function GroupManagement() {
               <div className="flex items-center space-x-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {members.length} members
+{members.length} {t("dashboard.groups.members")}
                 </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,7 +259,7 @@ export function GroupManagement() {
                         className="bg-transparent"
                         onClick={() => handleRemoveMember(m.id)}
                       >
-                        Remove
+{t("dashboard.groups.removeMember")}
                       </Button>
                     )}
                   </div>

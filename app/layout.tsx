@@ -1,12 +1,24 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Providers } from "@/components/providers"
 import { Suspense } from "react"
+import { Cairo, Poppins } from "next/font/google"
 import "./globals.css"
+
+const cairo = Cairo({
+  subsets: ["latin", "arabic"],
+  variable: "--font-cairo",
+  display: "swap",
+})
+
+const poppins = Poppins({
+  weight: ["300", "400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-poppins",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "RestaurantHub - Subscription Management Platform",
@@ -21,7 +33,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+      <body className={`${cairo.variable} ${poppins.variable} font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Suspense fallback={null}>
             <Providers>{children}</Providers>

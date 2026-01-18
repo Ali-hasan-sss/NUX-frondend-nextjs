@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -13,8 +14,9 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export function Header() {
   }
 
   const isDark = theme === "dark" || theme === "system";
+  const isRTL = i18n.language === "ar";
 
   return (
     <header
@@ -36,9 +39,9 @@ export function Header() {
           : "border-gray-200 bg-white/95 bg-white/60"
       )}
     >
-      <div className="mx-auto max-w-7xl w-full px-4 md:px-6 lg:px-8 flex h-20 items-center justify-between">
-        {/* Logo - Larger */}
-        <Link href="/" className="flex items-center space-x-2">
+      <div className="mx-auto max-w-7xl w-full px-4 md:px-6 lg:px-8 flex h-20 items-center relative">
+        {/* Logo - Larger - Left in LTR, Right in RTL */}
+        <Link href="/" className={cn("flex items-center gap-2 z-10", isRTL ? "ml-auto" : "")}>
           <Image
             src="/images/logo.png"
             alt="NUX"
@@ -49,8 +52,72 @@ export function Header() {
           />
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Desktop Navigation Links - Centered */}
+        <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+            <Link
+              href="/"
+              className={cn(
+                "text-sm font-medium transition-colors relative px-2 py-1 rounded-md",
+                pathname === "/"
+                  ? isDark
+                    ? "text-cyan-400 bg-purple-500/20"
+                    : "text-cyan-600 bg-cyan-50"
+                  : isDark
+                  ? "text-white/80 hover:text-cyan-400"
+                  : "text-gray-700 hover:text-cyan-600"
+              )}
+            >
+              {t("landing.nav.home") || "Home"}
+            </Link>
+            <Link
+              href="/about"
+              className={cn(
+                "text-sm font-medium transition-colors relative px-2 py-1 rounded-md",
+                pathname === "/about"
+                  ? isDark
+                    ? "text-cyan-400 bg-purple-500/20"
+                    : "text-cyan-600 bg-cyan-50"
+                  : isDark
+                  ? "text-white/80 hover:text-cyan-400"
+                  : "text-gray-700 hover:text-cyan-600"
+              )}
+            >
+              {t("landing.nav.about") || "About Us"}
+            </Link>
+            <Link
+              href="/services"
+              className={cn(
+                "text-sm font-medium transition-colors relative px-2 py-1 rounded-md",
+                pathname === "/services"
+                  ? isDark
+                    ? "text-cyan-400 bg-purple-500/20"
+                    : "text-cyan-600 bg-cyan-50"
+                  : isDark
+                  ? "text-white/80 hover:text-cyan-400"
+                  : "text-gray-700 hover:text-cyan-600"
+              )}
+            >
+              {t("landing.nav.services") || "Services"}
+            </Link>
+            <Link
+              href="/contact"
+              className={cn(
+                "text-sm font-medium transition-colors relative px-2 py-1 rounded-md",
+                pathname === "/contact"
+                  ? isDark
+                    ? "text-cyan-400 bg-purple-500/20"
+                    : "text-cyan-600 bg-cyan-50"
+                  : isDark
+                  ? "text-white/80 hover:text-cyan-400"
+                  : "text-gray-700 hover:text-cyan-600"
+              )}
+            >
+              {t("landing.nav.contact") || "Contact Us"}
+            </Link>
+        </nav>
+
+        {/* Desktop Right Side (LTR) / Left Side (RTL) - Language Switcher, Theme Toggle, Buttons */}
+        <div className={cn("hidden md:flex items-center gap-4", isRTL ? "mr-auto" : "ml-auto")}>
           {/* Language Switcher */}
           <LanguageSwitcher />
 
@@ -120,7 +187,73 @@ export function Header() {
           )}
         >
           <nav className="container py-4 space-y-4">
-            <div className="flex flex-col space-y-2 pt-2">
+            <div className="flex flex-col space-y-3 pt-2">
+              <Link
+                href="/"
+                onClick={() => setIsMenuOpen(false)}
+                className={cn(
+                  "text-sm font-medium transition-colors py-2 px-2 rounded-md",
+                  pathname === "/"
+                    ? isDark
+                      ? "text-cyan-400 bg-purple-500/20"
+                      : "text-cyan-600 bg-cyan-50"
+                    : isDark
+                    ? "text-white/80 hover:text-cyan-400"
+                    : "text-gray-700 hover:text-cyan-600"
+                )}
+              >
+                {t("landing.nav.home") || "Home"}
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setIsMenuOpen(false)}
+                className={cn(
+                  "text-sm font-medium transition-colors py-2 px-2 rounded-md",
+                  pathname === "/about"
+                    ? isDark
+                      ? "text-cyan-400 bg-purple-500/20"
+                      : "text-cyan-600 bg-cyan-50"
+                    : isDark
+                    ? "text-white/80 hover:text-cyan-400"
+                    : "text-gray-700 hover:text-cyan-600"
+                )}
+              >
+                {t("landing.nav.about") || "About Us"}
+              </Link>
+              <Link
+                href="/services"
+                onClick={() => setIsMenuOpen(false)}
+                className={cn(
+                  "text-sm font-medium transition-colors py-2 px-2 rounded-md",
+                  pathname === "/services"
+                    ? isDark
+                      ? "text-cyan-400 bg-purple-500/20"
+                      : "text-cyan-600 bg-cyan-50"
+                    : isDark
+                    ? "text-white/80 hover:text-cyan-400"
+                    : "text-gray-700 hover:text-cyan-600"
+                )}
+              >
+                {t("landing.nav.services") || "Services"}
+              </Link>
+              <Link
+                href="/contact"
+                onClick={() => setIsMenuOpen(false)}
+                className={cn(
+                  "text-sm font-medium transition-colors py-2 px-2 rounded-md",
+                  pathname === "/contact"
+                    ? isDark
+                      ? "text-cyan-400 bg-purple-500/20"
+                      : "text-cyan-600 bg-cyan-50"
+                    : isDark
+                    ? "text-white/80 hover:text-cyan-400"
+                    : "text-gray-700 hover:text-cyan-600"
+                )}
+              >
+                {t("landing.nav.contact") || "Contact Us"}
+              </Link>
+            </div>
+            <div className="flex flex-col space-y-2 pt-2 border-t border-gray-200 dark:border-purple-500/20">
               <Link href="/auth/login" onClick={() => setIsMenuOpen(false)}>
                 <Button
                   variant="outline"

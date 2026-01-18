@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -39,6 +40,7 @@ import {
 } from "@/components/ui/pagination";
 
 export function QRScansManagement() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { scans, pagination, stats, isLoading, error } = useSelector(
     (state: RootState) => state.qrScans
@@ -171,11 +173,11 @@ export function QRScansManagement() {
   const getScanTypeBadge = (type: string) => {
     return type === "drink" ? (
       <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-        Drink
+        {t("dashboard.qrScans.drink")}
       </Badge>
     ) : (
       <Badge variant="secondary" className="bg-green-100 text-green-800">
-        Meal
+        {t("dashboard.qrScans.meal")}
       </Badge>
     );
   };
@@ -183,9 +185,9 @@ export function QRScansManagement() {
   // Only show full page loading on initial load when no data exists
   if (isLoading && scans.length === 0 && isInitialLoad) {
     return (
-      <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <p>Loading QR scan data...</p>
+          <p>{t("dashboard.qrScans.loadingQRScanData")}</p>
         </div>
       </div>
     );
@@ -195,7 +197,7 @@ export function QRScansManagement() {
     return (
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-center h-64">
-          <p className="text-red-500">Error loading data: {error}</p>
+          <p className="text-red-500">{t("dashboard.qrScans.errorLoadingData")}: {error}</p>
         </div>
       </div>
     );
@@ -205,10 +207,10 @@ export function QRScansManagement() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          QR Scans Management
+          {t("dashboard.qrScans.title")}
         </h1>
         <p className="text-muted-foreground">
-          View and manage QR code scan records for the restaurant
+          {t("dashboard.qrScans.description")}
         </p>
       </div>
 
@@ -217,7 +219,7 @@ export function QRScansManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Scans</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("dashboard.qrScans.totalScans")}</CardTitle>
               <QrCode className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -225,7 +227,7 @@ export function QRScansManagement() {
                 {stats.totalScans.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                {stats.drinkScans} drinks, {stats.mealScans} meals
+                {stats.drinkScans} {t("dashboard.qrScans.drinks")}, {stats.mealScans} {t("dashboard.qrScans.meals")}
               </p>
             </CardContent>
           </Card>
@@ -233,14 +235,14 @@ export function QRScansManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Unique Users
+{t("dashboard.qrScans.uniqueUsers")}
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.uniqueUsers}</div>
               <p className="text-xs text-muted-foreground">
-                Different customers
+                {t("dashboard.qrScans.differentCustomers")}
               </p>
             </CardContent>
           </Card>
@@ -248,14 +250,14 @@ export function QRScansManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Today's Scans
+                {t("dashboard.qrScans.todaysScans")}
               </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.scansToday}</div>
               <p className="text-xs text-muted-foreground">
-                This week: {stats.scansThisWeek}
+                {t("dashboard.qrScans.thisWeeksScans")}: {stats.scansThisWeek}
               </p>
             </CardContent>
           </Card>
@@ -263,13 +265,13 @@ export function QRScansManagement() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                This Month's Scans
+                {t("dashboard.qrScans.thisMonthsScans")}
               </CardTitle>
               <Calendar className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.scansThisMonth}</div>
-              <p className="text-xs text-muted-foreground">Last 30 days</p>
+              <p className="text-xs text-muted-foreground">{t("dashboard.qrScans.last30Days")}</p>
             </CardContent>
           </Card>
         </div>
@@ -280,32 +282,32 @@ export function QRScansManagement() {
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <Filter className="h-5 w-5" />
-            <span>Filter Data</span>
+            <span>{t("dashboard.qrScans.filterData")}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <FilterBar>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <LabeledSelect
-                label="Date Range"
+                label={t("dashboard.qrScans.dateRange")}
                 value={filters.dateRange}
                 onChange={(value) => handleFilterChange("dateRange", value)}
                 options={[
-                  { label: "All time", value: "all" },
-                  { label: "Last 24 hours", value: "last24h" },
-                  { label: "Last 7 days", value: "last7days" },
-                  { label: "Last 30 days", value: "last30days" },
+                  { label: t("dashboard.qrScans.allTime"), value: "all" },
+                  { label: t("dashboard.qrScans.last24Hours"), value: "last24h" },
+                  { label: t("dashboard.qrScans.last7Days"), value: "last7days" },
+                  { label: t("dashboard.qrScans.last30Days"), value: "last30days" },
                 ]}
               />
 
               <LabeledSelect
-                label="Scan Type"
+                label={t("dashboard.qrScans.scanType")}
                 value={filters.type}
                 onChange={(value) => handleFilterChange("type", value)}
                 options={[
-                  { label: "All Types", value: "all" },
-                  { label: "Drink", value: "drink" },
-                  { label: "Meal", value: "meal" },
+                  { label: t("dashboard.qrScans.allTypes"), value: "all" },
+                  { label: t("dashboard.qrScans.drink"), value: "drink" },
+                  { label: t("dashboard.qrScans.meal"), value: "meal" },
                 ]}
               />
 
@@ -322,7 +324,7 @@ export function QRScansManagement() {
                   onClick={clearFilters}
                   className="w-full"
                 >
-                  Clear Filters
+{t("dashboard.qrScans.clearFilters")}
                 </Button>
               </div>
             </div>
@@ -333,9 +335,9 @@ export function QRScansManagement() {
       {/* QR Scans Table */}
       <Card>
         <CardHeader>
-          <CardTitle>QR Scan Records</CardTitle>
+          <CardTitle>{t("dashboard.qrScans.qrScanRecords")}</CardTitle>
           <CardDescription>
-            View all QR code scan records with user details and timestamps
+            {t("dashboard.qrScans.viewAllScanRecords")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -343,13 +345,13 @@ export function QRScansManagement() {
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center space-x-2">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                <p className="text-muted-foreground">Loading scan records...</p>
+                <p className="text-muted-foreground">{t("dashboard.qrScans.loadingScanRecords")}</p>
               </div>
             </div>
           ) : scans.length === 0 ? (
             <div className="text-center py-8">
               <QrCode className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">No scan records found</p>
+              <p className="text-muted-foreground">{t("dashboard.qrScans.noScanRecordsFound")}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -357,19 +359,19 @@ export function QRScansManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Scan Type</TableHead>
-                      <TableHead>QR Code</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Scan Date</TableHead>
+                      <TableHead>{t("dashboard.qrScans.user")}</TableHead>
+                      <TableHead>{t("dashboard.qrScans.email")}</TableHead>
+                      <TableHead>{t("dashboard.qrScans.scanType")}</TableHead>
+                      <TableHead>{t("dashboard.qrScans.qrCode")}</TableHead>
+                      <TableHead>{t("dashboard.qrScans.location")}</TableHead>
+                      <TableHead>{t("dashboard.qrScans.scanDate")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {scans.map((scan: QRScan) => (
                       <TableRow key={scan.id}>
                         <TableCell className="font-medium">
-                          {scan.user.fullName || "Not specified"}
+{scan.user.fullName || t("dashboard.qrScans.notSpecified")}
                         </TableCell>
                         <TableCell>{scan.user.email}</TableCell>
                         <TableCell>{getScanTypeBadge(scan.type)}</TableCell>
@@ -393,14 +395,14 @@ export function QRScansManagement() {
               {pagination && pagination.totalPages > 1 && (
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Showing{" "}
+{t("dashboard.qrScans.showing")}{" "}
                     {(pagination.currentPage - 1) * pagination.itemsPerPage + 1}{" "}
-                    to{" "}
+                    {t("dashboard.qrScans.to")}{" "}
                     {Math.min(
                       pagination.currentPage * pagination.itemsPerPage,
                       pagination.totalItems
                     )}{" "}
-                    of {pagination.totalItems} items
+                    {t("dashboard.qrScans.of")} {pagination.totalItems} {t("dashboard.qrScans.items")}
                   </div>
                   <Pagination>
                     <PaginationContent>

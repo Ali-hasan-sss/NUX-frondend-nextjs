@@ -20,8 +20,10 @@ import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { loginUser } from "@/features/auth/authThunks";
 import { clearError } from "@/features/auth/authSlice";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function LoginForm() {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -68,9 +70,9 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sign In</CardTitle>
+        <CardTitle>{t("landing.auth.signInTitle")}</CardTitle>
         <CardDescription>
-          Enter your credentials to access your account
+          {t("landing.auth.enterCredentials")}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -82,12 +84,12 @@ export function LoginForm() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("landing.auth.email")}</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder={t("landing.auth.enterEmail")}
               value={formData.email}
               onChange={handleChange}
               required
@@ -95,13 +97,13 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("landing.auth.password")}</Label>
             <div className="relative">
               <Input
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder={t("landing.auth.enterPassword")}
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -122,26 +124,22 @@ export function LoginForm() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={submitting}>
+          <Button type="submit" className="w-full bg-primary hover:bg-primary/50 text-black hover:text-white dark:hover:text-white" disabled={submitting}>
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In
+            {t("landing.auth.signIn")}
           </Button>
 
           <div className="text-center space-y-2">
             <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
+              {t("landing.auth.dontHaveAccount")}{" "}
               <Link
                 href="/auth/register"
                 className="text-primary hover:underline"
               >
-                Sign up
+                {t("landing.auth.signUpLink")}
               </Link>
             </p>
-            <p className="text-sm text-muted-foreground">
-              <Link href="/auth/admin" className="text-primary hover:underline">
-                Admin Login
-              </Link>
-            </p>
+           
           </div>
         </form>
       </CardContent>

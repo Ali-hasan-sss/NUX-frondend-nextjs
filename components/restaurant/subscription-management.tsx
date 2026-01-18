@@ -25,8 +25,10 @@ import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
 import { subscriptionService } from "@/features/restaurant/subscription/subscriptionService";
 import { fetchRestaurantAccount } from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
+import { useTranslation } from "react-i18next";
 
 export function SubscriptionManagement() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
@@ -70,7 +72,7 @@ export function SubscriptionManagement() {
 
       if (result.subscriptionId) {
         setConfirmationMessage(
-          "Subscription confirmed successfully! Your plan is now active."
+          t("dashboard.subscription.subscriptionConfirmed")
         );
         // Refresh restaurant account data to get updated subscription info
         dispatch(fetchRestaurantAccount());
@@ -84,13 +86,13 @@ export function SubscriptionManagement() {
         window.history.replaceState({}, "", url.toString());
       } else {
         setConfirmationMessage(
-          "Subscription confirmation failed. Please contact support."
+          t("dashboard.subscription.confirmationFailed")
         );
       }
     } catch (error) {
       console.error("Error confirming subscription:", error);
       setConfirmationMessage(
-        "Error confirming subscription. Please contact support."
+        t("dashboard.subscription.errorConfirming")
       );
     } finally {
       setIsConfirming(false);
@@ -109,7 +111,7 @@ export function SubscriptionManagement() {
 
       if (isRenewal && !isInLastMonth()) {
         alert(
-          "Renewal is only available in the last 30 days of your subscription."
+          t("dashboard.subscription.renewalAvailable")
         );
         setIsLoading(false);
         return;
@@ -221,10 +223,10 @@ export function SubscriptionManagement() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Subscription Management
+          {t("dashboard.subscription.title")}
         </h1>
         <p className="text-muted-foreground">
-          Manage your RestaurantHub subscription and billing
+          {t("dashboard.subscription.description")}
         </p>
       </div>
 
@@ -232,8 +234,8 @@ export function SubscriptionManagement() {
       {currentSubscription ? (
         <Card>
           <CardHeader>
-            <CardTitle>Current Subscription</CardTitle>
-            <CardDescription>Your active subscription details</CardDescription>
+            <CardTitle>{t("dashboard.subscription.currentSubscription")}</CardTitle>
+            <CardDescription>{t("dashboard.subscription.activeSubscriptionDetails")}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -243,7 +245,7 @@ export function SubscriptionManagement() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Current Plan
+                    {t("dashboard.subscription.currentPlan")}
                   </p>
                   <p className="text-lg font-bold">
                     {currentPlan?.title || "Unknown Plan"}
@@ -256,7 +258,7 @@ export function SubscriptionManagement() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Status
+                    {t("dashboard.subscription.status")}
                   </p>
                   <Badge className="bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-900">
                     {currentSubscription.status}
@@ -315,10 +317,9 @@ export function SubscriptionManagement() {
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>No Active Subscription</CardTitle>
+            <CardTitle>{t("dashboard.subscription.selectPlan")}</CardTitle>
             <CardDescription>
-              You don't have an active subscription. Choose a plan below to get
-              started.
+              {t("dashboard.subscription.chooseSubscriptionPlan")}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -368,14 +369,14 @@ export function SubscriptionManagement() {
         {loading.plans ? (
           <div className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">Loading plans...</span>
+            <span className="ml-2">{t("dashboard.subscription.loadingPlans")}</span>
           </div>
         ) : plansError?.plans ? (
           <div className="text-center p-8">
             <Alert className="border-red-500 bg-red-50 dark:bg-red-950 dark:border-red-400">
               <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
               <AlertDescription className="text-red-800 dark:text-red-200">
-                Error loading plans: {plansError.plans || "Unknown error"}
+                {t("dashboard.subscription.errorLoadingPlans")}: {plansError.plans || "Unknown error"}
               </AlertDescription>
             </Alert>
             <Button
@@ -417,7 +418,7 @@ export function SubscriptionManagement() {
                   {isCurrent && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                       <span className="bg-green-600 dark:bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg">
-                        Current Plan
+{t("dashboard.subscription.currentPlan")}
                       </span>
                     </div>
                   )}
@@ -469,7 +470,7 @@ export function SubscriptionManagement() {
                     <div className="pt-6">
                       {isCurrent ? (
                         <Button className="w-full" disabled>
-                          Current Plan
+  {t("dashboard.subscription.currentPlan")}
                         </Button>
                       ) : isFreePlan(plan.price) ? (
                         <Button className="w-full" disabled>
@@ -498,7 +499,7 @@ export function SubscriptionManagement() {
                               ) - 30
                             } days`
                           ) : (
-                            "Renew Subscription"
+t("dashboard.subscription.renew")
                           )}
                         </Button>
                       ) : (
@@ -514,11 +515,11 @@ export function SubscriptionManagement() {
                               Processing...
                             </>
                           ) : isUpgrade(plan.price || 0) ? (
-                            "Upgrade"
+t("dashboard.subscription.upgrade")
                           ) : isDowngrade(plan.price || 0) ? (
-                            "Downgrade"
+t("dashboard.subscription.downgrade")
                           ) : (
-                            "Subscribe"
+t("dashboard.subscription.subscribe")
                           )}
                         </Button>
                       )}
