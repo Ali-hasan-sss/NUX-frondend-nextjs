@@ -124,7 +124,7 @@ export function LoginForm() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full bg-primary hover:bg-primary/50 text-black hover:text-white dark:hover:text-white" disabled={submitting}>
+          <Button type="submit" className="w-full " disabled={submitting}>
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {t("landing.auth.signIn")}
           </Button>

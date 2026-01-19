@@ -107,15 +107,16 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto px-4 md:px-0">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`relative ${
+              className={cn(
+                "relative",
                 plan.popular
-                  ? "border-primary shadow-lg scale-105"
+                  ? "border-primary shadow-lg md:scale-105"
                   : "border-border"
-              }`}
+              )}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">

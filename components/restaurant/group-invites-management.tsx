@@ -19,6 +19,7 @@ import {
   fetchMyJoinRequests,
 } from "@/features/restaurant/groups/groupsThunks";
 import { RestaurantAutocomplete } from "@/components/common/RestaurantAutocomplete";
+import { useTranslation } from "react-i18next";
 
 interface GroupInvitesManagementProps {
   groupId?: string;
@@ -35,6 +36,7 @@ export function GroupInvitesManagement({
   onInviteSent,
   onInviteResponded,
 }: GroupInvitesManagementProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
 
   const [inviteRestaurantId, setInviteRestaurantId] = useState("");
@@ -99,16 +101,16 @@ export function GroupInvitesManagement({
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Send className="h-5 w-5" />
-              <span>Send Group Invite</span>
+              <span>{t("dashboard.groups.sendGroupInvite")}</span>
             </CardTitle>
             <CardDescription>
-              Invite other restaurants to join your group
+              {t("dashboard.groups.inviteOtherRestaurants")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <RestaurantAutocomplete
-              label="Search & Select Restaurant"
-              placeholder="Type restaurant name to search..."
+              label={t("dashboard.groups.searchSelectRestaurant")}
+              placeholder={t("dashboard.groups.typeRestaurantName")}
               onSelect={handleRestaurantSelect}
               selectedRestaurant={selectedRestaurant}
               onClear={handleClearSelection}
@@ -121,8 +123,8 @@ export function GroupInvitesManagement({
             >
               <Send className="mr-2 h-4 w-4" />
               {selectedRestaurant
-                ? `Send Invite to ${selectedRestaurant.name}`
-                : "Select a Restaurant First"}
+                ? `${t("dashboard.groups.sendInviteTo")} ${selectedRestaurant.name}`
+                : t("dashboard.groups.selectRestaurantFirst")}
             </Button>
           </CardContent>
         </Card>
@@ -134,13 +136,13 @@ export function GroupInvitesManagement({
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Users className="h-5 w-5" />
-              <span>Pending Invitations</span>
+              <span>{t("dashboard.groups.pendingInvitations")}</span>
               <Badge variant="secondary">{pendingInvites.length}</Badge>
             </CardTitle>
             <CardDescription>
               {isOwner
-                ? "Invitations you sent to other restaurants"
-                : "Groups that invited you to join"}
+                ? t("dashboard.groups.invitationsYouSent")
+                : t("dashboard.groups.groupsInvitedYou")}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -158,13 +160,13 @@ export function GroupInvitesManagement({
                     </Avatar>
                     <div className="flex-1">
                       <h4 className="font-medium">
-                        {invite.group?.name || "Group"}
+                        {invite.group?.name || t("dashboard.groups.myGroup")}
                       </h4>
                       <p className="text-sm text-muted-foreground">
-                        {invite.group?.description || "No description"}
+                        {invite.group?.description || t("dashboard.groups.noDescription")}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Request ID: {invite.id} • Status: {invite.status}
+                        {t("dashboard.groups.requestId")}: {invite.id} • {t("dashboard.groups.status")}: {invite.status}
                       </p>
                     </div>
                   </div>
@@ -177,7 +179,7 @@ export function GroupInvitesManagement({
                         onClick={() => handleAcceptInvite(invite.id)}
                       >
                         <Check className="mr-1 h-4 w-4" />
-                        Accept
+                        {t("dashboard.groups.accept")}
                       </Button>
                       <Button
                         size="sm"
@@ -186,12 +188,12 @@ export function GroupInvitesManagement({
                         onClick={() => handleDeclineInvite(invite.id)}
                       >
                         <X className="mr-1 h-4 w-4" />
-                        Decline
+                        {t("dashboard.groups.decline")}
                       </Button>
                     </div>
                   )}
 
-                  {isOwner && <Badge variant="outline">Sent</Badge>}
+                  {isOwner && <Badge variant="outline">{t("dashboard.groups.sent")}</Badge>}
                 </div>
               ))}
             </div>
@@ -204,11 +206,11 @@ export function GroupInvitesManagement({
         <Card>
           <CardContent className="p-6 text-center">
             <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Pending Invitations</h3>
+            <h3 className="text-lg font-medium mb-2">{t("dashboard.groups.noPendingInvitations")}</h3>
             <p className="text-muted-foreground">
               {isOwner
-                ? "You haven't sent any invitations yet. Use the form above to invite restaurants to your group."
-                : "No groups have invited you to join yet."}
+                ? t("dashboard.groups.noInvitationsSent")
+                : t("dashboard.groups.noGroupsInvitedYou")}
             </p>
           </CardContent>
         </Card>

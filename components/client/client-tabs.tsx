@@ -41,7 +41,8 @@ export function ClientTabs() {
   return (
     <nav
       className={cn(
-        "sticky bottom-0 z-50 border-t backdrop-blur-sm transition-colors",
+        "fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-sm transition-colors",
+        "pb-[env(safe-area-inset-bottom)]",
         isDark
           ? "bg-[rgba(26,31,58,0.95)] shadow-[0_-2px_8px_rgba(0,0,0,0.3)]"
           : "bg-[rgba(255,255,255,0.95)] shadow-[0_-2px_8px_rgba(0,0,0,0.1)]"

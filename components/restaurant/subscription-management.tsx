@@ -37,6 +37,7 @@ export function SubscriptionManagement() {
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(
     null
   );
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<number, boolean>>({});
   const { user } = useAppSelector((state) => state.auth);
   const {
     plans,
@@ -391,11 +392,17 @@ export function SubscriptionManagement() {
             {plans.map((plan) => {
               const isCurrent = currentPlan?.id === plan.id;
               const isSelected = selectedPlan === plan.id;
+              const isExpanded = expandedDescriptions[plan.id] || false;
+              const descriptionText = plan.description?.replace(/<[^>]*>/g, '') || "";
+              const shouldShowReadMore = descriptionText.length > 150;
+              const displayDescription = isExpanded || !shouldShowReadMore 
+                ? (plan.description || "No description available")
+                : (descriptionText.substring(0, 150) + "...");
 
               return (
                 <Card
                   key={plan.id}
-                  className={`relative ${
+                  className={`relative flex flex-col h-full ${
                     plan.title.toLowerCase().includes("premium") ||
                     plan.title.toLowerCase().includes("pro")
                       ? "border-primary shadow-lg"
@@ -425,12 +432,36 @@ export function SubscriptionManagement() {
 
                   <CardHeader className="text-center pb-8">
                     <CardTitle className="text-2xl">{plan.title}</CardTitle>
-                    <CardDescription
-                      className="text-base"
-                      dangerouslySetInnerHTML={{
-                        __html: plan.description || "No description available",
-                      }}
-                    />
+                    <div className="mt-2">
+                      {shouldShowReadMore ? (
+                        <div>
+                          <CardDescription
+                            className="text-base"
+                            dangerouslySetInnerHTML={{
+                              __html: displayDescription || "No description available",
+                            }}
+                          />
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="mt-2 p-0 h-auto text-primary"
+                            onClick={() => setExpandedDescriptions(prev => ({
+                              ...prev,
+                              [plan.id]: !prev[plan.id]
+                            }))}
+                          >
+                            {isExpanded ? t("dashboard.ads.readLess") || "Read less" : t("dashboard.ads.readMore") || "Read more"}
+                          </Button>
+                        </div>
+                      ) : (
+                        <CardDescription
+                          className="text-base"
+                          dangerouslySetInnerHTML={{
+                            __html: plan.description || "No description available",
+                          }}
+                        />
+                      )}
+                    </div>
                     <div className="mt-4">
                       <span className="text-4xl font-bold">
                         {formatPrice(plan.price || 0, plan.currency || "EUR")}
@@ -441,7 +472,7 @@ export function SubscriptionManagement() {
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
                     {/* Permissions/Features */}
                     <div className="space-y-2">
                       <h4 className="font-medium text-sm text-muted-foreground">
@@ -467,7 +498,7 @@ export function SubscriptionManagement() {
                       </ul>
                     </div>
 
-                    <div className="pt-6">
+                    <div className="pt-6 mt-auto">
                       {isCurrent ? (
                         <Button className="w-full" disabled>
   {t("dashboard.subscription.currentPlan")}

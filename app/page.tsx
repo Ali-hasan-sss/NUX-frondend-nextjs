@@ -39,7 +39,7 @@ export default function LandingPage() {
   return (
     <I18nProvider>
       <div
-        className={`min-h-screen transition-colors duration-300 ${
+        className={`min-h-screen transition-colors duration-300 overflow-x-hidden ${
           isDark
             ? "bg-gradient-to-b from-[#0A0E27] via-[#1A1F3A] to-[#2D1B4E]"
             : "bg-gradient-to-b from-gray-50 via-white to-gray-100"

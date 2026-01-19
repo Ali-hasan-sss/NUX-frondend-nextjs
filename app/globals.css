@@ -155,3 +155,15 @@
 .k {
   background-color: hsl(276, 75%, 13%);
 }
+
+/* RTL Support for Tables */
+[dir="rtl"] table th,
+[dir="rtl"] table td {
+  text-align: right;
+}
+
+[dir="rtl"] table th:has([role="checkbox"]),
+[dir="rtl"] table td:has([role="checkbox"]) {
+  padding-right: 1rem;
+  padding-left: 0;
+}

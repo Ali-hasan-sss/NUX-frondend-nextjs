@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { logout } from "@/features/auth/authSlice";
 import { useTranslation } from "react-i18next";
+import { fetchRestaurantAccount } from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
+import Image from "next/image";
 import {
   LayoutDashboard,
   QrCode,
@@ -32,7 +34,8 @@ import {
 } from "lucide-react";
 
 export function RestaurantSidebar() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   
   const singleNavigation = [
     { name: t("dashboard.sidebar.dashboard"), href: "/dashboard", icon: LayoutDashboard },
@@ -57,7 +60,7 @@ export function RestaurantSidebar() {
       groupIcon: Store,
       items: [
         { name: t("dashboard.sidebar.menu"), href: "/dashboard/menu", icon: Menu },
-        { name: t("dashboard.sidebar.packages"), href: "/dashboard/packages", icon: Package },
+        // { name: t("dashboard.sidebar.packages"), href: "/dashboard/packages", icon: Package },
         { name: t("dashboard.sidebar.ads"), href: "/dashboard/ads", icon: Megaphone },
         { name: t("dashboard.sidebar.groups"), href: "/dashboard/groups", icon: Users },
       ],
@@ -77,7 +80,13 @@ export function RestaurantSidebar() {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { unreadCount } = useAppSelector((state) => state.notifications);
+  const { data: restaurant } = useAppSelector((state) => state.restaurantAccount);
   const router = useRouter();
+
+  // Load restaurant data to get logo
+  useEffect(() => {
+    dispatch(fetchRestaurantAccount());
+  }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -144,23 +153,35 @@ export function RestaurantSidebar() {
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <div className="flex flex-col h-full overflow-y-auto sidebar-scroll">
+        <div className="flex flex-col h-full overflow-y-auto py-2 sidebar-scroll">
           {/* Logo */}
           <div
-            className="flex cursor-pointer items-center px-6 py-4 border-b border-sidebar-border"
+            className="flex  cursor-pointer items-center px-6 py-4 border-b border-sidebar-border"
             onClick={() => router.push("/")}
           >
-            <div className="h-8 w-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-              <span className="text-sidebar-primary-foreground font-bold text-lg">
-                N
+            {restaurant?.logo ? (
+              <div className="h-10 w-10 rounded-lg overflow-hidden flex-shrink-0">
+                <Image
+                  src={restaurant.logo}
+                  alt={restaurant.name || "Restaurant logo"}
+                  width={40}
+                  height={40}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="h-8 w-8 rounded-lg bg-sidebar-primary flex items-center justify-center flex-shrink-0">
+                <span className="text-sidebar-primary-foreground font-bold text-lg">
+                  N
+                </span>
+              </div>
+            )}
+            <div className={cn(isRTL ? "mr-2" : "ml-2", "min-w-0")}>
+              <span className="font-bold text-lg text-sidebar-foreground block truncate">
+                {restaurant?.name || "NUX"}
               </span>
-            </div>
-            <div className="ml-2">
-              <span className="font-bold text-lg text-sidebar-foreground">
-                NUX
-              </span>
-              <p className="text-xs text-sidebar-foreground/60">
-                {user?.restaurantName}
+              <p className="text-xs text-sidebar-foreground/60 truncate">
+                {user?.restaurantName || user?.email}
               </p>
             </div>
           </div>
@@ -182,11 +203,11 @@ export function RestaurantSidebar() {
                   className={cn(
                     "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground "
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-sidebar-foreground hover:bg-primary/20 hover:text-primary"
                   )}
                 >
-                  <span className="relative mr-3 inline-flex">
+                  <span className={cn("relative inline-flex", isRTL ? "ml-3" : "mr-3")}>
                     <item.icon className="h-5 w-5" />
                     {item.href === "/dashboard/notifications" &&
                       unreadCount > 0 && (
@@ -228,7 +249,7 @@ export function RestaurantSidebar() {
 
                   {/* Group items */}
                   {isOpen && (
-                    <div className="ml-6 space-y-1">
+                    <div className={cn("space-y-1", isRTL ? "mr-6" : "ml-6")}>
                       {group.items.map((item) => {
                         const isActive = pathname === item.href;
                         return (
@@ -242,11 +263,11 @@ export function RestaurantSidebar() {
                             className={cn(
                               "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                               isActive
-                                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground "
+                                ? "bg-primary text-primary-foreground shadow-md"
+                                : "text-sidebar-foreground hover:bg-primary/20 hover:text-primary"
                             )}
                           >
-                            <item.icon className="h-4 w-4 mr-3" />
+                            <item.icon className={cn("h-4 w-4", isRTL ? "ml-3" : "mr-3")} />
                             {item.name}
                           </Link>
                         );
@@ -266,7 +287,7 @@ export function RestaurantSidebar() {
                   {user?.fullName?.charAt(0) || "R"}
                 </span>
               </div>
-              <div className="ml-3">
+              <div className={cn(isRTL ? "mr-3" : "ml-3")}>
                 <p className="text-sm font-medium text-sidebar-foreground">
                   {user?.fullName}
                 </p>
@@ -279,10 +300,13 @@ export function RestaurantSidebar() {
               variant="ghost"
               size="sm"
               onClick={handleLogout}
-              className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50"
+              className={cn(
+                "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                isRTL ? "flex-row-reverse" : ""
+              )}
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              {t("dashboard.sidebar.signOut")}
+              <LogOut className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+              <span className="whitespace-nowrap">{t("dashboard.sidebar.signOut")}</span>
             </Button>
           </div>
         </div>

@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 interface GroupFormModalProps {
   isOpen: boolean;
@@ -33,6 +35,8 @@ export function GroupFormModal({
   isEdit = false,
   isLoading = false,
 }: GroupFormModalProps) {
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === "ar";
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -76,22 +80,22 @@ export function GroupFormModal({
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Edit Group" : "Create New Group"}
+            {isEdit ? t("dashboard.groups.editGroup") : t("dashboard.groups.createNewGroup")}
           </DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Update your group information and invite new members"
-              : "Create a new restaurant group and invite members"}
+              ? t("dashboard.groups.updateGroupInfo")
+              : t("dashboard.groups.createGroupAndInvite")}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Group Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Group Name *</Label>
+            <Label htmlFor="name">{t("dashboard.groups.groupNameRequired")}</Label>
             <Input
               id="name"
-              placeholder="e.g., Downtown Food District"
+              placeholder={t("dashboard.groups.groupNamePlaceholder")}
               value={formData.name}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, name: e.target.value }))
@@ -102,10 +106,10 @@ export function GroupFormModal({
 
           {/* Group Description */}
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{t("dashboard.groups.description")}</Label>
             <Input
               id="description"
-              placeholder="Optional description"
+              placeholder={t("dashboard.groups.optionalDescription")}
               value={formData.description}
               onChange={(e) =>
                 setFormData((prev) => ({
@@ -117,20 +121,20 @@ export function GroupFormModal({
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-2 pt-4">
+          <div className={cn("flex justify-end gap-2 pt-4", isRTL ? "flex-row-reverse" : "")}>
             <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
+              {t("dashboard.settings.cancel")}
             </Button>
             <Button type="submit" disabled={isLoading || !formData.name.trim()}>
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {isEdit ? "Updating..." : "Creating..."}
+                  <Loader2 className={cn("h-4 w-4 animate-spin", isRTL ? "ml-2" : "mr-2")} />
+                  {isEdit ? t("dashboard.groups.updating") : t("dashboard.groups.creating")}
                 </>
               ) : isEdit ? (
-                "Update Group"
+                t("dashboard.groups.updateGroup")
               ) : (
-                "Create Group"
+                t("dashboard.groups.createGroup")
               )}
             </Button>
           </div>

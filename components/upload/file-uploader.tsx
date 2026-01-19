@@ -5,6 +5,7 @@ import { axiosInstance } from "@/utils/axiosInstance";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UploadCloud, X, ImagePlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 type UploadMeta = {
   folder?: string;
@@ -34,13 +35,14 @@ export default function FileUploader({
   onChange,
   onUploadingChange,
   disabled,
-  label = "Upload",
+  label,
   accept = "image/*",
   maxSizeMb = 5,
   meta,
   className,
   rounded = "md",
 }: Props) {
+  const { t } = useTranslation();
   const [previewUrl, setPreviewUrl] = useState<string | null>(value ?? null);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -59,7 +61,7 @@ export default function FileUploader({
     async (file: File) => {
       setError(null);
       if (file.size > maxSizeMb * 1024 * 1024) {
-        setError(`File exceeds max size ${maxSizeMb}MB`);
+        setError(`${t("dashboard.fileUpload.fileExceedsMaxSize")} ${maxSizeMb}MB`);
         return;
       }
       setIsUploading(true);
@@ -76,7 +78,7 @@ export default function FileUploader({
         });
         const data = res?.data?.data;
         const url: string | undefined = data?.url;
-        if (!url) throw new Error("Upload failed");
+        if (!url) throw new Error(t("dashboard.fileUpload.uploadFailed"));
         setPreviewUrl(url);
         onChange(url, {
           publicId: data?.public_id,
@@ -84,7 +86,7 @@ export default function FileUploader({
           height: data?.height,
         });
       } catch (e: any) {
-        setError(e?.message || "Upload failed");
+        setError(e?.message || t("dashboard.fileUpload.uploadFailed"));
       } finally {
         setIsUploading(false);
       }
@@ -144,9 +146,9 @@ export default function FileUploader({
         {!previewUrl ? (
           <div className="flex flex-col items-center justify-center text-muted-foreground gap-2 py-6">
             <UploadCloud className="h-6 w-6" />
-            <div className="text-sm">Drag & drop here or click to select</div>
+            <div className="text-sm">{t("dashboard.fileUpload.dragDropOrClick")}</div>
             <div className="text-[11px]">
-              Supported types: images • Max size {maxSizeMb}MB
+              {t("dashboard.fileUpload.supportedTypes")} {maxSizeMb}MB
             </div>
           </div>
         ) : (
@@ -174,7 +176,7 @@ export default function FileUploader({
                 disabled={disabled || isUploading}
                 onClick={() => fileInputRef.current?.click()}
               >
-                <ImagePlus className="h-4 w-4 mr-1" /> Change
+                <ImagePlus className="h-4 w-4 mr-1" /> {t("dashboard.fileUpload.change")}
               </Button>
               <Button
                 type="button"
@@ -183,7 +185,7 @@ export default function FileUploader({
                 disabled={disabled || isUploading}
                 onClick={clear}
               >
-                <X className="h-4 w-4 mr-1" /> Remove
+                <X className="h-4 w-4 mr-1" /> {t("dashboard.fileUpload.remove")}
               </Button>
             </div>
           </div>

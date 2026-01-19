@@ -42,6 +42,7 @@ import {
 import { toast } from "sonner";
 import GoogleMapPicker from "@/components/common/GoogleMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
+import { cn } from "@/lib/utils";
 
 type RestaurantFormData = {
   name: string;
@@ -74,8 +75,9 @@ const initialPasswordForm: PasswordFormData = {
 };
 
 export function RestaurantSettings() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
+  const isRTL = i18n.language === "ar";
   const {
     data: restaurant,
     isLoading,
@@ -195,12 +197,12 @@ export function RestaurantSettings() {
 
   const handlePasswordChange = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      toast.error("New passwords do not match");
+      toast.error(t("dashboard.settings.passwordsDoNotMatch"));
       return;
     }
 
     if (passwordForm.newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error(t("dashboard.settings.passwordMinLength"));
       return;
     }
 
@@ -312,9 +314,9 @@ export function RestaurantSettings() {
 
   return (
     <div className="p-6 space-y-6">
-      <div>
+      <div className="space-y-2">
         <h1 className="text-3xl font-bold text-foreground">
-{t("dashboard.settings.title")}
+          {t("dashboard.settings.title")}
         </h1>
         <p className="text-muted-foreground">
           {t("dashboard.settings.description")}
@@ -336,11 +338,11 @@ export function RestaurantSettings() {
                 onClick={handleEditRestaurantInfo}
               >
                 <Settings className="h-4 w-4 mr-2" />
-                Edit
+                {t("dashboard.settings.edit")}
               </Button>
             </CardTitle>
             <CardDescription>
-              View your restaurant's basic information
+              {t("dashboard.settings.viewRestaurantInfo")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -358,7 +360,7 @@ export function RestaurantSettings() {
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Logo uploaded
+                    {t("dashboard.settings.logoUploaded")}
                   </div>
                 </div>
               ) : (
@@ -367,7 +369,7 @@ export function RestaurantSettings() {
                     <Building2 className="h-8 w-8 text-muted-foreground" />
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    No logo uploaded
+                    {t("dashboard.settings.noLogoUploaded")}
                   </div>
                 </div>
               )}
@@ -378,7 +380,7 @@ export function RestaurantSettings() {
               <Label>{t("dashboard.settings.restaurantName")}</Label>
               <div className="p-3 bg-muted rounded-lg">
                 <p className="text-sm font-medium">
-                  {restaurantForm.name || "Not set"}
+                  {restaurantForm.name || t("dashboard.settings.notSet")}
                 </p>
               </div>
             </div>
@@ -387,7 +389,7 @@ export function RestaurantSettings() {
             <div className="space-y-2">
               <Label>{t("dashboard.settings.address")}</Label>
               <div className="p-3 bg-muted rounded-lg">
-                <p className="text-sm">{restaurantForm.address || "Not set"}</p>
+                <p className="text-sm">{restaurantForm.address || t("dashboard.settings.notSet")}</p>
               </div>
             </div>
 
@@ -399,7 +401,7 @@ export function RestaurantSettings() {
                 restaurantForm.longitude !== 0 ? (
                   <div className="flex items-center justify-between">
                     <div className="text-sm">
-                      <p className="font-medium">Coordinates:</p>
+                      <p className="font-medium">{t("dashboard.settings.coordinates")}:</p>
                       <p className="text-muted-foreground">
                         Lat: {Number(restaurantForm.latitude).toFixed(6)}, Lng:{" "}
                         {Number(restaurantForm.longitude).toFixed(6)}
@@ -411,21 +413,21 @@ export function RestaurantSettings() {
                       onClick={handleEditLocation}
                     >
                       <MapPin className="h-4 w-4 mr-2" />
-                      Edit Location
+                      {t("dashboard.settings.editLocation")}
                     </Button>
                   </div>
                 ) : (
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                      No location set
+                      {t("dashboard.settings.noLocationSet")}
                     </p>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={handleEditLocation}
                     >
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Set Location
+                      <MapPin className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                      {t("dashboard.settings.setLocation")}
                     </Button>
                   </div>
                 )}
@@ -436,12 +438,12 @@ export function RestaurantSettings() {
             <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
               <div className="space-y-1">
                 <Label htmlFor="isActive" className="text-base font-medium">
-                  Restaurant Status
+                  {t("dashboard.settings.restaurantStatus")}
                 </Label>
                 <p className="text-sm text-muted-foreground">
                   {restaurantForm.isActive
-                    ? "Restaurant is currently active and visible to customers"
-                    : "Restaurant is temporarily closed and hidden from customers"}
+                    ? t("dashboard.settings.restaurantStatusActive")
+                    : t("dashboard.settings.restaurantStatusClosed")}
                 </p>
               </div>
               <Switch
@@ -461,9 +463,9 @@ export function RestaurantSettings() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Lock className="h-5 w-5" />
-                <span>Security</span>
+                <span>{t("dashboard.settings.security")}</span>
               </CardTitle>
-              <CardDescription>Manage your account security</CardDescription>
+              <CardDescription>{t("dashboard.settings.securityDesc")}</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
@@ -472,7 +474,7 @@ export function RestaurantSettings() {
                 onClick={() => setIsPasswordDialogOpen(true)}
               >
                 <Lock className="h-4 w-4 mr-2" />
-                Change Password
+                {t("dashboard.settings.changePasswordButton")}
               </Button>
             </CardContent>
           </Card>
@@ -482,51 +484,51 @@ export function RestaurantSettings() {
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Settings className="h-5 w-5" />
-                <span>Status Information</span>
+                <span>{t("dashboard.settings.statusInformation")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Restaurant Status</span>
+                <span className="text-sm font-medium">{t("dashboard.settings.restaurantStatus")}</span>
                 <Badge
                   variant={restaurantForm.isActive ? "default" : "secondary"}
                 >
                   {restaurantForm.isActive ? (
                     <>
                       <CheckCircle className="h-3 w-3 mr-1" />
-                      Active
+                      {t("dashboard.settings.active")}
                     </>
                   ) : (
                     <>
                       <AlertTriangle className="h-3 w-3 mr-1" />
-                      Closed
+                      {t("dashboard.settings.closed")}
                     </>
                   )}
                 </Badge>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Subscription</span>
+                <span className="text-sm font-medium">{t("dashboard.settings.subscription")}</span>
                 <Badge
                   variant={
                     restaurant?.isSubscriptionActive ? "default" : "secondary"
                   }
                 >
-                  {restaurant?.isSubscriptionActive ? "Active" : "Inactive"}
+                  {restaurant?.isSubscriptionActive ? t("dashboard.settings.subscriptionActive") : t("dashboard.settings.subscriptionInactive")}
                 </Badge>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Group Membership</span>
+                <span className="text-sm font-medium">{t("dashboard.settings.groupMembership")}</span>
                 <Badge
                   variant={restaurant?.isGroupMember ? "default" : "secondary"}
                 >
-                  {restaurant?.isGroupMember ? "Member" : "Not a Member"}
+                  {restaurant?.isGroupMember ? t("dashboard.settings.member") : t("dashboard.settings.notAMember")}
                 </Badge>
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Created</span>
+                <span className="text-sm font-medium">{t("dashboard.settings.created")}</span>
                 <span className="text-sm text-muted-foreground">
                   {restaurant?.createdAt
                     ? new Date(restaurant.createdAt).toLocaleDateString()
@@ -545,14 +547,14 @@ export function RestaurantSettings() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Change Password</DialogTitle>
+            <DialogTitle>{t("dashboard.settings.changePasswordTitle")}</DialogTitle>
             <DialogDescription>
-              Enter your current password and choose a new one
+              {t("dashboard.settings.changePasswordDescription")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="currentPassword">Current Password</Label>
+              <Label htmlFor="currentPassword">{t("dashboard.settings.currentPassword")}</Label>
               <div className="relative">
                 <Input
                   id="currentPassword"
@@ -561,13 +563,17 @@ export function RestaurantSettings() {
                   onChange={(e) =>
                     handlePasswordFormChange("currentPassword", e.target.value)
                   }
-                  placeholder="Enter current password"
+                  placeholder={t("dashboard.settings.currentPasswordPlaceholder")}
+                  className={isRTL ? "pl-10" : "pr-10"}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className={cn(
+                    "absolute top-0 h-full px-3 py-2 hover:bg-transparent",
+                    isRTL ? "left-0" : "right-0"
+                  )}
                   onClick={() => togglePasswordVisibility("current")}
                 >
                   {showPasswords.current ? (
@@ -580,7 +586,7 @@ export function RestaurantSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="newPassword">New Password</Label>
+              <Label htmlFor="newPassword">{t("dashboard.settings.newPassword")}</Label>
               <div className="relative">
                 <Input
                   id="newPassword"
@@ -589,13 +595,17 @@ export function RestaurantSettings() {
                   onChange={(e) =>
                     handlePasswordFormChange("newPassword", e.target.value)
                   }
-                  placeholder="Enter new password"
+                  placeholder={t("dashboard.settings.newPasswordPlaceholder")}
+                  className={isRTL ? "pl-10" : "pr-10"}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className={cn(
+                    "absolute top-0 h-full px-3 py-2 hover:bg-transparent",
+                    isRTL ? "left-0" : "right-0"
+                  )}
                   onClick={() => togglePasswordVisibility("new")}
                 >
                   {showPasswords.new ? (
@@ -608,7 +618,7 @@ export function RestaurantSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Label htmlFor="confirmPassword">{t("dashboard.settings.confirmPassword")}</Label>
               <div className="relative">
                 <Input
                   id="confirmPassword"
@@ -617,13 +627,17 @@ export function RestaurantSettings() {
                   onChange={(e) =>
                     handlePasswordFormChange("confirmPassword", e.target.value)
                   }
-                  placeholder="Confirm new password"
+                  placeholder={t("dashboard.settings.confirmPasswordPlaceholder")}
+                  className={isRTL ? "pl-10" : "pr-10"}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className={cn(
+                    "absolute top-0 h-full px-3 py-2 hover:bg-transparent",
+                    isRTL ? "left-0" : "right-0"
+                  )}
                   onClick={() => togglePasswordVisibility("confirm")}
                 >
                   {showPasswords.confirm ? (
@@ -704,9 +718,9 @@ export function RestaurantSettings() {
               />
             </div>
           </div>
-          <div className="flex justify-end space-x-2">
+          <div className={cn("flex justify-end gap-2", isRTL ? "flex-row-reverse" : "")}>
             <Button variant="outline" onClick={() => setIsEditFormOpen(false)}>
-              Cancel
+              {t("dashboard.settings.cancel")}
             </Button>
             <Button
               onClick={handleSaveRestaurantInfo}
@@ -714,18 +728,18 @@ export function RestaurantSettings() {
             >
               {isUpdating ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
+                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
+                  {t("dashboard.settings.saving")}
                 </>
               ) : isUploadingLogo ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Uploading...
+                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
+                  {t("dashboard.settings.uploading")}
                 </>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
+                  <Save className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("dashboard.settings.saveChanges")}
                 </>
               )}
             </Button>
@@ -737,20 +751,19 @@ export function RestaurantSettings() {
       <Dialog open={isLocationFormOpen} onOpenChange={setIsLocationFormOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Restaurant Location</DialogTitle>
+            <DialogTitle>{t("dashboard.settings.editLocationTitle")}</DialogTitle>
             <DialogDescription>
-              Select your restaurant's location using the map or your current
-              location
+              {t("dashboard.settings.editLocationDesc")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Current Location</Label>
+              <Label>{t("dashboard.settings.currentLocation")}</Label>
               <div className="p-3 bg-muted rounded-lg">
                 {restaurantForm.latitude !== 0 &&
                 restaurantForm.longitude !== 0 ? (
                   <div className="text-sm">
-                    <p className="font-medium">Current Coordinates:</p>
+                    <p className="font-medium">{t("dashboard.settings.currentCoordinates")}:</p>
                     <p className="text-muted-foreground">
                       Lat: {Number(restaurantForm.latitude).toFixed(6)}, Lng:{" "}
                       {Number(restaurantForm.longitude).toFixed(6)}
@@ -758,22 +771,22 @@ export function RestaurantSettings() {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    No location set
+                    {t("dashboard.settings.noLocationSet")}
                   </p>
                 )}
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Select New Location</Label>
+              <Label>{t("dashboard.settings.selectNewLocation")}</Label>
               <div className="w-full h-[400px] overflow-hidden rounded-md border relative">
                 <div className="w-full h-full flex items-center justify-center bg-muted">
                   <div className="text-center space-y-4">
                     <MapPin className="h-12 w-12 text-muted-foreground mx-auto" />
                     <div>
-                      <p className="text-sm font-medium">Map will load here</p>
+                      <p className="text-sm font-medium">{t("dashboard.settings.mapWillLoadHere")}</p>
                       <p className="text-xs text-muted-foreground">
-                        Click "Open Map" to select location
+                        {t("dashboard.settings.clickOpenMapToSelect")}
                       </p>
                     </div>
                     <Button
@@ -788,34 +801,33 @@ export function RestaurantSettings() {
                       }}
                     >
                       <MapPin className="h-4 w-4 mr-2" />
-                      Open Map
+                      {t("dashboard.settings.openMap")}
                     </Button>
                   </div>
                 </div>
               </div>
               <div className="text-xs text-muted-foreground space-y-1">
                 <p>
-                  💡 <strong>How to use:</strong> Click "Open Map" to select
-                  location from map or use current location
+                  💡 <strong>{t("dashboard.settings.howToUse")}</strong> {t("dashboard.settings.howToUseDesc")}
                 </p>
                 <p>
-                  📍 <strong>Selected:</strong>{" "}
+                  📍 <strong>{t("dashboard.settings.selected")}</strong>{" "}
                   {restaurantForm.latitude !== 0 &&
                   restaurantForm.longitude !== 0
                     ? `${Number(restaurantForm.latitude).toFixed(6)}, ${Number(
                         restaurantForm.longitude
                       ).toFixed(6)}`
-                    : "No location selected"}
+                    : t("dashboard.settings.noLocationSelected")}
                 </p>
               </div>
             </div>
           </div>
-          <div className="flex justify-end space-x-2">
+          <div className={cn("flex justify-end gap-2", isRTL ? "flex-row-reverse" : "")}>
             <Button
               variant="outline"
               onClick={() => setIsLocationFormOpen(false)}
             >
-              Cancel
+              {t("dashboard.settings.cancel")}
             </Button>
             <Button
               onClick={handleSaveLocation}
@@ -827,13 +839,13 @@ export function RestaurantSettings() {
             >
               {isUpdating ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Saving...
+                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
+                  {t("dashboard.settings.saving")}
                 </>
               ) : (
                 <>
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Save Location
+                  <MapPin className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("dashboard.settings.saveLocation")}
                 </>
               )}
             </Button>
