@@ -225,11 +225,36 @@
       "account": "Account",
       "copyright": "© 2024 NUX. All rights reserved."
     },
+    "restaurants": {
+      "title": "Browse Restaurants",
+      "subtitle": "Discover amazing restaurants and explore their menus",
+      "searchPlaceholder": "Search restaurants by name or location...",
+      "loading": "Loading restaurants...",
+      "error": "Error",
+      "failedToLoad": "Failed to load restaurants",
+      "noRestaurants": "No restaurants found",
+      "noResults": "Try adjusting your search",
+      "empty": "No restaurants available at the moment",
+      "viewMenu": "View Menu",
+      "sortBy": "Sort by",
+      "sortByName": "Name (A-Z)",
+      "sortByDistance": "Distance (Nearest)",
+      "sortByNewest": "Newest",
+      "getLocation": "Get My Location",
+      "locationDetected": "Location Detected",
+      "locationNotDetected": "Location Not Detected",
+      "retryLocation": "Retry Location",
+      "locationError": "Unable to get your location",
+      "geolocationNotSupported": "Geolocation is not supported by your browser",
+      "km": "km",
+      "meters": "m"
+    },
     "nav": {
       "home": "Home",
       "about": "About Us",
       "services": "Services",
-      "contact": "Contact Us"
+      "contact": "Contact Us",
+      "restaurants": "Restaurants"
     },
     "about": {
       "title": "About NUX",

@@ -225,11 +225,36 @@
       "account": "الحساب",
       "copyright": "© 2024 NUX. جميع الحقوق محفوظة."
     },
+    "restaurants": {
+      "title": "تصفح المطاعم",
+      "subtitle": "اكتشف المطاعم الرائعة واستعرض قوائم الطعام الخاصة بها",
+      "searchPlaceholder": "ابحث عن المطاعم بالاسم أو الموقع...",
+      "loading": "جاري تحميل المطاعم...",
+      "error": "خطأ",
+      "failedToLoad": "فشل تحميل المطاعم",
+      "noRestaurants": "لم يتم العثور على مطاعم",
+      "noResults": "حاول تعديل البحث",
+      "empty": "لا توجد مطاعم متاحة في الوقت الحالي",
+      "viewMenu": "عرض القائمة",
+      "sortBy": "ترتيب حسب",
+      "sortByName": "الاسم (أ-ي)",
+      "sortByDistance": "المسافة (الأقرب)",
+      "sortByNewest": "الأحدث",
+      "getLocation": "الحصول على موقعي",
+      "locationDetected": "تم اكتشاف الموقع",
+      "locationNotDetected": "لم يتم اكتشاف الموقع",
+      "retryLocation": "إعادة المحاولة",
+      "locationError": "تعذر الحصول على موقعك",
+      "geolocationNotSupported": "المتصفح لا يدعم تحديد الموقع",
+      "km": "كم",
+      "meters": "م"
+    },
     "nav": {
       "home": "الرئيسية",
       "about": "من نحن",
       "services": "خدماتنا",
-      "contact": "اتصل بنا"
+      "contact": "اتصل بنا",
+      "restaurants": "المطاعم"
     },
     "about": {
       "title": "من نحن",

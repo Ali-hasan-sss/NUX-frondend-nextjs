@@ -23,9 +23,21 @@ i18n.use(initReactI18next).init({
       ? localStorage.getItem("language") || "en"
       : "en",
   fallbackLng: "en",
+  defaultNS: "translation",
+  ns: ["translation"],
+  returnEmptyString: false,
+  returnNull: false,
+  debug: typeof window !== "undefined" && window.location.hostname === "localhost",
   interpolation: {
     escapeValue: false,
   },
+  react: {
+    useSuspense: false,
+  },
+  load: "all",
+  cleanCode: false,
+  saveMissing: false,
+  partialBundledLanguages: true,
 });
 
 export default i18n;

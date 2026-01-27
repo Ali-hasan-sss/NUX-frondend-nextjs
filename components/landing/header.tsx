@@ -100,6 +100,21 @@ export function Header() {
               {t("landing.nav.services") || "Services"}
             </Link>
             <Link
+              href="/restaurants"
+              className={cn(
+                "text-sm font-medium transition-colors relative px-2 py-1 rounded-md",
+                pathname === "/restaurants"
+                  ? isDark
+                    ? "text-cyan-400 bg-purple-500/20"
+                    : "text-cyan-600 bg-cyan-50"
+                  : isDark
+                  ? "text-white/80 hover:text-cyan-400"
+                  : "text-gray-700 hover:text-cyan-600"
+              )}
+            >
+              {t("landing.nav.restaurants") || "Restaurants"}
+            </Link>
+            <Link
               href="/contact"
               className={cn(
                 "text-sm font-medium transition-colors relative px-2 py-1 rounded-md",
@@ -235,6 +250,22 @@ export function Header() {
                 )}
               >
                 {t("landing.nav.services") || "Services"}
+              </Link>
+              <Link
+                href="/restaurants"
+                onClick={() => setIsMenuOpen(false)}
+                className={cn(
+                  "text-sm font-medium transition-colors py-2 px-2 rounded-md",
+                  pathname === "/restaurants"
+                    ? isDark
+                      ? "text-cyan-400 bg-purple-500/20"
+                      : "text-cyan-600 bg-cyan-50"
+                    : isDark
+                    ? "text-white/80 hover:text-cyan-400"
+                    : "text-gray-700 hover:text-cyan-600"
+                )}
+              >
+                {t("landing.nav.restaurants") || "Restaurants"}
               </Link>
               <Link
                 href="/contact"

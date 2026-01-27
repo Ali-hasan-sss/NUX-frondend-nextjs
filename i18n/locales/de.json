@@ -225,8 +225,33 @@
       "account": "Konto",
       "copyright": "© 2024 NUX. Alle Rechte vorbehalten."
     },
+    "restaurants": {
+      "title": "Restaurants durchsuchen",
+      "subtitle": "Entdecken Sie großartige Restaurants und erkunden Sie ihre Menüs",
+      "searchPlaceholder": "Restaurants nach Name oder Standort suchen...",
+      "loading": "Restaurants werden geladen...",
+      "error": "Fehler",
+      "failedToLoad": "Restaurants konnten nicht geladen werden",
+      "noRestaurants": "Keine Restaurants gefunden",
+      "noResults": "Versuchen Sie, Ihre Suche anzupassen",
+      "empty": "Derzeit sind keine Restaurants verfügbar",
+      "viewMenu": "Menü anzeigen",
+      "sortBy": "Sortieren nach",
+      "sortByName": "Name (A-Z)",
+      "sortByDistance": "Entfernung (Nächste)",
+      "sortByNewest": "Neueste",
+      "getLocation": "Meinen Standort abrufen",
+      "locationDetected": "Standort erkannt",
+      "locationNotDetected": "Standort nicht erkannt",
+      "retryLocation": "Standort erneut versuchen",
+      "locationError": "Standort konnte nicht abgerufen werden",
+      "geolocationNotSupported": "Geolokalisierung wird von Ihrem Browser nicht unterstützt",
+      "km": "km",
+      "meters": "m"
+    },
     "nav": {
       "home": "Startseite",
+      "restaurants": "Restaurants",
       "about": "Über uns",
       "services": "Dienstleistungen",
       "contact": "Kontakt"
