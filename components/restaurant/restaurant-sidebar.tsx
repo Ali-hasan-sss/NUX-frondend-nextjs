@@ -31,6 +31,7 @@ import {
   Store,
   ChevronUp,
   ArrowLeft,
+  ShoppingCart,
 } from "lucide-react";
 
 export function RestaurantSidebar() {
@@ -40,6 +41,7 @@ export function RestaurantSidebar() {
   const singleNavigation = [
     { name: t("dashboard.sidebar.dashboard"), href: "/dashboard", icon: LayoutDashboard },
     { name: t("dashboard.sidebar.notifications"), href: "/dashboard/notifications", icon: Bell },
+    { name: t("dashboard.sidebar.orders"), href: "/dashboard/orders", icon: ShoppingCart },
     { name: t("dashboard.sidebar.subscription"), href: "/dashboard/subscription", icon: CreditCard },
     { name: t("dashboard.sidebar.invoices"), href: "/dashboard/invoices", icon: FileText },
     { name: t("dashboard.sidebar.settings"), href: "/dashboard/settings", icon: Settings },

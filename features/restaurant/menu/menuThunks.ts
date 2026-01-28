@@ -115,3 +115,16 @@ export const deleteMenuItemThunk = createAsyncThunk<
     }
   }
 );
+
+// Kitchen Sections
+export const fetchKitchenSections = createAsyncThunk<
+  any[],
+  void,
+  { rejectValue: string }
+>("restaurantMenu/fetchKitchenSections", async (_, { rejectWithValue }) => {
+  try {
+    return await menuService.getKitchenSections();
+  } catch (e: any) {
+    return rejectWithValue(e?.message ?? "Failed to load kitchen sections");
+  }
+});

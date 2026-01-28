@@ -43,6 +43,10 @@ import { toast } from "sonner";
 import GoogleMapPicker from "@/components/common/GoogleMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
 import { cn } from "@/lib/utils";
+import { fetchKitchenSections } from "@/features/restaurant/menu/menuThunks";
+import { axiosInstance } from "@/utils/axiosInstance";
+import { Plus, Pencil, Trash2, ChefHat } from "lucide-react";
+import ConfirmDialog from "@/components/confirmMessage";
 
 type RestaurantFormData = {
   name: string;
@@ -101,11 +105,36 @@ export function RestaurantSettings() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  
+  // Kitchen Sections Management
+  const [kitchenSections, setKitchenSections] = useState<any[]>([]);
+  const [isLoadingSections, setIsLoadingSections] = useState(false);
+  const [isSectionDialogOpen, setIsSectionDialogOpen] = useState(false);
+  const [isDeleteSectionOpen, setIsDeleteSectionOpen] = useState(false);
+  const [selectedSection, setSelectedSection] = useState<any | null>(null);
+  const [sectionForm, setSectionForm] = useState({
+    name: "",
+    description: "",
+  });
 
   // Load restaurant data on component mount
   useEffect(() => {
     dispatch(fetchRestaurantAccount());
+    loadKitchenSections();
   }, [dispatch]);
+
+  // Load kitchen sections
+  const loadKitchenSections = async () => {
+    setIsLoadingSections(true);
+    try {
+      const res = await dispatch(fetchKitchenSections()).unwrap();
+      setKitchenSections(res);
+    } catch (error: any) {
+      console.error("Failed to load kitchen sections:", error);
+    } finally {
+      setIsLoadingSections(false);
+    }
+  };
 
   // Update form when restaurant data loads
   useEffect(() => {
@@ -284,6 +313,84 @@ export function RestaurantSettings() {
       setIsLocationFormOpen(false);
     } catch (error: any) {
       toast.error(error.message || "Failed to update restaurant location");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // Kitchen Sections Handlers
+  const handleOpenAddSection = () => {
+    setSelectedSection(null);
+    setSectionForm({ name: "", description: "" });
+    setIsSectionDialogOpen(true);
+  };
+
+  const handleOpenEditSection = (section: any) => {
+    setSelectedSection(section);
+    setSectionForm({
+      name: section.name || "",
+      description: section.description || "",
+    });
+    setIsSectionDialogOpen(true);
+  };
+
+  const handleSaveSection = async () => {
+    if (!sectionForm.name.trim()) {
+      toast.error("Section name is required");
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      if (selectedSection) {
+        // Update existing section
+        await axiosInstance.put(
+          `/restaurants/kitchen-sections/${selectedSection.id}`,
+          {
+            name: sectionForm.name.trim(),
+            description: sectionForm.description.trim() || null,
+          }
+        );
+        toast.success("Kitchen section updated successfully");
+      } else {
+        // Create new section
+        await axiosInstance.post("/restaurants/kitchen-sections", {
+          name: sectionForm.name.trim(),
+          description: sectionForm.description.trim() || null,
+        });
+        toast.success("Kitchen section created successfully");
+      }
+      setIsSectionDialogOpen(false);
+      loadKitchenSections();
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to save kitchen section"
+      );
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteSection = async () => {
+    if (!selectedSection) return;
+
+    setIsUpdating(true);
+    try {
+      await axiosInstance.delete(
+        `/restaurants/kitchen-sections/${selectedSection.id}`
+      );
+      toast.success("Kitchen section deleted successfully");
+      setIsDeleteSectionOpen(false);
+      setSelectedSection(null);
+      loadKitchenSections();
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to delete kitchen section"
+      );
     } finally {
       setIsUpdating(false);
     }
@@ -535,6 +642,89 @@ export function RestaurantSettings() {
                     : "N/A"}
                 </span>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Kitchen Sections Management */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <ChefHat className="h-5 w-5" />
+                  <span>{t("dashboard.settings.kitchenSections") || "Kitchen Sections"}</span>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleOpenAddSection}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {t("dashboard.settings.addSection") || "Add Section"}
+                </Button>
+              </CardTitle>
+              <CardDescription>
+                {t("dashboard.settings.manageKitchenSections") || "Manage your kitchen sections"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingSections ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                </div>
+              ) : kitchenSections.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <ChefHat className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">
+                    {t("dashboard.settings.noKitchenSections") || "No kitchen sections yet"}
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={handleOpenAddSection}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {t("dashboard.settings.addFirstSection") || "Add First Section"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {kitchenSections.map((section) => (
+                    <div
+                      key={section.id}
+                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="font-medium text-sm">{section.name}</div>
+                        {section.description && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {section.description}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenEditSection(section)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedSection(section);
+                            setIsDeleteSectionOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -860,6 +1050,94 @@ export function RestaurantSettings() {
         initialLat={Number(restaurantForm.latitude) || 0}
         initialLng={Number(restaurantForm.longitude) || 0}
         onSelect={handleLocationConfirm}
+      />
+
+      {/* Kitchen Section Dialog */}
+      <Dialog open={isSectionDialogOpen} onOpenChange={setIsSectionDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedSection
+                ? t("dashboard.settings.editKitchenSection") || "Edit Kitchen Section"
+                : t("dashboard.settings.addKitchenSection") || "Add Kitchen Section"}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedSection
+                ? t("dashboard.settings.editKitchenSectionDesc") ||
+                  "Update kitchen section information"
+                : t("dashboard.settings.addKitchenSectionDesc") ||
+                  "Create a new kitchen section for your restaurant"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="sectionName">
+                {t("dashboard.settings.sectionName") || "Section Name"} *
+              </Label>
+              <Input
+                id="sectionName"
+                value={sectionForm.name}
+                onChange={(e) =>
+                  setSectionForm({ ...sectionForm, name: e.target.value })
+                }
+                placeholder={t("dashboard.settings.sectionNamePlaceholder") || "e.g., Hot Kitchen, Cold Station"}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sectionDescription">
+                {t("dashboard.settings.sectionDescription") || "Description"}
+              </Label>
+              <Textarea
+                id="sectionDescription"
+                value={sectionForm.description}
+                onChange={(e) =>
+                  setSectionForm({ ...sectionForm, description: e.target.value })
+                }
+                placeholder={t("dashboard.settings.sectionDescriptionPlaceholder") || "Optional description"}
+                rows={3}
+              />
+            </div>
+          </div>
+          <div className={cn("flex justify-end gap-2", isRTL ? "flex-row-reverse" : "")}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsSectionDialogOpen(false);
+                setSelectedSection(null);
+                setSectionForm({ name: "", description: "" });
+              }}
+            >
+              {t("dashboard.settings.cancel") || "Cancel"}
+            </Button>
+            <Button onClick={handleSaveSection} disabled={isUpdating}>
+              {isUpdating ? (
+                <>
+                  <div className={cn("animate-spin rounded-full h-4 w-4 border-b-2 border-white", isRTL ? "ml-2" : "mr-2")}></div>
+                  {t("dashboard.settings.saving") || "Saving..."}
+                </>
+              ) : (
+                <>
+                  <Save className={cn("h-4 w-4", isRTL ? "ml-2" : "mr-2")} />
+                  {t("dashboard.settings.save") || "Save"}
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={isDeleteSectionOpen}
+        setOpen={setIsDeleteSectionOpen}
+        title={t("dashboard.settings.deleteSection") || "Delete Kitchen Section"}
+        message={
+          t("dashboard.settings.deleteSectionConfirm") ||
+          `Are you sure you want to delete "${selectedSection?.name}"? This action cannot be undone.`
+        }
+        onConfirm={handleDeleteSection}
+        confirmText={t("dashboard.settings.delete") || "Delete"}
+        cancelText={t("dashboard.settings.cancel") || "Cancel"}
       />
     </div>
   );

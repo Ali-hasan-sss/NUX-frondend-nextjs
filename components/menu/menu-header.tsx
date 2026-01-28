@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { useClientTheme } from "@/hooks/useClientTheme";
+import { useMenuCart } from "@/contexts/menu-cart-context";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface MenuHeaderProps {
   onCartClick?: () => void;
@@ -11,6 +15,8 @@ interface MenuHeaderProps {
 
 export function MenuHeader({ onCartClick, cartCount = 0 }: MenuHeaderProps) {
   const { colors, isDark, mounted } = useClientTheme();
+  const { tableNumber } = useMenuCart();
+  const { t } = useTranslation();
 
   if (!mounted) {
     return null;
@@ -31,14 +37,29 @@ export function MenuHeader({ onCartClick, cartCount = 0 }: MenuHeaderProps) {
           <Image
             src="/images/logo.png"
             alt="Logo"
-            width={100}
-            height={40}
+            width={72}
+            height={28}
             className="object-contain"
             priority
           />
+          {tableNumber && (
+            <div
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-sm font-medium",
+                isDark
+                  ? "bg-primary/20 text-primary border border-primary/30"
+                  : "bg-primary/10 text-primary border border-primary/20"
+              )}
+            >
+              {t("menu.table") || "Table"}: {tableNumber}
+            </div>
+          )}
         </div>
 
-        {onCartClick && (
+        <div className="flex items-center gap-1">
+          <LanguageSwitcher />
+          <ThemeToggle />
+          {onCartClick && (
           <button
             onClick={onCartClick}
             className={cn(
@@ -75,7 +96,8 @@ export function MenuHeader({ onCartClick, cartCount = 0 }: MenuHeaderProps) {
               </span>
             )}
           </button>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Providers } from "@/components/providers"
 import { Suspense } from "react"
 import { Cairo, Poppins } from "next/font/google"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const cairo = Cairo({
@@ -38,6 +39,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <Providers>{children}</Providers>
           </Suspense>
+          <Toaster />
         </ThemeProvider>
         <Analytics />
       </body>

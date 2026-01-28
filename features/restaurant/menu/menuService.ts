@@ -53,6 +53,13 @@ export const menuService = {
         description: payload.description,
         price: payload.price,
         image: payload.image,
+        preparationTime: payload.preparationTime,
+        extras: payload.extras,
+        discountType: payload.discountType,
+        discountValue: payload.discountValue,
+        allergies: payload.allergies,
+        calories: payload.calories,
+        kitchenSectionId: payload.kitchenSectionId,
       }
     );
     return res.data?.data as MenuItem;
@@ -66,6 +73,13 @@ export const menuService = {
         description: payload.description,
         price: payload.price,
         image: payload.image,
+        preparationTime: payload.preparationTime,
+        extras: payload.extras,
+        discountType: payload.discountType,
+        discountValue: payload.discountValue,
+        allergies: payload.allergies,
+        calories: payload.calories,
+        kitchenSectionId: payload.kitchenSectionId,
       }
     );
     return res.data?.data as MenuItem;
@@ -73,5 +87,10 @@ export const menuService = {
 
   async deleteItem(itemId: number): Promise<void> {
     await axiosInstance.delete(`/restaurants/menu/items/${itemId}`);
+  },
+
+  async getKitchenSections(): Promise<any[]> {
+    const res = await axiosInstance.get("/restaurants/kitchen-sections");
+    return (res.data?.data ?? []) as any[];
   },
 };
