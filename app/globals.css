@@ -28,6 +28,81 @@
 .animate-float {
   animation: float 25s infinite ease-in-out;
 }
+
+/* Login branding section: gradient + subtle animations */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes orb-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate(15px, -15px) scale(1.08);
+    opacity: 0.35;
+  }
+}
+
+@keyframes ring-glow {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+.animate-gradient-brand {
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  animation: gradient-shift 12s ease-in-out infinite;
+}
+
+.animate-orb-float {
+  animation: orb-float 8s ease-in-out infinite;
+}
+
+.animate-ring-glow {
+  animation: ring-glow 6s ease-in-out infinite;
+}
+
+/* Login branding panel gradient (animated via .animate-gradient-brand) */
+.login-brand-gradient-dark {
+  background-color: #0a0e27;
+  background-image: linear-gradient(
+    135deg,
+    #0a0e27 0%,
+    #1a1f3a 25%,
+    #2d1b4e 50%,
+    #1a1f3a 75%,
+    #0a0e27 100%
+  );
+}
+
+.login-brand-gradient-light {
+  background-color: hsl(var(--primary) / 0.15);
+  background-image: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.25) 0%,
+    hsl(var(--secondary) / 0.2) 25%,
+    hsl(var(--primary) / 0.35) 50%,
+    hsl(var(--secondary) / 0.2) 75%,
+    hsl(var(--primary) / 0.25) 100%
+  );
+}
+
 @import "react-quill/dist/quill.snow.css";
 
 @layer base {
@@ -53,32 +128,69 @@
     hsl(var(--sidebar-background));
 }
 .sidebar-scroll::-webkit-scrollbar {
-  width: 8px; /* thin */
+  width: 6px; /* thin */
 }
 .sidebar-scroll::-webkit-scrollbar-track {
-  background: hsl(var(--sidebar-background));
+  background: transparent;
 }
 .sidebar-scroll::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--sidebar-accent-foreground) / 0.35);
+  background-color: hsl(var(--sidebar-accent-foreground) / 0.25);
   border-radius: 9999px;
-  border: 2px solid hsl(var(--sidebar-background));
-}
-.dark .sidebar-scroll {
-  scrollbar-color: hsl(var(--sidebar-foreground) / 0.35)
-    hsl(var(--sidebar-background));
-}
-.dark .sidebar-scroll::-webkit-scrollbar-track {
-  background: hsl(var(--sidebar-background));
 }
 .dark .sidebar-scroll::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--sidebar-foreground) / 0.35);
-  border-color: hsl(var(--sidebar-background));
+  background-color: hsl(var(--sidebar-foreground) / 0.25);
 }
-/* Hide classic scrollbar arrows in IE/old Edge (no effect in modern browsers) */
 .sidebar-scroll::-webkit-scrollbar-button {
   display: none;
   width: 0;
   height: 0;
+}
+
+/* Modern sidebar panel - visual identity */
+.sidebar-panel {
+  background: hsl(var(--sidebar-background));
+  border-inline-end: 1px solid hsl(var(--sidebar-border));
+  box-shadow: 2px 0 24px -4px hsl(var(--sidebar-foreground) / 0.04);
+}
+.dark .sidebar-panel {
+  box-shadow: 2px 0 24px -4px hsl(0 0% 0% / 0.3);
+}
+.sidebar-brand {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.08) 0%,
+    hsl(var(--secondary) / 0.05) 100%
+  );
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--sidebar-border));
+}
+.dark .sidebar-brand {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.15) 0%,
+    hsl(var(--secondary) / 0.08) 100%
+  );
+}
+.sidebar-nav-item {
+  border-radius: 0.625rem;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.sidebar-nav-item--active {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  font-weight: 600;
+  border-inline-start: 3px solid hsl(var(--primary));
+}
+.dark .sidebar-nav-item--active {
+  background: hsl(var(--primary) / 0.2);
+}
+.sidebar-user-card {
+  background: hsl(var(--sidebar-accent) / 0.6);
+  border-radius: 0.75rem;
+  border: 1px solid hsl(var(--sidebar-border));
+}
+.dark .sidebar-user-card {
+  background: hsl(var(--sidebar-accent) / 0.4);
 }
 
 :root {

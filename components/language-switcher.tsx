@@ -14,6 +14,7 @@ const languages = {
   en: { name: "English", flag: "🇺🇸" },
   ar: { name: "العربية", flag: "🇸🇦" },
   de: { name: "Deutsch", flag: "🇩🇪" },
+  tr: { name: "Türkçe", flag: "🇹🇷" },
 }
 
 export function LanguageSwitcher() {

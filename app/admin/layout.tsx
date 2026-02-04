@@ -4,6 +4,7 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import Image from "next/image";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { NotificationBellDropdown } from "@/components/notifications/NotificationBellDropdown";
 
 export default function AdminLayout({
   children,
@@ -20,15 +21,17 @@ export default function AdminLayout({
             <div className="flex items-center justify-between px-4 py-2 border-b">
               <div className="flex items-center gap-2 pr-1">
                 <Image
-                  src="/placeholder-logo.svg"
-                  alt="Logo"
-                  width={28}
-                  height={28}
-                  className="rounded"
+                  src="/logo.png"
+                  alt="NUX"
+                  width={32}
+                  height={32}
+                  className="rounded object-contain"
+                  priority
                 />
                 <span className="text-sm font-medium">NUX</span>
               </div>
               <div className="flex items-center gap-2">
+                <NotificationBellDropdown viewAllHref="/admin/notifications" />
                 <LanguageSwitcher />
                 <ThemeToggle />
               </div>

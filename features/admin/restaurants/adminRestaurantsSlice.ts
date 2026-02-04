@@ -7,6 +7,7 @@ import {
   fetchAdminRestaurants,
   fetchAdminRestaurantById,
   createAdminRestaurant,
+  createRestaurantWithOwner,
   updateAdminRestaurant,
   deleteAdminRestaurant,
 } from "./adminRestaurantsThunks";
@@ -68,6 +69,21 @@ const adminRestaurantsSlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(createAdminRestaurant.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          (action.payload as string) ?? action.error.message ?? null;
+      })
+
+      .addCase(createRestaurantWithOwner.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createRestaurantWithOwner.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items.unshift(action.payload);
+        state.pagination.totalItems = (state.pagination.totalItems ?? 0) + 1;
+      })
+      .addCase(createRestaurantWithOwner.rejected, (state, action) => {
         state.isLoading = false;
         state.error =
           (action.payload as string) ?? action.error.message ?? null;

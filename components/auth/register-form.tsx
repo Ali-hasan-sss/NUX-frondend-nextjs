@@ -83,7 +83,7 @@ export function RegisterForm() {
       <CardHeader>
         <CardTitle>Create Restaurant Account</CardTitle>
         <CardDescription>
-          Join RestaurantHub and start building customer loyalty
+          Join NUX and start building customer loyalty
         </CardDescription>
       </CardHeader>
       <CardContent>

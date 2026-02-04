@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAppSelector } from "@/app/hooks";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { fetchUnreadCount } from "@/features/notifications/notificationsThunks";
 import { Bell, Menu } from "lucide-react";
 import Image from "next/image";
 import { DrawerMenu } from "./drawer-menu";
@@ -11,15 +12,17 @@ import { cn } from "@/lib/utils";
 
 export function ClientHeader() {
   const { user } = useAppSelector((state) => state.auth);
+  const unreadCount = useAppSelector(
+    (state) => state.notifications.unreadCount
+  );
+  const dispatch = useAppDispatch();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const { colors, isDark, mounted } = useClientTheme();
 
-  // TODO: Load unread notifications count
   useEffect(() => {
-    // Load unread count logic here
-  }, []);
+    dispatch(fetchUnreadCount());
+  }, [dispatch]);
 
   if (!mounted) {
     return null;

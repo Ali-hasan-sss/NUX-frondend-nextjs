@@ -20,6 +20,7 @@ export interface CreateTablesPayload {
 export interface UpdateTablePayload {
   name?: string;
   isActive?: boolean;
+  isSessionOpen?: boolean;
 }
 
 export const tablesService = {
@@ -28,7 +29,9 @@ export const tablesService = {
     return res.data as { success: boolean; data: Table[] };
   },
 
-  async createTables(payload: CreateTablesPayload): Promise<{ success: boolean; data: Table[] }> {
+  async createTables(
+    payload: CreateTablesPayload
+  ): Promise<{ success: boolean; data: Table[] }> {
     const res = await axiosInstance.post("/restaurants/tables", payload);
     return res.data as { success: boolean; data: Table[] };
   },
@@ -37,7 +40,10 @@ export const tablesService = {
     tableId: number,
     payload: UpdateTablePayload
   ): Promise<{ success: boolean; data: Table }> {
-    const res = await axiosInstance.put(`/restaurants/tables/${tableId}`, payload);
+    const res = await axiosInstance.put(
+      `/restaurants/tables/${tableId}`,
+      payload
+    );
     return res.data as { success: boolean; data: Table };
   },
 

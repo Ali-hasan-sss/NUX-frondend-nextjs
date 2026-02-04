@@ -37,7 +37,12 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 
-export function NotificationsPage() {
+interface NotificationsPageProps {
+  /** When true, hide page title and card header (e.g. when embedded in admin page). */
+  embedded?: boolean;
+}
+
+export function NotificationsPage({ embedded }: NotificationsPageProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { items, pagination, unreadCount, isLoading, error } = useSelector(
@@ -64,32 +69,38 @@ export function NotificationsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">{t("dashboard.notifications.title")}</h1>
-          <p className="text-muted-foreground">{t("dashboard.notifications.stayUpdated")}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant={unreadCount > 0 ? "default" : "secondary"}>
-            {t("dashboard.notifications.unreadFilter")}: {unreadCount}
-          </Badge>
-          <Button
-            variant="outline"
-            onClick={handleMarkAll}
-            disabled={unreadCount === 0}
-          >
-            {t("dashboard.notifications.markAllRead")}
-          </Button>
-        </div>
-      </div>
+    <div className={embedded ? "space-y-4" : "p-6 space-y-6"}>
+      {!embedded && (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">{t("dashboard.notifications.title")}</h1>
+              <p className="text-muted-foreground">{t("dashboard.notifications.stayUpdated")}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant={unreadCount > 0 ? "default" : "secondary"}>
+                {t("dashboard.notifications.unreadFilter")}: {unreadCount}
+              </Badge>
+              <Button
+                variant="outline"
+                onClick={handleMarkAll}
+                disabled={unreadCount === 0}
+              >
+                {t("dashboard.notifications.markAllRead")}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
 
       <Card>
-        <CardHeader>
-          <CardTitle>{t("dashboard.notifications.title")} ({pagination.totalItems})</CardTitle>
-          <CardDescription>{t("dashboard.notifications.listOfNotifications")}</CardDescription>
-        </CardHeader>
-        <CardContent>
+        {!embedded && (
+          <CardHeader>
+            <CardTitle>{t("dashboard.notifications.title")} ({pagination.totalItems})</CardTitle>
+            <CardDescription>{t("dashboard.notifications.listOfNotifications")}</CardDescription>
+          </CardHeader>
+        )}
+        <CardContent className={embedded ? "pt-4" : undefined}>
           {error && (
             <div className="text-sm text-destructive mb-3">{error}</div>
           )}

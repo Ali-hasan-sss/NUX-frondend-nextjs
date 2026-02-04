@@ -61,4 +61,5 @@ export interface RestaurantGroupsState {
   joinRequests: JoinRequest[];
   isLoading: boolean;
   error: string | null;
+  errorCode: string | null;
 }

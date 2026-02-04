@@ -32,12 +32,19 @@ export function SubscriptionManagement() {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  /** Plan ID whose subscribe/upgrade button is currently loading (loader only on that button) */
+  const [loadingPlanId, setLoadingPlanId] = useState<number | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState<string | null>(
     null
   );
-  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<number, boolean>>({});
+  /** true = success (green), false = error (red). Used for styling regardless of language. */
+  const [confirmationIsSuccess, setConfirmationIsSuccess] = useState<
+    boolean | null
+  >(null);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<
+    Record<number, boolean>
+  >({});
   const { user } = useAppSelector((state) => state.auth);
   const {
     plans,
@@ -67,6 +74,7 @@ export function SubscriptionManagement() {
   const confirmSubscription = async (sessionId: string) => {
     setIsConfirming(true);
     setConfirmationMessage(null);
+    setConfirmationIsSuccess(null);
 
     try {
       const result = await subscriptionService.confirm(sessionId);
@@ -75,6 +83,7 @@ export function SubscriptionManagement() {
         setConfirmationMessage(
           t("dashboard.subscription.subscriptionConfirmed")
         );
+        setConfirmationIsSuccess(true);
         // Refresh restaurant account data to get updated subscription info
         dispatch(fetchRestaurantAccount());
         // Refresh plans to get updated data
@@ -86,15 +95,13 @@ export function SubscriptionManagement() {
         url.searchParams.delete("status");
         window.history.replaceState({}, "", url.toString());
       } else {
-        setConfirmationMessage(
-          t("dashboard.subscription.confirmationFailed")
-        );
+        setConfirmationMessage(t("dashboard.subscription.confirmationFailed"));
+        setConfirmationIsSuccess(false);
       }
     } catch (error) {
       console.error("Error confirming subscription:", error);
-      setConfirmationMessage(
-        t("dashboard.subscription.errorConfirming")
-      );
+      setConfirmationMessage(t("dashboard.subscription.errorConfirming"));
+      setConfirmationIsSuccess(false);
     } finally {
       setIsConfirming(false);
     }
@@ -105,16 +112,13 @@ export function SubscriptionManagement() {
   // };
 
   const handleSubscribe = async (planId: number) => {
-    setIsLoading(true);
+    setLoadingPlanId(planId);
     try {
       // Check if this is a renewal (plan already subscribed)
       const isRenewal = isPlanSubscribed(planId);
 
       if (isRenewal && !isInLastMonth()) {
-        alert(
-          t("dashboard.subscription.renewalAvailable")
-        );
-        setIsLoading(false);
+        alert(t("dashboard.subscription.renewalAvailable"));
         return;
       }
 
@@ -124,7 +128,7 @@ export function SubscriptionManagement() {
     } catch (error) {
       console.error("Error creating checkout session:", error);
     } finally {
-      setIsLoading(false);
+      setLoadingPlanId(null);
     }
   };
 
@@ -133,18 +137,24 @@ export function SubscriptionManagement() {
     console.log("Cancel subscription");
   };
 
-  // Get current subscription from restaurant account (highest price plan)
-  const currentSubscription = restaurantAccount?.subscriptions?.reduce(
-    (highest, current) => {
-      const currentPlan = plans.find((plan) => plan.id === current.planId);
-      const highestPlan = plans.find((plan) => plan.id === highest.planId);
-
-      const currentPrice = currentPlan?.price || 0;
-      const highestPrice = highestPlan?.price || 0;
-
-      return currentPrice > highestPrice ? current : highest;
-    }
-  );
+  // Current subscription = active only (ignore CANCELLED/expired); among active, pick highest price plan
+  const activeSubscriptions =
+    restaurantAccount?.subscriptions?.filter((s) => s.status === "ACTIVE") ??
+    [];
+  const currentSubscription =
+    activeSubscriptions.length > 0
+      ? activeSubscriptions.reduce((highest, current) => {
+          const currentPlanObj = plans.find(
+            (plan) => plan.id === current.planId
+          );
+          const highestPlanObj = plans.find(
+            (plan) => plan.id === highest.planId
+          );
+          const currentPrice = currentPlanObj?.price ?? 0;
+          const highestPrice = highestPlanObj?.price ?? 0;
+          return currentPrice > highestPrice ? current : highest;
+        })
+      : null;
 
   const currentPlan = currentSubscription
     ? plans.find((plan) => plan.id === currentSubscription.planId)
@@ -235,8 +245,12 @@ export function SubscriptionManagement() {
       {currentSubscription ? (
         <Card>
           <CardHeader>
-            <CardTitle>{t("dashboard.subscription.currentSubscription")}</CardTitle>
-            <CardDescription>{t("dashboard.subscription.activeSubscriptionDetails")}</CardDescription>
+            <CardTitle>
+              {t("dashboard.subscription.currentSubscription")}
+            </CardTitle>
+            <CardDescription>
+              {t("dashboard.subscription.activeSubscriptionDetails")}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -337,13 +351,23 @@ export function SubscriptionManagement() {
       {confirmationMessage && (
         <Alert
           className={
-            confirmationMessage.includes("successfully")
+            confirmationIsSuccess === true
               ? "border-green-500 bg-green-50 dark:bg-green-950 dark:border-green-400"
               : "border-red-500 bg-red-50 dark:bg-red-950 dark:border-red-400"
           }
         >
-          <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
-          <AlertDescription className="text-green-800 dark:text-green-200">
+          {confirmationIsSuccess === true ? (
+            <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+          ) : (
+            <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+          )}
+          <AlertDescription
+            className={
+              confirmationIsSuccess === true
+                ? "text-green-800 dark:text-green-200"
+                : "text-red-800 dark:text-red-200"
+            }
+          >
             {confirmationMessage}
           </AlertDescription>
         </Alert>
@@ -370,14 +394,17 @@ export function SubscriptionManagement() {
         {loading.plans ? (
           <div className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin" />
-            <span className="ml-2">{t("dashboard.subscription.loadingPlans")}</span>
+            <span className="ml-2">
+              {t("dashboard.subscription.loadingPlans")}
+            </span>
           </div>
         ) : plansError?.plans ? (
           <div className="text-center p-8">
             <Alert className="border-red-500 bg-red-50 dark:bg-red-950 dark:border-red-400">
               <AlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
               <AlertDescription className="text-red-800 dark:text-red-200">
-                {t("dashboard.subscription.errorLoadingPlans")}: {plansError.plans || "Unknown error"}
+                {t("dashboard.subscription.errorLoadingPlans")}:{" "}
+                {plansError.plans || "Unknown error"}
               </AlertDescription>
             </Alert>
             <Button
@@ -393,11 +420,13 @@ export function SubscriptionManagement() {
               const isCurrent = currentPlan?.id === plan.id;
               const isSelected = selectedPlan === plan.id;
               const isExpanded = expandedDescriptions[plan.id] || false;
-              const descriptionText = plan.description?.replace(/<[^>]*>/g, '') || "";
+              const descriptionText =
+                plan.description?.replace(/<[^>]*>/g, "") || "";
               const shouldShowReadMore = descriptionText.length > 150;
-              const displayDescription = isExpanded || !shouldShowReadMore 
-                ? (plan.description || "No description available")
-                : (descriptionText.substring(0, 150) + "...");
+              const displayDescription =
+                isExpanded || !shouldShowReadMore
+                  ? plan.description || "No description available"
+                  : descriptionText.substring(0, 150) + "...";
 
               return (
                 <Card
@@ -425,7 +454,7 @@ export function SubscriptionManagement() {
                   {isCurrent && (
                     <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                       <span className="bg-green-600 dark:bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg">
-{t("dashboard.subscription.currentPlan")}
+                        {t("dashboard.subscription.currentPlan")}
                       </span>
                     </div>
                   )}
@@ -438,26 +467,33 @@ export function SubscriptionManagement() {
                           <CardDescription
                             className="text-base"
                             dangerouslySetInnerHTML={{
-                              __html: displayDescription || "No description available",
+                              __html:
+                                displayDescription ||
+                                "No description available",
                             }}
                           />
                           <Button
                             variant="link"
                             size="sm"
                             className="mt-2 p-0 h-auto text-primary"
-                            onClick={() => setExpandedDescriptions(prev => ({
-                              ...prev,
-                              [plan.id]: !prev[plan.id]
-                            }))}
+                            onClick={() =>
+                              setExpandedDescriptions((prev) => ({
+                                ...prev,
+                                [plan.id]: !prev[plan.id],
+                              }))
+                            }
                           >
-                            {isExpanded ? t("dashboard.ads.readLess") || "Read less" : t("dashboard.ads.readMore") || "Read more"}
+                            {isExpanded
+                              ? t("dashboard.ads.readLess") || "Read less"
+                              : t("dashboard.ads.readMore") || "Read more"}
                           </Button>
                         </div>
                       ) : (
                         <CardDescription
                           className="text-base"
                           dangerouslySetInnerHTML={{
-                            __html: plan.description || "No description available",
+                            __html:
+                              plan.description || "No description available",
                           }}
                         />
                       )}
@@ -501,7 +537,7 @@ export function SubscriptionManagement() {
                     <div className="pt-6 mt-auto">
                       {isCurrent ? (
                         <Button className="w-full" disabled>
-  {t("dashboard.subscription.currentPlan")}
+                          {t("dashboard.subscription.currentPlan")}
                         </Button>
                       ) : isFreePlan(plan.price) ? (
                         <Button className="w-full" disabled>
@@ -512,9 +548,13 @@ export function SubscriptionManagement() {
                           className="w-full"
                           variant={isSelected ? "default" : "outline"}
                           onClick={() => handleSubscribe(plan.id)}
-                          disabled={isLoading || !isInLastMonth()}
+                          disabled={
+                            (loadingPlanId != null &&
+                              loadingPlanId !== plan.id) ||
+                            !isInLastMonth()
+                          }
                         >
-                          {isLoading ? (
+                          {loadingPlanId === plan.id ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Processing...
@@ -530,27 +570,31 @@ export function SubscriptionManagement() {
                               ) - 30
                             } days`
                           ) : (
-t("dashboard.subscription.renew")
+                            t("dashboard.subscription.renew")
                           )}
+                        </Button>
+                      ) : isDowngrade(plan.price || 0) ? (
+                        <Button className="w-full" variant="outline" disabled>
+                          {t("dashboard.subscription.lowerPlan")}
                         </Button>
                       ) : (
                         <Button
                           className="w-full"
                           variant={isSelected ? "default" : "outline"}
                           onClick={() => handleSubscribe(plan.id)}
-                          disabled={isLoading}
+                          disabled={
+                            loadingPlanId != null && loadingPlanId !== plan.id
+                          }
                         >
-                          {isLoading ? (
+                          {loadingPlanId === plan.id ? (
                             <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Processing...
                             </>
                           ) : isUpgrade(plan.price || 0) ? (
-t("dashboard.subscription.upgrade")
-                          ) : isDowngrade(plan.price || 0) ? (
-t("dashboard.subscription.downgrade")
+                            t("dashboard.subscription.upgrade")
                           ) : (
-t("dashboard.subscription.subscribe")
+                            t("dashboard.subscription.subscribe")
                           )}
                         </Button>
                       )}

@@ -58,18 +58,22 @@ export function AdminLoginForm() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center space-x-2 mb-2">
-          <Shield className="h-5 w-5 text-primary" />
-          <CardTitle>Admin Login</CardTitle>
+    <Card className="overflow-hidden rounded-2xl border-border bg-card/95 dark:bg-card/90 shadow-xl shadow-black/5 dark:shadow-black/20 ring-1 ring-black/5 dark:ring-white/5">
+      {/* Gradient accent strip - visual identity */}
+      <div className="h-1 w-full bg-gradient-to-r from-primary via-secondary to-primary" />
+      <CardHeader className="pb-4 pt-6">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 dark:bg-primary/20">
+            <Shield className="h-5 w-5 text-primary" />
+          </div>
+          <CardTitle className="text-xl">Admin Login</CardTitle>
         </div>
         <CardDescription>Access the administrative panel</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="rounded-xl">
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
@@ -84,6 +88,7 @@ export function AdminLoginForm() {
               value={formData.email}
               onChange={handleChange}
               required
+              className="rounded-xl border-border bg-background focus-visible:ring-primary"
             />
           </div>
 
@@ -98,31 +103,39 @@ export function AdminLoginForm() {
                 value={formData.password}
                 onChange={handleChange}
                 required
+                className="rounded-xl border-border bg-background focus-visible:ring-primary pe-12"
               />
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                className="absolute end-0 top-0 h-full px-3 py-2 hover:bg-transparent rounded-s-none rounded-e-xl"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
+                  <EyeOff className="h-4 w-4 text-muted-foreground" />
                 ) : (
-                  <Eye className="h-4 w-4" />
+                  <Eye className="h-4 w-4 text-muted-foreground" />
                 )}
               </Button>
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={submitting}>
+          <Button
+            type="submit"
+            className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-md"
+            disabled={submitting}
+          >
             {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Sign In as Admin
           </Button>
 
-          <div className="text-center">
+          <div className="text-center pt-1">
             <p className="text-sm text-muted-foreground">
-              <Link href="/auth/login" className="text-primary hover:underline">
+              <Link
+                href="/auth/login"
+                className="text-primary hover:underline font-medium"
+              >
                 Back to regular login
               </Link>
             </p>

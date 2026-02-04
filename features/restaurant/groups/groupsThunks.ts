@@ -12,15 +12,20 @@ import type {
   UpdateGroupPayload,
 } from "./groupsTypes";
 
+const rejectPayload = (e: any, fallback: string) => ({
+  message: e?.response?.data?.message ?? e?.message ?? fallback,
+  code: e?.response?.data?.code ?? undefined,
+});
+
 export const fetchMyJoinRequests = createAsyncThunk<
   JoinRequest[],
   void,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >("restaurantGroups/fetchMyJoinRequests", async (_, { rejectWithValue }) => {
   try {
     return await groupsService.getMyJoinRequests();
   } catch (e: any) {
-    return rejectWithValue(e?.message ?? "Failed to load join requests");
+    return rejectWithValue(rejectPayload(e, "Failed to load join requests"));
   }
 });
 
@@ -51,12 +56,12 @@ export const updateRestaurantGroup = createAsyncThunk<
 export const fetchGroupDetails = createAsyncThunk<
   GroupDetails,
   string,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >("restaurantGroups/fetchDetails", async (groupId, { rejectWithValue }) => {
   try {
     return await groupsService.getGroupDetails(groupId);
   } catch (e: any) {
-    return rejectWithValue(e?.message ?? "Failed to load group details");
+    return rejectWithValue(rejectPayload(e, "Failed to load group details"));
   }
 });
 

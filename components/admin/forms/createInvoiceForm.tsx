@@ -16,6 +16,7 @@ import { AppDispatch, RootState } from "@/app/store";
 import { createAdminInvoice } from "@/features/admin/invoices/adminInvoicesThunks";
 import { fetchAdminRestaurants } from "@/features/admin/restaurants/adminRestaurantsThunks";
 import { fetchAdminSubscriptions } from "@/features/admin/subscriptions/adminSubscriptionsThunks";
+import { useLanguage } from "@/hooks/use-language";
 
 interface CreateInvoiceFormProps {
   onSubmit: () => void;
@@ -26,6 +27,7 @@ export function CreateInvoiceForm({
   onSubmit,
   onClose,
 }: CreateInvoiceFormProps) {
+  const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
   const restaurants = useSelector(
     (state: RootState) => state.adminRestaurants.items
@@ -111,16 +113,16 @@ export function CreateInvoiceForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="subscriptionId">Subscription (Optional)</Label>
+          <Label htmlFor="subscriptionId">{t("subscriptionOptional")}</Label>
           <Select
             value={formData.subscriptionId}
             onValueChange={(value) => handleChange("subscriptionId", value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select subscription" />
+              <SelectValue placeholder={t("selectSubscription")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No subscription</SelectItem>
+              <SelectItem value="none">{t("noSubscription")}</SelectItem>
               {subscriptions.map((subscription) => (
                 <SelectItem
                   key={subscription.id}
@@ -134,7 +136,7 @@ export function CreateInvoiceForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="amountDue">Amount Due *</Label>
+          <Label htmlFor="amountDue">{t("amountDue")} *</Label>
           <Input
             id="amountDue"
             type="number"
@@ -147,7 +149,7 @@ export function CreateInvoiceForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="amountPaid">Amount Paid</Label>
+          <Label htmlFor="amountPaid">{t("amountPaid")}</Label>
           <Input
             id="amountPaid"
             type="number"
@@ -159,7 +161,7 @@ export function CreateInvoiceForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="currency">Currency</Label>
+          <Label htmlFor="currency">{t("currency")}</Label>
           <Select
             value={formData.currency}
             onValueChange={(value) => handleChange("currency", value)}
@@ -176,7 +178,7 @@ export function CreateInvoiceForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="status">Status</Label>
+          <Label htmlFor="status">{t("status")}</Label>
           <Select
             value={formData.status}
             onValueChange={(value) => handleChange("status", value)}
@@ -185,17 +187,17 @@ export function CreateInvoiceForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="PENDING">Pending</SelectItem>
-              <SelectItem value="PAID">Paid</SelectItem>
-              <SelectItem value="UNPAID">Unpaid</SelectItem>
-              <SelectItem value="CANCELLED">Cancelled</SelectItem>
-              <SelectItem value="FAILED">Failed</SelectItem>
+              <SelectItem value="PENDING">{t("pending")}</SelectItem>
+              <SelectItem value="PAID">{t("paid")}</SelectItem>
+              <SelectItem value="UNPAID">{t("unpaid")}</SelectItem>
+              <SelectItem value="CANCELLED">{t("cancelled")}</SelectItem>
+              <SelectItem value="FAILED">{t("failed")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="paymentMethod">Payment Method</Label>
+          <Label htmlFor="paymentMethod">{t("paymentMethod")}</Label>
           <Select
             value={formData.paymentMethod}
             onValueChange={(value) => handleChange("paymentMethod", value)}
@@ -204,18 +206,22 @@ export function CreateInvoiceForm({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="CASH">Cash</SelectItem>
-              <SelectItem value="CARD (VISA)">Card (Visa)</SelectItem>
-              <SelectItem value="CARD (MASTERCARD)">
-                Card (Mastercard)
+              <SelectItem value="CASH">{t("paymentCash")}</SelectItem>
+              <SelectItem value="CARD (VISA)">
+                {t("paymentCardVisa")}
               </SelectItem>
-              <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+              <SelectItem value="CARD (MASTERCARD)">
+                {t("paymentCardMastercard")}
+              </SelectItem>
+              <SelectItem value="BANK_TRANSFER">
+                {t("paymentBankTransfer")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="periodStart">Period Start Date</Label>
+          <Label htmlFor="periodStart">{t("periodStartDate")}</Label>
           <Input
             id="periodStart"
             type="date"
@@ -225,7 +231,7 @@ export function CreateInvoiceForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="periodEnd">Period End Date</Label>
+          <Label htmlFor="periodEnd">{t("periodEndDate")}</Label>
           <Input
             id="periodEnd"
             type="date"
@@ -237,10 +243,10 @@ export function CreateInvoiceForm({
 
       <div className="flex justify-end space-x-2 pt-4">
         <Button type="button" variant="outline" onClick={onClose}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Creating..." : "Create Invoice"}
+          {isLoading ? t("creatingInvoice") : t("createInvoice")}
         </Button>
       </div>
     </form>

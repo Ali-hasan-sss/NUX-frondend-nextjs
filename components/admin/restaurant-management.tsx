@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Card,
   CardContent,
@@ -32,7 +33,7 @@ import { LabeledInput } from "@/components/filters/LabeledInput";
 import { LabeledSelect } from "@/components/filters/LabeledSelect";
 import { PageSizeSelect } from "@/components/filters/PageSizeSelect";
 import { formatDate } from "@/lib/utils";
-import { Search, MoreHorizontal, Eye, Edit, Trash2 } from "lucide-react";
+import { Search, MoreHorizontal, Eye, Edit, Trash2, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,8 +41,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { fetchAdminRestaurants } from "@/features/admin/restaurants/adminRestaurantsThunks";
-import { AdminUser } from "@/features/admin/users/adminUsersTypes";
+import { store } from "@/app/store";
+import {
+  fetchAdminRestaurants,
+  updateAdminRestaurant,
+  deleteAdminRestaurant,
+} from "@/features/admin/restaurants/adminRestaurantsThunks";
 import {
   Pagination,
   PaginationContent,
@@ -50,13 +55,22 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
-import { AdminPlan } from "@/features/admin/plans/adminPlansTypes";
 import { fetchAdminPlans } from "@/features/admin/plans/adminPlansThunks";
-import SubscriptionsModal from "./forms/SubscriptionsViewModal";
+import { CreateRestaurantWithOwnerForm } from "./forms/CreateRestaurantWithOwnerForm";
+import { EditRestaurantForm } from "./forms/EditRestaurantForm";
+import { RestaurantDetailsModal } from "./RestaurantDetailsModal";
+import ConfirmDialog from "@/components/confirmMessage";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { AdminRestaurant } from "@/features/admin/restaurants/adminRestaurantsTypes";
 import type { AdminSubscription } from "@/features/admin/subscriptions/adminSubscriptionsTypes";
 
 export function RestaurantsManagement() {
+  const { t } = useLanguage();
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
@@ -64,10 +78,19 @@ export function RestaurantsManagement() {
   const [subscriptionFilter, setSubscriptionFilter] = useState("all"); // true = active, false = expired, all
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalSubscriptions, setModalSubscriptions] = useState<
-    AdminSubscription[]
-  >([]);
+  const [addRestaurantOpen, setAddRestaurantOpen] = useState(false);
+  const [detailsRestaurant, setDetailsRestaurant] = useState<
+    (AdminRestaurant & { subscriptions?: AdminSubscription[] }) | null
+  >(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [editRestaurant, setEditRestaurant] = useState<
+    (AdminRestaurant & { subscriptions?: AdminSubscription[] }) | null
+  >(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteRestaurantId, setDeleteRestaurantId] = useState<string | null>(
+    null
+  );
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const dispatch = useAppDispatch();
   const { items, pagination, isLoading, error } = useAppSelector(
@@ -114,53 +137,72 @@ export function RestaurantsManagement() {
     currentPage,
   ]);
 
-  const openSubscriptionsModal = (subs: AdminSubscription[]) => {
-    setModalSubscriptions(subs);
-    setModalOpen(true);
+  const refetchList = () => {
+    dispatch(
+      fetchAdminRestaurants({
+        search: searchTerm || undefined,
+        planId: planFilter || undefined,
+        subscriptionActive:
+          subscriptionFilter === "all"
+            ? undefined
+            : subscriptionFilter === "subscribed"
+            ? true
+            : false,
+        page: currentPage,
+        pageSize,
+      })
+    );
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteRestaurantId) return;
+    dispatch(deleteAdminRestaurant(deleteRestaurantId)).then(() => {
+      setDeleteRestaurantId(null);
+      refetchList();
+    });
   };
 
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Restaurant Management
+          {t("restaurantManagement")}
         </h1>
         <p className="text-muted-foreground">
-          Manage restaurants and subscriptions
+          {t("manageRestaurantsDescription")}
         </p>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter restaurants</CardDescription>
+          <CardTitle>{t("filters")}</CardTitle>
+          <CardDescription>{t("searchAndFilterRestaurants")}</CardDescription>
         </CardHeader>
         <CardContent>
           <FilterBar>
             <LabeledInput
-              label="search by Restaurant name or Email"
+              label={t("searchByRestaurantNameOrEmail")}
               value={searchTerm}
               onChange={setSearchTerm}
-              placeholder="Search by restaurant name or owner email..."
+              placeholder={t("searchByRestaurantNameOrEmail")}
             />
             <div className="flex  items-center gap-2">
               <LabeledSelect
-                label="Subscription"
+                label={t("subscription")}
                 value={subscriptionFilter}
                 onChange={setSubscriptionFilter}
                 options={[
-                  { label: "All", value: "all" },
-                  { label: "Active Subscription", value: "subscribed" },
-                  { label: "Expired Subscription", value: "expired" },
+                  { label: t("all"), value: "all" },
+                  { label: t("activeSubscription"), value: "subscribed" },
+                  { label: t("expiredSubscription"), value: "expired" },
                 ]}
               />
               <LabeledSelect
-                label="Plan"
+                label={t("plan")}
                 value={planFilter}
                 onChange={setPlanFilter}
                 options={[
-                  { label: "All", value: "all" },
+                  { label: t("all"), value: "all" },
                   ...plans.map((p) => ({
                     label: p.title,
                     value: p.id.toString(),
@@ -176,8 +218,21 @@ export function RestaurantsManagement() {
       {/* Restaurants Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Restaurants ({pagination.totalItems})</CardTitle>
-          <CardDescription>All registered users in the system</CardDescription>
+          <div className="flex flex-row items-center justify-between gap-4">
+            <div>
+              <CardTitle>
+                {t("restaurantsCount")} ({pagination.totalItems})
+              </CardTitle>
+              <CardDescription>{t("allRegisteredUsers")}</CardDescription>
+            </div>
+            <Button
+              onClick={() => setAddRestaurantOpen(true)}
+              className="shrink-0"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t("addRestaurant")}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {error && (
@@ -187,11 +242,11 @@ export function RestaurantsManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Restaurant</TableHead>
-                  <TableHead>Owner Email</TableHead>
-                  <TableHead>Subscribed</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Join Date</TableHead>
+                  <TableHead>{t("restaurant")}</TableHead>
+                  <TableHead>{t("ownerEmail")}</TableHead>
+                  <TableHead>{t("subscribed")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("joinDate")}</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -200,7 +255,7 @@ export function RestaurantsManagement() {
                   <TableRow>
                     <TableCell colSpan={7}>
                       <div className="py-6 text-center text-muted-foreground">
-                        Loading restaurants…
+                        {t("loadingRestaurants")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -208,7 +263,7 @@ export function RestaurantsManagement() {
                   <TableRow>
                     <TableCell colSpan={7}>
                       <div className="py-6 text-center text-muted-foreground">
-                        No restaurants found
+                        {t("noRestaurantsFound")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -241,7 +296,9 @@ export function RestaurantsManagement() {
                           </TableCell>
                           <TableCell>
                             {restaurant.owner?.email || (
-                              <span className="text-muted-foreground">N/A</span>
+                              <span className="text-muted-foreground">
+                                {t("na")}
+                              </span>
                             )}
                           </TableCell>
                           <TableCell>
@@ -252,7 +309,9 @@ export function RestaurantsManagement() {
                                   : "secondary"
                               }
                             >
-                              {restaurant.isSubscriptionActive ? "Yes" : "No"}
+                              {restaurant.isSubscriptionActive
+                                ? t("yes")
+                                : t("no")}
                             </Badge>
                           </TableCell>
 
@@ -262,14 +321,18 @@ export function RestaurantsManagement() {
                                 restaurant.isActive ? "default" : "secondary"
                               }
                             >
-                              {restaurant.isActive ? "Active" : "Inactive"}
+                              {restaurant.isActive
+                                ? t("active")
+                                : t("inactive")}
                             </Badge>
                           </TableCell>
                           <TableCell>
                             {restaurant.createdAt ? (
                               formatDate(restaurant.createdAt)
                             ) : (
-                              <span className="text-muted-foreground">N/A</span>
+                              <span className="text-muted-foreground">
+                                {t("na")}
+                              </span>
                             )}
                           </TableCell>
                           <TableCell>
@@ -280,28 +343,33 @@ export function RestaurantsManagement() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                  <Eye className="mr-2 h-4 w-4" />
-                                  View Details
-                                </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    setModalSubscriptions(
-                                      restaurant?.subscriptions ?? []
-                                    );
-                                    setModalOpen(true);
+                                    setDetailsRestaurant(restaurant);
+                                    setDetailsOpen(true);
                                   }}
                                 >
                                   <Eye className="mr-2 h-4 w-4" />
-                                  View Subscriptions
+                                  {t("viewDetails")}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setEditRestaurant(restaurant);
+                                    setEditOpen(true);
+                                  }}
+                                >
                                   <Edit className="mr-2 h-4 w-4" />
-                                  Edit Restaurant
+                                  {t("editRestaurant")}
                                 </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive">
+                                <DropdownMenuItem
+                                  className="text-destructive"
+                                  onClick={() => {
+                                    setDeleteRestaurantId(restaurant.id);
+                                    setDeleteOpen(true);
+                                  }}
+                                >
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Restaurant
+                                  {t("deleteRestaurant")}
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -314,12 +382,88 @@ export function RestaurantsManagement() {
               </TableBody>
             </Table>
 
-            {/* Modal for active subscriptions */}
-            <SubscriptionsModal
-              open={modalOpen}
-              onClose={() => setModalOpen(false)}
-              subscriptions={modalSubscriptions}
+            {/* Restaurant details modal (includes subscriptions) */}
+            <RestaurantDetailsModal
+              open={detailsOpen}
+              onClose={() => {
+                setDetailsOpen(false);
+                setDetailsRestaurant(null);
+              }}
+              restaurant={detailsRestaurant}
+              onSubscriptionAdded={async (restaurantId) => {
+                await dispatch(
+                  fetchAdminRestaurants({
+                    search: searchTerm || undefined,
+                    planId: planFilter || undefined,
+                    subscriptionActive:
+                      subscriptionFilter === "all"
+                        ? undefined
+                        : subscriptionFilter === "subscribed"
+                        ? true
+                        : false,
+                    page: currentPage,
+                    pageSize,
+                  })
+                );
+                const updated = store
+                  .getState()
+                  .adminRestaurants.items.find((r) => r.id === restaurantId);
+                if (updated) setDetailsRestaurant(updated);
+              }}
             />
+
+            {/* Edit Restaurant modal */}
+            <Dialog
+              open={editOpen}
+              onOpenChange={(open) => {
+                if (!open) setEditRestaurant(null);
+                setEditOpen(open);
+              }}
+            >
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{t("editRestaurant")}</DialogTitle>
+                </DialogHeader>
+                <EditRestaurantForm
+                  restaurant={editRestaurant}
+                  onClose={() => {
+                    setEditOpen(false);
+                    setEditRestaurant(null);
+                  }}
+                  onSuccess={refetchList}
+                />
+              </DialogContent>
+            </Dialog>
+
+            {/* Delete confirmation */}
+            <ConfirmDialog
+              open={deleteOpen}
+              setOpen={(open) => {
+                setDeleteOpen(open);
+                if (!open) setDeleteRestaurantId(null);
+              }}
+              title={t("deleteRestaurant")}
+              message={t("areYouSureDeleteRestaurant")}
+              confirmText={t("delete")}
+              cancelText={t("cancel")}
+              onConfirm={handleDeleteConfirm}
+            />
+
+            {/* Add Restaurant with Owner modal */}
+            <Dialog
+              open={addRestaurantOpen}
+              onOpenChange={setAddRestaurantOpen}
+            >
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{t("addRestaurantTitle")}</DialogTitle>
+                </DialogHeader>
+                <CreateRestaurantWithOwnerForm
+                  onClose={() => setAddRestaurantOpen(false)}
+                  onSuccess={refetchList}
+                />
+              </DialogContent>
+            </Dialog>
 
             {pagination && pagination.totalPages > 1 && (
               <div className="flex justify-center mt-4">

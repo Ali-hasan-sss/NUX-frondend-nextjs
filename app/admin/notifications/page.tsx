@@ -1,5 +1,5 @@
-import NotificationsPage from "@/components/notifications/NotificationsPage";
+import { AdminNotificationsPage } from "@/components/admin/AdminNotificationsPage";
 
 export default function Page() {
-  return <NotificationsPage />;
+  return <AdminNotificationsPage />;
 }

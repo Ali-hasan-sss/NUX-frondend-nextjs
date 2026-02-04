@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Card,
   CardContent,
@@ -67,6 +68,7 @@ import { CreateInvoiceForm } from "./forms/createInvoiceForm";
 import ConfirmDialog from "@/components/confirmMessage";
 
 export function InvoicesManagement() {
+  const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
   const { invoices, pagination, statistics, isLoading, error } = useSelector(
     (state: RootState) => state.adminInvoices
@@ -287,14 +289,14 @@ export function InvoicesManagement() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Invoices Management
+          {t("invoicesManagement")}
         </h1>
         <p className="text-muted-foreground">
-          Monitor and manage restaurant invoices
+          {t("monitorInvoicesDescription")}
         </p>
       </div>
 
-      {isLoading && <p>Loading invoices...</p>}
+      {isLoading && <p>{t("loadingInvoices")}</p>}
       {error && <p className="text-red-500">{error}</p>}
 
       {/* Stats Cards */}
@@ -305,7 +307,7 @@ export function InvoicesManagement() {
               <div className="flex items-center space-x-2">
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div>
-                  <p className="text-sm font-medium">Paid</p>
+                  <p className="text-sm font-medium">{t("paid")}</p>
                   <p className="text-2xl font-bold">
                     {statistics.paidInvoices}
                   </p>
@@ -318,7 +320,7 @@ export function InvoicesManagement() {
               <div className="flex items-center space-x-2">
                 <Clock className="h-5 w-5 text-orange-600" />
                 <div>
-                  <p className="text-sm font-medium">Pending</p>
+                  <p className="text-sm font-medium">{t("pending")}</p>
                   <p className="text-2xl font-bold">
                     {statistics.pendingInvoices}
                   </p>
@@ -331,7 +333,7 @@ export function InvoicesManagement() {
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-red-600" />
                 <div>
-                  <p className="text-sm font-medium">Unpaid</p>
+                  <p className="text-sm font-medium">{t("unpaid")}</p>
                   <p className="text-2xl font-bold">
                     {statistics.unpaidInvoices}
                   </p>
@@ -358,20 +360,22 @@ export function InvoicesManagement() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter invoices</CardDescription>
+          <CardTitle>{t("filters")}</CardTitle>
+          <CardDescription>
+            {t("searchAndFilterInvoices")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {/* Search Input */}
             <div className="space-y-2">
               <Label className="text-sm font-medium text-foreground">
-                Search
+                {t("search")}
               </Label>
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by invoice ID or restaurant name..."
+                placeholder={t("searchByInvoiceOrRestaurant")}
                 className="w-full"
               />
             </div>
@@ -381,17 +385,17 @@ export function InvoicesManagement() {
               {/* Restaurant Filter */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">
-                  Restaurant
+                  {t("restaurant")}
                 </Label>
                 <Select
                   value={restaurantFilter}
                   onValueChange={(v) => setRestaurantFilter(v)}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Restaurants" />
+                    <SelectValue placeholder={t("allRestaurants")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Restaurants</SelectItem>
+                    <SelectItem value="all">{t("allRestaurants")}</SelectItem>
                     {restaurants.map((r) => (
                       <SelectItem key={r.id} value={r.id}>
                         {r.name}
@@ -404,7 +408,7 @@ export function InvoicesManagement() {
               {/* Status Filter */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">
-                  Status
+                  {t("status")}
                 </Label>
                 <Select
                   value={statusFilter}
@@ -421,15 +425,15 @@ export function InvoicesManagement() {
                   }
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All Status" />
+                    <SelectValue placeholder={t("allStatus")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="PENDING">Pending</SelectItem>
-                    <SelectItem value="PAID">Paid</SelectItem>
-                    <SelectItem value="UNPAID">Unpaid</SelectItem>
-                    <SelectItem value="CANCELLED">Cancelled</SelectItem>
-                    <SelectItem value="FAILED">Failed</SelectItem>
+                    <SelectItem value="all">{t("allStatus")}</SelectItem>
+                    <SelectItem value="PENDING">{t("pending")}</SelectItem>
+                    <SelectItem value="PAID">{t("paid")}</SelectItem>
+                    <SelectItem value="UNPAID">{t("unpaid")}</SelectItem>
+                    <SelectItem value="CANCELLED">{t("cancelled")}</SelectItem>
+                    <SelectItem value="FAILED">{t("failed")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -437,20 +441,20 @@ export function InvoicesManagement() {
               {/* Date Range */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">
-                  Date Range
+                  {t("dateRange")}
                 </Label>
                 <Select
                   value={dateRange}
                   onValueChange={(value) => setDateRange(value)}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="All time" />
+                    <SelectValue placeholder={t("allTime")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All time</SelectItem>
-                    <SelectItem value="last24h">Last 24 hours</SelectItem>
-                    <SelectItem value="last7days">Last 7 days</SelectItem>
-                    <SelectItem value="last30days">Last 30 days</SelectItem>
+                    <SelectItem value="all">{t("allTime")}</SelectItem>
+                    <SelectItem value="last24h">{t("last24h")}</SelectItem>
+                    <SelectItem value="last7days">{t("last7days")}</SelectItem>
+                    <SelectItem value="last30days">{t("last30days")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -458,7 +462,7 @@ export function InvoicesManagement() {
               {/* Page Size */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-foreground">
-                  Page Size
+                  {t("pageSize")}
                 </Label>
                 <Select
                   value={pageSize.toString()}
@@ -468,10 +472,10 @@ export function InvoicesManagement() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="5">5 per page</SelectItem>
-                    <SelectItem value="10">10 per page</SelectItem>
-                    <SelectItem value="20">20 per page</SelectItem>
-                    <SelectItem value="50">50 per page</SelectItem>
+                    <SelectItem value="5">{t("perPage5")}</SelectItem>
+                    <SelectItem value="10">{t("perPage10")}</SelectItem>
+                    <SelectItem value="20">{t("perPage20")}</SelectItem>
+                    <SelectItem value="50">{t("perPage50")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -484,16 +488,20 @@ export function InvoicesManagement() {
       <Card>
         <div className="flex flex-col px-5 gap-4 md:flex-row md:items-center md:justify-between">
           <CardHeader className="px-0">
-            <CardTitle>Invoices ({pagination?.totalItems || 0})</CardTitle>
-            <CardDescription>All restaurant invoices</CardDescription>
+            <CardTitle>
+              {t("invoicesList")} ({pagination?.totalItems || 0})
+            </CardTitle>
+            <CardDescription>
+              {t("allRestaurantInvoices")}
+            </CardDescription>
           </CardHeader>
           <Button
             className="flex items-center gap-2 w-full md:w-auto"
             onClick={() => setOpenCreateModal(true)}
           >
             <PlusCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">Create Invoice</span>
-            <span className="sm:hidden">Create</span>
+            <span className="hidden sm:inline">{t("createInvoice")}</span>
+            <span className="sm:hidden">{t("create")}</span>
           </Button>
         </div>
         <CardContent>
@@ -501,16 +509,24 @@ export function InvoicesManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[120px]">Invoice ID</TableHead>
-                  <TableHead className="min-w-[200px]">Restaurant</TableHead>
-                  <TableHead className="min-w-[120px]">Status</TableHead>
-                  <TableHead className="min-w-[100px]">Amount Due</TableHead>
-                  <TableHead className="min-w-[100px]">Amount Paid</TableHead>
+                  <TableHead className="min-w-[120px]">
+                    {t("invoiceId")}
+                  </TableHead>
+                  <TableHead className="min-w-[200px]">
+                    {t("restaurant")}
+                  </TableHead>
+                  <TableHead className="min-w-[120px]">{t("status")}</TableHead>
+                  <TableHead className="min-w-[100px]">
+                    {t("amountDue")}
+                  </TableHead>
+                  <TableHead className="min-w-[100px]">
+                    {t("amountPaid")}
+                  </TableHead>
                   <TableHead className="min-w-[120px] hidden sm:table-cell">
-                    Payment Method
+                    {t("paymentMethod")}
                   </TableHead>
                   <TableHead className="min-w-[120px] hidden md:table-cell">
-                    Created Date
+                    {t("createdDate")}
                   </TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
@@ -565,20 +581,24 @@ export function InvoicesManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Download PDF</DropdownMenuItem>
+                          <DropdownMenuItem>
+                            {t("viewDetails")}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            {t("downloadPdf")}
+                          </DropdownMenuItem>
                           {invoice.status === "PENDING" && (
                             <DropdownMenuItem
                               onClick={() => handleMarkAsPaid(invoice.id)}
                             >
-                              Mark as Paid
+                              {t("markAsPaid")}
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => handleDelete(invoice.id)}
                           >
-                            Delete Invoice
+                            {t("deleteInvoice")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -643,7 +663,7 @@ export function InvoicesManagement() {
       <Dialog open={openCreateModal} onOpenChange={setOpenCreateModal}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Create New Invoice</DialogTitle>
+            <DialogTitle>{t("createNewInvoice")}</DialogTitle>
           </DialogHeader>
           <CreateInvoiceForm
             onSubmit={handleCreateInvoice}
@@ -656,10 +676,10 @@ export function InvoicesManagement() {
       <ConfirmDialog
         open={openDeleteModal}
         setOpen={setOpenDeleteModal}
-        title="Delete Invoice"
-        message="Are you sure you want to delete this invoice? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
+        title={t("deleteInvoiceTitle")}
+        message={t("areYouSureDeleteInvoiceAction")}
+        confirmText={t("delete")}
+        cancelText={t("cancel")}
         onConfirm={confirmDelete}
       />
     </div>

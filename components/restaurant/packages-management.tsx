@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Euro } from "lucide-react";
+import { Plus, Pencil, Trash2, Euro, Loader2 } from "lucide-react";
 import ConfirmDialog from "@/components/confirmMessage";
 import {
   Select,
@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
 
 // Supported European currencies by Stripe
 const SUPPORTED_CURRENCIES = [
@@ -75,7 +76,7 @@ const getCurrencySymbol = (currencyCode: string) => {
 
 export default function PackagesManagement() {
   const dispatch = useAppDispatch();
-  const { items, isLoading } = useAppSelector((s) => s.restaurantPackages);
+  const { items, isLoading, error, errorCode } = useAppSelector((s) => s.restaurantPackages);
 
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState<RestaurantPackage | null>(null);
@@ -87,6 +88,25 @@ export default function PackagesManagement() {
   useEffect(() => {
     dispatch(fetchPackages());
   }, [dispatch]);
+
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <PlanPermissionErrorCard
+        error={error}
+        errorCode={errorCode}
+        upgradePlanHintKey="dashboard.packages.upgradePlanHint"
+        upgradePlanHintFallback="Your current plan does not include Packages. Upgrade your subscription to manage recharge packages from the dashboard."
+      />
+    );
+  }
 
   useEffect(() => {
     if (openEdit) {

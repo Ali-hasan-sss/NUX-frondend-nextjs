@@ -31,6 +31,8 @@ import {
   updateMenuItemThunk,
   deleteMenuItemThunk,
   fetchKitchenSections,
+  applyDiscountToAllMenuThunk,
+  applyDiscountToCategoryThunk,
 } from "@/features/restaurant/menu/menuThunks";
 import {
   Accordion,
@@ -45,17 +47,28 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, PlusCircle, Edit, X, Database, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  PlusCircle,
+  Edit,
+  X,
+  Database,
+  Loader2,
+  Percent,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import FileUploader from "@/components/upload/file-uploader";
 import { seedService } from "@/features/restaurant/menu/seedService";
+import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
+import { toast } from "sonner";
 
 export function MenuManagement() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { categories, itemsByCategory, isLoading } = useAppSelector(
-    (s) => s.restaurantMenu
-  );
+  const { categories, itemsByCategory, isLoading, error, errorCode } =
+    useAppSelector((s) => s.restaurantMenu);
 
   const [newCat, setNewCat] = useState({
     title: "",
@@ -120,9 +133,18 @@ export function MenuManagement() {
 
   // Confirm delete
   const [confirmOpen, setConfirmOpen] = useState(false);
-  
-  // Seed data state
+
+  // Loading states for category/item add, edit, delete
+  const [categoryCreateLoading, setCategoryCreateLoading] = useState(false);
+  const [categoryUpdateLoading, setCategoryUpdateLoading] = useState(false);
+  const [categoryDeleteLoading, setCategoryDeleteLoading] = useState(false);
+  const [itemCreateLoading, setItemCreateLoading] = useState(false);
+  const [itemUpdateLoading, setItemUpdateLoading] = useState(false);
+  const [itemDeleteLoading, setItemDeleteLoading] = useState(false);
+
+  // Seed data state + confirm modal
   const [isSeeding, setIsSeeding] = useState(false);
+  const [seedConfirmOpen, setSeedConfirmOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<null | {
     type: "category" | "item";
     categoryId?: number;
@@ -132,6 +154,17 @@ export function MenuManagement() {
   const restaurantId = useAppSelector((s) => s.restaurantAccount.data?.id);
   const [uploading, setUploading] = useState(false);
   const [kitchenSections, setKitchenSections] = useState<any[]>([]);
+
+  // Discount dialog: 'all' = whole menu, number = categoryId
+  const [openDiscountDialog, setOpenDiscountDialog] = useState(false);
+  const [discountTarget, setDiscountTarget] = useState<"all" | number | null>(
+    null
+  );
+  const [discountForm, setDiscountForm] = useState({
+    discountType: "PERCENTAGE" as "PERCENTAGE" | "AMOUNT",
+    discountValue: "",
+  });
+  const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
 
   useEffect(() => {
     dispatch(fetchMenuCategories());
@@ -159,42 +192,57 @@ export function MenuManagement() {
 
   const handleCreateCategory = async () => {
     if (!newCat.title.trim()) return;
-    const res: any = await dispatch(
-      createMenuCategory({
-        title: newCat.title.trim(),
-        description: newCat.description || undefined,
-        image: newCat.image || undefined,
-      })
-    );
-    if (res.type.endsWith("fulfilled")) {
-      setNewCat({ title: "", description: "", image: "" });
-      setOpenAddCategory(false);
+    setCategoryCreateLoading(true);
+    try {
+      const res: any = await dispatch(
+        createMenuCategory({
+          title: newCat.title.trim(),
+          description: newCat.description || undefined,
+          image: newCat.image || undefined,
+        })
+      );
+      if (res.type.endsWith("fulfilled")) {
+        setNewCat({ title: "", description: "", image: "" });
+        setOpenAddCategory(false);
+      }
+    } finally {
+      setCategoryCreateLoading(false);
     }
   };
 
   const handleUpdateCategory = async () => {
     if (!editCat.id) return;
-    await dispatch(
-      updateMenuCategory({
-        categoryId: editCat.id,
-        title: editCat.title || undefined,
-        description: editCat.description || undefined,
-        image: editCat.image || undefined,
-      })
-    );
-    setOpenEditCategory(false);
+    setCategoryUpdateLoading(true);
+    try {
+      await dispatch(
+        updateMenuCategory({
+          categoryId: editCat.id,
+          title: editCat.title || undefined,
+          description: editCat.description || undefined,
+          image: editCat.image || undefined,
+        })
+      );
+      setOpenEditCategory(false);
+    } finally {
+      setCategoryUpdateLoading(false);
+    }
   };
 
   const handleDeleteCategory = async (id: number) => {
-    await dispatch(deleteMenuCategory(id));
-    if (activeCategoryId === id) setActiveCategoryId(null);
+    setCategoryDeleteLoading(true);
+    try {
+      await dispatch(deleteMenuCategory(id));
+      if (activeCategoryId === id) setActiveCategoryId(null);
+    } finally {
+      setCategoryDeleteLoading(false);
+    }
   };
 
   const handleCreateItem = async () => {
     if (openAddItem == null || !newItem.title.trim()) return;
     const priceNum = Number(newItem.price);
     if (Number.isNaN(priceNum)) return;
-    
+
     const extrasArray = newItem.extras
       .filter((e) => e.name.trim())
       .map((e) => ({
@@ -203,38 +251,49 @@ export function MenuManagement() {
         calories: Number(e.calories) || 0,
       }));
 
-    const res: any = await dispatch(
-      createMenuItemThunk({
-        categoryId: openAddItem,
-        title: newItem.title.trim(),
-        description: newItem.description || undefined,
-        price: priceNum,
-        image: newItem.image || undefined,
-        preparationTime: newItem.preparationTime ? Number(newItem.preparationTime) : undefined,
-        extras: extrasArray.length > 0 ? extrasArray : undefined,
-        discountType: newItem.discountType || undefined,
-        discountValue: newItem.discountValue ? Number(newItem.discountValue) : undefined,
-        allergies: newItem.allergies.filter((a) => a.trim()),
-        calories: newItem.calories ? Number(newItem.calories) : undefined,
-        kitchenSectionId: newItem.kitchenSectionId ? Number(newItem.kitchenSectionId) : undefined,
-      })
-    );
-    if (res.type.endsWith("fulfilled")) {
-      setNewItem({
-        title: "",
-        description: "",
-        price: "",
-        image: "",
-        preparationTime: "",
-        extras: [],
-        discountType: "",
-        discountValue: "",
-        allergies: [],
-        calories: "",
-        kitchenSectionId: "",
-      });
-      setOpenAddItem(null);
-      dispatch(fetchItemsByCategory(openAddItem));
+    setItemCreateLoading(true);
+    try {
+      const res: any = await dispatch(
+        createMenuItemThunk({
+          categoryId: openAddItem,
+          title: newItem.title.trim(),
+          description: newItem.description || undefined,
+          price: priceNum,
+          image: newItem.image || undefined,
+          preparationTime: newItem.preparationTime
+            ? Number(newItem.preparationTime)
+            : undefined,
+          extras: extrasArray.length > 0 ? extrasArray : undefined,
+          discountType: newItem.discountType || undefined,
+          discountValue: newItem.discountValue
+            ? Number(newItem.discountValue)
+            : undefined,
+          allergies: newItem.allergies.filter((a) => a.trim()),
+          calories: newItem.calories ? Number(newItem.calories) : undefined,
+          kitchenSectionId: newItem.kitchenSectionId
+            ? Number(newItem.kitchenSectionId)
+            : undefined,
+        })
+      );
+      if (res.type.endsWith("fulfilled")) {
+        setNewItem({
+          title: "",
+          description: "",
+          price: "",
+          image: "",
+          preparationTime: "",
+          extras: [],
+          discountType: "",
+          discountValue: "",
+          allergies: [],
+          calories: "",
+          kitchenSectionId: "",
+        });
+        setOpenAddItem(null);
+        dispatch(fetchItemsByCategory(openAddItem));
+      }
+    } finally {
+      setItemCreateLoading(false);
     }
   };
 
@@ -243,77 +302,210 @@ export function MenuManagement() {
     const priceNum = openEditItem.price
       ? Number(openEditItem.price)
       : undefined;
-    const res: any = await dispatch(
-      updateMenuItemThunk({
-        itemId: openEditItem.id,
-        title: openEditItem.title || undefined,
-        description: openEditItem.description || undefined,
-        price: priceNum,
-        image: openEditItem.image || undefined,
-        preparationTime: openEditItem.preparationTime,
-        extras: openEditItem.extras,
-        discountType: openEditItem.discountType || undefined,
-        discountValue: openEditItem.discountValue,
-        allergies: openEditItem.allergies,
-        calories: openEditItem.calories,
-        kitchenSectionId: openEditItem.kitchenSectionId || undefined,
-      })
-    );
-    if (res.type.endsWith("fulfilled")) {
-      dispatch(fetchItemsByCategory(openEditItem.categoryId));
-      setOpenEditItem(null);
-      setEditAllergyInput("");
+    setItemUpdateLoading(true);
+    try {
+      const res: any = await dispatch(
+        updateMenuItemThunk({
+          itemId: openEditItem.id,
+          title: openEditItem.title || undefined,
+          description: openEditItem.description || undefined,
+          price: priceNum,
+          image: openEditItem.image || undefined,
+          preparationTime: openEditItem.preparationTime,
+          extras: openEditItem.extras,
+          discountType: openEditItem.discountType || undefined,
+          discountValue: openEditItem.discountValue,
+          allergies: openEditItem.allergies,
+          calories: openEditItem.calories,
+          kitchenSectionId: openEditItem.kitchenSectionId || undefined,
+        })
+      );
+      if (res.type.endsWith("fulfilled")) {
+        dispatch(fetchItemsByCategory(openEditItem.categoryId));
+        setOpenEditItem(null);
+        setEditAllergyInput("");
+      }
+    } finally {
+      setItemUpdateLoading(false);
     }
   };
 
-  const handleSeedData = async () => {
-    const confirmMessage = t("dashboard.menu.seedConfirm") || "This will add 5 sample categories with 10 items each. Continue?";
-    if (!confirm(confirmMessage)) {
-      return;
-    }
-
+  const handleSeedDataConfirm = async () => {
+    setSeedConfirmOpen(false);
     setIsSeeding(true);
     try {
       const result = await seedService.seedMenuData();
-      const successMessage = t("dashboard.menu.seedSuccess") || `Successfully added ${result.data.categories} categories and ${result.data.items} items!`;
-      alert(successMessage);
-      // Refresh menu data
+      const successMessage =
+        t("dashboard.menu.seedSuccess") ||
+        `Successfully added ${result.data.categories} categories and ${result.data.items} items!`;
+      toast.success(successMessage);
       dispatch(fetchMenuCategories());
     } catch (error: any) {
       console.error("Error seeding data:", error);
-      const errorMessage = error?.response?.data?.message || t("dashboard.menu.seedError") || "Failed to seed menu data";
-      alert(errorMessage);
+      const errorMessage =
+        error?.response?.data?.message ||
+        t("dashboard.menu.seedError") ||
+        "Failed to seed menu data";
+      toast.error(errorMessage);
     } finally {
       setIsSeeding(false);
     }
   };
 
+  const openDiscountForAll = () => {
+    setDiscountTarget("all");
+    setDiscountForm({ discountType: "PERCENTAGE", discountValue: "" });
+    setOpenDiscountDialog(true);
+  };
+
+  const openDiscountForCategory = (categoryId: number) => {
+    setDiscountTarget(categoryId);
+    setDiscountForm({ discountType: "PERCENTAGE", discountValue: "" });
+    setOpenDiscountDialog(true);
+  };
+
+  const handleApplyDiscount = async () => {
+    const value = parseFloat(discountForm.discountValue);
+    if (isNaN(value) || value < 0) {
+      toast.error(
+        t("dashboard.menu.discountValueRequired") ||
+          "Please enter a valid discount value."
+      );
+      return;
+    }
+    if (discountForm.discountType === "PERCENTAGE" && value > 100) {
+      toast.error(
+        t("dashboard.menu.discountPercentageMax") ||
+          "Percentage cannot exceed 100."
+      );
+      return;
+    }
+    setIsApplyingDiscount(true);
+    try {
+      const isRemoving = value === 0;
+      if (discountTarget === "all") {
+        const res = await dispatch(
+          applyDiscountToAllMenuThunk({
+            discountType: discountForm.discountType,
+            discountValue: value,
+          })
+        ).unwrap();
+        dispatch(fetchMenuCategories());
+        toast.success(
+          isRemoving
+            ? t("dashboard.menu.discountRemovedAll", { count: res.count }) ||
+                `Discount removed from ${res.count} item(s).`
+            : t("dashboard.menu.discountAppliedAll", { count: res.count }) ||
+                `Discount applied to ${res.count} item(s).`
+        );
+      } else if (typeof discountTarget === "number") {
+        const res = await dispatch(
+          applyDiscountToCategoryThunk({
+            categoryId: discountTarget,
+            discountType: discountForm.discountType,
+            discountValue: value,
+          })
+        ).unwrap();
+        dispatch(fetchItemsByCategory(discountTarget));
+        dispatch(fetchMenuCategories());
+        toast.success(
+          isRemoving
+            ? t("dashboard.menu.discountRemovedCategory", {
+                count: res.count,
+              }) || `Discount removed from ${res.count} item(s).`
+            : t("dashboard.menu.discountAppliedCategory", {
+                count: res.count,
+              }) || `Discount applied to ${res.count} item(s).`
+        );
+      }
+      setOpenDiscountDialog(false);
+      setDiscountTarget(null);
+      setDiscountForm({ discountType: "PERCENTAGE", discountValue: "" });
+    } catch (e: any) {
+      const errMsg =
+        (e?.response?.data?.message ?? e?.message ?? e) ||
+        t("dashboard.menu.discountApplyError") ||
+        "Failed to apply discount.";
+      toast.error(
+        typeof errMsg === "string" ? errMsg : "Failed to apply discount."
+      );
+    } finally {
+      setIsApplyingDiscount(false);
+    }
+  };
+
+  if (isLoading && categories.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <PlanPermissionErrorCard
+        error={error}
+        errorCode={errorCode}
+        upgradePlanHintKey="dashboard.menu.upgradePlanHint"
+        upgradePlanHintFallback="Your current plan does not include Menu management. Upgrade your subscription to manage the menu from the dashboard."
+      />
+    );
+  }
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-{t("dashboard.menu.title")}
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            {t("dashboard.menu.title")}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm sm:text-base text-muted-foreground">
             {t("dashboard.menu.description")}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleSeedData}
+        <div className="flex flex-wrap gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            className="sm:h-10 sm:px-4 text-xs sm:text-sm"
+            onClick={openDiscountForAll}
+            title={
+              t("dashboard.menu.discountWholeMenu") ||
+              "Apply discount to all menu items"
+            }
+          >
+            <Percent className="h-4 w-4 mr-1.5 sm:mr-2 shrink-0" />
+            <span className="whitespace-nowrap">
+              {t("dashboard.menu.discountWholeMenu") || "Discount whole menu"}
+            </span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="sm:h-10 sm:px-4 text-xs sm:text-sm"
+            onClick={() => setSeedConfirmOpen(true)}
             disabled={isSeeding}
           >
             {isSeeding ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-4 w-4 mr-1.5 sm:mr-2 animate-spin shrink-0" />
             ) : (
-              <Database className="h-4 w-4 mr-2" />
+              <Database className="h-4 w-4 mr-1.5 sm:mr-2 shrink-0" />
             )}
-            {t("dashboard.menu.seedData") || "Add Sample Data"}
+            <span className="whitespace-nowrap">
+              {t("dashboard.menu.seedData") || "Add Sample Data"}
+            </span>
           </Button>
-          <Button variant="outline" onClick={() => setOpenAddCategory(true)}>
-            <Plus className="h-4 w-4 mr-2" /> {t("dashboard.menu.addCategory")}
+          <Button
+            variant="outline"
+            size="sm"
+            className="sm:h-10 sm:px-4 text-xs sm:text-sm"
+            onClick={() => setOpenAddCategory(true)}
+          >
+            <Plus className="h-4 w-4 mr-1.5 sm:mr-2 shrink-0" />
+            <span className="whitespace-nowrap">
+              {t("dashboard.menu.addCategory")}
+            </span>
           </Button>
         </div>
       </div>
@@ -323,7 +515,7 @@ export function MenuManagement() {
         <CardHeader>
           <CardTitle>{t("dashboard.menu.categories")}</CardTitle>
           <CardDescription>
-{t("dashboard.menu.expandToManage")}
+            {t("dashboard.menu.expandToManage")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -353,6 +545,20 @@ export function MenuManagement() {
                       </div>
                     </div>
                     <div className="flex gap-2 ml-4">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          openDiscountForCategory(c.id);
+                        }}
+                        title={
+                          t("dashboard.menu.discountByCategory") ||
+                          "Apply discount to this category"
+                        }
+                      >
+                        <Percent className="h-4 w-4" />
+                      </Button>
                       <Button
                         size="icon"
                         variant="ghost"
@@ -420,7 +626,7 @@ export function MenuManagement() {
                             <div className="font-medium text-sm min-w-[120px]">
                               {i.title}
                             </div>
-                            
+
                             {/* Price */}
                             <div className="text-sm font-semibold text-primary min-w-[80px]">
                               {i.discountType && i.discountValue ? (
@@ -430,8 +636,13 @@ export function MenuManagement() {
                                   </span>
                                   <span>
                                     {i.discountType === "PERCENTAGE"
-                                      ? `${(i.price * (1 - i.discountValue / 100)).toFixed(2)} EUR`
-                                      : `${(i.price - i.discountValue).toFixed(2)} EUR`}
+                                      ? `${(
+                                          i.price *
+                                          (1 - i.discountValue / 100)
+                                        ).toFixed(2)} EUR`
+                                      : `${(i.price - i.discountValue).toFixed(
+                                          2
+                                        )} EUR`}
                                   </span>
                                 </>
                               ) : (
@@ -441,7 +652,10 @@ export function MenuManagement() {
 
                             {/* Discount Badge */}
                             {i.discountType && i.discountValue && (
-                              <Badge variant="secondary" className="text-xs hover:bg-secondary">
+                              <Badge
+                                variant="secondary"
+                                className="text-xs hover:bg-secondary"
+                              >
                                 {i.discountType === "PERCENTAGE"
                                   ? `-${i.discountValue}%`
                                   : `-${i.discountValue} EUR`}
@@ -478,19 +692,21 @@ export function MenuManagement() {
                             )}
 
                             {/* Extras */}
-                            {i.extras && Array.isArray(i.extras) && i.extras.length > 0 && (
-                              <div className="flex flex-wrap gap-1 min-w-0">
-                                {i.extras.map((extra: any, idx: number) => (
-                                  <Badge
-                                    key={idx}
-                                    variant="secondary"
-                                    className="text-xs hover:bg-secondary"
-                                  >
-                                    +{extra.name} ({extra.price}€)
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
+                            {i.extras &&
+                              Array.isArray(i.extras) &&
+                              i.extras.length > 0 && (
+                                <div className="flex flex-wrap gap-1 min-w-0">
+                                  {i.extras.map((extra: any, idx: number) => (
+                                    <Badge
+                                      key={idx}
+                                      variant="secondary"
+                                      className="text-xs hover:bg-secondary"
+                                    >
+                                      +{extra.name} ({extra.price}€)
+                                    </Badge>
+                                  ))}
+                                </div>
+                              )}
 
                             {/* Description (truncated) */}
                             {i.description && (
@@ -583,13 +799,25 @@ export function MenuManagement() {
                 variant="outline"
                 onClick={() => setOpenAddCategory(false)}
               >
-{t("dashboard.menu.cancel")}
+                {t("dashboard.menu.cancel")}
               </Button>
               <Button
                 onClick={handleCreateCategory}
-                disabled={isLoading || uploading || !newCat.title.trim()}
+                disabled={
+                  isLoading ||
+                  uploading ||
+                  categoryCreateLoading ||
+                  !newCat.title.trim()
+                }
               >
-{t("dashboard.menu.save")}
+                {categoryCreateLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    {t("dashboard.menu.save")}
+                  </>
+                ) : (
+                  t("dashboard.menu.save")
+                )}
               </Button>
             </div>
           </div>
@@ -628,13 +856,124 @@ export function MenuManagement() {
                 variant="outline"
                 onClick={() => setOpenEditCategory(false)}
               >
-{t("dashboard.menu.cancel")}
+                {t("dashboard.menu.cancel")}
               </Button>
               <Button
                 onClick={handleUpdateCategory}
-                disabled={isLoading || uploading || !editCat.title.trim()}
+                disabled={
+                  isLoading ||
+                  uploading ||
+                  categoryUpdateLoading ||
+                  !editCat.title.trim()
+                }
               >
-{t("dashboard.menu.save")}
+                {categoryUpdateLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    {t("dashboard.menu.save")}
+                  </>
+                ) : (
+                  t("dashboard.menu.save")
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Discount Dialog */}
+      <Dialog
+        open={openDiscountDialog}
+        onOpenChange={(v) => {
+          if (!v) {
+            setDiscountTarget(null);
+            setDiscountForm({ discountType: "PERCENTAGE", discountValue: "" });
+          }
+          setOpenDiscountDialog(v);
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {discountTarget === "all"
+                ? t("dashboard.menu.discountWholeMenu") || "Discount whole menu"
+                : t("dashboard.menu.discountByCategory") ||
+                  "Discount by category"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>
+                {t("dashboard.menu.discountType") || "Discount type"}
+              </Label>
+              <Select
+                value={discountForm.discountType}
+                onValueChange={(v: "PERCENTAGE" | "AMOUNT") =>
+                  setDiscountForm((f) => ({ ...f, discountType: v }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="PERCENTAGE">
+                    {t("dashboard.menu.discountPercentage") || "Percentage (%)"}
+                  </SelectItem>
+                  <SelectItem value="AMOUNT">
+                    {t("dashboard.menu.discountAmount") || "Fixed amount"}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>
+                {t("dashboard.menu.discountValue") || "Discount value"}
+              </Label>
+              <Input
+                type="number"
+                min={0}
+                step={discountForm.discountType === "PERCENTAGE" ? 1 : 0.01}
+                max={
+                  discountForm.discountType === "PERCENTAGE" ? 100 : undefined
+                }
+                placeholder={
+                  discountForm.discountType === "PERCENTAGE"
+                    ? "e.g. 10"
+                    : "e.g. 2.50"
+                }
+                value={discountForm.discountValue}
+                onChange={(e) =>
+                  setDiscountForm((f) => ({
+                    ...f,
+                    discountValue: e.target.value,
+                  }))
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("dashboard.menu.discountZeroRemoves") ||
+                  "Use 0 to remove discount from all selected items."}
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setOpenDiscountDialog(false)}
+              >
+                {t("dashboard.menu.cancel")}
+              </Button>
+              <Button
+                onClick={handleApplyDiscount}
+                disabled={
+                  isApplyingDiscount ||
+                  discountForm.discountValue.trim() === "" ||
+                  (discountForm.discountValue.trim() !== "" &&
+                    isNaN(parseFloat(discountForm.discountValue)))
+                }
+              >
+                {isApplyingDiscount ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : null}
+                {t("dashboard.menu.applyDiscount") || "Apply discount"}
               </Button>
             </div>
           </div>
@@ -731,14 +1070,21 @@ export function MenuManagement() {
                 <Select
                   value={newItem.kitchenSectionId || "none"}
                   onValueChange={(value) =>
-                    setNewItem({ ...newItem, kitchenSectionId: value === "none" ? "" : value })
+                    setNewItem({
+                      ...newItem,
+                      kitchenSectionId: value === "none" ? "" : value,
+                    })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("dashboard.menu.selectKitchenSection")} />
+                    <SelectValue
+                      placeholder={t("dashboard.menu.selectKitchenSection")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">{t("dashboard.menu.none")}</SelectItem>
+                    <SelectItem value="none">
+                      {t("dashboard.menu.none")}
+                    </SelectItem>
                     {kitchenSections.map((section) => (
                       <SelectItem key={section.id} value={String(section.id)}>
                         {section.name}
@@ -754,16 +1100,27 @@ export function MenuManagement() {
                 <Select
                   value={newItem.discountType || "none"}
                   onValueChange={(value: "PERCENTAGE" | "AMOUNT" | "none") =>
-                    setNewItem({ ...newItem, discountType: value === "none" ? "" : value })
+                    setNewItem({
+                      ...newItem,
+                      discountType: value === "none" ? "" : value,
+                    })
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("dashboard.menu.discountType")} />
+                    <SelectValue
+                      placeholder={t("dashboard.menu.discountType")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">{t("dashboard.menu.none")}</SelectItem>
-                    <SelectItem value="PERCENTAGE">{t("dashboard.menu.percentage")}</SelectItem>
-                    <SelectItem value="AMOUNT">{t("dashboard.menu.amount")}</SelectItem>
+                    <SelectItem value="none">
+                      {t("dashboard.menu.none")}
+                    </SelectItem>
+                    <SelectItem value="PERCENTAGE">
+                      {t("dashboard.menu.percentage")}
+                    </SelectItem>
+                    <SelectItem value="AMOUNT">
+                      {t("dashboard.menu.amount")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 {newItem.discountType && (
@@ -832,7 +1189,9 @@ export function MenuManagement() {
                         onClick={() => {
                           setNewItem({
                             ...newItem,
-                            allergies: newItem.allergies.filter((_, i) => i !== index),
+                            allergies: newItem.allergies.filter(
+                              (_, i) => i !== index
+                            ),
                           });
                         }}
                         className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"
@@ -904,7 +1263,10 @@ export function MenuManagement() {
                   onClick={() => {
                     setNewItem({
                       ...newItem,
-                      extras: [...newItem.extras, { name: "", price: "", calories: "" }],
+                      extras: [
+                        ...newItem.extras,
+                        { name: "", price: "", calories: "" },
+                      ],
                     });
                   }}
                 >
@@ -951,9 +1313,21 @@ export function MenuManagement() {
               </Button>
               <Button
                 onClick={handleCreateItem}
-                disabled={isLoading || uploading || !newItem.title.trim()}
+                disabled={
+                  isLoading ||
+                  uploading ||
+                  itemCreateLoading ||
+                  !newItem.title.trim()
+                }
               >
-                {t("dashboard.menu.save")}
+                {itemCreateLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    {t("dashboard.menu.save")}
+                  </>
+                ) : (
+                  t("dashboard.menu.save")
+                )}
               </Button>
             </div>
           </div>
@@ -1007,7 +1381,10 @@ export function MenuManagement() {
                     placeholder={t("dashboard.menu.price")}
                     value={openEditItem.price}
                     onChange={(e) =>
-                      setOpenEditItem({ ...openEditItem, price: e.target.value })
+                      setOpenEditItem({
+                        ...openEditItem,
+                        price: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -1020,7 +1397,9 @@ export function MenuManagement() {
                     onChange={(e) =>
                       setOpenEditItem({
                         ...openEditItem,
-                        preparationTime: e.target.value ? Number(e.target.value) : null,
+                        preparationTime: e.target.value
+                          ? Number(e.target.value)
+                          : null,
                       })
                     }
                   />
@@ -1036,7 +1415,9 @@ export function MenuManagement() {
                     onChange={(e) =>
                       setOpenEditItem({
                         ...openEditItem,
-                        calories: e.target.value ? Number(e.target.value) : null,
+                        calories: e.target.value
+                          ? Number(e.target.value)
+                          : null,
                       })
                     }
                   />
@@ -1048,15 +1429,20 @@ export function MenuManagement() {
                     onValueChange={(value) =>
                       setOpenEditItem({
                         ...openEditItem,
-                        kitchenSectionId: value === "none" ? null : Number(value),
+                        kitchenSectionId:
+                          value === "none" ? null : Number(value),
                       })
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t("dashboard.menu.selectKitchenSection")} />
+                      <SelectValue
+                        placeholder={t("dashboard.menu.selectKitchenSection")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">{t("dashboard.menu.none")}</SelectItem>
+                      <SelectItem value="none">
+                        {t("dashboard.menu.none")}
+                      </SelectItem>
                       {kitchenSections.map((section) => (
                         <SelectItem key={section.id} value={String(section.id)}>
                           {section.name}
@@ -1072,16 +1458,27 @@ export function MenuManagement() {
                   <Select
                     value={openEditItem.discountType || "none"}
                     onValueChange={(value: "PERCENTAGE" | "AMOUNT" | "none") =>
-                      setOpenEditItem({ ...openEditItem, discountType: value === "none" ? null : value })
+                      setOpenEditItem({
+                        ...openEditItem,
+                        discountType: value === "none" ? null : value,
+                      })
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t("dashboard.menu.discountType")} />
+                      <SelectValue
+                        placeholder={t("dashboard.menu.discountType")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">{t("dashboard.menu.none")}</SelectItem>
-                      <SelectItem value="PERCENTAGE">{t("dashboard.menu.percentage")}</SelectItem>
-                      <SelectItem value="AMOUNT">{t("dashboard.menu.amount")}</SelectItem>
+                      <SelectItem value="none">
+                        {t("dashboard.menu.none")}
+                      </SelectItem>
+                      <SelectItem value="PERCENTAGE">
+                        {t("dashboard.menu.percentage")}
+                      </SelectItem>
+                      <SelectItem value="AMOUNT">
+                        {t("dashboard.menu.amount")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   {openEditItem.discountType && (
@@ -1093,7 +1490,9 @@ export function MenuManagement() {
                       onChange={(e) =>
                         setOpenEditItem({
                           ...openEditItem,
-                          discountValue: e.target.value ? Number(e.target.value) : null,
+                          discountValue: e.target.value
+                            ? Number(e.target.value)
+                            : null,
                         })
                       }
                     />
@@ -1153,10 +1552,13 @@ export function MenuManagement() {
                         <button
                           type="button"
                           onClick={() => {
-                            const currentAllergies = openEditItem.allergies || [];
+                            const currentAllergies =
+                              openEditItem.allergies || [];
                             setOpenEditItem({
                               ...openEditItem,
-                              allergies: currentAllergies.filter((_, i) => i !== index),
+                              allergies: currentAllergies.filter(
+                                (_, i) => i !== index
+                              ),
                             });
                           }}
                           className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"
@@ -1174,70 +1576,93 @@ export function MenuManagement() {
               <div className="space-y-2">
                 <Label>{t("dashboard.menu.extras")}</Label>
                 <div className="space-y-2">
-                  {(Array.isArray(openEditItem.extras) ? openEditItem.extras : []).map(
-                    (extra: any, index: number) => (
-                      <div key={index} className="flex gap-2">
-                        <Input
-                          placeholder={t("dashboard.menu.extraName")}
-                          value={extra.name || ""}
-                          onChange={(e) => {
-                            const currentExtras = Array.isArray(openEditItem.extras)
-                              ? [...openEditItem.extras]
-                              : [];
-                            currentExtras[index] = { ...currentExtras[index], name: e.target.value };
-                            setOpenEditItem({ ...openEditItem, extras: currentExtras });
-                          }}
-                        />
-                        <Input
-                          type="number"
-                          step="0.01"
-                          placeholder={t("dashboard.menu.extraPrice")}
-                          value={extra.price?.toString() || ""}
-                          onChange={(e) => {
-                            const currentExtras = Array.isArray(openEditItem.extras)
-                              ? [...openEditItem.extras]
-                              : [];
-                            currentExtras[index] = {
-                              ...currentExtras[index],
-                              price: e.target.value ? Number(e.target.value) : 0,
-                            };
-                            setOpenEditItem({ ...openEditItem, extras: currentExtras });
-                          }}
-                        />
-                        <Input
-                          type="number"
-                          placeholder={t("dashboard.menu.extraCalories")}
-                          value={extra.calories?.toString() || ""}
-                          onChange={(e) => {
-                            const currentExtras = Array.isArray(openEditItem.extras)
-                              ? [...openEditItem.extras]
-                              : [];
-                            currentExtras[index] = {
-                              ...currentExtras[index],
-                              calories: e.target.value ? Number(e.target.value) : 0,
-                            };
-                            setOpenEditItem({ ...openEditItem, extras: currentExtras });
-                          }}
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            const currentExtras = Array.isArray(openEditItem.extras)
-                              ? [...openEditItem.extras]
-                              : [];
-                            setOpenEditItem({
-                              ...openEditItem,
-                              extras: currentExtras.filter((_, i) => i !== index),
-                            });
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )
-                  )}
+                  {(Array.isArray(openEditItem.extras)
+                    ? openEditItem.extras
+                    : []
+                  ).map((extra: any, index: number) => (
+                    <div key={index} className="flex gap-2">
+                      <Input
+                        placeholder={t("dashboard.menu.extraName")}
+                        value={extra.name || ""}
+                        onChange={(e) => {
+                          const currentExtras = Array.isArray(
+                            openEditItem.extras
+                          )
+                            ? [...openEditItem.extras]
+                            : [];
+                          currentExtras[index] = {
+                            ...currentExtras[index],
+                            name: e.target.value,
+                          };
+                          setOpenEditItem({
+                            ...openEditItem,
+                            extras: currentExtras,
+                          });
+                        }}
+                      />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        placeholder={t("dashboard.menu.extraPrice")}
+                        value={extra.price?.toString() || ""}
+                        onChange={(e) => {
+                          const currentExtras = Array.isArray(
+                            openEditItem.extras
+                          )
+                            ? [...openEditItem.extras]
+                            : [];
+                          currentExtras[index] = {
+                            ...currentExtras[index],
+                            price: e.target.value ? Number(e.target.value) : 0,
+                          };
+                          setOpenEditItem({
+                            ...openEditItem,
+                            extras: currentExtras,
+                          });
+                        }}
+                      />
+                      <Input
+                        type="number"
+                        placeholder={t("dashboard.menu.extraCalories")}
+                        value={extra.calories?.toString() || ""}
+                        onChange={(e) => {
+                          const currentExtras = Array.isArray(
+                            openEditItem.extras
+                          )
+                            ? [...openEditItem.extras]
+                            : [];
+                          currentExtras[index] = {
+                            ...currentExtras[index],
+                            calories: e.target.value
+                              ? Number(e.target.value)
+                              : 0,
+                          };
+                          setOpenEditItem({
+                            ...openEditItem,
+                            extras: currentExtras,
+                          });
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          const currentExtras = Array.isArray(
+                            openEditItem.extras
+                          )
+                            ? [...openEditItem.extras]
+                            : [];
+                          setOpenEditItem({
+                            ...openEditItem,
+                            extras: currentExtras.filter((_, i) => i !== index),
+                          });
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
                   <Button
                     type="button"
                     variant="outline"
@@ -1248,7 +1673,10 @@ export function MenuManagement() {
                         : [];
                       setOpenEditItem({
                         ...openEditItem,
-                        extras: [...currentExtras, { name: "", price: 0, calories: 0 }],
+                        extras: [
+                          ...currentExtras,
+                          { name: "", price: 0, calories: 0 },
+                        ],
                       });
                     }}
                   >
@@ -1285,10 +1713,20 @@ export function MenuManagement() {
                 <Button
                   onClick={handleUpdateItem}
                   disabled={
-                    isLoading || uploading || !openEditItem.title.trim()
+                    isLoading ||
+                    uploading ||
+                    itemUpdateLoading ||
+                    !openEditItem.title.trim()
                   }
                 >
-                  {t("dashboard.menu.save")}
+                  {itemUpdateLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      {t("dashboard.menu.save")}
+                    </>
+                  ) : (
+                    t("dashboard.menu.save")
+                  )}
                 </Button>
               </div>
             </div>
@@ -1296,18 +1734,38 @@ export function MenuManagement() {
         </DialogContent>
       </Dialog>
 
+      {/* Confirm Seed Data */}
+      <ConfirmDialog
+        open={seedConfirmOpen}
+        setOpen={setSeedConfirmOpen}
+        title={t("dashboard.menu.seedData") || "Add Sample Data"}
+        message={
+          t("dashboard.menu.seedConfirm") ||
+          "This will add 5 sample categories with 10 items each. Continue?"
+        }
+        confirmText={t("common.confirm")}
+        cancelText={t("common.cancel")}
+        confirmVariant="default"
+        onConfirm={handleSeedDataConfirm}
+      />
+
       {/* Confirm Delete */}
       <ConfirmDialog
         open={confirmOpen}
         setOpen={setConfirmOpen}
         title={
-deleteTarget?.type === "category" ? t("dashboard.menu.deleteCategory") : t("dashboard.menu.deleteItem")
+          deleteTarget?.type === "category"
+            ? t("dashboard.menu.deleteCategory")
+            : t("dashboard.menu.deleteItem")
         }
-        message={`Are you sure you want to delete ${deleteTarget?.type} "${
-          deleteTarget?.title ?? ""
-        }"?`}
-confirmText={t("dashboard.menu.delete")}
+        message={
+          deleteTarget?.type === "category"
+            ? t("dashboard.menu.confirmDeleteCategory")
+            : t("dashboard.menu.confirmDeleteItem")
+        }
+        confirmText={t("dashboard.menu.delete")}
         cancelText={t("dashboard.menu.cancel")}
+        loading={categoryDeleteLoading || itemDeleteLoading}
         onConfirm={async () => {
           if (!deleteTarget) return;
           if (
@@ -1315,19 +1773,25 @@ confirmText={t("dashboard.menu.delete")}
             deleteTarget.categoryId != null
           ) {
             await handleDeleteCategory(deleteTarget.categoryId);
+            setDeleteTarget(null);
           } else if (
             deleteTarget.type === "item" &&
             deleteTarget.itemId != null &&
             deleteTarget.categoryId != null
           ) {
-            await dispatch(
-              deleteMenuItemThunk({
-                categoryId: deleteTarget.categoryId,
-                itemId: deleteTarget.itemId,
-              })
-            );
+            setItemDeleteLoading(true);
+            try {
+              await dispatch(
+                deleteMenuItemThunk({
+                  categoryId: deleteTarget.categoryId,
+                  itemId: deleteTarget.itemId,
+                })
+              );
+              setDeleteTarget(null);
+            } finally {
+              setItemDeleteLoading(false);
+            }
           }
-          setDeleteTarget(null);
         }}
       />
     </div>

@@ -9,16 +9,21 @@ import type {
   UpdateItemPayload,
 } from "./menuTypes";
 
+const rejectPayload = (e: any, fallback: string) => ({
+  message: e?.response?.data?.message ?? e?.message ?? fallback,
+  code: e?.response?.data?.code ?? undefined,
+});
+
 // Categories
 export const fetchMenuCategories = createAsyncThunk<
   MenuCategory[],
   void,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >("restaurantMenu/fetchCategories", async (_, { rejectWithValue }) => {
   try {
     return await menuService.getCategories();
   } catch (e: any) {
-    return rejectWithValue(e?.message ?? "Failed to load categories");
+    return rejectWithValue(rejectPayload(e, "Failed to load categories"));
   }
 });
 
@@ -63,7 +68,7 @@ export const deleteMenuCategory = createAsyncThunk<
 export const fetchItemsByCategory = createAsyncThunk<
   { categoryId: number; items: MenuItem[] },
   number,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >(
   "restaurantMenu/fetchItemsByCategory",
   async (categoryId, { rejectWithValue }) => {
@@ -71,7 +76,7 @@ export const fetchItemsByCategory = createAsyncThunk<
       const items = await menuService.getItemsByCategory(categoryId);
       return { categoryId, items };
     } catch (e: any) {
-      return rejectWithValue(e?.message ?? "Failed to load items");
+      return rejectWithValue(rejectPayload(e, "Failed to load items"));
     }
   }
 );
@@ -120,11 +125,54 @@ export const deleteMenuItemThunk = createAsyncThunk<
 export const fetchKitchenSections = createAsyncThunk<
   any[],
   void,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >("restaurantMenu/fetchKitchenSections", async (_, { rejectWithValue }) => {
   try {
     return await menuService.getKitchenSections();
   } catch (e: any) {
-    return rejectWithValue(e?.message ?? "Failed to load kitchen sections");
+    return rejectWithValue(rejectPayload(e, "Failed to load kitchen sections"));
   }
 });
+
+// Apply discount to all menu items
+export const applyDiscountToAllMenuThunk = createAsyncThunk<
+  { count: number },
+  { discountType: "PERCENTAGE" | "AMOUNT"; discountValue: number },
+  { rejectValue: string }
+>(
+  "restaurantMenu/applyDiscountToAll",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await menuService.applyDiscountToAllMenu(
+        payload.discountType,
+        payload.discountValue
+      );
+    } catch (e: any) {
+      return rejectWithValue(
+        e?.response?.data?.message ?? e?.message ?? "Failed to apply discount"
+      );
+    }
+  }
+);
+
+// Apply discount to category items
+export const applyDiscountToCategoryThunk = createAsyncThunk<
+  { count: number },
+  { categoryId: number; discountType: "PERCENTAGE" | "AMOUNT"; discountValue: number },
+  { rejectValue: string }
+>(
+  "restaurantMenu/applyDiscountToCategory",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await menuService.applyDiscountToCategory(
+        payload.categoryId,
+        payload.discountType,
+        payload.discountValue
+      );
+    } catch (e: any) {
+      return rejectWithValue(
+        e?.response?.data?.message ?? e?.message ?? "Failed to apply discount"
+      );
+    }
+  }
+);

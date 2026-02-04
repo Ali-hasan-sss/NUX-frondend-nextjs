@@ -4,6 +4,7 @@ import type {
   AdminRestaurant,
   AdminRestaurantsFilters,
   CreateAdminRestaurantRequest,
+  CreateRestaurantWithOwnerRequest,
   pagination,
   UpdateAdminRestaurantRequest,
 } from "./adminRestaurantsTypes";
@@ -66,5 +67,21 @@ export const deleteAdminRestaurant = createAsyncThunk<
     return id;
   } catch (error: any) {
     return rejectWithValue(error.message || "Failed to delete restaurant");
+  }
+});
+
+export const createRestaurantWithOwner = createAsyncThunk<
+  AdminRestaurant,
+  CreateRestaurantWithOwnerRequest,
+  { rejectValue: string }
+>("adminRestaurants/createWithOwner", async (data, { rejectWithValue }) => {
+  try {
+    return await adminRestaurantsService.createRestaurantWithOwner(data);
+  } catch (error: any) {
+    const message =
+      error.response?.data?.message ||
+      error.message ||
+      "Failed to create restaurant with owner";
+    return rejectWithValue(message);
   }
 });

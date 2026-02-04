@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: "ADMIN" | "RESTAURANT_OWNER" | "USER";
+  requiredRole?: "ADMIN" | "RESTAURANT_OWNER" | "USER" | "SUBADMIN";
 }
 
 export function ProtectedRoute({
@@ -49,13 +49,18 @@ export function ProtectedRoute({
   }
 
   // Allow all authenticated users, but restrict dashboard access to specific roles
-  if (requiredRole && user && user.role !== requiredRole) {
-    // If user doesn't have required role, redirect to appropriate page
-    if (user.role === "USER") {
-      router.push("/");
+  if (requiredRole && user) {
+    // Admin panel: allow both ADMIN and SUBADMIN
+    if (requiredRole === "ADMIN" && (user.role === "ADMIN" || user.role === "SUBADMIN")) {
+      return <>{children}</>;
+    }
+    if (user.role !== requiredRole) {
+      if (user.role === "USER") {
+        router.push("/");
+        return null;
+      }
       return null;
     }
-    return null;
   }
 
   return <>{children}</>;

@@ -3,6 +3,7 @@ import type {
   AdminRestaurant,
   AdminRestaurantsFilters,
   CreateAdminRestaurantRequest,
+  CreateRestaurantWithOwnerRequest,
   UpdateAdminRestaurantRequest,
 } from "./adminRestaurantsTypes";
 import type { AdminSubscription } from "../subscriptions/adminSubscriptionsTypes";
@@ -114,6 +115,17 @@ export const adminRestaurantsService = {
     payload: CreateAdminRestaurantRequest
   ): Promise<AdminRestaurant> {
     const response = await axiosInstance.post("/admin/restaurants", payload);
+    const api = response.data;
+    return mapRestaurant(api.data);
+  },
+
+  async createRestaurantWithOwner(
+    payload: CreateRestaurantWithOwnerRequest
+  ): Promise<AdminRestaurant> {
+    const response = await axiosInstance.post(
+      "/admin/restaurants/with-owner",
+      payload
+    );
     const api = response.data;
     return mapRestaurant(api.data);
   },

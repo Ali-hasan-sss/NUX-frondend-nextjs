@@ -15,6 +15,7 @@ import { RootState } from "@/app/store";
 import { fetchAdminPlans } from "@/features/admin/plans/adminPlansThunks";
 import { useAppDispatch } from "@/app/hooks";
 import { fetchAdminRestaurants } from "@/features/admin/restaurants/adminRestaurantsThunks";
+import { useLanguage } from "@/hooks/use-language";
 
 export interface SubscriptionFormInput {
   restaurantId?: string;
@@ -32,8 +33,9 @@ export function SubscriptionForm({
   initialData,
   onSubmit,
   onClose,
-  submitLabel = "Save",
+  submitLabel,
 }: SubscriptionFormProps) {
+  const { t } = useLanguage();
   const dispatch = useAppDispatch();
   const [formData, setFormData] = useState<SubscriptionFormInput>(
     initialData || {
@@ -71,13 +73,13 @@ export function SubscriptionForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="flex flex-col md:flex-row gap-5 items-center">
         <div className="w-full md:w-1/2">
-          <Label htmlFor="planId">Plan</Label>
+          <Label htmlFor="planId">{t("plan")}</Label>
           <Select
             value={formData?.planId !== null ? String(formData.planId) : ""}
             onValueChange={(val: string) => handleChange("planId", Number(val))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="chois plan" />
+              <SelectValue placeholder={t("choosePlan")} />
             </SelectTrigger>
             <SelectContent>
               {plans.map((p) => (
@@ -88,7 +90,7 @@ export function SubscriptionForm({
         </div>
         {!initialData?.restaurantId && (
           <div className="w-full md:w-1/2">
-            <Label htmlFor="restaurantId">Restaurant</Label>
+            <Label htmlFor="restaurantId">{t("restaurant")}</Label>
             <Select
               value={
                 formData?.restaurantId ? String(formData.restaurantId) : ""
@@ -96,7 +98,7 @@ export function SubscriptionForm({
               onValueChange={(val: string) => handleChange("restaurantId", val)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="chois restaurant" />
+                <SelectValue placeholder={t("chooseRestaurant")} />
               </SelectTrigger>
               <SelectContent>
                 {restaurant.map((R) => (
@@ -111,10 +113,10 @@ export function SubscriptionForm({
       {/* Actions */}
       <div className="flex justify-end space-x-2 pt-4">
         <Button type="button" variant="outline" onClick={onClose}>
-          Cancel
+          {t("cancel")}
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? "Saving..." : submitLabel}
+          {loading ? t("saving") : submitLabel ?? t("save")}
         </Button>
       </div>
     </form>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Card,
   CardContent,
@@ -61,6 +62,7 @@ import { LabeledSelect } from "@/components/filters/LabeledSelect";
 import { PageSizeSelect } from "@/components/filters/PageSizeSelect";
 
 export function SubscriptionManagement() {
+  const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
   const {
     items: subscriptions,
@@ -100,12 +102,12 @@ export function SubscriptionManagement() {
       case "active":
         return (
           <Badge className="bg-green-100 text-green-800 hover:bg-green-100">
-            Active
+            {t("active")}
           </Badge>
         );
       case "cancelled":
       case "expired":
-        return <Badge variant="destructive">Expired</Badge>;
+        return <Badge variant="destructive">{t("expired")}</Badge>;
       default:
         return (
           <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
@@ -129,7 +131,10 @@ export function SubscriptionManagement() {
 
   const handleCancel = async (id: string | number) => {
     await dispatch(
-      cancelAdminSubscription({ id, body: { reason: "Cancelled by admin" } })
+      cancelAdminSubscription({
+        id,
+        body: { reason: "Cancelled by admin" },
+      })
     );
   };
 
@@ -171,24 +176,23 @@ export function SubscriptionManagement() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Subscription Management
+          {t("subscriptionManagement")}
         </h1>
         <p className="text-muted-foreground">
-          Monitor and manage restaurant subscriptions
+          {t("monitorSubscriptionsDescription")}
         </p>
       </div>
 
-      {isLoading && <p>Loading subscriptions...</p>}
+      {isLoading && <p>{t("loadingSubscriptions")}</p>}
       {error && <p className="text-red-500">{error}</p>}
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center space-x-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
               <div>
-                <p className="text-sm font-medium">Active</p>
+                <p className="text-sm font-medium">{t("active")}</p>
                 <p className="text-2xl font-bold">{statistics.active}</p>
               </div>
             </div>
@@ -199,7 +203,7 @@ export function SubscriptionManagement() {
             <div className="flex items-center space-x-2">
               <AlertTriangle className="h-5 w-5 text-red-600" />
               <div>
-                <p className="text-sm font-medium">Cancelled</p>
+                <p className="text-sm font-medium">{t("cancelled")}</p>
                 <p className="text-2xl font-bold">{statistics.cancelled}</p>
               </div>
             </div>
@@ -210,7 +214,7 @@ export function SubscriptionManagement() {
             <div className="flex items-center space-x-2">
               <Clock className="h-5 w-5 text-orange-600" />
               <div>
-                <p className="text-sm font-medium">Expired</p>
+                <p className="text-sm font-medium">{t("expired")}</p>
                 <p className="text-2xl font-bold">{statistics.expired}</p>
               </div>
             </div>
@@ -221,7 +225,9 @@ export function SubscriptionManagement() {
             <div className="flex items-center space-x-2">
               <div className="h-5 w-5 rounded-full bg-primary"></div>
               <div>
-                <p className="text-sm font-medium">Total Revenue</p>
+                <p className="text-sm font-medium">
+                  {t("totalRevenueValue")}
+                </p>
                 <p className="text-2xl font-bold">
                   ${statistics.totalValue}/EUR
                 </p>
@@ -234,24 +240,26 @@ export function SubscriptionManagement() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter users</CardDescription>
+          <CardTitle>{t("filters")}</CardTitle>
+          <CardDescription>
+            {t("searchAndFilterSubscriptions")}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <FilterBar>
             <LabeledInput
-              label="search by email"
+              label={t("searchByEmail")}
               value={searchTerm}
               onChange={setSearchTerm}
-              placeholder="Search by name, email, or restaurant..."
+              placeholder={t("searchByNameEmailRestaurant")}
             />
             <div className="flex  items-center gap-2">
               <LabeledSelect
-                label="Plan"
+                label={t("plan")}
                 value={planFilter}
                 onChange={(v) => setPlanFilter(v)}
                 options={[
-                  { label: "All Plans", value: "all" },
+                  { label: t("allPlans"), value: "all" },
                   ...plans.map((p) => ({
                     label: p.title,
                     value: String(p.id),
@@ -259,7 +267,7 @@ export function SubscriptionManagement() {
                 ]}
               />
               <LabeledSelect
-                label="Status"
+                label={t("status")}
                 value={statusFilter}
                 onChange={(v) =>
                   setStatusFilter(
@@ -267,11 +275,11 @@ export function SubscriptionManagement() {
                   )
                 }
                 options={[
-                  { label: "All Status", value: "all" },
-                  { label: "ACTIVE", value: "ACTIVE" },
-                  { label: "CANCELLED", value: "CANCELLED" },
-                  { label: "EXPIRED", value: "EXPIRED" },
-                  { label: "PENDING", value: "PENDING" },
+                  { label: t("allStatus"), value: "all" },
+                  { label: t("active"), value: "ACTIVE" },
+                  { label: t("cancelled"), value: "CANCELLED" },
+                  { label: t("expired"), value: "EXPIRED" },
+                  { label: t("pending"), value: "PENDING" },
                 ]}
               />
               <PageSizeSelect value={pageSize} onChange={setPageSize} />
@@ -283,10 +291,14 @@ export function SubscriptionManagement() {
       {/* Subscriptions Table */}
       <Card>
         <div className="flex flex-col px-5 gap-2 md:flex-row md:items-center md:justify-between ">
-          <CardHeader>
-            <CardTitle>Subscriptions ({pagination.totalItems})</CardTitle>
-            <CardDescription>All restaurant subscriptions</CardDescription>
-          </CardHeader>
+        <CardHeader>
+          <CardTitle>
+            {t("subscriptions")} ({pagination.totalItems})
+          </CardTitle>
+          <CardDescription>
+            {t("allRestaurantSubscriptions")}
+          </CardDescription>
+        </CardHeader>
           <Button
             className="flex items-center gap-2"
             onClick={() => {
@@ -296,7 +308,7 @@ export function SubscriptionManagement() {
             }}
           >
             <PlusCircle />
-            <span>add new subscription</span>
+            <span>{t("addNewSubscription")}</span>
           </Button>
         </div>
         <CardContent>
@@ -304,13 +316,13 @@ export function SubscriptionManagement() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Restaurant</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Payment Method</TableHead>
+                  <TableHead>{t("restaurant")}</TableHead>
+                  <TableHead>{t("plan")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("startDate")}</TableHead>
+                  <TableHead>{t("endDate")}</TableHead>
+                  <TableHead>{t("amount")}</TableHead>
+                  <TableHead>{t("paymentMethod")}</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -348,8 +360,12 @@ export function SubscriptionManagement() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Send Reminder</DropdownMenuItem>
+                          <DropdownMenuItem>
+                            {t("viewDetails")}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            {t("sendReminder")}
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => {
                               setRestaurantId(subscription.restaurantId);
@@ -357,14 +373,14 @@ export function SubscriptionManagement() {
                               setOpenSubscriptionModal(true);
                             }}
                           >
-                            Extend Subscription
+                            {t("extendSubscription")}
                           </DropdownMenuItem>
                           {subscription.status !== "CANCELLED" && (
                             <DropdownMenuItem
                               className="text-destructive"
                               onClick={() => handleCancel(subscription.id)}
                             >
-                              Cancel Subscription
+                              {t("cancelSubscription")}
                             </DropdownMenuItem>
                           )}
                         </DropdownMenuContent>
@@ -432,14 +448,16 @@ export function SubscriptionManagement() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {restaurantId ? "Edit Subscription" : "Add New Subscription"}
+              {restaurantId
+                ? t("editSubscriptionTitle")
+                : t("addNewSubscriptionModalTitle")}
             </DialogTitle>
           </DialogHeader>
           <SubscriptionForm
             initialData={{ restaurantId, planId }}
             onSubmit={handleSubmit}
             onClose={() => setOpenSubscriptionModal(false)}
-            submitLabel={restaurantId ? "Save" : "Create"}
+            submitLabel={restaurantId ? t("save") : t("create")}
           />
         </DialogContent>
       </Dialog>

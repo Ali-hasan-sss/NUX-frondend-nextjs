@@ -67,16 +67,16 @@ export default function MenuPage() {
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <h1 className="text-2xl font-bold flex-1" style={{ color: colors.text }}>
-            {selectedCategory.name}
+          <h1
+            className="text-2xl font-bold flex-1"
+            style={{ color: colors.text }}
+          >
+            {selectedCategory.title}
           </h1>
         </div>
 
         {selectedCategory.description && (
-          <p
-            className="text-sm mb-6"
-            style={{ color: colors.textSecondary }}
-          >
+          <p className="text-sm mb-6" style={{ color: colors.textSecondary }}>
             {selectedCategory.description}
           </p>
         )}
@@ -101,7 +101,10 @@ export default function MenuPage() {
               borderWidth: "1px",
             }}
           >
-            <AlertCircle className="h-6 w-6 mx-auto mb-2" style={{ color: colors.error }} />
+            <AlertCircle
+              className="h-6 w-6 mx-auto mb-2"
+              style={{ color: colors.error }}
+            />
             <p className="font-semibold mb-2" style={{ color: colors.error }}>
               {t("menu.errorLoadingItems")}
             </p>
@@ -162,7 +165,10 @@ export default function MenuPage() {
                     </div>
                   )}
                   <div className="p-4">
-                    <h3 className="font-bold text-lg mb-1" style={{ color: colors.text }}>
+                    <h3
+                      className="font-bold text-lg mb-1"
+                      style={{ color: colors.text }}
+                    >
                       {item.name}
                     </h3>
                     {item.description && (
@@ -173,7 +179,10 @@ export default function MenuPage() {
                         {item.description}
                       </p>
                     )}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: colors.border }}>
+                    <div
+                      className="flex items-center justify-between mt-3 pt-3 border-t"
+                      style={{ borderColor: colors.border }}
+                    >
                       <p
                         className="text-xl font-bold"
                         style={{ color: colors.primary }}
@@ -220,7 +229,10 @@ export default function MenuPage() {
             borderWidth: "1px",
           }}
         >
-          <AlertCircle className="h-6 w-6 mx-auto mb-2" style={{ color: colors.error }} />
+          <AlertCircle
+            className="h-6 w-6 mx-auto mb-2"
+            style={{ color: colors.error }}
+          />
           <p className="font-semibold mb-2" style={{ color: colors.error }}>
             {t("menu.errorLoadingCategories")}
           </p>
@@ -282,12 +294,15 @@ export default function MenuPage() {
                   </div>
                 )}
                 <div className="p-5">
-                  <h3 className="font-bold text-lg mb-2" style={{ color: colors.text }}>
+                  <h3
+                    className="font-bold text-lg mb-2"
+                    style={{ color: colors.text }}
+                  >
                     {category.name}
                   </h3>
                   {category.description && (
                     <p
-                      className="text-sm line-clamp-2"
+                      className="text-sm line-clamp-1 overflow-hidden text-ellipsis"
                       style={{ color: colors.textSecondary }}
                     >
                       {category.description}
@@ -301,4 +316,3 @@ export default function MenuPage() {
     </div>
   );
 }
-

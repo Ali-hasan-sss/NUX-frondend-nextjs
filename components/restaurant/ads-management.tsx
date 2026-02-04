@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { useTranslation } from "react-i18next";
 import {
@@ -28,7 +29,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Image as ImageIcon, Plus, Pencil, Trash2, Eye } from "lucide-react";
+import {
+  Image as ImageIcon,
+  Plus,
+  Pencil,
+  Trash2,
+  Eye,
+  Loader2,
+  Lock,
+  AlertCircle,
+} from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -54,11 +64,15 @@ const emptyForm: FormState = {
   category: "",
 };
 
+const PLAN_PERMISSION_CODES = ["PLAN_PERMISSION_REQUIRED", "NO_ACTIVE_SUBSCRIPTION"];
+
 export default function AdsManagement() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { items, isLoading } = useAppSelector((s) => s.restaurantAds);
+  const { items, isLoading, error, errorCode } = useAppSelector((s) => s.restaurantAds);
   const restaurant = useSelector((s) => s.restaurantAccount.data);
+  const planPermissionError =
+    !!error && !!errorCode && PLAN_PERMISSION_CODES.includes(errorCode);
 
   const [openCreate, setOpenCreate] = useState(false);
   const [openEdit, setOpenEdit] = useState<RestaurantAd | null>(null);
@@ -119,6 +133,46 @@ export default function AdsManagement() {
   };
 
   const restaurantId = restaurant?.id ?? "";
+
+  if (isLoading && items.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2 text-destructive">
+              {planPermissionError ? (
+                <Lock className="h-5 w-5 shrink-0" />
+              ) : (
+                <AlertCircle className="h-5 w-5 shrink-0" />
+              )}
+              <p>{error}</p>
+            </div>
+            {planPermissionError && (
+              <p className="text-sm text-muted-foreground">
+                {t("dashboard.ads.upgradePlanHint") ||
+                  "Your current plan does not include Ads. Upgrade your subscription to manage ads from the dashboard."}
+              </p>
+            )}
+            {planPermissionError && (
+              <Button asChild variant="default">
+                <Link href="/dashboard/subscription">
+                  {t("dashboard.ads.goToSubscription") || "Go to Subscription"}
+                </Link>
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">

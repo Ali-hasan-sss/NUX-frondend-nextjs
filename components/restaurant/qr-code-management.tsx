@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { QrCode, Plus, Pencil, Trash2, Loader2, Printer } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   fetchRestaurantAccount,
@@ -25,17 +25,17 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { tablesService, Table } from "@/features/restaurant/tables/tablesService";
+import {
+  tablesService,
+  Table,
+} from "@/features/restaurant/tables/tablesService";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/confirmMessage";
+import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
+import { toast } from "sonner";
 
 function PrintableFrame({
   title,
@@ -177,201 +177,215 @@ export function QRCodeManagement() {
           </div>
 
           <div className="flex flex-col gap-4" ref={printRef}>
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.qrCodes.drinkQR")}</CardTitle>
-            <CardDescription>
-              {t("dashboard.qrCodes.scanToCollectDrink")} {data?.name ?? t("dashboard.qrCodes.drinkQR")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center">
-              <div ref={drinkRef} className="frame">
-                <PrintableFrame
-                  title={data?.name ?? "Restaurant"}
-                  subtitle={t("dashboard.qrCodes.drinkQR")}
-                >
-                  {data?.qrCode_drink ? (
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                        data.qrCode_drink
-                      )}`}
-                      width={240}
-                      height={240}
-                      alt={t("dashboard.qrCodes.drinkQR")}
-                    />
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-{t("dashboard.qrCodes.noDrinkQRAvailable")}
-                    </div>
-                  )}
-                </PrintableFrame>
-              </div>
-            </div>
-            <div className="mt-3 flex justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() =>
-                  drinkRef.current && printElement(drinkRef.current)
-                }
-              >
-{t("dashboard.qrCodes.print")}
-              </Button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[640px]">
-                  <DialogHeader>
-                    <DialogTitle>{t("dashboard.qrCodes.drinkQR")}</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex justify-center">
-                    {data?.qrCode_drink ? (
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                          data.qrCode_drink
-                        )}`}
-                        width={512}
-                        height={512}
-                        alt={t("dashboard.qrCodes.drinkQR")}
-                      />
-                    ) : null}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.qrCodes.drinkQR")}</CardTitle>
+                <CardDescription>
+                  {t("dashboard.qrCodes.scanToCollectDrink")}{" "}
+                  {data?.name ?? t("dashboard.qrCodes.drinkQR")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center">
+                  <div ref={drinkRef} className="frame">
+                    <PrintableFrame
+                      title={data?.name ?? "Restaurant"}
+                      subtitle={t("dashboard.qrCodes.drinkQR")}
+                    >
+                      {data?.qrCode_drink ? (
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                            data.qrCode_drink
+                          )}`}
+                          width={240}
+                          height={240}
+                          alt={t("dashboard.qrCodes.drinkQR")}
+                        />
+                      ) : (
+                        <div className="text-sm text-muted-foreground">
+                          {t("dashboard.qrCodes.noDrinkQRAvailable")}
+                        </div>
+                      )}
+                    </PrintableFrame>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+                <div className="mt-3 flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      drinkRef.current && printElement(drinkRef.current)
+                    }
+                  >
+                    {t("dashboard.qrCodes.print")}
+                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[640px]">
+                      <DialogHeader>
+                        <DialogTitle>
+                          {t("dashboard.qrCodes.drinkQR")}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex justify-center">
+                        {data?.qrCode_drink ? (
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
+                              data.qrCode_drink
+                            )}`}
+                            width={512}
+                            height={512}
+                            alt={t("dashboard.qrCodes.drinkQR")}
+                          />
+                        ) : null}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.qrCodes.mealQR")}</CardTitle>
-            <CardDescription>
-              {t("dashboard.qrCodes.scanToCollectMeal")} {data?.name ?? t("dashboard.qrCodes.mealQR")}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center">
-              <div ref={mealRef} className="frame">
-                <PrintableFrame
-                  title={data?.name ?? "Restaurant"}
-                  subtitle={t("dashboard.qrCodes.mealQR")}
-                >
-                  {data?.qrCode_meal ? (
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                        data.qrCode_meal
-                      )}`}
-                      width={240}
-                      height={240}
-                      alt={t("dashboard.qrCodes.mealQR")}
-                    />
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-{t("dashboard.qrCodes.noMealQRAvailable")}
-                    </div>
-                  )}
-                </PrintableFrame>
-              </div>
-            </div>
-            <div className="mt-3 flex justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => mealRef.current && printElement(mealRef.current)}
-              >
-{t("dashboard.qrCodes.print")}
-              </Button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[640px]">
-                  <DialogHeader>
-                    <DialogTitle>{t("dashboard.qrCodes.mealQR")}</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex justify-center">
-                    {data?.qrCode_meal ? (
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                          data.qrCode_meal
-                        )}`}
-                        width={512}
-                        height={512}
-                        alt={t("dashboard.qrCodes.mealQR")}
-                      />
-                    ) : null}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.qrCodes.mealQR")}</CardTitle>
+                <CardDescription>
+                  {t("dashboard.qrCodes.scanToCollectMeal")}{" "}
+                  {data?.name ?? t("dashboard.qrCodes.mealQR")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center">
+                  <div ref={mealRef} className="frame">
+                    <PrintableFrame
+                      title={data?.name ?? "Restaurant"}
+                      subtitle={t("dashboard.qrCodes.mealQR")}
+                    >
+                      {data?.qrCode_meal ? (
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                            data.qrCode_meal
+                          )}`}
+                          width={240}
+                          height={240}
+                          alt={t("dashboard.qrCodes.mealQR")}
+                        />
+                      ) : (
+                        <div className="text-sm text-muted-foreground">
+                          {t("dashboard.qrCodes.noMealQRAvailable")}
+                        </div>
+                      )}
+                    </PrintableFrame>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
+                </div>
+                <div className="mt-3 flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      mealRef.current && printElement(mealRef.current)
+                    }
+                  >
+                    {t("dashboard.qrCodes.print")}
+                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[640px]">
+                      <DialogHeader>
+                        <DialogTitle>
+                          {t("dashboard.qrCodes.mealQR")}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex justify-center">
+                        {data?.qrCode_meal ? (
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
+                              data.qrCode_meal
+                            )}`}
+                            width={512}
+                            height={512}
+                            alt={t("dashboard.qrCodes.mealQR")}
+                          />
+                        ) : null}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("dashboard.qrCodes.menuQR")}</CardTitle>
-            <CardDescription>{t("dashboard.qrCodes.scanToViewMenu")} {data?.name ?? ""}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-center">
-              <div ref={menuRef} className="frame">
-                <PrintableFrame
-                  title={data?.name ?? "Restaurant"}
-                  subtitle="Menu QR"
-                >
-                  {menuUrl ? (
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                        menuUrl
-                      )}`}
-                      width={240}
-                      height={240}
-                      alt={t("dashboard.qrCodes.menuQR")}
-                    />
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      Menu URL not available
-                    </div>
-                  )}
-                </PrintableFrame>
-              </div>
-            </div>
-            <div className="mt-3 text-xs text-muted-foreground break-all text-center">
-              {menuUrl}
-            </div>
-            <div className="mt-3 flex justify-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => menuRef.current && printElement(menuRef.current)}
-              >
-{t("dashboard.qrCodes.print")}
-              </Button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[640px]">
-                  <DialogHeader>
-                    <DialogTitle>{t("dashboard.qrCodes.menuQR")}</DialogTitle>
-                  </DialogHeader>
-                  <div className="flex justify-center">
-                    {menuUrl ? (
-                      <img
-                        src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                          menuUrl
-                        )}`}
-                        width={512}
-                        height={512}
-                        alt={t("dashboard.qrCodes.menuQR")}
-                      />
-                    ) : null}
+            <Card>
+              <CardHeader>
+                <CardTitle>{t("dashboard.qrCodes.menuQR")}</CardTitle>
+                <CardDescription>
+                  {t("dashboard.qrCodes.scanToViewMenu")} {data?.name ?? ""}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex justify-center">
+                  <div ref={menuRef} className="frame">
+                    <PrintableFrame
+                      title={data?.name ?? "Restaurant"}
+                      subtitle="Menu QR"
+                    >
+                      {menuUrl ? (
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+                            menuUrl
+                          )}`}
+                          width={240}
+                          height={240}
+                          alt={t("dashboard.qrCodes.menuQR")}
+                        />
+                      ) : (
+                        <div className="text-sm text-muted-foreground">
+                          Menu URL not available
+                        </div>
+                      )}
+                    </PrintableFrame>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                </div>
+                <div className="mt-3 text-xs text-muted-foreground break-all text-center">
+                  {menuUrl}
+                </div>
+                <div className="mt-3 flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      menuRef.current && printElement(menuRef.current)
+                    }
+                  >
+                    {t("dashboard.qrCodes.print")}
+                  </Button>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[640px]">
+                      <DialogHeader>
+                        <DialogTitle>
+                          {t("dashboard.qrCodes.menuQR")}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="flex justify-center">
+                        {menuUrl ? (
+                          <img
+                            src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
+                              menuUrl
+                            )}`}
+                            width={512}
+                            height={512}
+                            alt={t("dashboard.qrCodes.menuQR")}
+                          />
+                        ) : null}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
@@ -401,12 +415,14 @@ function TableCard({
   table,
   onEdit,
   onDelete,
+  onSessionToggle,
   printElement,
   t,
 }: {
   table: Table;
   onEdit: (table: Table) => void;
   onDelete: (table: Table) => void;
+  onSessionToggle: (table: Table, isSessionOpen: boolean) => void;
   printElement: (el: HTMLElement) => void;
   t: any;
 }) {
@@ -424,35 +440,48 @@ function TableCard({
                   {t("dashboard.tables.inactive") || "Inactive"}
                 </Badge>
               )}
+              <Badge
+                variant={table.isSessionOpen ? "default" : "secondary"}
+                className="text-xs"
+              >
+                {table.isSessionOpen
+                  ? t("dashboard.tables.sessionOpen") || "Session open"
+                  : t("dashboard.tables.sessionClosed") || "Session closed"}
+              </Badge>
             </CardTitle>
             <CardDescription className="mt-1">
               {t("dashboard.tables.tableNumber") || "Table"} #{table.number}
             </CardDescription>
           </div>
           <div className="flex gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onEdit(table)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => onEdit(table)}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onDelete(table)}
-            >
+            <Button variant="ghost" size="sm" onClick={() => onDelete(table)}>
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent>
+        <div className="flex justify-center gap-2 mb-4">
+          <Button
+            variant={table.isSessionOpen ? "outline" : "default"}
+            size="sm"
+            onClick={() => onSessionToggle(table, !table.isSessionOpen)}
+          >
+            {table.isSessionOpen
+              ? t("dashboard.tables.closeSession") || "Close session"
+              : t("dashboard.tables.openSession") || "Open session"}
+          </Button>
+        </div>
         <div className="flex justify-center mb-4">
           <div ref={tableRef} className="frame">
             <PrintableFrame
               title={table.name}
-              subtitle={`${t("dashboard.tables.tableNumber") || "Table"} #${table.number}`}
+              subtitle={`${t("dashboard.tables.tableNumber") || "Table"} #${
+                table.number
+              }`}
             >
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
@@ -472,9 +501,7 @@ function TableCard({
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              tableRef.current && printElement(tableRef.current)
-            }
+            onClick={() => tableRef.current && printElement(tableRef.current)}
           >
             {t("dashboard.qrCodes.print") || "Print"}
           </Button>
@@ -506,11 +533,19 @@ function TableCard({
   );
 }
 
+const PLAN_PERMISSION_CODES = [
+  "PLAN_PERMISSION_REQUIRED",
+  "NO_ACTIVE_SUBSCRIPTION",
+];
+
 // Tables Management Component
 function TablesManagement({ restaurantId }: { restaurantId: string }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const tablesPrintRef = useRef<HTMLDivElement>(null);
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tablesError, setTablesError] = useState<string | null>(null);
+  const [tablesErrorCode, setTablesErrorCode] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -519,6 +554,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
   const [tableName, setTableName] = useState("Table");
   const [editTableName, setEditTableName] = useState("");
   const [editIsActive, setEditIsActive] = useState(true);
+  const [editIsSessionOpen, setEditIsSessionOpen] = useState(false);
 
   useEffect(() => {
     if (restaurantId) {
@@ -528,12 +564,22 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
 
   const loadTables = async () => {
     setLoading(true);
+    setTablesError(null);
+    setTablesErrorCode(null);
     try {
       const response = await tablesService.getTables();
       setTables(response.data);
     } catch (error: any) {
       console.error("Error loading tables:", error);
-      alert(error?.response?.data?.message || "Failed to load tables");
+      const data = error?.response?.data;
+      const message =
+        data?.message || error?.message || "Failed to load tables";
+      const code = data?.code;
+      setTablesError(message);
+      setTablesErrorCode(code ?? null);
+      if (!code || !PLAN_PERMISSION_CODES.includes(code)) {
+        toast.error(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -541,7 +587,9 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
 
   const handleCreateTables = async () => {
     if (!tableCount || tableCount < 1 || tableCount > 1000) {
-      alert(t("dashboard.tables.invalidCount") || "Count must be between 1 and 1000");
+      toast.error(
+        t("dashboard.tables.invalidCount") || "Count must be between 1 and 1000"
+      );
       return;
     }
 
@@ -554,10 +602,21 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
       setIsCreateDialogOpen(false);
       setTableCount(1);
       setTableName("Table");
-      alert(t("dashboard.tables.tablesCreated") || "Tables created successfully!");
+      toast.success(
+        t("dashboard.tables.tablesCreated") || "Tables created successfully!"
+      );
     } catch (error: any) {
       console.error("Error creating tables:", error);
-      alert(error?.response?.data?.message || "Failed to create tables");
+      const data = error?.response?.data;
+      const code = data?.code;
+      const message =
+        data?.message || error?.message || "Failed to create tables";
+      if (code && PLAN_PERMISSION_CODES.includes(code)) {
+        setTablesError(message);
+        setTablesErrorCode(code);
+      } else {
+        toast.error(message);
+      }
     }
   };
 
@@ -568,14 +627,25 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
       await tablesService.updateTable(selectedTable.id, {
         name: editTableName,
         isActive: editIsActive,
+        isSessionOpen: editIsSessionOpen,
       });
       await loadTables();
       setIsEditDialogOpen(false);
       setSelectedTable(null);
-      alert(t("dashboard.tables.tableUpdated") || "Table updated successfully!");
+      toast.success(
+        t("dashboard.tables.tableUpdated") || "Table updated successfully!"
+      );
     } catch (error: any) {
       console.error("Error updating table:", error);
-      alert(error?.response?.data?.message || "Failed to update table");
+      const data = error?.response?.data;
+      const message =
+        data?.message || error?.message || "Failed to update table";
+      if (data?.code && PLAN_PERMISSION_CODES.includes(data.code)) {
+        setTablesError(message);
+        setTablesErrorCode(data.code);
+      } else {
+        toast.error(message);
+      }
     }
   };
 
@@ -587,10 +657,20 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
       await loadTables();
       setIsDeleteDialogOpen(false);
       setSelectedTable(null);
-      alert(t("dashboard.tables.tableDeleted") || "Table deleted successfully!");
+      toast.success(
+        t("dashboard.tables.tableDeleted") || "Table deleted successfully!"
+      );
     } catch (error: any) {
       console.error("Error deleting table:", error);
-      alert(error?.response?.data?.message || "Failed to delete table");
+      const data = error?.response?.data;
+      const message =
+        data?.message || error?.message || "Failed to delete table";
+      if (data?.code && PLAN_PERMISSION_CODES.includes(data.code)) {
+        setTablesError(message);
+        setTablesErrorCode(data.code);
+      } else {
+        toast.error(message);
+      }
     }
   };
 
@@ -598,12 +678,37 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
     setSelectedTable(table);
     setEditTableName(table.name);
     setEditIsActive(table.isActive);
+    setEditIsSessionOpen(table.isSessionOpen);
     setIsEditDialogOpen(true);
   };
 
   const openDeleteDialog = (table: Table) => {
     setSelectedTable(table);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleSessionToggle = async (table: Table, isSessionOpen: boolean) => {
+    try {
+      await tablesService.updateTable(table.id, { isSessionOpen });
+      await loadTables();
+      const msg = isSessionOpen
+        ? t("dashboard.tables.sessionOpened") ||
+          "Session opened for this table."
+        : t("dashboard.tables.sessionClosedMsg") ||
+          "Session closed for this table.";
+      toast.success(msg);
+    } catch (error: any) {
+      console.error("Error updating table session:", error);
+      const data = error?.response?.data;
+      const message =
+        data?.message || error?.message || "Failed to update session";
+      if (data?.code && PLAN_PERMISSION_CODES.includes(data.code)) {
+        setTablesError(message);
+        setTablesErrorCode(data.code);
+      } else {
+        toast.error(message);
+      }
+    }
   };
 
   const printElement = (el: HTMLElement) => {
@@ -622,11 +727,21 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
     win.close();
   };
 
+  const handlePrintAllTables = () => {
+    if (!tablesPrintRef.current || tables.length === 0) return;
+    const printContents = tablesPrintRef.current.innerHTML;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload();
+  };
+
   const appBaseUrl =
     process.env.NEXT_PUBLIC_APP_BASE_URL ||
     (typeof window !== "undefined" ? window.location.origin : "");
 
-  if (loading) {
+  if (loading && tables.length === 0 && !tablesError) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -634,21 +749,69 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
     );
   }
 
+  if (tablesError) {
+    return (
+      <PlanPermissionErrorCard
+        error={tablesError}
+        errorCode={tablesErrorCode}
+        upgradePlanHintKey="dashboard.tables.upgradePlanHint"
+        upgradePlanHintFallback="Your current plan does not include Table QR codes. Subscribe or upgrade your plan to create and manage table codes."
+        goToSubscriptionKey="dashboard.tables.goToSubscription"
+        goToSubscriptionFallback="Go to Subscription"
+      />
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+      {/* Hidden content for "Print All" - same layout as table cards */}
+      {tables.length > 0 && (
+        <div ref={tablesPrintRef} className="hidden">
+          <div className="flex flex-wrap gap-4 justify-center p-6 bg-white text-black">
+            {tables.map((table) => (
+              <PrintableFrame
+                key={table.id}
+                title={table.name}
+                subtitle={`${t("dashboard.tables.tableNumber") || "Table"} #${
+                  table.number
+                }`}
+              >
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+                    table.qrCode
+                  )}`}
+                  width={200}
+                  height={200}
+                  alt={table.name}
+                />
+              </PrintableFrame>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">
             {t("dashboard.tables.title") || "Table Management"}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {t("dashboard.tables.description") || "Create and manage table QR codes"}
+            {t("dashboard.tables.description") ||
+              "Create and manage table QR codes"}
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          {t("dashboard.tables.createTables") || "Create Tables"}
-        </Button>
+        <div className="flex gap-2">
+          {tables.length > 0 && (
+            <Button variant="outline" onClick={handlePrintAllTables}>
+              <Printer className="h-4 w-4 mr-2" />
+              {t("dashboard.tables.printAll")}
+            </Button>
+          )}
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("dashboard.tables.createTables") || "Create Tables"}
+          </Button>
+        </div>
       </div>
 
       {tables.length === 0 ? (
@@ -664,7 +827,8 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
                 className="mt-4"
               >
                 <Plus className="h-4 w-4 mr-2" />
-                {t("dashboard.tables.createFirstTable") || "Create Your First Table"}
+                {t("dashboard.tables.createFirstTable") ||
+                  "Create Your First Table"}
               </Button>
             </div>
           </CardContent>
@@ -677,6 +841,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
               table={table}
               onEdit={openEditDialog}
               onDelete={openDeleteDialog}
+              onSessionToggle={handleSessionToggle}
               printElement={printElement}
               t={t}
             />
@@ -709,7 +874,8 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
             </div>
             <div>
               <Label htmlFor="name">
-                {t("dashboard.tables.tableNamePrefix") || "Table Name Prefix (Optional)"}
+                {t("dashboard.tables.tableNamePrefix") ||
+                  "Table Name Prefix (Optional)"}
               </Label>
               <Input
                 id="name"
@@ -765,6 +931,17 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
                 />
                 <Label htmlFor="editActive">
                   {t("dashboard.tables.isActive") || "Active"}
+                </Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch
+                  dir={i18n.language === "ar" ? "rtl" : "ltr"}
+                  id="editSessionOpen"
+                  checked={editIsSessionOpen}
+                  onCheckedChange={setEditIsSessionOpen}
+                />
+                <Label htmlFor="editSessionOpen">
+                  {t("dashboard.tables.sessionOpen") || "Session open"}
                 </Label>
               </div>
               <div className="flex justify-end gap-2">

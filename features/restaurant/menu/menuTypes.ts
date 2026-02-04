@@ -74,4 +74,5 @@ export interface RestaurantMenuState {
   itemsByCategory: Record<number, MenuItem[]>;
   isLoading: boolean;
   error: string | null;
+  errorCode: string | null;
 }

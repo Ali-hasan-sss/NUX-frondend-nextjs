@@ -38,4 +38,5 @@ export interface RestaurantPackagesState {
   selected: RestaurantPackage | null;
   isLoading: boolean;
   error: string | null;
+  errorCode: string | null;
 }

@@ -1,13 +1,27 @@
 "use client";
 
-import { X, Plus, Minus, Trash2, Clock, Flame, ChefHat, ShoppingCart, UtensilsCrossed, Coffee } from "lucide-react";
+import {
+  X,
+  Plus,
+  Minus,
+  Trash2,
+  Clock,
+  Flame,
+  ChefHat,
+  ShoppingCart,
+  UtensilsCrossed,
+  Coffee,
+} from "lucide-react";
 import { useMenuCart } from "@/contexts/menu-cart-context";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { orderService, type OrderTypeValue } from "@/features/client/orderService";
+import {
+  orderService,
+  type OrderTypeValue,
+} from "@/features/client/orderService";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -25,8 +39,14 @@ interface CartDrawerProps {
 }
 
 export function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const { items, updateQuantity, removeItem, totalPrice, clearCart, tableNumber } =
-    useMenuCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    totalPrice,
+    clearCart,
+    tableNumber,
+  } = useMenuCart();
   const { colors, isDark, mounted } = useClientTheme();
   const { t } = useTranslation();
   const params = useParams();
@@ -36,9 +56,13 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
 
   // Helper function to create a unique key for an item
   const getItemKey = (item: any) => {
-    const extrasKey = item.selectedExtras 
-      ? JSON.stringify(item.selectedExtras.sort((a: any, b: any) => a.name.localeCompare(b.name)))
-      : '';
+    const extrasKey = item.selectedExtras
+      ? JSON.stringify(
+          item.selectedExtras.sort((a: any, b: any) =>
+            a.name.localeCompare(b.name)
+          )
+        )
+      : "";
     return `${item.id}_${extrasKey}`;
   };
 
@@ -79,11 +103,26 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
       onClose();
     } catch (error: any) {
       console.error("Error placing order:", error);
-      toast.error(
-        error?.response?.data?.message ||
-          t("menu.orderError") ||
-          "Failed to place order. Please try again."
-      );
+      const data = error?.response?.data;
+      const code = data?.code;
+      let message =
+        data?.message ||
+        t("menu.orderError") ||
+        "Failed to place order. Please try again.";
+      if (code === "TABLE_SESSION_NOT_OPEN") {
+        message =
+          t("menu.tableSessionNotOpen") ||
+          "Table session is not open. Please ask the cashier to start a session for this table.";
+      } else if (code === "NO_ACTIVE_SUBSCRIPTION") {
+        message =
+          t("menu.ordersNotAvailableNoSubscription") ||
+          "This restaurant does not have an active subscription. Orders are not available at the moment.";
+      } else if (code === "PLAN_PERMISSION_REQUIRED") {
+        message =
+          t("menu.ordersNotAvailablePlan") ||
+          "This restaurant does not have a plan that supports orders. Orders are not available at the moment.";
+      }
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -185,7 +224,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                             </div>
                           )}
                         </div>
-                        
+
                         {item.description && (
                           <p
                             className="text-xs mb-1.5 line-clamp-2"
@@ -206,15 +245,24 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                               <span>{item.preparationTime} min</span>
                             </div>
                           )}
-                          {(item.baseCalories || (item.selectedExtras && item.selectedExtras.some((e: any) => e.calories > 0))) && (
+                          {(item.baseCalories ||
+                            (item.selectedExtras &&
+                              item.selectedExtras.some(
+                                (e: any) => e.calories > 0
+                              ))) && (
                             <div
                               className="flex items-center gap-1 text-xs"
                               style={{ color: colors.textSecondary }}
                             >
                               <Flame className="h-3 w-3" />
                               <span>
-                                {(item.baseCalories || 0) + 
-                                  (item.selectedExtras?.reduce((sum: number, extra: any) => sum + (extra.calories || 0), 0) || 0)} cal
+                                {(item.baseCalories || 0) +
+                                  (item.selectedExtras?.reduce(
+                                    (sum: number, extra: any) =>
+                                      sum + (extra.calories || 0),
+                                    0
+                                  ) || 0)}{" "}
+                                cal
                               </span>
                             </div>
                           )}
@@ -223,43 +271,49 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                         {/* Allergies */}
                         {item.allergies && item.allergies.length > 0 && (
                           <div className="flex flex-wrap gap-1 mb-1.5">
-                            {item.allergies.map((allergy: string, idx: number) => (
-                              <span
-                                key={idx}
-                                className="px-1.5 py-0.5 rounded text-xs"
-                                style={{
-                                  backgroundColor: `${colors.error}15`,
-                                  color: colors.error,
-                                }}
-                              >
-                                {allergy}
-                              </span>
-                            ))}
+                            {item.allergies.map(
+                              (allergy: string, idx: number) => (
+                                <span
+                                  key={idx}
+                                  className="px-1.5 py-0.5 rounded text-xs"
+                                  style={{
+                                    backgroundColor: `${colors.error}15`,
+                                    color: colors.error,
+                                  }}
+                                >
+                                  {allergy}
+                                </span>
+                              )
+                            )}
                           </div>
                         )}
 
                         {/* Selected Extras */}
-                        {item.selectedExtras && item.selectedExtras.length > 0 && (
-                          <div className="mb-1.5 space-y-0.5">
-                            {item.selectedExtras.map((extra, idx) => (
-                              <p
-                                key={idx}
-                                className="text-xs flex items-center gap-1"
-                                style={{ color: colors.textSecondary }}
-                              >
-                                <span>+</span>
-                                <span>{extra.name}</span>
-                                <span style={{ color: colors.primary }}>
-                                  (+${(extra.price || 0).toFixed(2)})
-                                </span>
-                              </p>
-                            ))}
-                          </div>
-                        )}
+                        {item.selectedExtras &&
+                          item.selectedExtras.length > 0 && (
+                            <div className="mb-1.5 space-y-0.5">
+                              {item.selectedExtras.map((extra, idx) => (
+                                <p
+                                  key={idx}
+                                  className="text-xs flex items-center gap-1"
+                                  style={{ color: colors.textSecondary }}
+                                >
+                                  <span>+</span>
+                                  <span>{extra.name}</span>
+                                  <span style={{ color: colors.primary }}>
+                                    (+${(extra.price || 0).toFixed(2)})
+                                  </span>
+                                </p>
+                              ))}
+                            </div>
+                          )}
 
                         {/* Notes */}
                         {item.notes && item.notes.trim() && (
-                          <div className="mb-1.5 p-2 rounded" style={{ backgroundColor: `${colors.primary}10` }}>
+                          <div
+                            className="mb-1.5 p-2 rounded"
+                            style={{ backgroundColor: `${colors.primary}10` }}
+                          >
                             <p
                               className="text-xs font-medium mb-0.5"
                               style={{ color: colors.text }}
@@ -310,7 +364,11 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() =>
-                              updateQuantity(item.id, item.quantity - 1, item.selectedExtras)
+                              updateQuantity(
+                                item.id,
+                                item.quantity - 1,
+                                item.selectedExtras
+                              )
                             }
                             className={cn(
                               "p-1 rounded transition-colors",
@@ -328,7 +386,11 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                           </span>
                           <button
                             onClick={() =>
-                              updateQuantity(item.id, item.quantity + 1, item.selectedExtras)
+                              updateQuantity(
+                                item.id,
+                                item.quantity + 1,
+                                item.selectedExtras
+                              )
                             }
                             className={cn(
                               "p-1 rounded transition-colors",
@@ -339,7 +401,9 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                             <Plus className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => removeItem(item.id, item.selectedExtras)}
+                            onClick={() =>
+                              removeItem(item.id, item.selectedExtras)
+                            }
                             className={cn(
                               "p-1 rounded transition-colors ml-auto",
                               isDark ? "hover:bg-white/10" : "hover:bg-gray-200"
@@ -431,7 +495,8 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
               {t("menu.orderTypeTitle") || "Order type"}
             </DialogTitle>
             <DialogDescription style={{ color: colors.textSecondary }}>
-              {t("menu.orderTypeDescription") || "Choose how you want your order"}
+              {t("menu.orderTypeDescription") ||
+                "Choose how you want your order"}
             </DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-1 gap-3 py-4">
@@ -449,14 +514,18 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                 className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                 style={{ backgroundColor: `${colors.primary}20` }}
               >
-                <UtensilsCrossed className="h-6 w-6" style={{ color: colors.primary }} />
+                <UtensilsCrossed
+                  className="h-6 w-6"
+                  style={{ color: colors.primary }}
+                />
               </div>
               <div>
                 <p className="font-semibold">
                   {t("menu.orderTypeOnTable") || "At table"}
                 </p>
                 <p className="text-sm" style={{ color: colors.textSecondary }}>
-                  {t("menu.orderTypeOnTableDesc") || "I'm eating in the restaurant"}
+                  {t("menu.orderTypeOnTableDesc") ||
+                    "I'm eating in the restaurant"}
                 </p>
               </div>
             </button>

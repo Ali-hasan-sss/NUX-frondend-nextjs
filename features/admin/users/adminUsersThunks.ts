@@ -21,9 +21,14 @@ export const fetchAdminUsers = createAsyncThunk<
   { rejectValue: string }
 >("adminUsers/fetchAll", async (filters, { rejectWithValue }) => {
   try {
-    return await adminUsersService.getAll(filters || {});
+    const resolved = filters ?? { pageNumber: 1, pageSize: 10 };
+    return await adminUsersService.getAll(resolved as AdminUsersFilters);
   } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to load users");
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to load users";
+    return rejectWithValue(message);
   }
 });
 
@@ -35,7 +40,9 @@ export const fetchAdminUserById = createAsyncThunk<
   try {
     return await adminUsersService.getById(id);
   } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to load user");
+    const message =
+      error?.response?.data?.message || error?.message || "Failed to load user";
+    return rejectWithValue(message);
   }
 });
 
@@ -47,7 +54,11 @@ export const createAdminUser = createAsyncThunk<
   try {
     return await adminUsersService.createUser(data);
   } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to create user");
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to create user";
+    return rejectWithValue(message);
   }
 });
 
@@ -59,7 +70,11 @@ export const updateAdminUser = createAsyncThunk<
   try {
     return await adminUsersService.updateUser(id, data);
   } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to update user");
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to update user";
+    return rejectWithValue(message);
   }
 });
 
@@ -72,6 +87,10 @@ export const deleteAdminUser = createAsyncThunk<
     await adminUsersService.deleteUser(id);
     return id;
   } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to delete user");
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to delete user";
+    return rejectWithValue(message);
   }
 });

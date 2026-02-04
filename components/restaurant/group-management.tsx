@@ -25,13 +25,14 @@ import {
 import { fetchRestaurantAccount } from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
 import { GroupFormModal } from "./group-form-modal";
 import { GroupInvitesManagement } from "./group-invites-management";
+import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
+import { Loader2 } from "lucide-react";
 
 export function GroupManagement() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { groupDetails, members, joinRequests, isLoading } = useAppSelector(
-    (s) => s.restaurantGroups
-  );
+  const { groupDetails, members, joinRequests, isLoading, error, errorCode } =
+    useAppSelector((s) => s.restaurantGroups);
   const myRestaurantId = useAppSelector((s) => s.restaurantAccount.data?.id);
   const accountGroup = useAppSelector((s) => s.restaurantAccount.data?.group);
   const accountGroupId = accountGroup?.id;
@@ -128,6 +129,25 @@ export function GroupManagement() {
   }, [dispatch, accountGroupId]);
 
   const hasGroup = Boolean(accountGroupId);
+
+  if (isLoading && joinRequests.length === 0 && !groupDetails && !error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <PlanPermissionErrorCard
+        error={error}
+        errorCode={errorCode}
+        upgradePlanHintKey="dashboard.groups.upgradePlanHint"
+        upgradePlanHintFallback="Your current plan does not include Groups. Upgrade your subscription to manage groups from the dashboard."
+      />
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">

@@ -9,7 +9,20 @@ import {
   setSelectedCategory,
   setCurrentRestaurantId,
 } from "@/features/client";
-import { ArrowLeft, Loader2, AlertCircle, Plus, Clock, Flame, ChefHat, Check, Minus, Search, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  AlertCircle,
+  Plus,
+  Clock,
+  Flame,
+  ChefHat,
+  Check,
+  Minus,
+  Search,
+  X,
+  UtensilsCrossed,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
@@ -18,8 +31,14 @@ import { I18nProvider } from "@/components/client/i18n-provider";
 import { AnimatedBackground } from "@/components/client/animated-background";
 import { MenuHeader } from "@/components/menu/menu-header";
 import { MenuFooter } from "@/components/menu/menu-footer";
-import { MenuCartProvider, useMenuCart, CartItemExtra } from "@/contexts/menu-cart-context";
+import {
+  MenuCartProvider,
+  useMenuCart,
+  CartItemExtra,
+} from "@/contexts/menu-cart-context";
 import { CartDrawer } from "@/components/menu/cart-drawer";
+import { orderService } from "@/features/client/orderService";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -43,6 +62,7 @@ function PublicMenuPageContent() {
   const tableNumberParam = searchParams?.get("table");
   const categoryIdParam = searchParams?.get("category");
   const [cartOpen, setCartOpen] = useState(false);
+  const [requestingWaiter, setRequestingWaiter] = useState(false);
   const [extrasDialogOpen, setExtrasDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
   const [selectedExtras, setSelectedExtras] = useState<CartItemExtra[]>([]);
@@ -109,6 +129,35 @@ function PublicMenuPageContent() {
       )
     : items;
 
+  const handleRequestWaiter = useCallback(async () => {
+    if (!qrCode || !tableNumberParam) return;
+    const tableNum = parseInt(tableNumberParam, 10);
+    if (isNaN(tableNum)) return;
+    setRequestingWaiter(true);
+    try {
+      await orderService.requestWaiter({
+        restaurantId: qrCode,
+        tableNumber: tableNum,
+      });
+      toast.success(t("menu.waiterRequestSent") || "Waiter request sent");
+    } catch (err: any) {
+      const code = err?.response?.data?.code;
+      const msg = err?.response?.data?.message;
+      if (code === "TABLE_SESSION_NOT_OPEN") {
+        toast.error(
+          t("menu.tableSessionNotOpen") ||
+            "Table session is not open. Please ask the cashier to start a session."
+        );
+      } else {
+        toast.error(
+          msg || t("menu.waiterRequestError") || "Failed to send waiter request"
+        );
+      }
+    } finally {
+      setRequestingWaiter(false);
+    }
+  }, [qrCode, tableNumberParam, t]);
+
   const buildMenuUrl = useCallback(
     (categoryId: number | null) => {
       const base = `/menu/${qrCode}`;
@@ -144,11 +193,12 @@ function PublicMenuPageContent() {
         id: item.id,
         title: item.title,
         description: item.description,
-        price: item.discountType && item.discountValue
-          ? item.discountType === "PERCENTAGE"
-            ? item.price * (1 - item.discountValue / 100)
-            : item.price - item.discountValue
-          : item.price,
+        price:
+          item.discountType && item.discountValue
+            ? item.discountType === "PERCENTAGE"
+              ? item.price * (1 - item.discountValue / 100)
+              : item.price - item.discountValue
+            : item.price,
         image: item.image,
         baseCalories: item.calories || 0,
         selectedExtras: [],
@@ -218,13 +268,19 @@ function PublicMenuPageContent() {
           ? item.price * (1 - item.discountValue / 100)
           : item.price - item.discountValue
         : item.price;
-    const extrasPrice = extras.reduce((sum, extra) => sum + (extra.price || 0), 0);
+    const extrasPrice = extras.reduce(
+      (sum, extra) => sum + (extra.price || 0),
+      0
+    );
     return basePrice + extrasPrice;
   };
 
   const calculateTotalCalories = (item: any, extras: CartItemExtra[]) => {
     const baseCalories = item.calories || 0;
-    const extrasCalories = extras.reduce((sum, extra) => sum + (extra.calories || 0), 0);
+    const extrasCalories = extras.reduce(
+      (sum, extra) => sum + (extra.calories || 0),
+      0
+    );
     return baseCalories + extrasCalories;
   };
 
@@ -237,10 +293,21 @@ function PublicMenuPageContent() {
     return (
       <I18nProvider>
         <AnimatedBackground>
-          <div className="flex flex-col min-h-screen h-screen">
+          <div
+            className={cn(
+              "flex flex-col min-h-screen h-screen",
+              tableNumberParam && totalItems > 0 && "pb-28",
+              tableNumberParam && totalItems === 0 && "pb-14",
+              !tableNumberParam && totalItems > 0 && "pb-14"
+            )}
+          >
             <MenuHeader
               onCartClick={() => setCartOpen(true)}
               cartCount={totalItems}
+              onRequestWaiter={
+                tableNumberParam ? handleRequestWaiter : undefined
+              }
+              isRequestingWaiter={requestingWaiter}
             />
             <div className="flex-1 min-h-0 overflow-y-auto pb-20 px-4 py-5 max-w-7xl mx-auto w-full">
               {/* Header */}
@@ -272,7 +339,9 @@ function PublicMenuPageContent() {
                   />
                   <Input
                     type="text"
-                    placeholder={t("menu.searchPlaceholder") || "Search for items..."}
+                    placeholder={
+                      t("menu.searchPlaceholder") || "Search for items..."
+                    }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={cn(
@@ -282,7 +351,9 @@ function PublicMenuPageContent() {
                         : "bg-white border-gray-200 text-gray-900"
                     )}
                     style={{
-                      backgroundColor: isDark ? colors.surface : colors.surfaceSolid,
+                      backgroundColor: isDark
+                        ? colors.surface
+                        : colors.surfaceSolid,
                       borderColor: colors.border,
                       color: colors.text,
                     }}
@@ -366,8 +437,10 @@ function PublicMenuPageContent() {
                     style={{ color: colors.textSecondary }}
                   >
                     {searchQuery
-                      ? t("menu.noSearchResultsDesc") || `No items match "${searchQuery}"`
-                      : t("menu.noItemsDesc") || "No items available in this category"}
+                      ? t("menu.noSearchResultsDesc") ||
+                        `No items match "${searchQuery}"`
+                      : t("menu.noItemsDesc") ||
+                        "No items available in this category"}
                   </p>
                 </div>
               ) : (
@@ -475,18 +548,20 @@ function PublicMenuPageContent() {
                             {/* Allergies */}
                             {item.allergies && item.allergies.length > 0 && (
                               <div className="flex flex-wrap gap-1 mb-3">
-                                {item.allergies.map((allergy: string, idx: number) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-0.5 rounded-full text-xs font-medium"
-                                    style={{
-                                      backgroundColor: `${colors.error}15`,
-                                      color: colors.error,
-                                    }}
-                                  >
-                                    {allergy}
-                                  </span>
-                                ))}
+                                {item.allergies.map(
+                                  (allergy: string, idx: number) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-0.5 rounded-full text-xs font-medium"
+                                      style={{
+                                        backgroundColor: `${colors.error}15`,
+                                        color: colors.error,
+                                      }}
+                                    >
+                                      {allergy}
+                                    </span>
+                                  )
+                                )}
                               </div>
                             )}
 
@@ -502,25 +577,30 @@ function PublicMenuPageContent() {
                                     Extras:
                                   </p>
                                   <div className="flex flex-wrap gap-1">
-                                    {item.extras.map((extra: any, idx: number) => (
-                                      <span
-                                        key={idx}
-                                        className="px-2 py-0.5 rounded text-xs"
-                                        style={{
-                                          backgroundColor: `${colors.primary}10`,
-                                          color: colors.text,
-                                        }}
-                                      >
-                                        +{extra.name} (+${extra.price?.toFixed(2) || "0.00"})
-                                      </span>
-                                    ))}
+                                    {item.extras.map(
+                                      (extra: any, idx: number) => (
+                                        <span
+                                          key={idx}
+                                          className="px-2 py-0.5 rounded text-xs"
+                                          style={{
+                                            backgroundColor: `${colors.primary}10`,
+                                            color: colors.text,
+                                          }}
+                                        >
+                                          +{extra.name} (+$
+                                          {extra.price?.toFixed(2) || "0.00"})
+                                        </span>
+                                      )
+                                    )}
                                   </div>
                                 </div>
                               )}
 
                             {/* Price and Add Button */}
-                            <div className="flex items-center justify-between mt-3 pt-3 border-t"
-                              style={{ borderColor: `${colors.text}15` }}>
+                            <div
+                              className="flex items-center justify-between mt-3 pt-3 border-t"
+                              style={{ borderColor: `${colors.text}15` }}
+                            >
                               <div className="flex flex-col">
                                 {item.discountType && item.discountValue ? (
                                   <div className="flex items-center gap-2">
@@ -582,6 +662,49 @@ function PublicMenuPageContent() {
             </div>
             <MenuFooter />
           </div>
+          {tableNumberParam && (
+            <button
+              type="button"
+              onClick={handleRequestWaiter}
+              disabled={requestingWaiter}
+              className={cn(
+                "fixed left-0 right-0 z-40 w-full py-3.5 px-4 flex items-center justify-center gap-2.5 font-semibold text-base shadow-[0_-4px_12px_rgba(0,0,0,0.08)] transition-opacity active:opacity-90 border-t-2",
+                totalItems > 0 ? "bottom-14" : "bottom-0"
+              )}
+              style={{
+                backgroundColor: isDark
+                  ? "rgba(255,255,255,0.12)"
+                  : "rgba(255,255,255,0.98)",
+                color: colors.primary,
+                borderColor: colors.primary,
+                ...(totalItems === 0 && {
+                  paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+                }),
+              }}
+            >
+              {requestingWaiter ? (
+                <Loader2 className="h-5 w-5 animate-spin shrink-0" />
+              ) : (
+                <UtensilsCrossed className="h-5 w-5 shrink-0" />
+              )}
+              <span>{t("menu.requestWaiter") || "Request Waiter"}</span>
+            </button>
+          )}
+          {totalItems > 0 && (
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
+              style={{
+                backgroundColor: colors.primary,
+                color: "white",
+                paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+              }}
+            >
+              {t("menu.viewOrderItems", { count: totalItems }) ||
+                `View order items: (${totalItems})`}
+            </button>
+          )}
           <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
           {/* Extras Selection Dialog */}
@@ -759,12 +882,16 @@ function PublicMenuPageContent() {
                       className="text-sm font-medium"
                       style={{ color: colors.text }}
                     >
-                      {t("menu.notes") || "Notes"} ({t("menu.optional") || "Optional"})
+                      {t("menu.notes") || "Notes"} (
+                      {t("menu.optional") || "Optional"})
                     </label>
                     <Textarea
                       value={itemNotes}
                       onChange={(e) => setItemNotes(e.target.value)}
-                      placeholder={t("menu.notesPlaceholder") || "Add any special instructions or notes..."}
+                      placeholder={
+                        t("menu.notesPlaceholder") ||
+                        "Add any special instructions or notes..."
+                      }
                       className="min-h-[80px] resize-none"
                       style={{
                         backgroundColor: colors.surface,
@@ -795,14 +922,13 @@ function PublicMenuPageContent() {
                           style={{ color: colors.text }}
                         >
                           $
-                          {(
-                            selectedItem.discountType &&
-                            selectedItem.discountValue
-                              ? selectedItem.discountType === "PERCENTAGE"
-                                ? selectedItem.price *
-                                  (1 - selectedItem.discountValue / 100)
-                                : selectedItem.price - selectedItem.discountValue
-                              : selectedItem.price
+                          {(selectedItem.discountType &&
+                          selectedItem.discountValue
+                            ? selectedItem.discountType === "PERCENTAGE"
+                              ? selectedItem.price *
+                                (1 - selectedItem.discountValue / 100)
+                              : selectedItem.price - selectedItem.discountValue
+                            : selectedItem.price
                           ).toFixed(2)}
                         </span>
                       </div>
@@ -944,16 +1070,29 @@ function PublicMenuPageContent() {
     );
   }
 
-  // Show categories
   return (
     <I18nProvider>
       <AnimatedBackground>
-        <div className="flex flex-col min-h-screen h-screen">
+        <div
+          className={cn(
+            "flex flex-col min-h-screen h-screen",
+            tableNumberParam && totalItems > 0 && "pb-28",
+            tableNumberParam && totalItems === 0 && "pb-14",
+            !tableNumberParam && totalItems > 0 && "pb-14"
+          )}
+        >
           <MenuHeader
             onCartClick={() => setCartOpen(true)}
             cartCount={totalItems}
+            onRequestWaiter={tableNumberParam ? handleRequestWaiter : undefined}
+            isRequestingWaiter={requestingWaiter}
           />
-          <div className="flex-1 min-h-0 overflow-y-auto pb-20 px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full">
+          <div
+            className={cn(
+              "flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full",
+              totalItems > 0 ? "pb-28" : "pb-20"
+            )}
+          >
             {/* Header */}
             <div className="mb-4 sm:mb-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
@@ -970,7 +1109,10 @@ function PublicMenuPageContent() {
                   />
                   <Input
                     type="text"
-                    placeholder={t("menu.searchPlaceholder") || "Search for items or categories..."}
+                    placeholder={
+                      t("menu.searchPlaceholder") ||
+                      "Search for items or categories..."
+                    }
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className={cn(
@@ -980,7 +1122,9 @@ function PublicMenuPageContent() {
                         : "bg-white border-gray-200 text-gray-900"
                     )}
                     style={{
-                      backgroundColor: isDark ? colors.surface : colors.surfaceSolid,
+                      backgroundColor: isDark
+                        ? colors.surface
+                        : colors.surfaceSolid,
                       borderColor: colors.border,
                       color: colors.text,
                     }}
@@ -1062,7 +1206,8 @@ function PublicMenuPageContent() {
                   {t("menu.noSearchResults") || "No results found"}
                 </p>
                 <p className="text-sm" style={{ color: colors.textSecondary }}>
-                  {t("menu.noSearchResultsDesc") || `No categories or items match "${searchQuery}"`}
+                  {t("menu.noSearchResultsDesc") ||
+                    `No categories or items match "${searchQuery}"`}
                 </p>
               </div>
             ) : (
@@ -1118,7 +1263,7 @@ function PublicMenuPageContent() {
                       </h3>
                       {category.description && (
                         <p
-                          className="text-xs sm:text-sm line-clamp-2 flex-shrink-0"
+                          className="text-xs sm:text-sm line-clamp-1 flex-shrink-0 overflow-hidden text-ellipsis"
                           style={{ color: colors.textSecondary }}
                         >
                           {category.description}
@@ -1132,6 +1277,49 @@ function PublicMenuPageContent() {
           </div>
           <MenuFooter />
         </div>
+        {tableNumberParam && (
+          <button
+            type="button"
+            onClick={handleRequestWaiter}
+            disabled={requestingWaiter}
+            className={cn(
+              "fixed left-0 right-0 z-40 w-full py-3.5 px-4 flex items-center justify-center gap-2.5 font-semibold text-base shadow-[0_-4px_12px_rgba(0,0,0,0.08)] transition-opacity active:opacity-90 border-t-2",
+              totalItems > 0 ? "bottom-14" : "bottom-0"
+            )}
+            style={{
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.12)"
+                : "rgba(255,255,255,0.98)",
+              color: colors.primary,
+              borderColor: colors.primary,
+              ...(totalItems === 0 && {
+                paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+              }),
+            }}
+          >
+            {requestingWaiter ? (
+              <Loader2 className="h-5 w-5 animate-spin shrink-0" />
+            ) : (
+              <UtensilsCrossed className="h-5 w-5 shrink-0" />
+            )}
+            <span>{t("menu.requestWaiter") || "Request Waiter"}</span>
+          </button>
+        )}
+        {totalItems > 0 && (
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
+            style={{
+              backgroundColor: colors.primary,
+              color: "white",
+              paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+            }}
+          >
+            {t("menu.viewOrderItems", { count: totalItems }) ||
+              `View order items: (${totalItems})`}
+          </button>
+        )}
         <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
       </AnimatedBackground>
     </I18nProvider>

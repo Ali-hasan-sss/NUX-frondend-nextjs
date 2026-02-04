@@ -23,7 +23,12 @@ const initialState: NotificationsState = {
 export const notificationsSlice = createSlice({
   name: "notifications",
   initialState,
-  reducers: {},
+  reducers: {
+    /** Increment unread count when a real-time notification is received via socket */
+    incrementUnreadCount: (state) => {
+      state.unreadCount += 1;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchNotifications.pending, (state) => {
@@ -60,4 +65,5 @@ export const notificationsSlice = createSlice({
   },
 });
 
+export const { incrementUnreadCount } = notificationsSlice.actions;
 export default notificationsSlice.reducer;

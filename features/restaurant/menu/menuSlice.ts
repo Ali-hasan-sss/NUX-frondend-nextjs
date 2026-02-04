@@ -6,6 +6,7 @@ import {
   deleteMenuCategory,
   deleteMenuItemThunk,
   fetchItemsByCategory,
+  fetchKitchenSections,
   fetchMenuCategories,
   updateMenuCategory,
   updateMenuItemThunk,
@@ -16,6 +17,7 @@ const initialState: RestaurantMenuState = {
   itemsByCategory: {},
   isLoading: false,
   error: null,
+  errorCode: null,
 };
 
 export const menuSlice = createSlice({
@@ -28,6 +30,7 @@ export const menuSlice = createSlice({
       .addCase(fetchMenuCategories.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.errorCode = null;
       })
       .addCase(fetchMenuCategories.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -35,8 +38,14 @@ export const menuSlice = createSlice({
       })
       .addCase(fetchMenuCategories.rejected, (state, action) => {
         state.isLoading = false;
-        state.error =
-          (action.payload as string) ?? action.error.message ?? null;
+        const p = action.payload as { message?: string; code?: string } | undefined;
+        state.error = p?.message ?? action.error.message ?? null;
+        state.errorCode = p?.code ?? null;
+      })
+      .addCase(fetchKitchenSections.rejected, (state, action) => {
+        const p = action.payload as { message?: string; code?: string } | undefined;
+        state.error = p?.message ?? action.error.message ?? state.error;
+        state.errorCode = p?.code ?? state.errorCode;
       })
       .addCase(createMenuCategory.fulfilled, (state, action) => {
         state.categories.push(action.payload);
@@ -58,6 +67,7 @@ export const menuSlice = createSlice({
       .addCase(fetchItemsByCategory.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.errorCode = null;
       })
       .addCase(fetchItemsByCategory.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -66,8 +76,9 @@ export const menuSlice = createSlice({
       })
       .addCase(fetchItemsByCategory.rejected, (state, action) => {
         state.isLoading = false;
-        state.error =
-          (action.payload as string) ?? action.error.message ?? null;
+        const p = action.payload as { message?: string; code?: string } | undefined;
+        state.error = p?.message ?? action.error.message ?? null;
+        state.errorCode = p?.code ?? null;
       })
       .addCase(createMenuItemThunk.fulfilled, (state, action) => {
         const item = action.payload;

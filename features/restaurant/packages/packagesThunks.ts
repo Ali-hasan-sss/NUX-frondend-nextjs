@@ -6,15 +6,20 @@ import type {
   UpdatePackagePayload,
 } from "./packagesTypes";
 
+const rejectPayload = (e: any, fallback: string) => ({
+  message: e?.response?.data?.message ?? e?.message ?? fallback,
+  code: e?.response?.data?.code ?? undefined,
+});
+
 export const fetchPackages = createAsyncThunk<
   RestaurantPackage[],
   void,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >("restaurantPackages/fetchAll", async (_, { rejectWithValue }) => {
   try {
     return await packagesService.list();
   } catch (e: any) {
-    return rejectWithValue(e?.message ?? "Failed to load packages");
+    return rejectWithValue(rejectPayload(e, "Failed to load packages"));
   }
 });
 

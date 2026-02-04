@@ -20,8 +20,10 @@ import {
 } from "lucide-react";
 import { AppDispatch, RootState } from "@/app/store";
 import { fetchAdminOverview } from "@/features/admin/overview/adminOverviewThunks";
+import { useLanguage } from "@/hooks/use-language";
 
 export function AdminOverview() {
+  const { t } = useLanguage();
   const dispatch = useDispatch<AppDispatch>();
   const { stats, recentActivities, isLoading, error } = useSelector(
     (state: RootState) => state.adminOverview
@@ -36,14 +38,14 @@ export function AdminOverview() {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Admin Dashboard
+            {t("adminDashboard")}
           </h1>
           <p className="text-muted-foreground">
-            Overview of your restaurant subscription platform
+            {t("adminDashboardDescription")}
           </p>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p>Loading dashboard data...</p>
+          <p>{t("loadingDashboardData")}</p>
         </div>
       </div>
     );
@@ -54,14 +56,16 @@ export function AdminOverview() {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Admin Dashboard
+            {t("adminDashboard")}
           </h1>
           <p className="text-muted-foreground">
-            Overview of your restaurant subscription platform
+            {t("adminDashboardDescription")}
           </p>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p className="text-red-500">Error loading dashboard: {error}</p>
+          <p className="text-red-500">
+            {t("errorLoadingDashboard")}: {error}
+          </p>
         </div>
       </div>
     );
@@ -72,14 +76,14 @@ export function AdminOverview() {
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Admin Dashboard
+            {t("adminDashboard")}
           </h1>
           <p className="text-muted-foreground">
-            Overview of your restaurant subscription platform
+            {t("adminDashboardDescription")}
           </p>
         </div>
         <div className="flex items-center justify-center h-64">
-          <p>No data available</p>
+          <p>{t("noDataAvailable")}</p>
         </div>
       </div>
     );
@@ -88,17 +92,20 @@ export function AdminOverview() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Admin Dashboard</h1>
+        <h1 className="text-3xl font-bold text-foreground">
+          {t("adminDashboard")}
+        </h1>
         <p className="text-muted-foreground">
-          Overview of your restaurant subscription platform
+          {t("adminDashboardDescription")}
         </p>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("totalUsers")}
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -109,7 +116,7 @@ export function AdminOverview() {
               <span className="text-green-600">
                 +{stats.newSignupsThisWeek}
               </span>{" "}
-              new this week
+              {t("newThisWeek")}
             </p>
           </CardContent>
         </Card>
@@ -117,7 +124,7 @@ export function AdminOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Restaurants
+              {t("activeRestaurants")}
             </CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -129,7 +136,7 @@ export function AdminOverview() {
               <span className="text-green-600">
                 +{stats.newRestaurantsThisWeek}
               </span>{" "}
-              new this week
+              {t("newThisWeek")}
             </p>
           </CardContent>
         </Card>
@@ -137,7 +144,7 @@ export function AdminOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Active Subscriptions
+              {t("activeSubscriptions")}
             </CardTitle>
             <CreditCard className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -147,7 +154,7 @@ export function AdminOverview() {
             </div>
             <p className="text-xs text-muted-foreground">
               <span className="text-red-600">{stats.expiredSubscriptions}</span>{" "}
-              expired
+              {t("expired")}
             </p>
           </CardContent>
         </Card>
@@ -155,7 +162,7 @@ export function AdminOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Monthly Revenue
+              {t("monthlyRevenue")}
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -164,7 +171,7 @@ export function AdminOverview() {
               €{stats.totalRevenue.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Total revenue from paid invoices
+              {t("totalRevenueFromInvoices")}
             </p>
           </CardContent>
         </Card>
@@ -172,7 +179,7 @@ export function AdminOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Subscription Health
+              {t("subscriptionHealth")}
             </CardTitle>
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -181,36 +188,37 @@ export function AdminOverview() {
               {stats.subscriptionHealth}%
             </div>
             <p className="text-xs text-muted-foreground">
-              Active subscription rate
+              {t("activeSubscriptionRate")}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Alerts</CardTitle>
+            <CardTitle className="text-sm font-medium">{t("alerts")}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
               {stats.expiredSubscriptions}
             </div>
-            <p className="text-xs text-muted-foreground">Require attention</p>
+            <p className="text-xs text-muted-foreground">
+              {t("requireAttention")}
+            </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Recent Activity */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest updates from your platform</CardDescription>
+          <CardTitle>{t("recentActivity")}</CardTitle>
+          <CardDescription>{t("latestUpdatesFromPlatform")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {recentActivities.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No recent activity
+                {t("noRecentActivity")}
               </p>
             ) : (
               recentActivities.map((activity) => (

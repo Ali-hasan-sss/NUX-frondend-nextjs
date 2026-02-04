@@ -8,13 +8,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { loginUser } from "@/features/auth/authThunks";
@@ -43,13 +36,11 @@ export function LoginForm() {
       setSubmitting(true);
       const result = await dispatch(loginUser(formData));
       if (loginUser.fulfilled.match(result)) {
-        // Redirect based on user role
         if (result.payload.user.role === "ADMIN") {
           router.push("/admin");
         } else if (result.payload.user.role === "RESTAURANT_OWNER") {
           router.push("/dashboard");
         } else {
-          // Regular users go to home page
           router.push("/");
         }
       }
@@ -68,81 +59,107 @@ export function LoginForm() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("landing.auth.signInTitle")}</CardTitle>
-        <CardDescription>
-          {t("landing.auth.enterCredentials")}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {error && (
+        <Alert variant="destructive" className="rounded-xl">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">{t("landing.auth.email")}</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder={t("landing.auth.enterEmail")}
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+      <div className="space-y-2">
+        <Label htmlFor="email" className="text-sm font-medium text-foreground">
+          {t("landing.auth.email")}
+        </Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder={t("landing.auth.enterEmail")}
+          value={formData.email}
+          onChange={handleChange}
+          required
+          className="h-12 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
+        />
+      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">{t("landing.auth.password")}</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder={t("landing.auth.enterPassword")}
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-          </div>
-
-          <Button type="submit" className="w-full " disabled={submitting}>
-            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {t("landing.auth.signIn")}
+      <div className="space-y-2">
+        <Label
+          htmlFor="password"
+          className="text-sm font-medium text-foreground"
+        >
+          {t("landing.auth.password")}
+        </Label>
+        <div className="relative">
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            placeholder={t("landing.auth.enterPassword")}
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="h-12 rounded-xl border border-input bg-background pe-12 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute end-0 top-0 h-full px-3 py-2 hover:bg-transparent rounded-s-none rounded-e-xl text-muted-foreground"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
           </Button>
+        </div>
+      </div>
 
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">
-              {t("landing.auth.dontHaveAccount")}{" "}
-              <Link
-                href="/auth/register"
-                className="text-primary hover:underline"
-              >
-                {t("landing.auth.signUpLink")}
-              </Link>
-            </p>
-           
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+      <Button
+        type="submit"
+        className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-base"
+        disabled={submitting}
+      >
+        {submitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
+        {t("landing.auth.signIn")}
+      </Button>
+
+      <div className="space-y-3 pt-2">
+        {error && (error.includes("verify") || error.includes("verif")) && (
+          <p className="text-sm">
+            <Link
+              href={`/auth/verify-email?email=${encodeURIComponent(
+                formData.email
+              )}`}
+              className="text-primary font-medium hover:underline"
+            >
+              {t("landing.auth.verifyEmailLink")}
+            </Link>
+          </p>
+        )}
+        <p className="text-sm text-muted-foreground">
+          <Link
+            href={`/auth/forgot-password${
+              formData.email
+                ? `?email=${encodeURIComponent(formData.email)}`
+                : ""
+            }`}
+            className="text-primary hover:underline font-medium"
+          >
+            {t("landing.auth.forgotPassword")}
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          {t("landing.auth.dontHaveAccount")}{" "}
+          <Link
+            href="/auth/register"
+            className="text-primary font-medium hover:underline"
+          >
+            {t("landing.auth.signUpLink")}
+          </Link>
+        </p>
+      </div>
+    </form>
   );
 }

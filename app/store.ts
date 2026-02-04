@@ -6,6 +6,7 @@ import adminPlansReducer from "@/features/admin/plans/adminPlansSlice";
 import aadminSubscriptionsReducer from "@/features/admin/subscriptions/adminSubscriptionsSlice";
 import adminInvoicesReducer from "@/features/admin/invoices/adminInvoicesSlice";
 import adminOverviewReducer from "@/features/admin/overview/adminOverviewSlice";
+import adminPermissionsReducer from "@/features/admin/subadmins/adminPermissionsSlice";
 import notificationsReducer from "@/features/notifications/notificationsSlice";
 import restaurantAccountReducer from "@/features/restaurant/restaurantAccount/restaurantAccountSlice";
 import restaurantGroupsReducer from "@/features/restaurant/groups/groupsSlice";
@@ -35,6 +36,7 @@ export const store = configureStore({
     adminSubscriptions: aadminSubscriptionsReducer,
     adminInvoices: adminInvoicesReducer,
     adminOverview: adminOverviewReducer,
+    adminPermissions: adminPermissionsReducer,
     notifications: notificationsReducer,
     restaurantAccount: restaurantAccountReducer,
     restaurantGroups: restaurantGroupsReducer,

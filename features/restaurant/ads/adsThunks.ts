@@ -9,12 +9,16 @@ import type {
 export const fetchMyAds = createAsyncThunk<
   RestaurantAd[],
   void,
-  { rejectValue: string }
+  { rejectValue: { message: string; code?: string } }
 >("restaurantAds/fetchMy", async (_, { rejectWithValue }) => {
   try {
     return await adsService.listMy();
   } catch (e: any) {
-    return rejectWithValue(e?.message ?? "Failed to load ads");
+    const data = e?.response?.data;
+    return rejectWithValue({
+      message: data?.message ?? e?.message ?? "Failed to load ads",
+      code: data?.code,
+    });
   }
 });
 

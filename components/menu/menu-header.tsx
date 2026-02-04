@@ -7,13 +7,21 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UtensilsCrossed } from "lucide-react";
 
 interface MenuHeaderProps {
   onCartClick?: () => void;
   cartCount?: number;
+  onRequestWaiter?: () => void;
+  isRequestingWaiter?: boolean;
 }
 
-export function MenuHeader({ onCartClick, cartCount = 0 }: MenuHeaderProps) {
+export function MenuHeader({
+  onCartClick,
+  cartCount = 0,
+  onRequestWaiter,
+  isRequestingWaiter = false,
+}: MenuHeaderProps) {
   const { colors, isDark, mounted } = useClientTheme();
   const { tableNumber } = useMenuCart();
   const { t } = useTranslation();
@@ -57,49 +65,66 @@ export function MenuHeader({ onCartClick, cartCount = 0 }: MenuHeaderProps) {
         </div>
 
         <div className="flex items-center gap-1">
+          {tableNumber != null && onRequestWaiter && (
+            <button
+              type="button"
+              onClick={onRequestWaiter}
+              disabled={isRequestingWaiter}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-2 rounded-lg text-sm font-medium transition-colors",
+                isDark
+                  ? "bg-primary/20 text-primary hover:bg-primary/30"
+                  : "bg-primary/10 text-primary hover:bg-primary/20"
+              )}
+            >
+              <UtensilsCrossed className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {t("menu.requestWaiter") || "Request Waiter"}
+              </span>
+            </button>
+          )}
           <LanguageSwitcher />
           <ThemeToggle />
           {onCartClick && (
-          <button
-            onClick={onCartClick}
-            className={cn(
-              "relative p-2 rounded-lg transition-colors",
-              isDark
-                ? "text-white hover:bg-white/10"
-                : "text-gray-900 hover:bg-gray-100"
-            )}
-            style={{
-              color: colors.primary,
-            }}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+            <button
+              onClick={onCartClick}
+              className={cn(
+                "relative p-2 rounded-lg transition-colors",
+                isDark
+                  ? "text-white hover:bg-white/10"
+                  : "text-gray-900 hover:bg-gray-100"
+              )}
+              style={{
+                color: colors.primary,
+              }}
             >
-              <circle cx="9" cy="21" r="1"></circle>
-              <circle cx="20" cy="21" r="1"></circle>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-            </svg>
-            {cartCount > 0 && (
-              <span
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs text-white font-bold"
-                style={{ backgroundColor: colors.primary }}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {cartCount > 99 ? "99+" : cartCount}
-              </span>
-            )}
-          </button>
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs text-white font-bold"
+                  style={{ backgroundColor: colors.primary }}
+                >
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </button>
           )}
         </div>
       </div>
     </header>
   );
 }
-

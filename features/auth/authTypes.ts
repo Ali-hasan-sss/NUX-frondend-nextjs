@@ -2,7 +2,7 @@ export interface User {
   id: string;
   email: string;
   fullName: string;
-  role: "ADMIN" | "RESTAURANT_OWNER" | "USER";
+  role: "ADMIN" | "RESTAURANT_OWNER" | "USER" | "SUBADMIN";
   restaurantName?: string;
   address?: string;
   latitude?: number;

@@ -6,13 +6,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { registerRestaurant, registerUser } from "@/features/auth/authThunks";
@@ -96,7 +89,8 @@ export function MultiStepRegisterForm() {
     const errors = [];
     if (password.length < 8) errors.push(t("landing.auth.atLeast8Chars"));
     if (!/\d/.test(password)) errors.push(t("landing.auth.containsNumber"));
-    if (!/[A-Z]/.test(password)) errors.push(t("landing.auth.containsUppercase"));
+    if (!/[A-Z]/.test(password))
+      errors.push(t("landing.auth.containsUppercase"));
     return errors;
   };
 
@@ -155,7 +149,9 @@ export function MultiStepRegisterForm() {
         );
 
         if (registerUser.fulfilled.match(result)) {
-          router.push("/");
+          router.push(
+            `/auth/verify-email?email=${encodeURIComponent(userFormData.email)}`
+          );
         }
       } else {
         if (
@@ -181,7 +177,11 @@ export function MultiStepRegisterForm() {
         );
 
         if (registerRestaurant.fulfilled.match(result)) {
-          router.push("/dashboard");
+          router.push(
+            `/auth/verify-email?email=${encodeURIComponent(
+              restaurantFormData.email
+            )}`
+          );
         }
       }
     } catch (error) {
@@ -265,472 +265,473 @@ export function MultiStepRegisterForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle>Create Account</CardTitle>
-        <CardDescription>
-          {currentStep === 1
-            ? "Choose your account type to get started"
-            : `Step ${currentStep} of ${accountType === "user" ? 3 : 4}`}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {renderStepIndicator()}
+    <div className="w-full space-y-6">
+      {renderStepIndicator()}
 
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+      {error && (
+        <Alert variant="destructive" className="mb-4 rounded-xl">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-        {/* Step 1: Account Type Selection */}
-        {currentStep === 1 && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-center mb-6">
-              {t("landing.auth.whatAccountType")}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-24 flex flex-col gap-2 hover:bg-accent"
-                onClick={() => handleAccountTypeSelect("user")}
-              >
-                <User className="h-8 w-8" />
-                <span className="font-medium">{t("landing.auth.personalAccount")}</span>
-                <span className="text-xs text-muted-foreground">
-                  {t("landing.auth.forCustomers")}
-                </span>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="h-24 flex flex-col gap-2 hover:bg-accent"
-                onClick={() => handleAccountTypeSelect("restaurant")}
-              >
-                <Store className="h-8 w-8" />
-                <span className="font-medium">{t("landing.auth.restaurantAccount")}</span>
-                <span className="text-xs text-muted-foreground">
-                  {t("landing.auth.forBusinessOwners")}
-                </span>
-              </Button>
-            </div>
+      {/* Step 1: Account Type Selection */}
+      {currentStep === 1 && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-center mb-6">
+            {t("landing.auth.whatAccountType")}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-24 flex flex-col gap-2 hover:bg-accent"
+              onClick={() => handleAccountTypeSelect("user")}
+            >
+              <User className="h-8 w-8" />
+              <span className="font-medium">
+                {t("landing.auth.personalAccount")}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {t("landing.auth.forCustomers")}
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-24 flex flex-col gap-2 hover:bg-accent"
+              onClick={() => handleAccountTypeSelect("restaurant")}
+            >
+              <Store className="h-8 w-8" />
+              <span className="font-medium">
+                {t("landing.auth.restaurantAccount")}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {t("landing.auth.forBusinessOwners")}
+              </span>
+            </Button>
           </div>
-        )}
-
-        {/* User Registration Steps */}
-        {accountType === "user" && (
-          <>
-            {/* Step 2: User Basic Info */}
-            {currentStep === 2 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("landing.auth.personalInformation")}
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">{t("landing.auth.email")} *</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="your@email.com"
-                      value={userFormData.email}
-                      onChange={handleUserFormChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">{t("landing.auth.fullNameOptional")}</Label>
-                    <Input
-                      id="fullName"
-                      name="fullName"
-                      type="text"
-                      placeholder={t("landing.auth.yourFullName")}
-                      value={userFormData.fullName}
-                      onChange={handleUserFormChange}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between pt-4">
-                  <Button variant="outline" onClick={() => setCurrentStep(1)}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    {t("landing.auth.back")}
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentStep(3)}
-                    disabled={!canProceedUserStep2()}
-                  >
-                    {t("landing.auth.next")}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: User Password */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-4">Create Password</h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a strong password"
-                        value={userFormData.password}
-                        onChange={handleUserFormChange}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {userFormData.password && (
-                      <div className="text-xs space-y-1">
-                        {getPasswordErrors(userFormData.password).map(
-                          (error, index) => (
-                            <div key={index} className="text-destructive">
-                              • {error}
-                            </div>
-                          )
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">{t("landing.auth.confirmPassword")}</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder={t("landing.auth.confirmYourPassword")}
-                        value={userFormData.confirmPassword}
-                        onChange={handleUserFormChange}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {userFormData.confirmPassword &&
-                      userFormData.password !==
-                        userFormData.confirmPassword && (
-                        <div className="text-xs text-destructive">
-                          {t("landing.auth.passwordsDoNotMatch")}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="flex justify-between pt-4">
-                  <Button variant="outline" onClick={() => setCurrentStep(2)}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    {t("landing.auth.back")}
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!canSubmit() || isLoading}
-                  >
-                    {isLoading && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    {t("landing.auth.createAccount")}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* Restaurant Registration Steps */}
-        {accountType === "restaurant" && (
-          <>
-            {/* Step 2: Restaurant Basic Info */}
-            {currentStep === 2 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-4">
-                  Restaurant Information
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="restaurant@email.com"
-                      value={restaurantFormData.email}
-                      onChange={handleRestaurantFormChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Owner Full Name *</Label>
-                    <Input
-                      id="fullName"
-                      name="fullName"
-                      type="text"
-                      placeholder="Restaurant owner name"
-                      value={restaurantFormData.fullName}
-                      onChange={handleRestaurantFormChange}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="restaurantName">Restaurant Name *</Label>
-                    <Input
-                      id="restaurantName"
-                      name="restaurantName"
-                      type="text"
-                      placeholder="Your restaurant name"
-                      value={restaurantFormData.restaurantName}
-                      onChange={handleRestaurantFormChange}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-between pt-4">
-                  <Button variant="outline" onClick={() => setCurrentStep(1)}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentStep(3)}
-                    disabled={!canProceedRestaurantStep2()}
-                  >
-                    Next
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Restaurant Location */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-4">
-                  {t("landing.auth.restaurantLocation")}
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <FileUploader
-                      label={t("landing.auth.restaurantLogo")}
-                      value={restaurantFormData.logo}
-                      onChange={(url) =>
-                        setRestaurantFormData((prev) => ({
-                          ...prev,
-                          logo: url || "",
-                        }))
-                      }
-                      accept="image/*"
-                      maxSizeMb={5}
-                      meta={{
-                        folder: "restaurant-logos",
-                        entityType: "restaurant",
-                      }}
-                      rounded="md"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">{t("landing.auth.restaurantAddress")} *</Label>
-                    <div className="flex space-x-2">
-                      <Input
-                        id="address"
-                        name="address"
-                        type="text"
-                        placeholder={t("landing.auth.addressPlaceholder")}
-                        value={restaurantFormData.address}
-                        onChange={handleRestaurantFormChange}
-                        required
-                        className="flex-1"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setShowMapPicker(true)}
-                        className="bg-transparent"
-                        title="Select location on map"
-                      >
-                        <MapPin className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {restaurantFormData.latitude !== 0 &&
-                      restaurantFormData.longitude !== 0 && (
-                        <div className="text-xs text-muted-foreground bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800">
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3 text-green-600" />
-                            <span className="font-medium text-green-700 dark:text-green-400">
-                              Location selected:
-                            </span>
-                          </div>
-                          <div className="mt-1">
-                            Lat: {restaurantFormData.latitude.toFixed(6)}, Lng:{" "}
-                            {restaurantFormData.longitude.toFixed(6)}
-                          </div>
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="flex justify-between pt-4">
-                  <Button variant="outline" onClick={() => setCurrentStep(2)}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => setCurrentStep(4)}
-                    disabled={!canProceedRestaurantStep3()}
-                  >
-                    Next
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Restaurant Password */}
-            {currentStep === 4 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold mb-4">{t("landing.auth.createPassword")}</h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">{t("landing.auth.password")}</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder={t("landing.auth.createStrongPassword")}
-                        value={restaurantFormData.password}
-                        onChange={handleRestaurantFormChange}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {restaurantFormData.password && (
-                      <div className="text-xs space-y-1">
-                        {getPasswordErrors(restaurantFormData.password).map(
-                          (error, index) => (
-                            <div key={index} className="text-destructive">
-                              • {error}
-                            </div>
-                          )
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
-                        value={restaurantFormData.confirmPassword}
-                        onChange={handleRestaurantFormChange}
-                        required
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {restaurantFormData.confirmPassword &&
-                      restaurantFormData.password !==
-                        restaurantFormData.confirmPassword && (
-                        <div className="text-xs text-destructive">
-                          {t("landing.auth.passwordsDoNotMatch")}
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="flex justify-between pt-4">
-                  <Button variant="outline" onClick={() => setCurrentStep(3)}>
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    {t("landing.auth.back")}
-                  </Button>
-                  <Button
-                    onClick={handleSubmit}
-                    disabled={!canSubmit() || isLoading}
-                  >
-                    {isLoading && (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    {t("landing.auth.createRestaurantAccount")}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="text-center mt-6 pt-6 border-t">
-          <p className="text-sm text-muted-foreground">
-            {t("landing.auth.alreadyHaveAccount")}{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">
-              {t("landing.auth.signInLink")}
-            </Link>
-          </p>
         </div>
+      )}
 
-        {/* Google Map Picker Modal */}
-        <GoogleMapPicker
-          open={showMapPicker}
-          onOpenChange={setShowMapPicker}
-          initialLat={restaurantFormData.latitude}
-          initialLng={restaurantFormData.longitude}
-          onSelect={handleLocationConfirm}
-        />
-      </CardContent>
-    </Card>
+      {/* User Registration Steps */}
+      {accountType === "user" && (
+        <>
+          {/* Step 2: User Basic Info */}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-4">
+                {t("landing.auth.personalInformation")}
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t("landing.auth.email")} *</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={userFormData.email}
+                    onChange={handleUserFormChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">
+                    {t("landing.auth.fullNameOptional")}
+                  </Label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    type="text"
+                    placeholder={t("landing.auth.yourFullName")}
+                    value={userFormData.fullName}
+                    onChange={handleUserFormChange}
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("landing.auth.back")}
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(3)}
+                  disabled={!canProceedUserStep2()}
+                >
+                  {t("landing.auth.next")}
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: User Password */}
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-4">Create Password</h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Create a strong password"
+                      value={userFormData.password}
+                      onChange={handleUserFormChange}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {userFormData.password && (
+                    <div className="text-xs space-y-1">
+                      {getPasswordErrors(userFormData.password).map(
+                        (error, index) => (
+                          <div key={index} className="text-destructive">
+                            • {error}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">
+                    {t("landing.auth.confirmPassword")}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder={t("landing.auth.confirmYourPassword")}
+                      value={userFormData.confirmPassword}
+                      onChange={handleUserFormChange}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {userFormData.confirmPassword &&
+                    userFormData.password !== userFormData.confirmPassword && (
+                      <div className="text-xs text-destructive">
+                        {t("landing.auth.passwordsDoNotMatch")}
+                      </div>
+                    )}
+                </div>
+              </div>
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(2)}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("landing.auth.back")}
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canSubmit() || isLoading}
+                >
+                  {isLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {t("landing.auth.createAccount")}
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Restaurant Registration Steps */}
+      {accountType === "restaurant" && (
+        <>
+          {/* Step 2: Restaurant Basic Info */}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-4">
+                Restaurant Information
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="restaurant@email.com"
+                    value={restaurantFormData.email}
+                    onChange={handleRestaurantFormChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Owner Full Name *</Label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    type="text"
+                    placeholder="Restaurant owner name"
+                    value={restaurantFormData.fullName}
+                    onChange={handleRestaurantFormChange}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="restaurantName">Restaurant Name *</Label>
+                  <Input
+                    id="restaurantName"
+                    name="restaurantName"
+                    type="text"
+                    placeholder="Your restaurant name"
+                    value={restaurantFormData.restaurantName}
+                    onChange={handleRestaurantFormChange}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(1)}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(3)}
+                  disabled={!canProceedRestaurantStep2()}
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Restaurant Location */}
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-4">
+                {t("landing.auth.restaurantLocation")}
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <FileUploader
+                    label={t("landing.auth.restaurantLogo")}
+                    value={restaurantFormData.logo}
+                    onChange={(url) =>
+                      setRestaurantFormData((prev) => ({
+                        ...prev,
+                        logo: url || "",
+                      }))
+                    }
+                    accept="image/*"
+                    maxSizeMb={5}
+                    meta={{
+                      folder: "restaurant-logos",
+                      entityType: "restaurant",
+                    }}
+                    rounded="md"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">
+                    {t("landing.auth.restaurantAddress")} *
+                  </Label>
+                  <div className="flex space-x-2">
+                    <Input
+                      id="address"
+                      name="address"
+                      type="text"
+                      placeholder={t("landing.auth.addressPlaceholder")}
+                      value={restaurantFormData.address}
+                      onChange={handleRestaurantFormChange}
+                      required
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowMapPicker(true)}
+                      className="bg-transparent"
+                      title="Select location on map"
+                    >
+                      <MapPin className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {restaurantFormData.latitude !== 0 &&
+                    restaurantFormData.longitude !== 0 && (
+                      <div className="text-xs text-muted-foreground bg-green-50 dark:bg-green-900/20 p-2 rounded border border-green-200 dark:border-green-800">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-green-600" />
+                          <span className="font-medium text-green-700 dark:text-green-400">
+                            Location selected:
+                          </span>
+                        </div>
+                        <div className="mt-1">
+                          Lat: {restaurantFormData.latitude.toFixed(6)}, Lng:{" "}
+                          {restaurantFormData.longitude.toFixed(6)}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              </div>
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(2)}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(4)}
+                  disabled={!canProceedRestaurantStep3()}
+                >
+                  Next
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Restaurant Password */}
+          {currentStep === 4 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold mb-4">
+                {t("landing.auth.createPassword")}
+              </h3>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="password">{t("landing.auth.password")}</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t("landing.auth.createStrongPassword")}
+                      value={restaurantFormData.password}
+                      onChange={handleRestaurantFormChange}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {restaurantFormData.password && (
+                    <div className="text-xs space-y-1">
+                      {getPasswordErrors(restaurantFormData.password).map(
+                        (error, index) => (
+                          <div key={index} className="text-destructive">
+                            • {error}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      value={restaurantFormData.confirmPassword}
+                      onChange={handleRestaurantFormChange}
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  {restaurantFormData.confirmPassword &&
+                    restaurantFormData.password !==
+                      restaurantFormData.confirmPassword && (
+                      <div className="text-xs text-destructive">
+                        {t("landing.auth.passwordsDoNotMatch")}
+                      </div>
+                    )}
+                </div>
+              </div>
+              <div className="flex justify-between pt-4">
+                <Button variant="outline" onClick={() => setCurrentStep(3)}>
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  {t("landing.auth.back")}
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canSubmit() || isLoading}
+                >
+                  {isLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {t("landing.auth.createRestaurantAccount")}
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      <div className="text-center mt-6 pt-6 border-t">
+        <p className="text-sm text-muted-foreground">
+          {t("landing.auth.alreadyHaveAccount")}{" "}
+          <Link href="/auth/login" className="text-primary hover:underline">
+            {t("landing.auth.signInLink")}
+          </Link>
+        </p>
+      </div>
+
+      {/* Google Map Picker Modal */}
+      <GoogleMapPicker
+        open={showMapPicker}
+        onOpenChange={setShowMapPicker}
+        initialLat={restaurantFormData.latitude}
+        initialLng={restaurantFormData.longitude}
+        onSelect={handleLocationConfirm}
+      />
+    </div>
   );
 }

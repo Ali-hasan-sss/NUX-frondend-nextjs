@@ -12,6 +12,7 @@ const initialState: RestaurantAdsState = {
   selected: null,
   isLoading: false,
   error: null,
+  errorCode: null,
 };
 
 export const adsSlice = createSlice({
@@ -23,15 +24,24 @@ export const adsSlice = createSlice({
       .addCase(fetchMyAds.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.errorCode = null;
       })
       .addCase(fetchMyAds.fulfilled, (state, action) => {
         state.isLoading = false;
         state.items = action.payload;
+        state.error = null;
+        state.errorCode = null;
       })
       .addCase(fetchMyAds.rejected, (state, action) => {
         state.isLoading = false;
+        const payload = action.payload as { message?: string; code?: string } | string | undefined;
         state.error =
-          (action.payload as string) ?? action.error.message ?? null;
+          (typeof payload === "object" && payload?.message) ||
+          (typeof payload === "string" ? payload : null) ||
+          action.error.message ||
+          null;
+        state.errorCode =
+          typeof payload === "object" && payload?.code ? payload.code : null;
       })
 
       .addCase(createAdThunk.fulfilled, (state, action) => {

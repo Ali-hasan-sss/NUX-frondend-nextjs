@@ -55,4 +55,28 @@ export const authService = {
     });
     return response.data;
   },
+
+  async sendVerificationCode(email: string): Promise<void> {
+    await axiosInstance.post("/auth/send-verification-code", { email });
+  },
+
+  async verifyEmail(email: string, code: string): Promise<void> {
+    await axiosInstance.post("/auth/verify-email", { email, code });
+  },
+
+  async requestPasswordReset(email: string): Promise<void> {
+    await axiosInstance.post("/auth/request-password-reset", { email });
+  },
+
+  async resetPassword(
+    email: string,
+    resetCode: string,
+    newPassword: string
+  ): Promise<void> {
+    await axiosInstance.post("/auth/reset-password", {
+      email,
+      resetCode,
+      newPassword,
+    });
+  },
 };

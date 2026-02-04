@@ -57,6 +57,28 @@ import { FilterBar } from "@/components/filters/FilterBar";
 import { LabeledInput } from "@/components/filters/LabeledInput";
 import { LabeledSelect } from "@/components/filters/LabeledSelect";
 import { PageSizeSelect } from "@/components/filters/PageSizeSelect";
+import { useLanguage } from "@/hooks/use-language";
+import type { TranslationKey } from "@/lib/translations";
+
+const ADMIN_USER_ERROR_KEYS: Record<string, TranslationKey> = {
+  "You cannot modify admin users": "adminUsersErrorCannotModifyAdmin",
+  "You cannot delete admin users": "adminUsersErrorCannotDeleteAdmin",
+  "You cannot list admin users": "adminUsersErrorCannotListAdmin",
+  "You cannot access admin user details": "adminUsersErrorCannotAccessAdmin",
+  "You cannot create admin users": "adminUsersErrorCannotCreateAdmin",
+  "You cannot assign the admin role": "adminUsersErrorCannotAssignAdminRole",
+  "You cannot delete the admin who added you":
+    "adminUsersErrorCannotDeleteAdminWhoAddedYou",
+};
+
+function getTranslatedAdminUserError(
+  message: string,
+  t: (key: TranslationKey) => string
+): string {
+  return ADMIN_USER_ERROR_KEYS[message]
+    ? t(ADMIN_USER_ERROR_KEYS[message])
+    : message;
+}
 
 interface inetialData {
   id: string;
@@ -82,6 +104,7 @@ export function UserManagement() {
   const [pageSize, setPageSize] = useState<number>(10);
 
   const dispatch = useAppDispatch();
+  const { t } = useLanguage();
   const { items, pagination, isLoading, error } = useAppSelector(
     (state) => state.adminUsers
   );
@@ -157,29 +180,28 @@ export function UserManagement() {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">User Management</h1>
-        <p className="text-muted-foreground">
-          Manage restaurant owners, admins, and system users
-        </p>
+        <h1 className="text-3xl font-bold text-foreground">
+          {t("userManagement")}
+        </h1>
+        <p className="text-muted-foreground">{t("manageUsersDescription")}</p>
       </div>
 
-      {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle>Filters</CardTitle>
-          <CardDescription>Search and filter users</CardDescription>
+          <CardTitle>{t("filters")}</CardTitle>
+          <CardDescription>{t("searchAndFilterUsers")}</CardDescription>
         </CardHeader>
         <CardContent>
           <FilterBar>
             <LabeledInput
-              label="search by email"
+              label={t("searchByEmail")}
               value={searchTerm}
               onChange={setSearchTerm}
-              placeholder="Search by name, email, or restaurant..."
+              placeholder={t("searchByNameEmailRestaurant")}
             />
             <div className="flex  items-center gap-2">
               <LabeledSelect
-                label="Role"
+                label={t("role")}
                 value={roleFilter}
                 onChange={(v) =>
                   setRoleFilter(
@@ -187,20 +209,20 @@ export function UserManagement() {
                   )
                 }
                 options={[
-                  { label: "All Roles", value: "all" },
-                  { label: "Restaurant Owner", value: "RESTAURANT_OWNER" },
-                  { label: "Admins", value: "ADMIN" },
-                  { label: "Users", value: "USER" },
+                  { label: t("allRoles"), value: "all" },
+                  { label: t("restaurantOwner"), value: "RESTAURANT_OWNER" },
+                  { label: t("admins"), value: "ADMIN" },
+                  { label: t("user"), value: "USER" },
                 ]}
               />
               <LabeledSelect
-                label="Status"
+                label={t("status")}
                 value={statusFilter}
                 onChange={setStatusFilter}
                 options={[
-                  { label: "All Status", value: "all" },
-                  { label: "Active", value: "active" },
-                  { label: "Inactive", value: "inactive" },
+                  { label: t("allStatus"), value: "all" },
+                  { label: t("active"), value: "active" },
+                  { label: t("inactive"), value: "inactive" },
                 ]}
               />
               <PageSizeSelect value={pageSize} onChange={setPageSize} />
@@ -209,15 +231,14 @@ export function UserManagement() {
         </CardContent>
       </Card>
 
-      {/* Users Table */}
       <Card>
         <CardHeader>
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between ">
             <div className="flex flex-col gap-1">
-              <CardTitle>Users ({pagination.totalItems})</CardTitle>
-              <CardDescription>
-                All registered users in the system
-              </CardDescription>
+              <CardTitle>
+                {t("usersCount")} ({pagination.totalItems})
+              </CardTitle>
+              <CardDescription>{t("allRegisteredUsers")}</CardDescription>
             </div>
             <Button
               className="flex items-center gap-2"
@@ -227,23 +248,25 @@ export function UserManagement() {
               }}
             >
               <PlusCircle />
-              <span>add new user</span>
+              <span>{t("addNewUser")}</span>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
           {error && (
-            <div className="text-sm text-destructive mb-3">{error}</div>
+            <div className="text-sm text-destructive mb-3">
+              {getTranslatedAdminUserError(error, t)}
+            </div>
           )}
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>User</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Join Date</TableHead>
-                  <TableHead className="w-12">Actions</TableHead>
+                  <TableHead>{t("user")}</TableHead>
+                  <TableHead>{t("role")}</TableHead>
+                  <TableHead>{t("status")}</TableHead>
+                  <TableHead>{t("joinDate")}</TableHead>
+                  <TableHead className="w-12">{t("actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -251,7 +274,7 @@ export function UserManagement() {
                   <TableRow>
                     <TableCell colSpan={7}>
                       <div className="py-6 text-center text-muted-foreground">
-                        Loading users…
+                        {t("loadingUsers")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -259,7 +282,7 @@ export function UserManagement() {
                   <TableRow>
                     <TableCell colSpan={7}>
                       <div className="py-6 text-center text-muted-foreground">
-                        No users found
+                        {t("noUsersFound")}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -321,7 +344,7 @@ export function UserManagement() {
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
-                              Edit User
+                              {t("editUser")}
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-destructive"
@@ -331,7 +354,7 @@ export function UserManagement() {
                               }}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
-                              Delete User
+                              {t("deleteUser")}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -397,14 +420,14 @@ export function UserManagement() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingUser ? "Edit User" : "Add New User"}
+              {editingUser ? t("editUserTitle") : t("addNewUserTitle")}
             </DialogTitle>
           </DialogHeader>
           <UserForm
             initialData={editingUser || undefined}
             onSubmit={handleSubmit}
             onClose={() => setModalOpen(false)}
-            submitLabel={editingUser ? "Save" : "Create"}
+            submitLabel={editingUser ? t("save") : t("create")}
           />
         </DialogContent>
       </Dialog>
@@ -412,8 +435,8 @@ export function UserManagement() {
         onConfirm={handleDelete}
         open={openDeleteMessage}
         setOpen={() => setOpenDeleteMessage(false)}
-        message="are you sure for delete this user"
-        confirmText="Delete"
+        message={t("areYouSureDeleteUser")}
+        confirmText={t("delete")}
       />
     </div>
   );

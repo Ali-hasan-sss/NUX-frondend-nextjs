@@ -29,4 +29,5 @@ export interface RestaurantAdsState {
   selected: RestaurantAd | null;
   isLoading: boolean;
   error: string | null;
+  errorCode: string | null;
 }

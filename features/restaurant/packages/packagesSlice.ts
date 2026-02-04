@@ -16,6 +16,7 @@ const initialState: RestaurantPackagesState = {
   selected: null,
   isLoading: false,
   error: null,
+  errorCode: null,
 };
 
 export const packagesSlice = createSlice({
@@ -27,6 +28,7 @@ export const packagesSlice = createSlice({
       .addCase(fetchPackages.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.errorCode = null;
       })
       .addCase(fetchPackages.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -34,8 +36,9 @@ export const packagesSlice = createSlice({
       })
       .addCase(fetchPackages.rejected, (state, action) => {
         state.isLoading = false;
-        state.error =
-          (action.payload as string) ?? action.error.message ?? null;
+        const p = action.payload as { message?: string; code?: string } | undefined;
+        state.error = p?.message ?? action.error.message ?? null;
+        state.errorCode = p?.code ?? null;
       })
 
       .addCase(fetchPackageById.fulfilled, (state, action) => {

@@ -40,6 +40,17 @@ export interface CreateAdminRestaurantRequest {
   subscriptionActive: boolean;
 }
 
+export interface CreateRestaurantWithOwnerRequest {
+  email: string;
+  password: string;
+  fullName?: string;
+  name: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  planId?: number;
+}
+
 export interface UpdateAdminRestaurantRequest {
   name?: string;
   address?: string;

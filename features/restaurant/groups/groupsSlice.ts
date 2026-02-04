@@ -18,6 +18,7 @@ const initialState: RestaurantGroupsState = {
   joinRequests: [],
   isLoading: false,
   error: null,
+  errorCode: null,
 };
 
 export const groupsSlice = createSlice({
@@ -30,6 +31,7 @@ export const groupsSlice = createSlice({
       .addCase(fetchMyJoinRequests.pending, (state) => {
         state.isLoading = true;
         state.error = null;
+        state.errorCode = null;
       })
       .addCase(fetchMyJoinRequests.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -37,8 +39,9 @@ export const groupsSlice = createSlice({
       })
       .addCase(fetchMyJoinRequests.rejected, (state, action) => {
         state.isLoading = false;
-        state.error =
-          (action.payload as string) ?? action.error.message ?? null;
+        const p = action.payload as { message?: string; code?: string } | undefined;
+        state.error = p?.message ?? action.error.message ?? null;
+        state.errorCode = p?.code ?? null;
       })
 
       // Create group
@@ -92,8 +95,9 @@ export const groupsSlice = createSlice({
       })
       .addCase(fetchGroupDetails.rejected, (state, action) => {
         state.isLoading = false;
-        state.error =
-          (action.payload as string) ?? action.error.message ?? null;
+        const p = action.payload as { message?: string; code?: string } | undefined;
+        state.error = p?.message ?? action.error.message ?? null;
+        state.errorCode = p?.code ?? state.errorCode;
       })
 
       // Members
