@@ -37,6 +37,24 @@ import ConfirmDialog from "@/components/confirmMessage";
 import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
 import { toast } from "sonner";
 
+/** Print-only CSS for label printer: 5cm x 5cm QR + subtitle below. One label per logical "page". */
+const LABEL_PRINT_STYLES = `
+@media print {
+  @page { size: 5cm 6cm; margin: 2mm; }
+  body { margin: 0; padding: 0; background: #fff; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .label-sticker {
+    width: 5cm; height: 6cm; box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 2mm; border: none; border-radius: 0;
+    page-break-after: always; break-after: page;
+  }
+  .label-sticker:last-child { page-break-after: auto; }
+  .label-sticker .label-qr-box { width: 5cm; height: 5cm; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .label-sticker .label-qr-box img { width: 100%; height: 100%; object-fit: contain; }
+  .label-sticker .label-caption { font-size: 8pt; text-align: center; margin-top: 1mm; line-height: 1.2; font-weight: bold; }
+}
+`;
+
 function PrintableFrame({
   title,
   subtitle,
@@ -47,14 +65,16 @@ function PrintableFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border rounded-lg p-4 w-[320px] bg-white text-black">
-      <div className="text-center space-y-1 mb-3">
+    <div className="label-sticker border rounded-lg p-4 w-[320px] bg-white text-black">
+      <div className="label-qr-box flex justify-center items-center min-h-[200px]">
+        {children}
+      </div>
+      <div className="label-caption text-center space-y-0.5 mt-2">
         <div className="text-lg font-bold">{title}</div>
         {subtitle ? (
           <div className="text-xs text-muted-foreground">{subtitle}</div>
         ) : null}
       </div>
-      <div className="flex justify-center items-center">{children}</div>
     </div>
   );
 }
@@ -69,10 +89,19 @@ export function QRCodeManagement() {
   const menuRef = useRef<HTMLDivElement>(null);
   const autoRefreshRef = useRef<NodeJS.Timeout | null>(null);
   const autoRefreshEnabledRef = useRef<boolean>(false);
+  const [drinkImgLoaded, setDrinkImgLoaded] = useState(false);
+  const [mealImgLoaded, setMealImgLoaded] = useState(false);
+  const [menuImgLoaded, setMenuImgLoaded] = useState(false);
 
   useEffect(() => {
     dispatch(fetchRestaurantAccount());
   }, [dispatch]);
+
+  useEffect(() => {
+    setDrinkImgLoaded(false);
+    setMealImgLoaded(false);
+    setMenuImgLoaded(false);
+  }, [data?.qrCode_drink, data?.qrCode_meal, data?.id]);
 
   const appBaseUrl =
     process.env.NEXT_PUBLIC_APP_BASE_URL ||
@@ -87,11 +116,23 @@ export function QRCodeManagement() {
     if (!printRef.current) return;
     const printContents = printRef.current.innerHTML;
     const originalContents = document.body.innerHTML;
+    const style = document.createElement("style");
+    style.textContent = LABEL_PRINT_STYLES;
     document.body.innerHTML = printContents;
+    document.head.appendChild(style);
     window.print();
+    document.head.removeChild(style);
     document.body.innerHTML = originalContents;
     window.location.reload();
   };
+
+  const needDrink = !!data?.qrCode_drink;
+  const needMeal = !!data?.qrCode_meal;
+  const needMenu = !!menuUrl;
+  const mainPrintReady =
+    (!needDrink || drinkImgLoaded) &&
+    (!needMeal || mealImgLoaded) &&
+    (!needMenu || menuImgLoaded);
 
   const handleRegenerate = async () => {
     await dispatch(regenerateRestaurantQr());
@@ -101,9 +142,7 @@ export function QRCodeManagement() {
     const win = window.open("", "_blank", "width=800,height=600");
     if (!win) return;
     win.document.write("<html><head><title>Print QR</title>");
-    win.document.write(
-      "<style>html,body{height:100%;} body{margin:0;padding:0;background:#fff;color:#000;display:flex;justify-content:center;align-items:center;} .frame{display:flex;justify-content:center;align-items:center;}</style>"
-    );
+    win.document.write("<style>" + LABEL_PRINT_STYLES.replace(/<\/style>/gi, "") + "</style>");
     win.document.write("</head><body>");
     win.document.write(el.outerHTML);
     win.document.write("</body></html>");
@@ -171,7 +210,12 @@ export function QRCodeManagement() {
             >
               {t("dashboard.qrCodes.regenerateDrinkMeal")}
             </Button>
-            <Button onClick={handlePrint} className="h-9 px-3 sm:h-10 sm:px-4">
+            <Button
+              onClick={handlePrint}
+              className="h-9 px-3 sm:h-10 sm:px-4"
+              disabled={!mainPrintReady}
+              title={!mainPrintReady ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR images to load" : undefined}
+            >
               {t("dashboard.qrCodes.printAll")}
             </Button>
           </div>
@@ -200,6 +244,7 @@ export function QRCodeManagement() {
                           width={240}
                           height={240}
                           alt={t("dashboard.qrCodes.drinkQR")}
+                          onLoad={() => setDrinkImgLoaded(true)}
                         />
                       ) : (
                         <div className="text-sm text-muted-foreground">
@@ -215,6 +260,8 @@ export function QRCodeManagement() {
                     onClick={() =>
                       drinkRef.current && printElement(drinkRef.current)
                     }
+                    disabled={!drinkImgLoaded}
+                    title={!drinkImgLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
                   >
                     {t("dashboard.qrCodes.print")}
                   </Button>
@@ -269,6 +316,7 @@ export function QRCodeManagement() {
                           width={240}
                           height={240}
                           alt={t("dashboard.qrCodes.mealQR")}
+                          onLoad={() => setMealImgLoaded(true)}
                         />
                       ) : (
                         <div className="text-sm text-muted-foreground">
@@ -284,6 +332,8 @@ export function QRCodeManagement() {
                     onClick={() =>
                       mealRef.current && printElement(mealRef.current)
                     }
+                    disabled={!mealImgLoaded}
+                    title={!mealImgLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
                   >
                     {t("dashboard.qrCodes.print")}
                   </Button>
@@ -337,6 +387,7 @@ export function QRCodeManagement() {
                           width={240}
                           height={240}
                           alt={t("dashboard.qrCodes.menuQR")}
+                          onLoad={() => setMenuImgLoaded(true)}
                         />
                       ) : (
                         <div className="text-sm text-muted-foreground">
@@ -355,6 +406,8 @@ export function QRCodeManagement() {
                     onClick={() =>
                       menuRef.current && printElement(menuRef.current)
                     }
+                    disabled={!menuImgLoaded}
+                    title={!menuImgLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
                   >
                     {t("dashboard.qrCodes.print")}
                   </Button>
@@ -427,6 +480,8 @@ function TableCard({
   t: any;
 }) {
   const tableRef = useRef<HTMLDivElement>(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
+  useEffect(() => setImageLoaded(false), [table.id]);
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -490,6 +545,7 @@ function TableCard({
                 width={200}
                 height={200}
                 alt={table.name}
+                onLoad={() => setImageLoaded(true)}
               />
             </PrintableFrame>
           </div>
@@ -502,6 +558,8 @@ function TableCard({
             variant="outline"
             size="sm"
             onClick={() => tableRef.current && printElement(tableRef.current)}
+            disabled={!imageLoaded}
+            title={!imageLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
           >
             {t("dashboard.qrCodes.print") || "Print"}
           </Button>
@@ -544,6 +602,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
   const tablesPrintRef = useRef<HTMLDivElement>(null);
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tablesPrintLoadedIds, setTablesPrintLoadedIds] = useState<Set<string>>(new Set());
   const [tablesError, setTablesError] = useState<string | null>(null);
   const [tablesErrorCode, setTablesErrorCode] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -561,6 +620,10 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
       loadTables();
     }
   }, [restaurantId]);
+
+  useEffect(() => {
+    setTablesPrintLoadedIds(new Set());
+  }, [tables.length]);
 
   const loadTables = async () => {
     setLoading(true);
@@ -715,9 +778,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
     const win = window.open("", "_blank", "width=800,height=600");
     if (!win) return;
     win.document.write("<html><head><title>Print QR</title>");
-    win.document.write(
-      "<style>html,body{height:100%;} body{margin:0;padding:0;background:#fff;color:#000;display:flex;justify-content:center;align-items:center;} .frame{display:flex;justify-content:center;align-items:center;}</style>"
-    );
+    win.document.write("<style>" + LABEL_PRINT_STYLES.replace(/<\/style>/gi, "") + "</style>");
     win.document.write("</head><body>");
     win.document.write(el.outerHTML);
     win.document.write("</body></html>");
@@ -727,12 +788,19 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
     win.close();
   };
 
+  const allTablesPrintLoaded =
+    tables.length > 0 && tablesPrintLoadedIds.size === tables.length;
+
   const handlePrintAllTables = () => {
     if (!tablesPrintRef.current || tables.length === 0) return;
     const printContents = tablesPrintRef.current.innerHTML;
     const originalContents = document.body.innerHTML;
+    const style = document.createElement("style");
+    style.textContent = LABEL_PRINT_STYLES;
     document.body.innerHTML = printContents;
+    document.head.appendChild(style);
     window.print();
+    document.head.removeChild(style);
     document.body.innerHTML = originalContents;
     window.location.reload();
   };
@@ -783,6 +851,11 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
                   width={200}
                   height={200}
                   alt={table.name}
+                  onLoad={() =>
+                    setTablesPrintLoadedIds((prev) =>
+                      new Set(prev).add(String(table.id))
+                    )
+                  }
                 />
               </PrintableFrame>
             ))}
@@ -802,7 +875,16 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
         </div>
         <div className="flex gap-2">
           {tables.length > 0 && (
-            <Button variant="outline" onClick={handlePrintAllTables}>
+            <Button
+              variant="outline"
+              onClick={handlePrintAllTables}
+              disabled={!allTablesPrintLoaded}
+              title={
+                !allTablesPrintLoaded
+                  ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR images to load"
+                  : undefined
+              }
+            >
               <Printer className="h-4 w-4 mr-2" />
               {t("dashboard.tables.printAll")}
             </Button>

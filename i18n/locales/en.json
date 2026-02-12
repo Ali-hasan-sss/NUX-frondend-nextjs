@@ -659,6 +659,7 @@
       "scanToCollectMeal": "Scan to collect meal stars at",
       "scanToViewMenu": "Scan to view menu for",
       "print": "Print",
+      "waitForQrLoad": "Waiting for QR images to load",
       "fullscreen": "Fullscreen",
       "noDrinkQRAvailable": "No drink QR available",
       "noMealQRAvailable": "No meal QR available",

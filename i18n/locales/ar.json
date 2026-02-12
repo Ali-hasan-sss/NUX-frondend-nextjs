@@ -659,6 +659,7 @@
       "scanToCollectMeal": "امسح لتحصيل نقاط الوجبات في",
       "scanToViewMenu": "امسح لعرض قائمة",
       "print": "طباعة",
+      "waitForQrLoad": "انتظار تحميل صور الأكواد",
       "fullscreen": "ملء الشاشة",
       "noDrinkQRAvailable": "لا يوجد رمز QR للمشروبات متاح",
       "noMealQRAvailable": "لا يوجد رمز QR للوجبات متاح",
