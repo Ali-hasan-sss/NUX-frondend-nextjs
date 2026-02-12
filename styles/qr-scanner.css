@@ -1,11 +1,15 @@
-/* QR Scanner Styles */
+/* QR Scanner Styles - responsive container, GPU-friendly for smooth video */
 #qr-scanner-element {
   width: 100% !important;
-  height: 300px !important;
+  height: 100% !important;
+  min-height: 240px !important;
   position: relative !important;
   overflow: hidden !important;
   border-radius: 12px !important;
   background: #000 !important;
+  contain: strict !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
 }
 
 #qr-scanner-element video {
@@ -17,9 +21,11 @@
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
-  /* Fix video orientation for mobile */
-  -webkit-transform: none !important;
-  transform: none !important;
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 #qr-scanner-element canvas {
@@ -31,6 +37,8 @@
   position: absolute !important;
   top: 0 !important;
   left: 0 !important;
+  transform: translateZ(0) !important;
+  pointer-events: none !important;
 }
 
 #qr-scanner-element__dashboard {

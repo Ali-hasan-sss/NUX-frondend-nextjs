@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { scanQrCode } from "@/features/client";
+import { scanQrCode, clearQrScanError } from "@/features/client";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +17,15 @@ import { Camera, X, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import "@/styles/qr-scanner.css";
 
+/** Map API error message to translated string (avoids client-side exception from raw messages) */
+function getScanErrorMessage(apiMessage: string | null | undefined, t: (key: string) => string): string {
+  if (apiMessage == null || typeof apiMessage !== "string") return t("scan.errorGeneric");
+  const msg = apiMessage.trim().toLowerCase();
+  if (msg.includes("invalid") && msg.includes("qr")) return t("scan.errorInvalidQrCode");
+  if (msg.includes("restaurant location") || msg.includes("must be at")) return t("scan.errorMustBeAtRestaurant");
+  return t("scan.errorGeneric");
+}
+
 interface QRScannerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -27,8 +37,13 @@ export function QRScanner({
   onOpenChange,
   onScanSuccess,
 }: QRScannerProps) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.clientBalances);
+  const displayError = useMemo(
+    () => (error.qrScan ? getScanErrorMessage(error.qrScan, t) : null),
+    [error.qrScan, t]
+  );
   const [scanner, setScanner] = useState<Html5Qrcode | null>(null);
   const [scanResult, setScanResult] = useState<any>(null);
   const [hasScanned, setHasScanned] = useState(false);
@@ -42,6 +57,8 @@ export function QRScanner({
     source: string;
   } | null>(null);
   const scannerRef = useRef<HTMLDivElement>(null);
+  /** Guard: only one scan request per modal open (library may fire callback multiple times) */
+  const requestSentRef = useRef(false);
 
   const getLocationFromIP = async () => {
     try {
@@ -109,11 +126,13 @@ export function QRScanner({
   };
 
   const handleScanSuccess = async (qrCodeMessage: string) => {
-    if (hasScanned) return;
+    if (requestSentRef.current || hasScanned) return;
+    requestSentRef.current = true;
     setHasScanned(true);
 
-    // Stop scanner
+    // Stop scanner immediately so callback cannot fire again (one request per modal open)
     if (scanner) {
+      scanner.stop().catch(console.error);
       scanner.clear().catch(console.error);
     }
 
@@ -185,6 +204,7 @@ export function QRScanner({
           );
 
           if (scanQrCode.fulfilled.match(result)) {
+            onOpenChange(false);
             setScanResult(result.payload);
             onScanSuccess?.(result.payload);
           }
@@ -213,6 +233,7 @@ export function QRScanner({
         );
 
         if (scanQrCode.fulfilled.match(result)) {
+          onOpenChange(false);
           setScanResult(result.payload);
           onScanSuccess?.(result.payload);
         }
@@ -230,12 +251,14 @@ export function QRScanner({
       );
 
       if (scanQrCode.fulfilled.match(result)) {
+        onOpenChange(false);
         setScanResult(result.payload);
         onScanSuccess?.(result.payload);
       }
     } catch (error) {
       console.error("Scan failed:", error);
       setHasScanned(false);
+      requestSentRef.current = false;
     }
   };
 
@@ -249,15 +272,24 @@ export function QRScanner({
       const scannerId = "qr-scanner-element";
       const newScanner = new Html5Qrcode(scannerId);
 
-      // Start camera directly
+      // Start camera with low resolution & low FPS for smooth video (less CPU = less choppy)
       console.log("Starting camera...");
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const scanFps = isMobile ? 5 : 8;
       await newScanner.start(
-        { facingMode: "environment" }, // Use back camera
+        { facingMode: "environment" },
         {
-          fps: 10,
-          qrbox: { width: 200, height: 200 },
+          fps: scanFps,
+          qrbox: { width: isMobile ? 150 : 200, height: isMobile ? 150 : 200 },
           aspectRatio: 1.0,
-          disableFlip: true, // Disable flipping to prevent mirroring
+          disableFlip: true,
+          ...({
+            videoConstraints: {
+              width: { ideal: isMobile ? 480 : 640, max: 640 },
+              height: { ideal: isMobile ? 360 : 480, max: 480 },
+              frameRate: { ideal: scanFps + 2, max: 12 },
+            },
+          } as { videoConstraints?: MediaTrackConstraints }),
         },
         handleScanSuccess,
         (errorMessage: string) => {
@@ -309,17 +341,15 @@ export function QRScanner({
   useEffect(() => {
     if (open) {
       console.log("QR Scanner modal opened");
-      // Reset state
+      requestSentRef.current = false;
+      dispatch(clearQrScanError());
       setHasScanned(false);
       setScanResult(null);
       setLocationAccuracy(null);
       setLocationWarning("");
       setIpLocation(null);
 
-      // Get IP location as backup
       getLocationFromIP();
-
-      // Show scanner container first
       setShowScanner(true);
     } else {
       console.log("QR Scanner modal closed");
@@ -337,12 +367,20 @@ export function QRScanner({
     };
   }, [open, scanner]);
 
-  // Separate effect for starting scanner when container is shown
+  // Start scanner after modal layout is fully settled (reduces choppy video from layout thrashing)
   useEffect(() => {
-    if (showScanner && open && !scanner && !isInitializing) {
-      console.log("Scanner container ready, starting scanner...");
-      setTimeout(startScanner, 1000);
-    }
+    if (!showScanner || !open || scanner || isInitializing) return;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const delay = isMobile ? 600 : 400;
+    const t = setTimeout(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          console.log("Scanner container ready, starting scanner...");
+          startScanner();
+        });
+      });
+    }, delay);
+    return () => clearTimeout(t);
   }, [showScanner, open, scanner, isInitializing]);
 
   const handleClose = () => {
@@ -356,6 +394,7 @@ export function QRScanner({
   };
 
   const handleTryAgain = () => {
+    dispatch(clearQrScanError());
     stopScanner();
     setTimeout(() => {
       setHasScanned(false);
@@ -366,28 +405,31 @@ export function QRScanner({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-sm w-full mx-4">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Camera className="h-5 w-5" />
-              Scan QR Code
+      <DialogContent
+        className="w-[calc(100vw-2rem)] max-w-sm !max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden"
+      >
+        <DialogHeader className="flex-shrink-0">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <DialogTitle className="flex items-center gap-2 min-w-0 truncate text-base sm:text-lg">
+              <Camera className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate">{t("scan.title")}</span>
             </DialogTitle>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleClose}
-              className="h-6 w-6"
+              className="h-8 w-8 flex-shrink-0 touch-manipulation"
+              type="button"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <DialogDescription>
-            Point your camera at the restaurant's QR code to earn loyalty points
+          <DialogDescription className="text-left text-sm">
+            {t("scan.description")}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
           {locationWarning && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -395,10 +437,10 @@ export function QRScanner({
             </Alert>
           )}
 
-          {error.qrScan && (
+          {displayError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error.qrScan}</AlertDescription>
+              <AlertDescription>{displayError}</AlertDescription>
             </Alert>
           )}
 
@@ -407,8 +449,8 @@ export function QRScanner({
               <CheckCircle className="h-4 w-4" />
               <AlertDescription>
                 <div className="space-y-1">
-                  <p className="font-medium">Scan successful!</p>
-                  <p className="text-sm">You've earned loyalty points.</p>
+                  <p className="font-medium">{t("scan.successTitle")}</p>
+                  <p className="text-sm">{t("scan.successMessage")}</p>
                 </div>
               </AlertDescription>
             </Alert>
@@ -417,23 +459,23 @@ export function QRScanner({
           {loading.qrScan && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              <span>Processing scan...</span>
+              <span>{t("scan.processing")}</span>
             </div>
           )}
 
           {isInitializing && (
             <div className="flex items-center justify-center p-8">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
-              <span>Starting camera...</span>
+              <span>{t("scan.startingCamera")}</span>
             </div>
           )}
 
-          {showScanner && !scanResult && !loading.qrScan && (
-            <div className="space-y-4">
-              <div className="relative w-full max-w-sm mx-auto">
+          {showScanner && !scanResult && !loading.qrScan && !displayError && (
+            <div className="space-y-4 min-w-0">
+              <div className="relative w-full mx-auto h-[240px] sm:h-[300px] bg-black rounded-xl overflow-hidden border-2 border-gray-200">
                 <div
                   id="qr-scanner-element"
-                  className="w-full h-[300px] bg-black rounded-xl overflow-hidden border-2 border-gray-200"
+                  className="w-full h-full bg-black rounded-xl overflow-hidden"
                 />
                 {/* QR Frame Overlay */}
                 <div className="absolute inset-0 pointer-events-none">
@@ -446,10 +488,10 @@ export function QRScanner({
               </div>
               <div className="text-center space-y-2">
                 <p className="text-sm text-muted-foreground">
-                  Position the QR code within the frame
+                  {t("scan.positionFrame")}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Make sure you're at the restaurant location
+                  {t("scan.atRestaurant")}
                 </p>
                 {locationAccuracy && (
                   <p className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
@@ -460,28 +502,49 @@ export function QRScanner({
             </div>
           )}
 
-          <div className="flex gap-2 pt-4">
+          <div className="flex gap-2 pt-4 flex-shrink-0">
             {scanResult ? (
               <>
                 <Button
                   variant="outline"
                   onClick={handleTryAgain}
-                  className="flex-1"
+                  className="flex-1 min-h-[44px] touch-manipulation"
+                  type="button"
                 >
-                  Scan Another
+                  {t("scan.scanAnother")}
                 </Button>
-                <Button onClick={handleClose} className="flex-1">
-                  Done
+                <Button onClick={handleClose} className="flex-1 min-h-[44px] touch-manipulation" type="button">
+                  {t("scan.done")}
+                </Button>
+              </>
+            ) : displayError ? (
+              <>
+                <Button
+                  variant="default"
+                  onClick={handleTryAgain}
+                  className="flex-1 min-h-[44px] touch-manipulation"
+                  type="button"
+                >
+                  {t("scan.scanAnother")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  className="flex-1 min-h-[44px] touch-manipulation"
+                  type="button"
+                >
+                  {t("scan.cancel")}
                 </Button>
               </>
             ) : (
               <Button
                 variant="outline"
                 onClick={handleClose}
-                className="w-full"
+                className="w-full min-h-[44px] touch-manipulation"
+                type="button"
               >
                 <X className="h-4 w-4 mr-2" />
-                Cancel
+                {t("scan.cancel")}
               </Button>
             )}
           </div>

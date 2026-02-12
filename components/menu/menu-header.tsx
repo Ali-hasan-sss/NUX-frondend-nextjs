@@ -14,6 +14,9 @@ interface MenuHeaderProps {
   cartCount?: number;
   onRequestWaiter?: () => void;
   isRequestingWaiter?: boolean;
+  /** Restaurant logo URL; when set, shown instead of app logo */
+  restaurantLogo?: string | null;
+  restaurantName?: string | null;
 }
 
 export function MenuHeader({
@@ -21,6 +24,8 @@ export function MenuHeader({
   cartCount = 0,
   onRequestWaiter,
   isRequestingWaiter = false,
+  restaurantLogo,
+  restaurantName,
 }: MenuHeaderProps) {
   const { colors, isDark, mounted } = useClientTheme();
   const { tableNumber } = useMenuCart();
@@ -29,6 +34,9 @@ export function MenuHeader({
   if (!mounted) {
     return null;
   }
+
+  const showLogo = !!restaurantLogo;
+  const showName = !showLogo && !!restaurantName;
 
   return (
     <header
@@ -41,15 +49,32 @@ export function MenuHeader({
       }}
     >
       <div className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto">
-        <div className="flex items-center gap-3">
-          <Image
-            src="/images/logo.png"
-            alt="Logo"
-            width={72}
-            height={28}
-            className="object-contain"
-            priority
-          />
+        <div className="flex items-center gap-3 min-w-0">
+          {showLogo ? (
+            <Image
+              src={restaurantLogo}
+              alt={restaurantName || "Restaurant"}
+              width={72}
+              height={28}
+              className="object-contain shrink-0"
+              priority
+              unoptimized
+            />
+          ) : showName ? (
+            <span
+              className="font-semibold text-base truncate"
+              style={{ color: colors.text }}
+            >
+              {restaurantName}
+            </span>
+          ) : (
+            <span
+              className="font-semibold text-base text-muted-foreground truncate"
+              style={{ color: colors.textSecondary }}
+            >
+              {t("menu.title") || "Menu"}
+            </span>
+          )}
           {tableNumber && (
             <div
               className={cn(

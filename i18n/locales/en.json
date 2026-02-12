@@ -110,6 +110,22 @@
     "failedToDeleteAccount": "Failed to delete account",
     "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone."
   },
+  "scan": {
+    "title": "Scan QR Code",
+    "description": "Point your camera at the restaurant's QR code to earn loyalty points",
+    "errorInvalidQrCode": "Invalid QR code. Please scan a valid restaurant QR code.",
+    "errorMustBeAtRestaurant": "You must be at the restaurant location to scan this QR code.",
+    "errorGeneric": "Scan failed. Please try again.",
+    "processing": "Processing scan...",
+    "startingCamera": "Starting camera...",
+    "positionFrame": "Position the QR code within the frame",
+    "atRestaurant": "Make sure you're at the restaurant location",
+    "scanAnother": "Scan Another",
+    "done": "Done",
+    "cancel": "Cancel",
+    "successTitle": "Scan successful!",
+    "successMessage": "You've earned loyalty points."
+  },
   "gift": {
     "scanQRCode": "Scan QR Code",
     "qrScanned": "QR Code Scanned",
@@ -170,7 +186,8 @@
     "orderTypeTakeAwayDesc": "I'll take it with me",
     "viewOrderItems": "View order items: ({{count}})",
     "requestWaiter": "Request Waiter",
-    "waiterRequestSent": "Waiter request sent"
+    "waiterRequestSent": "Waiter request sent",
+    "poweredByNux": "Powered by Nux"
   },
   "landing": {
     "hero": {
@@ -478,6 +495,8 @@
       "restaurantLogo": "Restaurant Logo (Optional)",
       "restaurantAddress": "Restaurant Address",
       "addressPlaceholder": "123 Main St, City, State",
+      "selectLocationOnMapHint": "Please tap the map pin button next to the address field to set your restaurant location on the map.",
+      "selectLocationOnMap": "Select location on map",
       "locationSelected": "Location selected:",
       "alreadyHaveAccount": "Already have an account?",
       "signInLink": "Sign in",
@@ -626,7 +645,20 @@
       "subscriptionConfirmed": "Subscription confirmed successfully! Your plan is now active.",
       "confirmationFailed": "Subscription confirmation failed. Please contact support.",
       "errorConfirming": "Error confirming subscription. Please contact support.",
-      "renewalAvailable": "Renewal is only available in the last 30 days of your subscription."
+      "renewalAvailable": "Renewal is only available in the last 30 days of your subscription.",
+      "renewalAvailableIn": "Renewal available in {{days}} days",
+      "renewalOnlyInLast30Days": "Renewal is only available in the last 30 days. You can renew in {{days}} days.",
+      "errorCreatingCheckout": "Failed to start checkout. Please try again.",
+      "choosePaymentMethod": "Choose payment method",
+      "choosePaymentMethodDesc": "Pay with PayPal or use a card (Visa, Mastercard, Klarna, etc.) via our secure payment provider.",
+      "payWithPayPal": "Pay with PayPal",
+      "payWithCard": "Card (Visa, Mastercard, Klarna, etc.)",
+      "availablePlans": "Available Plans",
+      "billingInformation": "Billing Information",
+      "billingInformationDesc": "Manage your billing details and payment methods",
+      "billingAddress": "Billing Address",
+      "paymentMethodLabel": "Payment Method",
+      "noPaymentMethod": "No payment method"
     },
     "invoices": {
       "title": "Invoices Management",
@@ -873,7 +905,29 @@
       "howToUseDesc": "Click \"Open Map\" to select location from map or use current location",
       "selected": "Selected:",
       "noLocationSelected": "No location selected",
-      "saveLocation": "Save Location"
+      "saveLocation": "Save Location",
+      "kitchenSections": "Kitchen Sections",
+      "addSection": "Add Section",
+      "manageKitchenSections": "Manage your kitchen sections",
+      "noKitchenSections": "No kitchen sections yet",
+      "addFirstSection": "Add First Section",
+      "editKitchenSection": "Edit Kitchen Section",
+      "addKitchenSection": "Add Kitchen Section",
+      "editKitchenSectionDesc": "Update kitchen section information",
+      "addKitchenSectionDesc": "Create a new kitchen section for your restaurant",
+      "sectionName": "Section Name",
+      "sectionNamePlaceholder": "e.g., Hot Kitchen, Cold Station",
+      "sectionDescription": "Description",
+      "sectionDescriptionPlaceholder": "Optional description",
+      "deleteSection": "Delete Kitchen Section",
+      "deleteSectionConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "delete": "Delete",
+      "sectionNameRequired": "Section name is required",
+      "kitchenSectionUpdated": "Kitchen section updated successfully",
+      "kitchenSectionCreated": "Kitchen section created successfully",
+      "failedToSaveKitchenSection": "Failed to save kitchen section",
+      "kitchenSectionDeleted": "Kitchen section deleted successfully",
+      "failedToDeleteKitchenSection": "Failed to delete kitchen section"
     },
     "fileUpload": {
       "upload": "Upload",

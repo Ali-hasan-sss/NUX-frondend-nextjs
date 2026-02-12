@@ -110,6 +110,22 @@
     "failedToDeleteAccount": "فشل حذف الحساب",
     "deleteAccountConfirm": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء."
   },
+  "scan": {
+    "title": "مسح رمز QR",
+    "description": "وجّه الكاميرا نحو رمز QR الخاص بالمطعم لكسب نقاط الولاء",
+    "errorInvalidQrCode": "رمز QR غير صالح. يرجى مسح رمز QR صالح للمطعم.",
+    "errorMustBeAtRestaurant": "يجب أن تكون داخل المطعم لمسح هذا الرمز.",
+    "errorGeneric": "فشل المسح. يرجى المحاولة مرة أخرى.",
+    "processing": "جاري معالجة المسح...",
+    "startingCamera": "جاري تشغيل الكاميرا...",
+    "positionFrame": "ضع رمز QR داخل الإطار",
+    "atRestaurant": "تأكد أنك داخل المطعم",
+    "scanAnother": "مسح آخر",
+    "done": "تم",
+    "cancel": "إلغاء",
+    "successTitle": "تم المسح بنجاح!",
+    "successMessage": "لقد حصلت على نقاط ولاء."
+  },
   "gift": {
     "scanQRCode": "مسح رمز QR",
     "qrScanned": "تم مسح رمز QR",
@@ -170,7 +186,8 @@
     "orderTypeTakeAwayDesc": "سآخذه معي (تيك أواي)",
     "viewOrderItems": "عرض عناصر الطلب: ({{count}})",
     "requestWaiter": "طلب النادل",
-    "waiterRequestSent": "تم إرسال طلب النادل"
+    "waiterRequestSent": "تم إرسال طلب النادل",
+    "poweredByNux": "مدعوم من Nux"
   },
   "landing": {
     "hero": {
@@ -478,6 +495,8 @@
       "restaurantLogo": "شعار المطعم (اختياري)",
       "restaurantAddress": "عنوان المطعم",
       "addressPlaceholder": "123 الشارع الرئيسي، المدينة، الولاية",
+      "selectLocationOnMapHint": "يرجى النقر على زر الدبوس بجانب حقل العنوان لتحديد موقع مطعمك على الخريطة.",
+      "selectLocationOnMap": "تحديد الموقع على الخريطة",
       "locationSelected": "تم تحديد الموقع:",
       "alreadyHaveAccount": "لديك حساب بالفعل؟",
       "signInLink": "تسجيل الدخول",
@@ -626,7 +645,20 @@
       "subscriptionConfirmed": "تم تأكيد الاشتراك بنجاح! خطتك الآن نشطة.",
       "confirmationFailed": "فشل تأكيد الاشتراك. يرجى الاتصال بالدعم.",
       "errorConfirming": "خطأ في تأكيد الاشتراك. يرجى الاتصال بالدعم.",
-      "renewalAvailable": "التجديد متاح فقط في آخر 30 يوم من اشتراكك."
+      "renewalAvailable": "التجديد متاح فقط في آخر 30 يوم من اشتراكك.",
+      "renewalAvailableIn": "التجديد متاح خلال {{days}} يوم",
+      "renewalOnlyInLast30Days": "التجديد متاح فقط في آخر 30 يوم من الاشتراك. يمكنك التجديد خلال {{days}} يوم.",
+      "errorCreatingCheckout": "فشل بدء الدفع. يرجى المحاولة مرة أخرى.",
+      "choosePaymentMethod": "اختر طريقة الدفع",
+      "choosePaymentMethodDesc": "الدفع عبر باي بال أو استخدام بطاقة (فيزا، ماستركارد، كلارنا، وغيرها) عبر مزود الدفع الآمن.",
+      "payWithPayPal": "الدفع عبر PayPal",
+      "payWithCard": "بطاقة (فيزا، ماستركارد، كلارنا، وغيرها)",
+      "availablePlans": "الخطط المتاحة",
+      "billingInformation": "معلومات الفواتير",
+      "billingInformationDesc": "إدارة تفاصيل الفواتير وطرق الدفع",
+      "billingAddress": "عنوان الفواتير",
+      "paymentMethodLabel": "طريقة الدفع",
+      "noPaymentMethod": "لا توجد طريقة دفع"
     },
     "invoices": {
       "title": "إدارة الفواتير",
@@ -873,7 +905,29 @@
       "howToUseDesc": "انقر على \"فتح الخريطة\" لاختيار الموقع من الخريطة أو استخدم موقعك الحالي",
       "selected": "المحدد:",
       "noLocationSelected": "لم يتم اختيار موقع",
-      "saveLocation": "حفظ الموقع"
+      "saveLocation": "حفظ الموقع",
+      "kitchenSections": "أقسام المطبخ",
+      "addSection": "إضافة قسم",
+      "manageKitchenSections": "إدارة أقسام المطبخ",
+      "noKitchenSections": "لا توجد أقسام مطبخ بعد",
+      "addFirstSection": "إضافة أول قسم",
+      "editKitchenSection": "تعديل قسم المطبخ",
+      "addKitchenSection": "إضافة قسم مطبخ",
+      "editKitchenSectionDesc": "تحديث بيانات قسم المطبخ",
+      "addKitchenSectionDesc": "إنشاء قسم مطبخ جديد لمطعمك",
+      "sectionName": "اسم القسم",
+      "sectionNamePlaceholder": "مثال: المطبخ الساخن، المحطة الباردة",
+      "sectionDescription": "الوصف",
+      "sectionDescriptionPlaceholder": "وصف اختياري",
+      "deleteSection": "حذف قسم المطبخ",
+      "deleteSectionConfirm": "هل أنت متأكد من حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "delete": "حذف",
+      "sectionNameRequired": "اسم القسم مطلوب",
+      "kitchenSectionUpdated": "تم تحديث قسم المطبخ بنجاح",
+      "kitchenSectionCreated": "تم إنشاء قسم المطبخ بنجاح",
+      "failedToSaveKitchenSection": "فشل حفظ قسم المطبخ",
+      "kitchenSectionDeleted": "تم حذف قسم المطبخ بنجاح",
+      "failedToDeleteKitchenSection": "فشل حذف قسم المطبخ"
     },
     "fileUpload": {
       "upload": "رفع",

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { MenuState, MenuCategory } from "./menuTypes";
+import { MenuState, MenuCategory, MenuRestaurantInfo } from "./menuTypes";
 import { fetchMenuCategories, fetchMenuItems } from "./menuThunks";
 
 const initialState: MenuState = {
@@ -7,6 +7,7 @@ const initialState: MenuState = {
   items: [],
   selectedCategory: null,
   currentRestaurantId: null,
+  restaurant: null,
   loading: {
     categories: false,
     items: false,
@@ -32,6 +33,7 @@ const menuSlice = createSlice({
       state.items = [];
       state.selectedCategory = null;
       state.currentRestaurantId = null;
+      state.restaurant = null;
     },
     setSelectedCategory: (
       state,
@@ -52,7 +54,9 @@ const menuSlice = createSlice({
       })
       .addCase(fetchMenuCategories.fulfilled, (state, action) => {
         state.loading.categories = false;
-        state.categories = action.payload;
+        const payload = action.payload;
+        state.categories = payload.data ?? [];
+        state.restaurant = payload.restaurant ?? null;
         state.error.categories = null;
       })
       .addCase(fetchMenuCategories.rejected, (state, action) => {

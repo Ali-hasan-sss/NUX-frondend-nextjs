@@ -110,6 +110,22 @@
     "failedToDeleteAccount": "Hesap silinemedi",
     "deleteAccountConfirm": "Hesabınızı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz."
   },
+  "scan": {
+    "title": "QR Kodu Tara",
+    "description": "Sadakat puanı kazanmak için kamerayı restoranın QR koduna tutun",
+    "errorInvalidQrCode": "Geçersiz QR kodu. Lütfen geçerli bir restoran QR kodu tarayın.",
+    "errorMustBeAtRestaurant": "Bu QR kodunu taramak için restoran konumunda olmalısınız.",
+    "errorGeneric": "Tarama başarısız. Lütfen tekrar deneyin.",
+    "processing": "Tarama işleniyor...",
+    "startingCamera": "Kamera başlatılıyor...",
+    "positionFrame": "QR kodunu çerçeve içine yerleştirin",
+    "atRestaurant": "Restoranda olduğunuzdan emin olun",
+    "scanAnother": "Başka Tara",
+    "done": "Tamam",
+    "cancel": "İptal",
+    "successTitle": "Tarama başarılı!",
+    "successMessage": "Sadakat puanı kazandınız."
+  },
   "gift": {
     "scanQRCode": "QR Kodu Tara",
     "qrScanned": "QR Kodu Tarandı",
@@ -170,7 +186,8 @@
     "orderTypeTakeAwayDesc": "Yanımda götüreceğim",
     "viewOrderItems": "Sipariş ürünlerini görüntüle: ({{count}})",
     "requestWaiter": "Garson Çağır",
-    "waiterRequestSent": "Garson talebi gönderildi"
+    "waiterRequestSent": "Garson talebi gönderildi",
+    "poweredByNux": "Powered by Nux"
   },
   "landing": {
     "hero": {
@@ -478,6 +495,8 @@
       "restaurantLogo": "Restoran Logosu (İsteğe Bağlı)",
       "restaurantAddress": "Restoran Adresi",
       "addressPlaceholder": "Ana Cadde 123, Şehir, İl",
+      "selectLocationOnMapHint": "Restoran konumunuzu haritada belirlemek için adres alanının yanındaki konum düğmesine dokunun.",
+      "selectLocationOnMap": "Haritada konum seç",
       "locationSelected": "Seçilen konum:",
       "alreadyHaveAccount": "Zaten hesabınız var mı?",
       "signInLink": "Giriş yapın",
@@ -626,7 +645,20 @@
       "subscriptionConfirmed": "Abonelik başarıyla onaylandı! Planınız artık aktif.",
       "confirmationFailed": "Abonelik onayı başarısız. Lütfen destekle iletişime geçin.",
       "errorConfirming": "Abonelik onaylanırken hata. Lütfen destekle iletişime geçin.",
-      "renewalAvailable": "Yenileme yalnızca aboneliğinizin son 30 gününde kullanılabilir."
+      "renewalAvailable": "Yenileme yalnızca aboneliğinizin son 30 gününde kullanılabilir.",
+      "renewalAvailableIn": "Yenileme {{days}} gün içinde kullanılabilir",
+      "renewalOnlyInLast30Days": "Yenileme yalnızca aboneliğin son 30 gününde yapılabilir. {{days}} gün içinde yenileyebilirsiniz.",
+      "errorCreatingCheckout": "Ödeme başlatılamadı. Lütfen tekrar deneyin.",
+      "choosePaymentMethod": "Ödeme yöntemi seçin",
+      "choosePaymentMethodDesc": "PayPal ile ödeyin veya güvenli ödeme sağlayıcımız üzerinden kart (Visa, Mastercard, Klarna vb.) kullanın.",
+      "payWithPayPal": "PayPal ile öde",
+      "payWithCard": "Kart (Visa, Mastercard, Klarna vb.)",
+      "availablePlans": "Mevcut Planlar",
+      "billingInformation": "Fatura Bilgileri",
+      "billingInformationDesc": "Fatura detaylarınızı ve ödeme yöntemlerinizi yönetin",
+      "billingAddress": "Fatura Adresi",
+      "paymentMethodLabel": "Ödeme Yöntemi",
+      "noPaymentMethod": "Ödeme yöntemi yok"
     },
     "invoices": {
       "title": "Fatura Yönetimi",
@@ -868,7 +900,29 @@
       "howToUseDesc": "Haritadan konum seçmek veya mevcut konumu kullanmak için \"Haritayı Aç\"a tıklayın",
       "selected": "Seçilen:",
       "noLocationSelected": "Konum seçilmedi",
-      "saveLocation": "Konumu Kaydet"
+      "saveLocation": "Konumu Kaydet",
+      "kitchenSections": "Mutfak Bölümleri",
+      "addSection": "Bölüm Ekle",
+      "manageKitchenSections": "Mutfak bölümlerinizi yönetin",
+      "noKitchenSections": "Henüz mutfak bölümü yok",
+      "addFirstSection": "İlk Bölümü Ekle",
+      "editKitchenSection": "Mutfak Bölümünü Düzenle",
+      "addKitchenSection": "Mutfak Bölümü Ekle",
+      "editKitchenSectionDesc": "Mutfak bölümü bilgilerini güncelle",
+      "addKitchenSectionDesc": "Restoranınız için yeni bir mutfak bölümü oluşturun",
+      "sectionName": "Bölüm Adı",
+      "sectionNamePlaceholder": "örn. Sıcak Mutfak, Soğuk İstasyon",
+      "sectionDescription": "Açıklama",
+      "sectionDescriptionPlaceholder": "İsteğe bağlı açıklama",
+      "deleteSection": "Mutfak Bölümünü Sil",
+      "deleteSectionConfirm": "\"{{name}}\" bölümünü silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      "delete": "Sil",
+      "sectionNameRequired": "Bölüm adı gerekli",
+      "kitchenSectionUpdated": "Mutfak bölümü başarıyla güncellendi",
+      "kitchenSectionCreated": "Mutfak bölümü başarıyla oluşturuldu",
+      "failedToSaveKitchenSection": "Mutfak bölümü kaydedilemedi",
+      "kitchenSectionDeleted": "Mutfak bölümü başarıyla silindi",
+      "failedToDeleteKitchenSection": "Mutfak bölümü silinemedi"
     },
     "fileUpload": {
       "upload": "Yükle",

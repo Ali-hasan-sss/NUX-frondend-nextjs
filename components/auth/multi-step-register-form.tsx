@@ -572,6 +572,15 @@ export function MultiStepRegisterForm() {
                   <Label htmlFor="address">
                     {t("landing.auth.restaurantAddress")} *
                   </Label>
+                  {restaurantFormData.latitude === 0 &&
+                    restaurantFormData.longitude === 0 && (
+                      <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800">
+                        <MapPin className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                        <AlertDescription>
+                          {t("landing.auth.selectLocationOnMapHint")}
+                        </AlertDescription>
+                      </Alert>
+                    )}
                   <div className="flex space-x-2">
                     <Input
                       id="address"
@@ -587,8 +596,8 @@ export function MultiStepRegisterForm() {
                       type="button"
                       variant="outline"
                       onClick={() => setShowMapPicker(true)}
-                      className="bg-transparent"
-                      title="Select location on map"
+                      className="bg-transparent shrink-0"
+                      title={t("landing.auth.selectLocationOnMap")}
                     >
                       <MapPin className="h-4 w-4" />
                     </Button>

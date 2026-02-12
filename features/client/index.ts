@@ -15,6 +15,7 @@ export { default as balancesReducer } from "./balances/balancesSlice";
 export {
   clearErrors as clearBalancesErrors,
   clearBalances,
+  clearQrScanError,
 } from "./balances/balancesSlice";
 
 export * from "./menu/menuTypes";

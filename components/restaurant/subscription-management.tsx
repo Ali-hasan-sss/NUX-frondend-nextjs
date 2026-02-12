@@ -20,7 +20,17 @@ import {
   AlertTriangle,
   AlertCircle,
   Loader2,
+  Wallet,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type { CheckoutProvider } from "@/features/restaurant/subscription/subscriptionService";
+import { toast } from "sonner";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
 import { subscriptionService } from "@/features/restaurant/subscription/subscriptionService";
@@ -45,6 +55,8 @@ export function SubscriptionManagement() {
   const [expandedDescriptions, setExpandedDescriptions] = useState<
     Record<number, boolean>
   >({});
+  const [paymentMethodDialogOpen, setPaymentMethodDialogOpen] = useState(false);
+  const [paymentMethodPlanId, setPaymentMethodPlanId] = useState<number | null>(null);
   const { user } = useAppSelector((state) => state.auth);
   const {
     plans,
@@ -61,12 +73,18 @@ export function SubscriptionManagement() {
     dispatch(fetchRestaurantAccount());
   }, [dispatch]);
 
-  // Check for successful payment and confirm subscription
+  // Check for successful payment and confirm subscription (Stripe or PayPal)
   useEffect(() => {
-    const sessionId = searchParams.get("session_id");
     const status = searchParams.get("status");
+    const provider = searchParams.get("provider");
+    const sessionId = searchParams.get("session_id");
+    const token = searchParams.get("token"); // PayPal order ID
 
-    if (status === "success" && sessionId) {
+    if (status !== "success") return;
+
+    if (provider === "paypal" && token) {
+      confirmPayPalSubscription(token);
+    } else if (sessionId) {
       confirmSubscription(sessionId);
     }
   }, [searchParams]);
@@ -84,15 +102,13 @@ export function SubscriptionManagement() {
           t("dashboard.subscription.subscriptionConfirmed")
         );
         setConfirmationIsSuccess(true);
-        // Refresh restaurant account data to get updated subscription info
         dispatch(fetchRestaurantAccount());
-        // Refresh plans to get updated data
         dispatch(fetchPublicPlans());
-
-        // Clean up URL parameters
         const url = new URL(window.location.href);
         url.searchParams.delete("session_id");
         url.searchParams.delete("status");
+        url.searchParams.delete("provider");
+        url.searchParams.delete("token");
         window.history.replaceState({}, "", url.toString());
       } else {
         setConfirmationMessage(t("dashboard.subscription.confirmationFailed"));
@@ -107,29 +123,89 @@ export function SubscriptionManagement() {
     }
   };
 
+  const confirmPayPalSubscription = async (orderId: string) => {
+    setIsConfirming(true);
+    setConfirmationMessage(null);
+    setConfirmationIsSuccess(null);
+
+    try {
+      const result = await subscriptionService.confirmPayPal(orderId);
+
+      if (result.subscriptionId) {
+        setConfirmationMessage(
+          t("dashboard.subscription.subscriptionConfirmed")
+        );
+        setConfirmationIsSuccess(true);
+        dispatch(fetchRestaurantAccount());
+        dispatch(fetchPublicPlans());
+        const url = new URL(window.location.href);
+        url.searchParams.delete("session_id");
+        url.searchParams.delete("status");
+        url.searchParams.delete("provider");
+        url.searchParams.delete("token");
+        window.history.replaceState({}, "", url.toString());
+      } else {
+        setConfirmationMessage(t("dashboard.subscription.confirmationFailed"));
+        setConfirmationIsSuccess(false);
+      }
+    } catch (error) {
+      console.error("Error confirming PayPal subscription:", error);
+      setConfirmationMessage(t("dashboard.subscription.errorConfirming"));
+      setConfirmationIsSuccess(false);
+    } finally {
+      setIsConfirming(false);
+    }
+  };
+
   // const handlePlanSelect = (planId: number) => {
   //   setSelectedPlan(planId);
   // };
 
-  const handleSubscribe = async (planId: number) => {
-    setLoadingPlanId(planId);
-    try {
-      // Check if this is a renewal (plan already subscribed)
-      const isRenewal = isPlanSubscribed(planId);
+  const openPaymentMethodDialog = (planId: number) => {
+    const isRenewal = isPlanSubscribed(planId);
+    if (isRenewal && !isInLastMonth()) {
+      alert(t("dashboard.subscription.renewalAvailable"));
+      return;
+    }
+    setPaymentMethodPlanId(planId);
+    setPaymentMethodDialogOpen(true);
+  };
 
-      if (isRenewal && !isInLastMonth()) {
-        alert(t("dashboard.subscription.renewalAvailable"));
+  const handleSubscribeWithProvider = async (provider: CheckoutProvider) => {
+    if (paymentMethodPlanId == null) return;
+    const planId = paymentMethodPlanId;
+    setLoadingPlanId(planId);
+    setPaymentMethodDialogOpen(false);
+    setPaymentMethodPlanId(null);
+
+    try {
+      const response = await subscriptionService.createCheckout(planId, {
+        provider,
+      });
+      if (response?.url) {
+        window.location.href = response.url;
         return;
       }
-
-      const response = await subscriptionService.createCheckout(planId);
-      // Redirect to Stripe checkout
-      window.location.href = response.url;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating checkout session:", error);
-    } finally {
-      setLoadingPlanId(null);
+      const message =
+        error?.response?.data?.message || error?.message || "";
+      const isRenewalTooEarly =
+        typeof message === "string" &&
+        message.toLowerCase().includes("renewal is only available");
+      if (isRenewalTooEarly) {
+        const match = message.match(/you can renew in (\d+) days/i);
+        const days = match ? match[1] : "0";
+        toast.error(
+          t("dashboard.subscription.renewalOnlyInLast30Days", { days })
+        );
+      } else {
+        toast.error(
+          message || t("dashboard.subscription.errorCreatingCheckout")
+        );
+      }
     }
+    setLoadingPlanId(null);
   };
 
   const handleCancelSubscription = () => {
@@ -320,7 +396,7 @@ export function SubscriptionManagement() {
             <div className="mt-6 pt-6 border-t">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Payment Method</p>
+                  <p className="font-medium">{t("dashboard.subscription.paymentMethodLabel")}</p>
                   <p className="text-sm text-muted-foreground">
                     {currentSubscription.paymentMethod || "N/A"}
                   </p>
@@ -388,7 +464,7 @@ export function SubscriptionManagement() {
       {/* Available Plans */}
       <div>
         <h2 className="text-2xl font-bold text-foreground mb-4">
-          Available Plans
+          {t("dashboard.subscription.availablePlans")}
         </h2>
 
         {loading.plans ? (
@@ -544,35 +620,41 @@ export function SubscriptionManagement() {
                           Free Plan - Not Available
                         </Button>
                       ) : isPlanSubscribed(plan.id) ? (
-                        <Button
-                          className="w-full"
-                          variant={isSelected ? "default" : "outline"}
-                          onClick={() => handleSubscribe(plan.id)}
-                          disabled={
-                            (loadingPlanId != null &&
-                              loadingPlanId !== plan.id) ||
-                            !isInLastMonth()
-                          }
-                        >
-                          {loadingPlanId === plan.id ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Processing...
-                            </>
-                          ) : !isInLastMonth() ? (
-                            `Renewal Available in ${
-                              Math.ceil(
-                                (new Date(
-                                  currentSubscription?.endDate || ""
-                                ).getTime() -
-                                  new Date().getTime()) /
-                                  (1000 * 60 * 60 * 24)
-                              ) - 30
-                            } days`
-                          ) : (
-                            t("dashboard.subscription.renew")
-                          )}
-                        </Button>
+                        isInLastMonth() ? (
+                          <Button
+                            className="w-full"
+                            variant={isSelected ? "default" : "outline"}
+                            onClick={() => openPaymentMethodDialog(plan.id)}
+                            disabled={
+                              loadingPlanId != null && loadingPlanId !== plan.id
+                            }
+                          >
+                            {loadingPlanId === plan.id ? (
+                              <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Processing...
+                              </>
+                            ) : (
+                              t("dashboard.subscription.renew")
+                            )}
+                          </Button>
+                        ) : (
+                          <Button className="w-full" variant="outline" disabled>
+                            {t(
+                              "dashboard.subscription.renewalAvailableIn",
+                              {
+                                days:
+                                  Math.ceil(
+                                    (new Date(
+                                      currentSubscription?.endDate || ""
+                                    ).getTime() -
+                                      new Date().getTime()) /
+                                      (1000 * 60 * 60 * 24)
+                                  ) - 30,
+                              }
+                            )}
+                          </Button>
+                        )
                       ) : isDowngrade(plan.price || 0) ? (
                         <Button className="w-full" variant="outline" disabled>
                           {t("dashboard.subscription.lowerPlan")}
@@ -581,7 +663,7 @@ export function SubscriptionManagement() {
                         <Button
                           className="w-full"
                           variant={isSelected ? "default" : "outline"}
-                          onClick={() => handleSubscribe(plan.id)}
+                          onClick={() => openPaymentMethodDialog(plan.id)}
                           disabled={
                             loadingPlanId != null && loadingPlanId !== plan.id
                           }
@@ -607,19 +689,60 @@ export function SubscriptionManagement() {
         )}
       </div>
 
+      {/* Payment method choice dialog (PayPal vs Stripe) */}
+      <Dialog open={paymentMethodDialogOpen} onOpenChange={setPaymentMethodDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {t("dashboard.subscription.choosePaymentMethod") ||
+                "Choose payment method"}
+            </DialogTitle>
+            <DialogDescription>
+              {t("dashboard.subscription.choosePaymentMethodDesc") ||
+                "Pay with PayPal or use a card (Visa, Mastercard, Klarna, etc.) via our secure payment provider."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-3 py-2">
+            <Button
+              variant="outline"
+              className="h-12 justify-start gap-3"
+              onClick={() => handleSubscribeWithProvider("paypal")}
+              disabled={loadingPlanId != null}
+            >
+              <Wallet className="h-5 w-5" />
+              <span>
+                {t("dashboard.subscription.payWithPayPal") || "Pay with PayPal"}
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              className="h-12 justify-start gap-3"
+              onClick={() => handleSubscribeWithProvider("stripe")}
+              disabled={loadingPlanId != null}
+            >
+              <CreditCard className="h-5 w-5" />
+              <span>
+                {t("dashboard.subscription.payWithCard") ||
+                  "Card (Visa, Mastercard, Klarna, etc.)"}
+              </span>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Billing Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Billing Information</CardTitle>
+          <CardTitle>{t("dashboard.subscription.billingInformation")}</CardTitle>
           <CardDescription>
-            Manage your billing details and payment methods
+            {t("dashboard.subscription.billingInformationDesc")}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h4 className="font-medium mb-2">Billing Address</h4>
+                <h4 className="font-medium mb-2">{t("dashboard.subscription.billingAddress")}</h4>
                 <p className="text-sm text-muted-foreground">
                   {restaurantAccount?.name || "N/A"}
                 </p>
@@ -631,11 +754,11 @@ export function SubscriptionManagement() {
                 </p>
               </div>
               <div>
-                <h4 className="font-medium mb-2">Payment Method</h4>
+                <h4 className="font-medium mb-2">{t("dashboard.subscription.paymentMethodLabel")}</h4>
                 <div className="flex items-center space-x-2">
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm">
-                    {currentSubscription?.paymentMethod || "No payment method"}
+                    {currentSubscription?.paymentMethod || t("dashboard.subscription.noPaymentMethod")}
                   </span>
                 </div>
               </div>

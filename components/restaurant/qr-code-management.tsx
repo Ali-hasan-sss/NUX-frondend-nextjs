@@ -37,23 +37,86 @@ import ConfirmDialog from "@/components/confirmMessage";
 import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
 import { toast } from "sonner";
 
-/** Print-only CSS for label printer: 5cm x 5cm QR + subtitle below. One label per logical "page". */
+/** Print-only CSS: 5cm×5cm QR + label (title/subtitle) below. Stickers stacked on same page, no blank pages. */
 const LABEL_PRINT_STYLES = `
-@media print {
-  @page { size: 5cm 6cm; margin: 2mm; }
-  body { margin: 0; padding: 0; background: #fff; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .label-sticker {
-    width: 5cm; height: 6cm; box-sizing: border-box;
-    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-    padding: 2mm; border: none; border-radius: 0;
-    page-break-after: always; break-after: page;
+  .print-container {
+    display: flex; flex-direction: column; align-items: center; gap: 6mm;
+    padding: 0; margin: 0; background: #fff; color: #000;
   }
-  .label-sticker:last-child { page-break-after: auto; }
-  .label-sticker .label-qr-box { width: 5cm; height: 5cm; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .label-sticker .label-qr-box img { width: 100%; height: 100%; object-fit: contain; }
-  .label-sticker .label-caption { font-size: 8pt; text-align: center; margin-top: 1mm; line-height: 1.2; font-weight: bold; }
-}
+  .label-sticker {
+    width: 5cm; min-height: 6cm; box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 5mm; border: 1px solid #ccc; border-radius: 4mm;
+    margin: 0; overflow: hidden;
+    page-break-inside: avoid; break-inside: avoid;
+  }
+  .label-sticker .label-qr-box {
+    width: 100%; height: 4cm; max-width: 4cm; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .label-sticker .label-qr-box img {
+    width: 100%; height: 100%; object-fit: contain;
+  }
+  .label-sticker .label-caption {
+    width: 100%; margin-top: 3mm; padding: 0; box-sizing: border-box;
+    font-size: 9pt; line-height: 1.3; text-align: center; font-weight: bold;
+    color: #000; min-height: 8mm;
+  }
+  .label-sticker .label-caption .title { font-size: 8pt; font-weight: bold; }
+  .label-sticker .label-caption .subtitle { font-size: 7pt; font-weight: normal; margin-top: 0.5mm; }
+  @media print {
+    @page { size: auto; margin: 8mm; }
+    body { margin: 0; padding: 0; background: #fff; color: #000; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .print-container { padding: 0; gap: 6mm; }
+    .label-sticker { border: 1px solid #999; border-radius: 4mm; }
+  }
 `;
+
+/** Build print window with only label stickers stacked vertically; wait for images then print. */
+function printLabelStickers(
+  stickers: { imgSrc: string; title: string; subtitle: string }[],
+  styles: string
+) {
+  const stickersHtml = stickers
+    .map(
+      (s) => `
+    <div class="label-sticker">
+      <div class="label-qr-box">
+        <img src="${s.imgSrc.replace(/"/g, "&quot;")}" width="200" height="200" alt="" />
+      </div>
+      <div class="label-caption">
+        <div class="title">${escapeHtml(s.title)}</div>
+        <div class="subtitle">${escapeHtml(s.subtitle)}</div>
+      </div>
+    </div>`
+    )
+    .join("");
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Print QR Labels</title><style>${styles}</style></head><body><div class="print-container">${stickersHtml}</div></body></html>`;
+  const win = window.open("", "_blank");
+  if (!win) return;
+  win.document.write(html);
+  win.document.close();
+  const doc = win.document;
+  const imgs = doc.querySelectorAll(".print-container img");
+  const waitAll = Array.from(imgs).map(
+    (img) =>
+      new Promise<void>((resolve) => {
+        const el = img as HTMLImageElement;
+        if (el.complete) resolve();
+        else el.onload = () => resolve();
+        el.onerror = () => resolve();
+      })
+  );
+  Promise.all(waitAll).then(() => {
+    win.focus();
+    win.print();
+    win.close();
+  });
+}
+function escapeHtml(text: string) {
+  const el = document.createElement("div");
+  el.textContent = text;
+  return el.innerHTML;
+}
 
 function PrintableFrame({
   title,
@@ -113,17 +176,31 @@ export function QRCodeManagement() {
   }, [appBaseUrl, data?.id]);
 
   const handlePrint = () => {
-    if (!printRef.current) return;
-    const printContents = printRef.current.innerHTML;
-    const originalContents = document.body.innerHTML;
-    const style = document.createElement("style");
-    style.textContent = LABEL_PRINT_STYLES;
-    document.body.innerHTML = printContents;
-    document.head.appendChild(style);
-    window.print();
-    document.head.removeChild(style);
-    document.body.innerHTML = originalContents;
-    window.location.reload();
+    const stickers: { imgSrc: string; title: string; subtitle: string }[] = [];
+    const name = data?.name ?? "Restaurant";
+    if (data?.qrCode_drink) {
+      stickers.push({
+        imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_drink)}`,
+        title: name,
+        subtitle: t("dashboard.qrCodes.drinkQR"),
+      });
+    }
+    if (data?.qrCode_meal) {
+      stickers.push({
+        imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_meal)}`,
+        title: name,
+        subtitle: t("dashboard.qrCodes.mealQR"),
+      });
+    }
+    if (menuUrl) {
+      stickers.push({
+        imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`,
+        title: name,
+        subtitle: t("dashboard.qrCodes.menuQR"),
+      });
+    }
+    if (stickers.length === 0) return;
+    printLabelStickers(stickers, LABEL_PRINT_STYLES);
   };
 
   const needDrink = !!data?.qrCode_drink;
@@ -138,18 +215,22 @@ export function QRCodeManagement() {
     await dispatch(regenerateRestaurantQr());
   };
 
-  const printElement = (el: HTMLElement) => {
-    const win = window.open("", "_blank", "width=800,height=600");
-    if (!win) return;
-    win.document.write("<html><head><title>Print QR</title>");
-    win.document.write("<style>" + LABEL_PRINT_STYLES.replace(/<\/style>/gi, "") + "</style>");
-    win.document.write("</head><body>");
-    win.document.write(el.outerHTML);
-    win.document.write("</body></html>");
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+  const handlePrintSingle = (type: "drink" | "meal" | "menu") => {
+    const name = data?.name ?? "Restaurant";
+    let imgSrc = "";
+    let subtitle = "";
+    if (type === "drink" && data?.qrCode_drink) {
+      imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_drink)}`;
+      subtitle = t("dashboard.qrCodes.drinkQR");
+    } else if (type === "meal" && data?.qrCode_meal) {
+      imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_meal)}`;
+      subtitle = t("dashboard.qrCodes.mealQR");
+    } else if (type === "menu" && menuUrl) {
+      imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`;
+      subtitle = t("dashboard.qrCodes.menuQR");
+    }
+    if (!imgSrc) return;
+    printLabelStickers([{ imgSrc, title: name, subtitle }], LABEL_PRINT_STYLES);
   };
 
   // Auto-refresh QR (drink/meal) every 5 minutes when enabled
@@ -257,11 +338,9 @@ export function QRCodeManagement() {
                 <div className="mt-3 flex justify-center gap-2">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      drinkRef.current && printElement(drinkRef.current)
-                    }
-                    disabled={!drinkImgLoaded}
-                    title={!drinkImgLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
+                    onClick={() => handlePrintSingle("drink")}
+                    disabled={!data?.qrCode_drink}
+                    title={!data?.qrCode_drink ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
                   >
                     {t("dashboard.qrCodes.print")}
                   </Button>
@@ -329,11 +408,9 @@ export function QRCodeManagement() {
                 <div className="mt-3 flex justify-center gap-2">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      mealRef.current && printElement(mealRef.current)
-                    }
-                    disabled={!mealImgLoaded}
-                    title={!mealImgLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
+                    onClick={() => handlePrintSingle("meal")}
+                    disabled={!data?.qrCode_meal}
+                    title={!data?.qrCode_meal ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
                   >
                     {t("dashboard.qrCodes.print")}
                   </Button>
@@ -403,11 +480,9 @@ export function QRCodeManagement() {
                 <div className="mt-3 flex justify-center gap-2">
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      menuRef.current && printElement(menuRef.current)
-                    }
-                    disabled={!menuImgLoaded}
-                    title={!menuImgLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
+                    onClick={() => handlePrintSingle("menu")}
+                    disabled={!menuUrl}
+                    title={!menuUrl ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
                   >
                     {t("dashboard.qrCodes.print")}
                   </Button>
@@ -469,6 +544,7 @@ function TableCard({
   onEdit,
   onDelete,
   onSessionToggle,
+  onPrintTable,
   printElement,
   t,
 }: {
@@ -476,9 +552,14 @@ function TableCard({
   onEdit: (table: Table) => void;
   onDelete: (table: Table) => void;
   onSessionToggle: (table: Table, isSessionOpen: boolean) => void;
-  printElement: (el: HTMLElement) => void;
+  onPrintTable: (table: Table) => void;
+  printElement?: (el: HTMLElement) => void;
   t: any;
 }) {
+  const handlePrint = () => {
+    if (onPrintTable) onPrintTable(table);
+    else if (printElement && tableRef.current) printElement(tableRef.current);
+  };
   const tableRef = useRef<HTMLDivElement>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   useEffect(() => setImageLoaded(false), [table.id]);
@@ -557,7 +638,7 @@ function TableCard({
           <Button
             variant="outline"
             size="sm"
-            onClick={() => tableRef.current && printElement(tableRef.current)}
+            onClick={handlePrint}
             disabled={!imageLoaded}
             title={!imageLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
           >
@@ -599,10 +680,8 @@ const PLAN_PERMISSION_CODES = [
 // Tables Management Component
 function TablesManagement({ restaurantId }: { restaurantId: string }) {
   const { t, i18n } = useTranslation();
-  const tablesPrintRef = useRef<HTMLDivElement>(null);
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tablesPrintLoadedIds, setTablesPrintLoadedIds] = useState<Set<string>>(new Set());
   const [tablesError, setTablesError] = useState<string | null>(null);
   const [tablesErrorCode, setTablesErrorCode] = useState<string | null>(null);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -620,10 +699,6 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
       loadTables();
     }
   }, [restaurantId]);
-
-  useEffect(() => {
-    setTablesPrintLoadedIds(new Set());
-  }, [tables.length]);
 
   const loadTables = async () => {
     setLoading(true);
@@ -774,35 +849,29 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
     }
   };
 
-  const printElement = (el: HTMLElement) => {
-    const win = window.open("", "_blank", "width=800,height=600");
-    if (!win) return;
-    win.document.write("<html><head><title>Print QR</title>");
-    win.document.write("<style>" + LABEL_PRINT_STYLES.replace(/<\/style>/gi, "") + "</style>");
-    win.document.write("</head><body>");
-    win.document.write(el.outerHTML);
-    win.document.write("</body></html>");
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
+  const handlePrintSingleTable = (table: Table) => {
+    const tableLabel = t("dashboard.tables.tableNumber") || "Table";
+    printLabelStickers(
+      [
+        {
+          imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(table.qrCode)}`,
+          title: table.name,
+          subtitle: `${tableLabel} #${table.number}`,
+        },
+      ],
+      LABEL_PRINT_STYLES
+    );
   };
 
-  const allTablesPrintLoaded =
-    tables.length > 0 && tablesPrintLoadedIds.size === tables.length;
-
   const handlePrintAllTables = () => {
-    if (!tablesPrintRef.current || tables.length === 0) return;
-    const printContents = tablesPrintRef.current.innerHTML;
-    const originalContents = document.body.innerHTML;
-    const style = document.createElement("style");
-    style.textContent = LABEL_PRINT_STYLES;
-    document.body.innerHTML = printContents;
-    document.head.appendChild(style);
-    window.print();
-    document.head.removeChild(style);
-    document.body.innerHTML = originalContents;
-    window.location.reload();
+    if (tables.length === 0) return;
+    const tableLabel = t("dashboard.tables.tableNumber") || "Table";
+    const stickers = tables.map((table) => ({
+      imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(table.qrCode)}`,
+      title: table.name,
+      subtitle: `${tableLabel} #${table.number}`,
+    }));
+    printLabelStickers(stickers, LABEL_PRINT_STYLES);
   };
 
   const appBaseUrl =
@@ -832,37 +901,6 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
 
   return (
     <div className="space-y-6" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
-      {/* Hidden content for "Print All" - same layout as table cards */}
-      {tables.length > 0 && (
-        <div ref={tablesPrintRef} className="hidden">
-          <div className="flex flex-wrap gap-4 justify-center p-6 bg-white text-black">
-            {tables.map((table) => (
-              <PrintableFrame
-                key={table.id}
-                title={table.name}
-                subtitle={`${t("dashboard.tables.tableNumber") || "Table"} #${
-                  table.number
-                }`}
-              >
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                    table.qrCode
-                  )}`}
-                  width={200}
-                  height={200}
-                  alt={table.name}
-                  onLoad={() =>
-                    setTablesPrintLoadedIds((prev) =>
-                      new Set(prev).add(String(table.id))
-                    )
-                  }
-                />
-              </PrintableFrame>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold">
@@ -878,9 +916,9 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
             <Button
               variant="outline"
               onClick={handlePrintAllTables}
-              disabled={!allTablesPrintLoaded}
+              disabled={tables.length === 0}
               title={
-                !allTablesPrintLoaded
+                tables.length === 0
                   ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR images to load"
                   : undefined
               }
@@ -924,7 +962,8 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
               onEdit={openEditDialog}
               onDelete={openDeleteDialog}
               onSessionToggle={handleSessionToggle}
-              printElement={printElement}
+              onPrintTable={handlePrintSingleTable}
+              printElement={(_el: HTMLElement) => handlePrintSingleTable(table)}
               t={t}
             />
           ))}

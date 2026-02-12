@@ -25,6 +25,7 @@ export interface MenuState {
   items: MenuItem[];
   selectedCategory: MenuCategory | null;
   currentRestaurantId: string | null;
+  restaurant: MenuRestaurantInfo | null;
   loading: {
     categories: boolean;
     items: boolean;
@@ -35,10 +36,16 @@ export interface MenuState {
   };
 }
 
+export interface MenuRestaurantInfo {
+  name: string | null;
+  logo: string | null;
+}
+
 export interface MenuCategoriesApiResponse {
   success: boolean;
   message?: string;
   data: MenuCategory[];
+  restaurant?: MenuRestaurantInfo;
 }
 
 export interface MenuItemsApiResponse {

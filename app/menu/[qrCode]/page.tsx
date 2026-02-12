@@ -71,7 +71,7 @@ function PublicMenuPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [allItems, setAllItems] = useState<any[]>([]);
 
-  const { categories, items, selectedCategory, loading, error } =
+  const { categories, items, selectedCategory, loading, error, restaurant } =
     useAppSelector((state) => state.clientMenu);
 
   useEffect(() => {
@@ -308,8 +308,20 @@ function PublicMenuPageContent() {
                 tableNumberParam ? handleRequestWaiter : undefined
               }
               isRequestingWaiter={requestingWaiter}
+              restaurantLogo={restaurant?.logo}
+              restaurantName={restaurant?.name}
             />
-            <div className="flex-1 min-h-0 overflow-y-auto pb-20 px-4 py-5 max-w-7xl mx-auto w-full">
+            <div
+              className="flex-1 min-h-0 overflow-y-auto px-4 py-5 max-w-7xl mx-auto w-full"
+              style={{
+                paddingBottom:
+                  tableNumberParam && totalItems > 0
+                    ? "calc(7rem + env(safe-area-inset-bottom, 0px))"
+                    : tableNumberParam || totalItems > 0
+                      ? "calc(3.5rem + env(safe-area-inset-bottom, 0px))"
+                      : "calc(5rem + env(safe-area-inset-bottom, 0px))",
+              }}
+            >
               {/* Header */}
               <div className="mb-6">
                 <div className="flex items-center gap-4 mb-4">
@@ -677,9 +689,7 @@ function PublicMenuPageContent() {
                   : "rgba(255,255,255,0.98)",
                 color: colors.primary,
                 borderColor: colors.primary,
-                ...(totalItems === 0 && {
-                  paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
-                }),
+                paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
               }}
             >
               {requestingWaiter ? (
@@ -1086,12 +1096,19 @@ function PublicMenuPageContent() {
             cartCount={totalItems}
             onRequestWaiter={tableNumberParam ? handleRequestWaiter : undefined}
             isRequestingWaiter={requestingWaiter}
+            restaurantLogo={restaurant?.logo}
+            restaurantName={restaurant?.name}
           />
           <div
-            className={cn(
-              "flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full",
-              totalItems > 0 ? "pb-28" : "pb-20"
-            )}
+            className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full"
+            style={{
+              paddingBottom:
+                tableNumberParam && totalItems > 0
+                  ? "calc(7rem + env(safe-area-inset-bottom, 0px))"
+                  : tableNumberParam || totalItems > 0
+                    ? "calc(3.5rem + env(safe-area-inset-bottom, 0px))"
+                    : "calc(5rem + env(safe-area-inset-bottom, 0px))",
+            }}
           >
             {/* Header */}
             <div className="mb-4 sm:mb-6">
@@ -1292,9 +1309,7 @@ function PublicMenuPageContent() {
                 : "rgba(255,255,255,0.98)",
               color: colors.primary,
               borderColor: colors.primary,
-              ...(totalItems === 0 && {
-                paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
-              }),
+              paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
             }}
           >
             {requestingWaiter ? (

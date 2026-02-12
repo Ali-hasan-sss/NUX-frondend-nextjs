@@ -36,7 +36,9 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   const t = (key: TranslationKey): string => {
-    return translations[locale][key] || translations[defaultLocale][key] || key
+    const localeTranslations = (translations as unknown as Partial<Record<Locale, Record<TranslationKey, string>>>)[locale]
+    const defaultTranslations = translations.en
+    return localeTranslations?.[key] ?? defaultTranslations[key as keyof typeof defaultTranslations] ?? key
   }
 
   const direction = getDirection(locale)

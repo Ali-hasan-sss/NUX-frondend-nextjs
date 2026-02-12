@@ -40,6 +40,9 @@ const balancesSlice = createSlice({
         gift: null,
       };
     },
+    clearQrScanError: (state) => {
+      state.error.qrScan = null;
+    },
     clearBalances: (state) => {
       state.userBalances = [];
       state.packages = [];
@@ -125,5 +128,5 @@ const balancesSlice = createSlice({
   },
 });
 
-export const { clearErrors, clearBalances } = balancesSlice.actions;
+export const { clearErrors, clearBalances, clearQrScanError } = balancesSlice.actions;
 export default balancesSlice.reducer;

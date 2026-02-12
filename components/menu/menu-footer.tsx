@@ -2,9 +2,11 @@
 
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export function MenuFooter() {
   const { colors, isDark, mounted } = useClientTheme();
+  const { t } = useTranslation();
 
   if (!mounted) {
     return null;
@@ -15,19 +17,25 @@ export function MenuFooter() {
   return (
     <footer
       className={cn(
-        "border-t py-4 mt-auto",
+        "border-t py-4 mt-auto shrink-0",
         isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
       )}
       style={{
         borderTopColor: colors.border,
       }}
     >
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-4 space-y-1">
         <p
           className="text-center text-sm"
           style={{ color: colors.textSecondary }}
         >
           © {currentYear} All rights reserved.
+        </p>
+        <p
+          className="text-center text-xs"
+          style={{ color: colors.textSecondary, opacity: 0.85 }}
+        >
+          {t("menu.poweredByNux") || "Powered by Nux"}
         </p>
       </div>
     </footer>

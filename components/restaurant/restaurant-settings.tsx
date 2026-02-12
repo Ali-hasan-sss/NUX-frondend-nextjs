@@ -336,14 +336,13 @@ export function RestaurantSettings() {
 
   const handleSaveSection = async () => {
     if (!sectionForm.name.trim()) {
-      toast.error("Section name is required");
+      toast.error(t("dashboard.settings.sectionNameRequired"));
       return;
     }
 
     setIsUpdating(true);
     try {
       if (selectedSection) {
-        // Update existing section
         await axiosInstance.put(
           `/restaurants/kitchen-sections/${selectedSection.id}`,
           {
@@ -351,14 +350,13 @@ export function RestaurantSettings() {
             description: sectionForm.description.trim() || null,
           }
         );
-        toast.success("Kitchen section updated successfully");
+        toast.success(t("dashboard.settings.kitchenSectionUpdated"));
       } else {
-        // Create new section
         await axiosInstance.post("/restaurants/kitchen-sections", {
           name: sectionForm.name.trim(),
           description: sectionForm.description.trim() || null,
         });
-        toast.success("Kitchen section created successfully");
+        toast.success(t("dashboard.settings.kitchenSectionCreated"));
       }
       setIsSectionDialogOpen(false);
       loadKitchenSections();
@@ -366,7 +364,7 @@ export function RestaurantSettings() {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Failed to save kitchen section"
+          t("dashboard.settings.failedToSaveKitchenSection")
       );
     } finally {
       setIsUpdating(false);
@@ -381,7 +379,7 @@ export function RestaurantSettings() {
       await axiosInstance.delete(
         `/restaurants/kitchen-sections/${selectedSection.id}`
       );
-      toast.success("Kitchen section deleted successfully");
+      toast.success(t("dashboard.settings.kitchenSectionDeleted"));
       setIsDeleteSectionOpen(false);
       setSelectedSection(null);
       loadKitchenSections();
@@ -389,7 +387,7 @@ export function RestaurantSettings() {
       toast.error(
         error.response?.data?.message ||
           error.message ||
-          "Failed to delete kitchen section"
+          t("dashboard.settings.failedToDeleteKitchenSection")
       );
     } finally {
       setIsUpdating(false);
@@ -1130,11 +1128,10 @@ export function RestaurantSettings() {
       <ConfirmDialog
         open={isDeleteSectionOpen}
         setOpen={setIsDeleteSectionOpen}
-        title={t("dashboard.settings.deleteSection") || "Delete Kitchen Section"}
-        message={
-          t("dashboard.settings.deleteSectionConfirm") ||
-          `Are you sure you want to delete "${selectedSection?.name}"? This action cannot be undone.`
-        }
+        title={t("dashboard.settings.deleteSection")}
+        message={t("dashboard.settings.deleteSectionConfirm", {
+          name: selectedSection?.name ?? "",
+        })}
         onConfirm={handleDeleteSection}
         confirmText={t("dashboard.settings.delete") || "Delete"}
         cancelText={t("dashboard.settings.cancel") || "Cancel"}

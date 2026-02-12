@@ -110,6 +110,22 @@
     "failedToDeleteAccount": "Konto konnte nicht gelöscht werden",
     "deleteAccountConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
   },
+  "scan": {
+    "title": "QR-Code scannen",
+    "description": "Richten Sie die Kamera auf den QR-Code des Restaurants, um Treuepunkte zu sammeln",
+    "errorInvalidQrCode": "Ungültiger QR-Code. Bitte scannen Sie einen gültigen Restaurant-QR-Code.",
+    "errorMustBeAtRestaurant": "Sie müssen sich am Restaurant-Standort befinden, um diesen QR-Code zu scannen.",
+    "errorGeneric": "Scan fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "processing": "Scan wird verarbeitet...",
+    "startingCamera": "Kamera wird gestartet...",
+    "positionFrame": "Positionieren Sie den QR-Code im Rahmen",
+    "atRestaurant": "Stellen Sie sicher, dass Sie sich im Restaurant befinden",
+    "scanAnother": "Weiteren scannen",
+    "done": "Fertig",
+    "cancel": "Abbrechen",
+    "successTitle": "Scan erfolgreich!",
+    "successMessage": "Sie haben Treuepunkte erhalten."
+  },
   "gift": {
     "scanQRCode": "QR-Code scannen",
     "qrScanned": "QR-Code gescannt",
@@ -170,7 +186,8 @@
     "orderTypeTakeAwayDesc": "Ich nehme es mit",
     "viewOrderItems": "Bestellte Artikel anzeigen: ({{count}})",
     "requestWaiter": "Kellner rufen",
-    "waiterRequestSent": "Kellneranfrage gesendet"
+    "waiterRequestSent": "Kellneranfrage gesendet",
+    "poweredByNux": "Powered by Nux"
   },
   "landing": {
     "hero": {
@@ -349,6 +366,8 @@
       "restaurantLogo": "Restaurant-Logo (Optional)",
       "restaurantAddress": "Restaurant-Adresse",
       "addressPlaceholder": "Hauptstraße 123, Stadt, Bundesland",
+      "selectLocationOnMapHint": "Bitte tippen Sie auf die Stecknadel-Schaltfläche neben dem Adressfeld, um den Standort Ihres Restaurants auf der Karte festzulegen.",
+      "selectLocationOnMap": "Standort auf Karte auswählen",
       "locationSelected": "Standort ausgewählt:",
       "alreadyHaveAccount": "Haben Sie bereits ein Konto?",
       "signInLink": "Anmelden",
@@ -497,7 +516,20 @@
       "subscriptionConfirmed": "Abonnement erfolgreich bestätigt! Ihr Plan ist jetzt aktiv.",
       "confirmationFailed": "Abonnementsbestätigung fehlgeschlagen. Bitte kontaktieren Sie den Support.",
       "errorConfirming": "Fehler bei der Abonnementsbestätigung. Bitte kontaktieren Sie den Support.",
-      "renewalAvailable": "Erneuerung ist nur in den letzten 30 Tagen Ihres Abonnements verfügbar."
+      "renewalAvailable": "Erneuerung ist nur in den letzten 30 Tagen Ihres Abonnements verfügbar.",
+      "renewalAvailableIn": "Erneuerung verfügbar in {{days}} Tagen",
+      "renewalOnlyInLast30Days": "Erneuerung ist nur in den letzten 30 Tagen möglich. Sie können in {{days}} Tagen erneuern.",
+      "errorCreatingCheckout": "Checkout konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+      "choosePaymentMethod": "Zahlungsmethode wählen",
+      "choosePaymentMethodDesc": "Mit PayPal bezahlen oder Karte (Visa, Mastercard, Klarna usw.) über unseren sicheren Zahlungsanbieter nutzen.",
+      "payWithPayPal": "Mit PayPal bezahlen",
+      "payWithCard": "Karte (Visa, Mastercard, Klarna usw.)",
+      "availablePlans": "Verfügbare Pläne",
+      "billingInformation": "Rechnungsinformationen",
+      "billingInformationDesc": "Verwalten Sie Ihre Rechnungsdetails und Zahlungsmethoden",
+      "billingAddress": "Rechnungsadresse",
+      "paymentMethodLabel": "Zahlungsmethode",
+      "noPaymentMethod": "Keine Zahlungsmethode"
     },
     "invoices": {
       "title": "Rechnungsverwaltung",
@@ -743,7 +775,29 @@
       "howToUseDesc": "Klicken Sie auf \"Karte öffnen\", um den Standort auf der Karte auszuwählen oder verwenden Sie Ihren aktuellen Standort",
       "selected": "Ausgewählt:",
       "noLocationSelected": "Kein Standort ausgewählt",
-      "saveLocation": "Standort speichern"
+      "saveLocation": "Standort speichern",
+      "kitchenSections": "Küchenbereiche",
+      "addSection": "Bereich hinzufügen",
+      "manageKitchenSections": "Verwalten Sie Ihre Küchenbereiche",
+      "noKitchenSections": "Noch keine Küchenbereiche",
+      "addFirstSection": "Ersten Bereich hinzufügen",
+      "editKitchenSection": "Küchenbereich bearbeiten",
+      "addKitchenSection": "Küchenbereich hinzufügen",
+      "editKitchenSectionDesc": "Küchenbereichsinformationen aktualisieren",
+      "addKitchenSectionDesc": "Einen neuen Küchenbereich für Ihr Restaurant anlegen",
+      "sectionName": "Bereichsname",
+      "sectionNamePlaceholder": "z. B. Heiße Küche, Kalte Station",
+      "sectionDescription": "Beschreibung",
+      "sectionDescriptionPlaceholder": "Optionale Beschreibung",
+      "deleteSection": "Küchenbereich löschen",
+      "deleteSectionConfirm": "Möchten Sie \"{{name}}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "delete": "Löschen",
+      "sectionNameRequired": "Bereichsname ist erforderlich",
+      "kitchenSectionUpdated": "Küchenbereich erfolgreich aktualisiert",
+      "kitchenSectionCreated": "Küchenbereich erfolgreich erstellt",
+      "failedToSaveKitchenSection": "Küchenbereich konnte nicht gespeichert werden",
+      "kitchenSectionDeleted": "Küchenbereich erfolgreich gelöscht",
+      "failedToDeleteKitchenSection": "Küchenbereich konnte nicht gelöscht werden"
     },
     "fileUpload": {
       "upload": "Hochladen",

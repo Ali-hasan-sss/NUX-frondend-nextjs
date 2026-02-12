@@ -122,10 +122,10 @@ export function InvoicesManagement() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-foreground">
-          Invoices Management
+          {t("dashboard.invoices.title")}
         </h1>
         <p className="text-muted-foreground">
-          View and manage your restaurant invoices and billing history
+          {t("dashboard.invoices.description")}
         </p>
       </div>
 
