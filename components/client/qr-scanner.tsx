@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { scanQrCode, clearQrScanError } from "@/features/client";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Camera, X, Loader2, CheckCircle, AlertCircle } from "lucide-react";
-import { Html5Qrcode } from "html5-qrcode";
+import { BrowserQRCodeReader } from "@zxing/browser";
 import "@/styles/qr-scanner.css";
 
 /** Map API error message to translated string (avoids client-side exception from raw messages) */
@@ -32,7 +32,7 @@ interface QRScannerProps {
   onScanSuccess?: (result: any) => void;
 }
 
-export function QRScanner({
+export const QRScanner = React.memo(function QRScanner({
   open,
   onOpenChange,
   onScanSuccess,
@@ -55,9 +55,9 @@ export function QRScanner({
     lng: number;
     source: string;
   } | null>(null);
-  const scannerRef = useRef<HTMLDivElement>(null);
-  /** Scanner instance in ref to avoid re-renders and effect loops (was state = choppy video + crash) */
-  const scannerRefInstance = useRef<Html5Qrcode | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  /** ZXing decode controls: stop() to end scanning (avoid re-renders / effect loops) */
+  const controlsRef = useRef<{ stop: () => void } | null>(null);
   /** Guard: only one scan request per modal open (library may fire callback multiple times) */
   const requestSentRef = useRef(false);
   /** Guard: avoid setState after modal closed (prevents "Application error: client-side exception") */
@@ -128,15 +128,12 @@ export function QRScanner({
     setHasScanned(true);
 
     // Stop scanner immediately so callback cannot fire again (one request per modal open)
-    const s = scannerRefInstance.current;
-    if (s) {
+    const ctrl = controlsRef.current;
+    if (ctrl) {
       try {
-        await s.stop();
+        ctrl.stop();
       } catch (_) {}
-      try {
-        await s.clear();
-      } catch (_) {}
-      scannerRefInstance.current = null;
+      controlsRef.current = null;
     }
 
     try {
@@ -266,58 +263,55 @@ export function QRScanner({
   };
 
   const startScanner = async () => {
-    if (scannerRefInstance.current || isInitializing) return;
+    if (controlsRef.current || isInitializing) return;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
 
     setIsInitializing(true);
 
-    try {
-      const scannerId = "qr-scanner-element";
-      const newScanner = new Html5Qrcode(scannerId);
+    const codeReader = new BrowserQRCodeReader();
+    const constraints: MediaTrackConstraints = {
+      facingMode: { ideal: "environment" },
+      width: { max: 480 },
+      height: { max: 480 },
+      frameRate: { max: 10 },
+    };
 
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const scanFps = isMobile ? 4 : 6;
-      await newScanner.start(
-        { facingMode: "environment" },
-        {
-          fps: scanFps,
-          qrbox: { width: isMobile ? 150 : 200, height: isMobile ? 150 : 200 },
-          aspectRatio: 1.0,
-          disableFlip: true,
-          ...({
-            videoConstraints: {
-              facingMode: { ideal: "environment" },
-              width: { ideal: 360 },
-              height: { ideal: 360 },
-              frameRate: { ideal: 6, max: 10 },
-            },
-          } as { videoConstraints?: MediaTrackConstraints }),
-        },
-        handleScanSuccess,
-        (errorMessage: string) => {
-          if (
-            !errorMessage.includes("QR code parse error") &&
-            !errorMessage.includes("No QR code found") &&
-            !errorMessage.includes("NotFoundException")
-          ) {
-            console.warn("QR Scan error:", errorMessage);
-          }
+    try {
+      const controls = await codeReader.decodeFromConstraints(
+        { video: constraints },
+        videoEl,
+        (result, error) => {
+          if (result) handleScanSuccess(result.getText());
         }
       );
-
-      scannerRefInstance.current = newScanner;
+      controlsRef.current = controls;
       setIsInitializing(false);
     } catch (error) {
-      console.error("Camera initialization failed:", error);
-      alert(
-        "Cannot access camera. Please make sure camera permissions are enabled and try again."
-      );
-      setIsInitializing(false);
+      try {
+        const controls = await codeReader.decodeFromConstraints(
+          { video: { facingMode: "environment" } },
+          videoEl,
+          (result) => {
+            if (result) handleScanSuccess(result.getText());
+          }
+        );
+        controlsRef.current = controls;
+        setIsInitializing(false);
+      } catch (fallbackError) {
+        console.error("Camera initialization failed:", fallbackError);
+        alert(
+          "Cannot access camera. Please make sure camera permissions are enabled and try again."
+        );
+        setIsInitializing(false);
+      }
     }
   };
 
   const stopScanner = async () => {
-    const s = scannerRefInstance.current;
-    if (!s) {
+    const ctrl = controlsRef.current;
+    const videoEl = videoRef.current;
+    if (!ctrl) {
       setScanResult(null);
       setHasScanned(false);
       setIsInitializing(false);
@@ -325,12 +319,14 @@ export function QRScanner({
       return;
     }
     try {
-      await s.stop();
+      ctrl.stop();
+      if (videoEl) {
+        videoEl.pause();
+        BrowserQRCodeReader.cleanVideoSource(videoEl);
+      }
+      BrowserQRCodeReader.releaseAllStreams();
     } catch (_) {}
-    try {
-      await s.clear();
-    } catch (_) {}
-    scannerRefInstance.current = null;
+    controlsRef.current = null;
     setScanResult(null);
     setHasScanned(false);
     setIsInitializing(false);
@@ -360,10 +356,10 @@ export function QRScanner({
     };
   }, [open]);
 
-  // Start scanner once when modal is open and container is shown (no scanner in deps = no loop)
+  // Start scanner once when modal is open and container is shown (no controls in deps = no loop)
   useEffect(() => {
     if (!showScanner || !open || isInitializing) return;
-    if (scannerRefInstance.current) return;
+    if (controlsRef.current) return;
 
     const timer = setTimeout(() => {
       startScanner();
@@ -390,9 +386,10 @@ export function QRScanner({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
+    <Dialog open={open} onOpenChange={handleClose} modal>
       <DialogContent
         className="w-[calc(100vw-2rem)] max-w-sm !max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden"
+        onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center justify-between gap-2 min-w-0">
@@ -458,10 +455,13 @@ export function QRScanner({
 
           {showScanner && !scanResult && !loading.qrScan && !displayError && (
             <div className="space-y-4 min-w-0">
-              <div className="relative w-full mx-auto h-[240px] sm:h-[300px] bg-black rounded-xl overflow-hidden border-2 border-gray-200">
-                <div
-                  id="qr-scanner-element"
-                  className="w-full h-full bg-black rounded-xl overflow-hidden"
+              <div className="qr-scanner-video-container relative w-full mx-auto h-[240px] sm:h-[300px] bg-black rounded-xl overflow-hidden border-2 border-gray-200">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="w-full h-full object-cover rounded-xl bg-black"
                 />
                 {/* QR Frame Overlay */}
                 <div className="absolute inset-0 pointer-events-none">
@@ -538,4 +538,4 @@ export function QRScanner({
       </DialogContent>
     </Dialog>
   );
-}
+});

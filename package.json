@@ -64,6 +64,7 @@
     "framer-motion": "latest",
     "geist": "latest",
     "html2canvas": "^1.4.1",
+    "@zxing/browser": "^0.1.5",
     "html5-qrcode": "^2.3.8",
     "i18next": "^25.7.3",
     "input-otp": "1.4.1",
