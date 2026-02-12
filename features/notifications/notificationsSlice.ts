@@ -28,6 +28,27 @@ export const notificationsSlice = createSlice({
     incrementUnreadCount: (state) => {
       state.unreadCount += 1;
     },
+    /** Prepend a notification received via WebSocket so it appears in the list without refetch */
+    prependNotificationFromSocket: (
+      state,
+      action: {
+        payload: { title?: string; body?: string; type?: string };
+      }
+    ) => {
+      const { title = "", body = "", type = "" } = action.payload;
+      state.items = [
+        {
+          id: `socket-${Date.now()}`,
+          title: title || "Notification",
+          body,
+          type,
+          createdAt: new Date().toISOString(),
+          isRead: false,
+        },
+        ...state.items,
+      ];
+      state.unreadCount += 1;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -65,5 +86,8 @@ export const notificationsSlice = createSlice({
   },
 });
 
-export const { incrementUnreadCount } = notificationsSlice.actions;
+export const {
+  incrementUnreadCount,
+  prependNotificationFromSocket,
+} = notificationsSlice.actions;
 export default notificationsSlice.reducer;

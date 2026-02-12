@@ -35,7 +35,7 @@ export function MenuFooter() {
           className="text-center text-xs"
           style={{ color: colors.textSecondary, opacity: 0.85 }}
         >
-          {t("menu.poweredByNux") || "Powered by Nux"}
+          {t("menu.poweredByNux") || "Powered by nux"}
         </p>
       </div>
     </footer>

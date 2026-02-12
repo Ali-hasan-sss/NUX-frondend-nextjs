@@ -41,7 +41,7 @@ export function Footer() {
             <Link href="/" className="flex items-center space-x-2">
               <Image
                 src="/images/logo.png"
-                alt="NUX"
+                alt="nux"
                 width={80}
                 height={40}
                 className="h-8 w-auto"

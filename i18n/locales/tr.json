@@ -1,6 +1,11 @@
 {
+  "header": {
+    "notifications": "Bildirimler",
+    "noNotifications": "Henüz bildirim yok",
+    "viewAll": "Tümünü gör"
+  },
   "home": {
-    "welcomeToNux": "NUX'e Hoş Geldiniz",
+    "welcomeToNux": "nux'e Hoş Geldiniz",
     "scanCode": "Kodu Tara",
     "scanCodeDesc": "Restoran QR kodunu tarayın",
     "payWallet": "Cüzdan ile Öde",
@@ -135,7 +140,10 @@
     "scanning": "Taranıyor",
     "invalidImageType": "Geçersiz görsel türü. Lütfen bir görsel dosyası seçin.",
     "noQRCodeFound": "Seçilen görselde QR kodu bulunamadı.",
-    "scanError": "Görselden QR kodu taranamadı"
+    "scanError": "Görselden QR kodu taranamadı",
+    "invalidCodeScanFriend": "Geçersiz kod. Hediyeyi göndermek için arkadaşınızın QR kodunu taramalısınız.",
+    "cannotGiftSelf": "Kendinize hediye gönderemezsiniz. Arkadaşınızın QR kodunu tarayın.",
+    "recipientNotFound": "Bu kodla kullanıcı bulunamadı. Hediyeyi göndermek için arkadaşınızın QR kodunu tarayın."
   },
   "packages": {
     "title": "Yükleme Paketleri",
@@ -187,7 +195,7 @@
     "viewOrderItems": "Sipariş ürünlerini görüntüle: ({{count}})",
     "requestWaiter": "Garson Çağır",
     "waiterRequestSent": "Garson talebi gönderildi",
-    "poweredByNux": "Powered by Nux"
+    "poweredByNux": "Powered by nux"
   },
   "landing": {
     "hero": {
@@ -195,7 +203,7 @@
       "description": "Otomasyonu güçlendirin, ödülleri sorunsuz toplayın ve takip edin. Yenilikçi sadakat platformumuzla müşteri deneyiminizi dönüştürün.",
       "downloadAppStore": "App Store'dan İndir",
       "downloadGooglePlay": "Google Play'den İndir",
-      "welcomeToNux": "NUX'e Hoş Geldiniz",
+      "welcomeToNux": "nux'e Hoş Geldiniz",
       "scanCode": "Kodu Tara",
       "scanCodeDesc": "Restoranda QR kodu tarayın",
       "scanMenuCode": "Menü Kodunu Tara",
@@ -268,7 +276,7 @@
     },
     "cta": {
       "title": "Restoran İşinizi Dönüştürmeye Hazır mısınız?",
-      "description": "Müşteri sadakati oluşturmak ve operasyonlarını kolaylaştırmak için NUX kullanan yüzlerce restorana katılın. Ücretsiz denemenizi bugün başlatın.",
+      "description": "Müşteri sadakati oluşturmak ve operasyonlarını kolaylaştırmak için nux kullanan yüzlerce restorana katılın. Ücretsiz denemenizi bugün başlatın.",
       "startFreeTrial": "Ücretsiz Denemeyi Başlat",
       "contactSales": "Satış ile İletişim"
     },
@@ -280,7 +288,7 @@
       "getStarted": "Başlayın",
       "company": "Şirket",
       "account": "Hesap",
-      "copyright": "© 2024 NUX. Tüm hakları saklıdır."
+      "copyright": "© 2024 nux. Tüm hakları saklıdır."
     },
     "restaurants": {
       "title": "Restoranları Keşfet",
@@ -314,10 +322,10 @@
       "restaurants": "Restoranlar"
     },
     "about": {
-      "title": "NUX Hakkında",
+      "title": "nux Hakkında",
       "subtitle": "Restoranları akıllı sadakat çözümleriyle güçlendiriyoruz",
       "story": {
-        "p1": "NUX, net bir misyonla kuruldu: yenilikçi sadakat programları aracılığıyla restoranların müşterileriyle nasıl etkileşim kurduğunu dönüştürmek.",
+        "p1": "nux, net bir misyonla kuruldu: yenilikçi sadakat programları aracılığıyla restoranların müşterileriyle nasıl etkileşim kurduğunu dönüştürmek.",
         "p2": "Platformumuz restoranlara otomatik sadakat yönetimi, QR kod çözümleri, müşteri analitiği ve kapsamlı araçlar sunar.",
         "p3": "Güçlü ve kullanımı kolay teknoloji sağlayarak restoranların başarılı olmasına yardımcı olmaya kendimizi adadık."
       },
@@ -446,7 +454,7 @@
       "login": "Giriş Yap",
       "signUp": "Kayıt Ol",
       "welcomeBack": "Tekrar hoş geldiniz",
-      "signInDescription": "NUX hesabınıza giriş yapın",
+      "signInDescription": "nux hesabınıza giriş yapın",
       "signIn": "Giriş Yap",
       "signInTitle": "Giriş Yap",
       "or": "veya",
@@ -461,7 +469,7 @@
       "dontHaveAccount": "Hesabınız yok mu?",
       "signUpLink": "Kayıt olun",
       "adminLogin": "Yönetici Girişi",
-      "joinNux": "NUX'e Katılın",
+      "joinNux": "nux'e Katılın",
       "createAccountDescription": "Hesabınızı oluşturun ve bizimle yolculuğunuza başlayın",
       "createAccount": "Hesap Oluştur",
       "chooseAccountType": "Başlamak için hesap türünüzü seçin",
@@ -620,7 +628,7 @@
     },
     "subscription": {
       "title": "Abonelik Yönetimi",
-      "description": "NUX aboneliğinizi ve faturalandırmayı yönetin",
+      "description": "nux aboneliğinizi ve faturalandırmayı yönetin",
       "currentSubscription": "Mevcut Abonelik",
       "activeSubscriptionDetails": "Aktif abonelik detaylarınız",
       "currentPlan": "Mevcut Plan",

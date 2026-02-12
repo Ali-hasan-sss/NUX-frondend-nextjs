@@ -1,6 +1,11 @@
 {
+  "header": {
+    "notifications": "Benachrichtigungen",
+    "noNotifications": "Noch keine Benachrichtigungen",
+    "viewAll": "Alle anzeigen"
+  },
   "home": {
-    "welcomeToNux": "Willkommen bei NUX",
+    "welcomeToNux": "Willkommen bei nux",
     "scanCode": "Code scannen",
     "scanCodeDesc": "Restaurant QR-Code scannen",
     "payWallet": "Mit Geldbörse bezahlen",
@@ -135,7 +140,10 @@
     "scanning": "Wird gescannt",
     "invalidImageType": "Ungültiger Bildtyp. Bitte wählen Sie eine Bilddatei aus.",
     "noQRCodeFound": "Kein QR-Code im ausgewählten Bild gefunden.",
-    "scanError": "Fehler beim Scannen des QR-Codes aus dem Bild"
+    "scanError": "Fehler beim Scannen des QR-Codes aus dem Bild",
+    "invalidCodeScanFriend": "Ungültiger Code. Scannen Sie den QR-Code Ihres Freundes, um ihm das Geschenk zu senden.",
+    "cannotGiftSelf": "Sie können sich selbst nichts schenken. Scannen Sie den QR-Code Ihres Freundes.",
+    "recipientNotFound": "Kein Benutzer mit diesem Code gefunden. Scannen Sie den QR-Code Ihres Freundes."
   },
   "packages": {
     "title": "Aufladepakete",
@@ -187,7 +195,7 @@
     "viewOrderItems": "Bestellte Artikel anzeigen: ({{count}})",
     "requestWaiter": "Kellner rufen",
     "waiterRequestSent": "Kellneranfrage gesendet",
-    "poweredByNux": "Powered by Nux"
+    "poweredByNux": "Powered by nux"
   },
   "landing": {
     "hero": {
@@ -195,7 +203,7 @@
       "description": "Leistungsstarke Automatisierung, nahtloses Sammeln und Verfolgen von Belohnungen. Transformieren Sie das Kundenerlebnis mit unserer innovativen Treueplattform.",
       "downloadAppStore": "Im App Store herunterladen",
       "downloadGooglePlay": "Bei Google Play herunterladen",
-      "welcomeToNux": "Willkommen bei NUX",
+      "welcomeToNux": "Willkommen bei nux",
       "scanCode": "Code scannen",
       "scanCodeDesc": "Restaurant QR-Code scannen",
       "scanMenuCode": "Menücode scannen",
@@ -268,7 +276,7 @@
     },
     "cta": {
       "title": "Bereit, Ihr Restaurantgeschäft zu transformieren?",
-      "description": "Schließen Sie sich Hunderten von Restaurants an, die bereits NUX nutzen, um Kundenbindung aufzubauen und ihre Abläufe zu optimieren. Starten Sie noch heute Ihre kostenlose Testversion.",
+      "description": "Schließen Sie sich Hunderten von Restaurants an, die bereits nux nutzen, um Kundenbindung aufzubauen und ihre Abläufe zu optimieren. Starten Sie noch heute Ihre kostenlose Testversion.",
       "startFreeTrial": "Kostenlose Testversion starten",
       "contactSales": "Vertrieb kontaktieren"
     },
@@ -280,7 +288,7 @@
       "getStarted": "Loslegen",
       "company": "Unternehmen",
       "account": "Konto",
-      "copyright": "© 2024 NUX. Alle Rechte vorbehalten."
+      "copyright": "© 2024 nux. Alle Rechte vorbehalten."
     },
     "restaurants": {
       "title": "Restaurants durchsuchen",
@@ -317,7 +325,7 @@
       "login": "Anmelden",
       "signUp": "Registrieren",
       "welcomeBack": "Willkommen zurück",
-      "signInDescription": "Melden Sie sich in Ihrem NUX-Konto an",
+      "signInDescription": "Melden Sie sich in Ihrem nux-Konto an",
       "signIn": "Anmelden",
       "signInTitle": "Anmelden",
       "or": "oder",
@@ -332,7 +340,7 @@
       "dontHaveAccount": "Haben Sie noch kein Konto?",
       "signUpLink": "Registrieren",
       "adminLogin": "Admin-Anmeldung",
-      "joinNux": "NUX beitreten",
+      "joinNux": "nux beitreten",
       "createAccountDescription": "Erstellen Sie Ihr Konto und beginnen Sie Ihre Reise mit uns",
       "createAccount": "Konto erstellen",
       "chooseAccountType": "Wählen Sie Ihren Kontotyp zum Starten",
@@ -491,7 +499,7 @@
     },
     "subscription": {
       "title": "Abonnementverwaltung",
-      "description": "Verwalten Sie Ihr NUX-Abonnement und die Abrechnung",
+      "description": "Verwalten Sie Ihr nux-Abonnement und die Abrechnung",
       "currentSubscription": "Aktuelles Abonnement",
       "activeSubscriptionDetails": "Details zu Ihrem aktiven Abonnement",
       "currentPlan": "Aktueller Plan",

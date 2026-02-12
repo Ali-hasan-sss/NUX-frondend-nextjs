@@ -60,30 +60,33 @@ export function ClientHeader() {
             className="object-contain"
           />
 
-          <button
-            onClick={() => setNotificationsOpen(true)}
-            className={cn(
-              "relative p-2 rounded-lg transition-colors",
-              isDark
-                ? "text-white hover:bg-white/10"
-                : "text-gray-900 hover:bg-gray-100"
-            )}
-          >
-            <Bell className="h-6 w-6" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
-                {unreadCount > 99 ? "99+" : unreadCount}
-              </span>
-            )}
-          </button>
+          <NotificationDropdown
+            open={notificationsOpen}
+            onOpenChange={setNotificationsOpen}
+            trigger={
+              <button
+                type="button"
+                className={cn(
+                  "relative p-2 rounded-lg transition-colors",
+                  isDark
+                    ? "text-white hover:bg-white/10"
+                    : "text-gray-900 hover:bg-gray-100"
+                )}
+                aria-label="Notifications"
+              >
+                <Bell className="h-6 w-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs text-white font-bold">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+            }
+          />
         </div>
       </header>
 
       <DrawerMenu open={drawerOpen} onOpenChange={setDrawerOpen} />
-      <NotificationDropdown
-        open={notificationsOpen}
-        onOpenChange={setNotificationsOpen}
-      />
     </>
   );
 }

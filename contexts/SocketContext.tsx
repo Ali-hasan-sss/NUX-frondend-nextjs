@@ -10,7 +10,7 @@ import React, {
 import { io, Socket } from "socket.io-client";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { toast } from "sonner";
-import { incrementUnreadCount } from "@/features/notifications/notificationsSlice";
+import { prependNotificationFromSocket } from "@/features/notifications/notificationsSlice";
 
 function getSocketUrl(): string {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
@@ -136,7 +136,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         const title = payload?.title ?? "Notification";
         const description = payload?.body ?? "";
         toast(title, { description: description || undefined });
-        dispatch(incrementUnreadCount());
+        dispatch(prependNotificationFromSocket(payload));
       }
     );
 

@@ -22,7 +22,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "NUX - Subscription Management Platform",
+  title: "nux - Subscription Management Platform",
   description:
     "Modern platform for restaurant subscription management with admin and owner dashboards",
   generator: "v0.app",

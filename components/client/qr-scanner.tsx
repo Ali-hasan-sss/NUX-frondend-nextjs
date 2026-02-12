@@ -29,12 +29,15 @@ function getScanErrorMessage(apiMessage: string | null | undefined, t: (key: str
 interface QRScannerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** When "gift", only pass scanned QR string to onScanSuccess; do not call loyalty scan API. */
+  mode?: "loyalty" | "gift";
   onScanSuccess?: (result: any) => void;
 }
 
 export const QRScanner = React.memo(function QRScanner({
   open,
   onOpenChange,
+  mode = "loyalty",
   onScanSuccess,
 }: QRScannerProps) {
   const { t } = useTranslation();
@@ -132,8 +135,21 @@ export const QRScanner = React.memo(function QRScanner({
     if (ctrl) {
       try {
         ctrl.stop();
+        const videoEl = videoRef.current;
+        if (videoEl) {
+          videoEl.pause();
+          BrowserQRCodeReader.cleanVideoSource(videoEl);
+        }
+        BrowserQRCodeReader.releaseAllStreams();
       } catch (_) {}
       controlsRef.current = null;
+    }
+
+    // Gift mode: only pass QR string to parent; do not call loyalty scan API
+    if (mode === "gift") {
+      onOpenChange(false);
+      onScanSuccess?.(qrCodeMessage);
+      return;
     }
 
     try {

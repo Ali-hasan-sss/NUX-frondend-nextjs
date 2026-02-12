@@ -316,9 +316,9 @@ function PublicMenuPageContent() {
               style={{
                 paddingBottom:
                   tableNumberParam && totalItems > 0
-                    ? "calc(7rem + env(safe-area-inset-bottom, 0px))"
+                    ? "calc(12rem + env(safe-area-inset-bottom, 0px))"
                     : tableNumberParam || totalItems > 0
-                      ? "calc(3.5rem + env(safe-area-inset-bottom, 0px))"
+                      ? "calc(8.5rem + env(safe-area-inset-bottom, 0px))"
                       : "calc(5rem + env(safe-area-inset-bottom, 0px))",
               }}
             >
@@ -1104,9 +1104,9 @@ function PublicMenuPageContent() {
             style={{
               paddingBottom:
                 tableNumberParam && totalItems > 0
-                  ? "calc(7rem + env(safe-area-inset-bottom, 0px))"
+                  ? "calc(12rem + env(safe-area-inset-bottom, 0px))"
                   : tableNumberParam || totalItems > 0
-                    ? "calc(3.5rem + env(safe-area-inset-bottom, 0px))"
+                    ? "calc(8.5rem + env(safe-area-inset-bottom, 0px))"
                     : "calc(5rem + env(safe-area-inset-bottom, 0px))",
             }}
           >

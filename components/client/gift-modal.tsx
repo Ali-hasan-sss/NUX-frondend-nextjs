@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { giftBalance, fetchUserBalances } from "@/features/client";
+import { balancesService } from "@/features/client/balances/balancesService";
 import {
   Dialog,
   DialogContent,
@@ -118,11 +119,30 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
     }
   }, [giftAmount, selectedGiftType, currentBalance, t]);
 
-  const handleScanSuccess = (result: any) => {
-    // Extract QR code from scan result
-    const qrCode = result?.qrCode || result?.data || result;
-    setScannedQRCode(qrCode);
-    setShowQRScanner(false);
+  const showInvalidCodeMessage = (reason?: string) => {
+    if (reason === "self") {
+      alert(t("gift.cannotGiftSelf"));
+    } else if (reason === "restaurant_code") {
+      alert(t("gift.invalidCodeScanFriend"));
+    } else {
+      alert(t("gift.recipientNotFound"));
+    }
+  };
+
+  const handleScanSuccess = async (result: string) => {
+    const qrCode = typeof result === "string" ? result.trim() : "";
+    if (!qrCode) return;
+    try {
+      const { valid, reason } = await balancesService.validateGiftRecipient(qrCode);
+      if (valid) {
+        setScannedQRCode(qrCode);
+        setShowQRScanner(false);
+      } else {
+        showInvalidCodeMessage(reason);
+      }
+    } catch {
+      showInvalidCodeMessage("not_found");
+    }
   };
 
   const handleSendGift = async () => {
@@ -241,7 +261,12 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
       const qrCode = await Html5Qrcode.scanFile(file, false);
 
       if (qrCode) {
-        setScannedQRCode(qrCode);
+        const { valid, reason } = await balancesService.validateGiftRecipient(qrCode);
+        if (valid) {
+          setScannedQRCode(qrCode);
+        } else {
+          showInvalidCodeMessage(reason);
+        }
       } else {
         alert(t("gift.noQRCodeFound"));
       }
@@ -311,7 +336,7 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           className={cn(
-            "max-w-md max-h-[90vh] overflow-y-auto p-0 transition-colors",
+            "w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto p-0 transition-colors",
             isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
           )}
           style={{
@@ -546,10 +571,11 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
         </DialogContent>
       </Dialog>
 
-      {/* QR Scanner Modal */}
+      {/* QR Scanner Modal - gift mode: only accept friend's QR, no loyalty API */}
       <QRScanner
         open={showQRScanner}
         onOpenChange={setShowQRScanner}
+        mode="gift"
         onScanSuccess={handleScanSuccess}
       />
     </>

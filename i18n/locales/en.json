@@ -1,6 +1,11 @@
 {
+  "header": {
+    "notifications": "Notifications",
+    "noNotifications": "No notifications yet",
+    "viewAll": "View all"
+  },
   "home": {
-    "welcomeToNux": "Welcome to NUX",
+    "welcomeToNux": "Welcome to nux",
     "scanCode": "Scan Code",
     "scanCodeDesc": "Scan restaurant QR code",
     "payWallet": "Pay with Wallet",
@@ -135,7 +140,10 @@
     "scanning": "Scanning",
     "invalidImageType": "Invalid image type. Please select an image file.",
     "noQRCodeFound": "No QR code found in the selected image.",
-    "scanError": "Failed to scan QR code from image"
+    "scanError": "Failed to scan QR code from image",
+    "invalidCodeScanFriend": "Invalid code. You must scan your friend's QR code to send them the gift.",
+    "cannotGiftSelf": "You cannot send a gift to yourself. Scan your friend's QR code.",
+    "recipientNotFound": "No user found with this code. Scan your friend's QR code to send the gift."
   },
   "packages": {
     "title": "Recharge Packages",
@@ -187,7 +195,7 @@
     "viewOrderItems": "View order items: ({{count}})",
     "requestWaiter": "Request Waiter",
     "waiterRequestSent": "Waiter request sent",
-    "poweredByNux": "Powered by Nux"
+    "poweredByNux": "Powered by nux"
   },
   "landing": {
     "hero": {
@@ -195,7 +203,7 @@
       "description": "Power automation, collect and track rewards seamlessly. Transform your customer experience with our innovative loyalty platform.",
       "downloadAppStore": "Download on the App Store",
       "downloadGooglePlay": "Get it on Google Play",
-      "welcomeToNux": "Welcome to NUX",
+      "welcomeToNux": "Welcome to nux",
       "scanCode": "Scan Code",
       "scanCodeDesc": "Scan QR code at restaurant",
       "scanMenuCode": "Scan Menu Code",
@@ -268,7 +276,7 @@
     },
     "cta": {
       "title": "Ready to Transform Your Restaurant Business?",
-      "description": "Join hundreds of restaurants already using NUX to build customer loyalty and streamline their operations. Start your free trial today.",
+      "description": "Join hundreds of restaurants already using nux to build customer loyalty and streamline their operations. Start your free trial today.",
       "startFreeTrial": "Start Free Trial",
       "contactSales": "Contact Sales"
     },
@@ -280,7 +288,7 @@
       "getStarted": "Get Started",
       "company": "Company",
       "account": "Account",
-      "copyright": "© 2024 NUX. All rights reserved."
+      "copyright": "© 2024 nux. All rights reserved."
     },
     "restaurants": {
       "title": "Browse Restaurants",
@@ -314,10 +322,10 @@
       "restaurants": "Restaurants"
     },
     "about": {
-      "title": "About NUX",
+      "title": "About nux",
       "subtitle": "Empowering restaurants with intelligent loyalty solutions",
       "story": {
-        "p1": "NUX was founded with a clear mission: to transform how restaurants engage with their customers through innovative loyalty programs.",
+        "p1": "nux was founded with a clear mission: to transform how restaurants engage with their customers through innovative loyalty programs.",
         "p2": "Our platform provides restaurants with automated loyalty management, QR code solutions, customer analytics, and comprehensive tools.",
         "p3": "We are dedicated to helping restaurants succeed by providing technology that is powerful and easy to use."
       },
@@ -446,7 +454,7 @@
       "login": "Login",
       "signUp": "Sign Up",
       "welcomeBack": "Welcome back",
-      "signInDescription": "Sign in to your NUX account",
+      "signInDescription": "Sign in to your nux account",
       "signIn": "Sign In",
       "signInTitle": "Sign In",
       "or": "or",
@@ -461,7 +469,7 @@
       "dontHaveAccount": "Don't have an account?",
       "signUpLink": "Sign up",
       "adminLogin": "Admin Login",
-      "joinNux": "Join NUX",
+      "joinNux": "Join nux",
       "createAccountDescription": "Create your account and start your journey with us",
       "createAccount": "Create Account",
       "chooseAccountType": "Choose your account type to get started",
@@ -620,7 +628,7 @@
     },
     "subscription": {
       "title": "Subscription Management",
-      "description": "Manage your NUX subscription and billing",
+      "description": "Manage your nux subscription and billing",
       "currentSubscription": "Current Subscription",
       "activeSubscriptionDetails": "Your active subscription details",
       "currentPlan": "Current Plan",
