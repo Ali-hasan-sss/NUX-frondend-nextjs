@@ -59,6 +59,8 @@ export function QRScanner({
   const scannerRef = useRef<HTMLDivElement>(null);
   /** Guard: only one scan request per modal open (library may fire callback multiple times) */
   const requestSentRef = useRef(false);
+  /** Guard: avoid setState after modal closed (prevents "Application error: client-side exception") */
+  const openRef = useRef(open);
 
   const getLocationFromIP = async () => {
     try {
@@ -96,10 +98,7 @@ export function QRScanner({
           const location = service.parser(data);
 
           if (location.lat && location.lng) {
-            console.log(
-              `🌐 QR Scanner IP Location from ${location.source}:`,
-              location
-            );
+            if (!openRef.current) return location;
             setIpLocation(location);
 
             // Check if this looks more accurate than GPS
@@ -108,10 +107,7 @@ export function QRScanner({
               location.lat <= 42 &&
               location.lng >= 25 &&
               location.lng <= 50;
-            if (isInMiddleEast) {
-              console.log("✅ IP location seems more accurate for QR scanning");
-              return location;
-            }
+            if (isInMiddleEast) return location;
             break;
           }
         } catch (error) {
@@ -275,7 +271,7 @@ export function QRScanner({
       // Start camera with low resolution & low FPS for smooth video (less CPU = less choppy)
       console.log("Starting camera...");
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const scanFps = isMobile ? 5 : 8;
+      const scanFps = isMobile ? 8 : 10;
       await newScanner.start(
         { facingMode: "environment" },
         {
@@ -285,6 +281,7 @@ export function QRScanner({
           disableFlip: true,
           ...({
             videoConstraints: {
+              facingMode: { ideal: "environment" },
               width: { ideal: isMobile ? 480 : 640, max: 640 },
               height: { ideal: isMobile ? 360 : 480, max: 480 },
               frameRate: { ideal: scanFps + 2, max: 12 },
@@ -339,8 +336,8 @@ export function QRScanner({
   };
 
   useEffect(() => {
+    openRef.current = open;
     if (open) {
-      console.log("QR Scanner modal opened");
       requestSentRef.current = false;
       dispatch(clearQrScanError());
       setHasScanned(false);
@@ -352,14 +349,12 @@ export function QRScanner({
       getLocationFromIP();
       setShowScanner(true);
     } else {
-      console.log("QR Scanner modal closed");
       setShowScanner(false);
       stopScanner();
     }
 
-    // Cleanup function
     return () => {
-      console.log("QR Scanner component unmounting, cleaning up...");
+      openRef.current = false;
       if (scanner) {
         scanner.stop().catch(() => {});
         scanner.clear().catch(() => {});
@@ -371,7 +366,7 @@ export function QRScanner({
   useEffect(() => {
     if (!showScanner || !open || scanner || isInitializing) return;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const delay = isMobile ? 600 : 400;
+    const delay = isMobile ? 300 : 250;
     const t = setTimeout(() => {
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
