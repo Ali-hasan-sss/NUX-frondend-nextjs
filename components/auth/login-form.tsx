@@ -14,6 +14,7 @@ import { loginUser } from "@/features/auth/authThunks";
 import { clearError } from "@/features/auth/authSlice";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export function LoginForm() {
   const { t } = useTranslation();
@@ -62,7 +63,11 @@ export function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       {error && (
         <Alert variant="destructive" className="rounded-xl">
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            {error.includes("sign in with Google") || error.includes("USE_GOOGLE")
+              ? t("landing.auth.pleaseSignInWithGoogle")
+              : error}
+          </AlertDescription>
         </Alert>
       )}
 
@@ -124,6 +129,19 @@ export function LoginForm() {
         {submitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
         {t("landing.auth.signIn")}
       </Button>
+
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            {t("landing.auth.or")}
+          </span>
+        </div>
+      </div>
+
+      <GoogleSignInButton mode="signin" className="flex justify-center" />
 
       <div className="space-y-3 pt-2">
         {error && (error.includes("verify") || error.includes("verif")) && (

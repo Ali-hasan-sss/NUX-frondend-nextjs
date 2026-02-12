@@ -79,4 +79,13 @@ export const authService = {
       newPassword,
     });
   },
+
+  async loginWithGoogle(idToken: string): Promise<AuthResponse> {
+    const response = await axiosInstance.post("/auth/google", { idToken });
+    const api = response.data;
+    return {
+      user: { ...api.data.user },
+      tokens: api.data.tokens,
+    };
+  },
 };

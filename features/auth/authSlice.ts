@@ -5,6 +5,7 @@ import {
   loginAdmin,
   registerRestaurant,
   registerUser,
+  loginWithGoogle,
 } from "./authThunks";
 
 const initialState: AuthState = {
@@ -33,6 +34,9 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
     },
     setTokens: (state, action: PayloadAction<AuthTokens>) => {
       state.tokens = action.payload;
@@ -188,9 +192,40 @@ const authSlice = createSlice({
           (action.payload as string) ?? action.error.message ?? null;
         state.isAuthenticated = false;
       });
+
+    // Login with Google
+    builder
+      .addCase(loginWithGoogle.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginWithGoogle.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.tokens = action.payload.tokens;
+        state.isAuthenticated = true;
+        state.error = null;
+        if (typeof window !== "undefined") {
+          localStorage.setItem(
+            "accessToken",
+            action.payload.tokens.accessToken
+          );
+          localStorage.setItem(
+            "refreshToken",
+            action.payload.tokens.refreshToken
+          );
+          localStorage.setItem("user", JSON.stringify(action.payload.user));
+        }
+      })
+      .addCase(loginWithGoogle.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          (action.payload as string) ?? action.error.message ?? null;
+        state.isAuthenticated = false;
+      });
   },
 });
 
-export const { logout, clearError, setTokens, initializeAuth } =
+export const { logout, clearError, setError, setTokens, initializeAuth } =
   authSlice.actions;
 export default authSlice.reducer;

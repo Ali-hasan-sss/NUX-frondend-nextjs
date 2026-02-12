@@ -63,3 +63,18 @@ export const registerUser = createAsyncThunk<
     return rejectWithValue(error.message || "User registration failed");
   }
 });
+
+export const loginWithGoogle = createAsyncThunk<
+  AuthResponse,
+  string,
+  { rejectValue: string }
+>("auth/loginWithGoogle", async (idToken, { rejectWithValue }) => {
+  try {
+    const response = await authService.loginWithGoogle(idToken);
+    return response;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message || error.message || "Google sign-in failed";
+    return rejectWithValue(message);
+  }
+});

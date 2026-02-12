@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import GoogleMapPicker from "@/components/common/GoogleMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { useTranslation } from "react-i18next";
 
 type AccountType = "user" | "restaurant";
@@ -319,6 +320,18 @@ export function MultiStepRegisterForm() {
           {/* Step 2: User Basic Info */}
           {currentStep === 2 && (
             <div className="space-y-4">
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    {t("landing.auth.or")}
+                  </span>
+                </div>
+              </div>
+              <GoogleSignInButton mode="signup" className="flex justify-center mb-4" />
+
               <h3 className="text-lg font-semibold mb-4">
                 {t("landing.auth.personalInformation")}
               </h3>
