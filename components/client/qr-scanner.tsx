@@ -44,7 +44,6 @@ export function QRScanner({
     () => (error.qrScan ? getScanErrorMessage(error.qrScan, t) : null),
     [error.qrScan, t]
   );
-  const [scanner, setScanner] = useState<Html5Qrcode | null>(null);
   const [scanResult, setScanResult] = useState<any>(null);
   const [hasScanned, setHasScanned] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -57,6 +56,8 @@ export function QRScanner({
     source: string;
   } | null>(null);
   const scannerRef = useRef<HTMLDivElement>(null);
+  /** Scanner instance in ref to avoid re-renders and effect loops (was state = choppy video + crash) */
+  const scannerRefInstance = useRef<Html5Qrcode | null>(null);
   /** Guard: only one scan request per modal open (library may fire callback multiple times) */
   const requestSentRef = useRef(false);
   /** Guard: avoid setState after modal closed (prevents "Application error: client-side exception") */
@@ -127,9 +128,15 @@ export function QRScanner({
     setHasScanned(true);
 
     // Stop scanner immediately so callback cannot fire again (one request per modal open)
-    if (scanner) {
-      scanner.stop().catch(console.error);
-      scanner.clear().catch(console.error);
+    const s = scannerRefInstance.current;
+    if (s) {
+      try {
+        await s.stop();
+      } catch (_) {}
+      try {
+        await s.clear();
+      } catch (_) {}
+      scannerRefInstance.current = null;
     }
 
     try {
@@ -259,19 +266,16 @@ export function QRScanner({
   };
 
   const startScanner = async () => {
-    if (scanner || isInitializing) return;
+    if (scannerRefInstance.current || isInitializing) return;
 
     setIsInitializing(true);
-    console.log("Starting direct camera scanner...");
 
     try {
       const scannerId = "qr-scanner-element";
       const newScanner = new Html5Qrcode(scannerId);
 
-      // Start camera with low resolution & low FPS for smooth video (less CPU = less choppy)
-      console.log("Starting camera...");
       const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const scanFps = isMobile ? 8 : 10;
+      const scanFps = isMobile ? 4 : 6;
       await newScanner.start(
         { facingMode: "environment" },
         {
@@ -282,15 +286,14 @@ export function QRScanner({
           ...({
             videoConstraints: {
               facingMode: { ideal: "environment" },
-              width: { ideal: isMobile ? 480 : 640, max: 640 },
-              height: { ideal: isMobile ? 360 : 480, max: 480 },
-              frameRate: { ideal: scanFps + 2, max: 12 },
+              width: { ideal: 360 },
+              height: { ideal: 360 },
+              frameRate: { ideal: 6, max: 10 },
             },
           } as { videoConstraints?: MediaTrackConstraints }),
         },
         handleScanSuccess,
         (errorMessage: string) => {
-          // Only log important errors
           if (
             !errorMessage.includes("QR code parse error") &&
             !errorMessage.includes("No QR code found") &&
@@ -301,9 +304,8 @@ export function QRScanner({
         }
       );
 
-      setScanner(newScanner);
+      scannerRefInstance.current = newScanner;
       setIsInitializing(false);
-      console.log("Camera started successfully");
     } catch (error) {
       console.error("Camera initialization failed:", error);
       alert(
@@ -313,26 +315,26 @@ export function QRScanner({
     }
   };
 
-  const stopScanner = () => {
-    console.log("Stopping scanner...");
-    if (scanner) {
-      try {
-        scanner.stop().catch((error) => {
-          console.warn("Error stopping scanner:", error);
-        });
-        scanner.clear().catch((error) => {
-          console.warn("Error clearing scanner:", error);
-        });
-      } catch (error) {
-        console.warn("Error in stopScanner:", error);
-      }
-      setScanner(null);
+  const stopScanner = async () => {
+    const s = scannerRefInstance.current;
+    if (!s) {
+      setScanResult(null);
+      setHasScanned(false);
+      setIsInitializing(false);
+      setShowScanner(false);
+      return;
     }
+    try {
+      await s.stop();
+    } catch (_) {}
+    try {
+      await s.clear();
+    } catch (_) {}
+    scannerRefInstance.current = null;
     setScanResult(null);
     setHasScanned(false);
     setIsInitializing(false);
     setShowScanner(false);
-    console.log("Scanner stopped");
   };
 
   useEffect(() => {
@@ -355,34 +357,23 @@ export function QRScanner({
 
     return () => {
       openRef.current = false;
-      if (scanner) {
-        scanner.stop().catch(() => {});
-        scanner.clear().catch(() => {});
-      }
     };
-  }, [open, scanner]);
+  }, [open]);
 
-  // Start scanner after modal layout is fully settled (reduces choppy video from layout thrashing)
+  // Start scanner once when modal is open and container is shown (no scanner in deps = no loop)
   useEffect(() => {
-    if (!showScanner || !open || scanner || isInitializing) return;
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const delay = isMobile ? 300 : 250;
-    const t = setTimeout(() => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          console.log("Scanner container ready, starting scanner...");
-          startScanner();
-        });
-      });
-    }, delay);
-    return () => clearTimeout(t);
-  }, [showScanner, open, scanner, isInitializing]);
+    if (!showScanner || !open || isInitializing) return;
+    if (scannerRefInstance.current) return;
+
+    const timer = setTimeout(() => {
+      startScanner();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [showScanner, open, isInitializing]);
 
   const handleClose = () => {
-    console.log("Handling modal close...");
     stopScanner();
-
-    // Force close after a short delay if needed
     setTimeout(() => {
       onOpenChange(false);
     }, 100);
