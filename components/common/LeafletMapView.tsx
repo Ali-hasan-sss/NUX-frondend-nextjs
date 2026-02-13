@@ -78,10 +78,10 @@ export function LeafletMapView({
   // When center prop changes (e.g. from "Get my location" or search), move map and marker
   useEffect(() => {
     if (!mapRef.current || !markerRef.current) return;
-    const [lat, lng] = center;
     markerRef.current.setLatLng(center);
     mapRef.current.invalidateSize();
-    mapRef.current.flyTo(center, mapRef.current.getZoom(), { duration: 800 });
+    // تحديث فوري للمنظر والماركر لضمان ظهور الموقع فوراً (بدون انتقال بطيء)
+    mapRef.current.setView(center, mapRef.current.getZoom());
   }, [center[0], center[1]]);
 
   return <div ref={containerRef} className={className} />;

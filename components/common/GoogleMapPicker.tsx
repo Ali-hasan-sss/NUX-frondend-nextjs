@@ -11,7 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { MapPin, Navigation, Search } from "lucide-react";
-import { getAccuratePosition } from "@/utils/getLocation";
 import dynamic from "next/dynamic";
 
 const LeafletMapView = dynamic(
@@ -86,10 +85,21 @@ export function GoogleMapPicker({
           // ignore
         }
       }
-      const pos = await getAccuratePosition({
-        desiredAccuracy: 10,
-        maxAttempts: 12,
-        totalTimeout: 45000,
+      // طلب واحد سريع (حد أقصى 12 ثانية) بدل انتظار دقة عالية طويل — يكفي لتحديد الموقع على الخريطة
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation not supported"));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy: true,
+            timeout: 12000,
+            maximumAge: 60000, // قبول موقع مخزّن حتى 1 دقيقة للاستجابة السريعة
+          }
+        );
       });
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
