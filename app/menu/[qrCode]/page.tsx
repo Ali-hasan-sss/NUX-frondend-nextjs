@@ -681,16 +681,14 @@ function PublicMenuPageContent() {
               onClick={handleRequestWaiter}
               disabled={requestingWaiter}
               className={cn(
-                "fixed left-0 right-0 z-40 w-full py-3.5 px-4 flex items-center justify-center gap-2.5 font-semibold text-base shadow-[0_-4px_12px_rgba(0,0,0,0.08)] transition-opacity active:opacity-90 border-t-2",
-                totalItems > 0 ? "bottom-14" : "bottom-0"
+                "fixed z-40 flex items-center justify-center gap-2 rounded-full py-3 px-4 font-semibold text-sm shadow-lg transition-opacity active:opacity-90",
+                totalItems > 0 ? "bottom-20" : "bottom-6"
               )}
               style={{
-                backgroundColor: isDark
-                  ? "rgba(255,255,255,0.12)"
-                  : "rgba(255,255,255,0.98)",
-                color: colors.primary,
-                borderColor: colors.primary,
-                paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+                right: "max(1rem, env(safe-area-inset-right))",
+                bottom: totalItems > 0 ? undefined : "max(1.5rem, env(safe-area-inset-bottom))",
+                backgroundColor: colors.primary,
+                color: "white",
               }}
             >
               {requestingWaiter ? (
@@ -1302,16 +1300,14 @@ function PublicMenuPageContent() {
             onClick={handleRequestWaiter}
             disabled={requestingWaiter}
             className={cn(
-              "fixed left-0 right-0 z-40 w-full py-3.5 px-4 flex items-center justify-center gap-2.5 font-semibold text-base shadow-[0_-4px_12px_rgba(0,0,0,0.08)] transition-opacity active:opacity-90 border-t-2",
-              totalItems > 0 ? "bottom-14" : "bottom-0"
+              "fixed z-40 flex items-center justify-center gap-2 rounded-full py-3 px-4 font-semibold text-sm shadow-lg transition-opacity active:opacity-90",
+              totalItems > 0 ? "bottom-20" : "bottom-6"
             )}
             style={{
-              backgroundColor: isDark
-                ? "rgba(255,255,255,0.12)"
-                : "rgba(255,255,255,0.98)",
-              color: colors.primary,
-              borderColor: colors.primary,
-              paddingBottom: "max(env(safe-area-inset-bottom), 12px)",
+              right: "max(1rem, env(safe-area-inset-right))",
+              bottom: totalItems > 0 ? undefined : "max(1.5rem, env(safe-area-inset-bottom))",
+              backgroundColor: colors.primary,
+              color: "white",
             }}
           >
             {requestingWaiter ? (
@@ -1323,10 +1319,10 @@ function PublicMenuPageContent() {
           </button>
         )}
         {totalItems > 0 && (
-          <button
-            type="button"
-            onClick={() => setCartOpen(true)}
-            className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
             style={{
               backgroundColor: colors.primary,
               color: "white",
