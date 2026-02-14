@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { X, MapPin } from "lucide-react";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ViewOnlyLeafletMap } from "@/components/common/ViewOnlyLeafletMap";
 
 interface RestaurantMapModalProps {
   open: boolean;
@@ -41,18 +41,9 @@ export function RestaurantMapModal({
   }, [open]);
 
   const handleOpenInMaps = () => {
-    const url = `https://www.google.com/maps/search/?api=1&query=${restaurant.latitude},${restaurant.longitude}`;
+    const url = `https://www.openstreetmap.org/?mlat=${restaurant.latitude}&mlon=${restaurant.longitude}&zoom=16`;
     window.open(url, "_blank");
   };
-
-  // Use static map image or direct link if no API key
-  const hasApiKey =
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY &&
-    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY !== "your_api_key_here";
-
-  const staticMapUrl = hasApiKey
-    ? `https://maps.googleapis.com/maps/api/staticmap?center=${restaurant.latitude},${restaurant.longitude}&zoom=15&size=600x400&markers=color:red%7C${restaurant.latitude},${restaurant.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
-    : null;
 
   if (!mounted) {
     return null;
@@ -87,53 +78,17 @@ export function RestaurantMapModal({
           </div>
         </DialogHeader>
 
-        <div className="flex flex-col h-[calc(90vh-200px)] min-h-[500px]">
-          {/* Map */}
-          {staticMapUrl ? (
-            <div className="flex-1 relative">
-              <Image
-                src={staticMapUrl}
-                alt={restaurant.name}
-                fill
-                className="object-cover"
-                unoptimized
-                onError={() => setMapError(t("promotions.mapLoadError"))}
-              />
-              {/* Click overlay to open in Google Maps */}
-              <button
-                onClick={handleOpenInMaps}
-                className="absolute inset-0 w-full h-full bg-transparent hover:bg-black/5 transition-colors cursor-pointer"
-                aria-label={t("promotions.openInMaps")}
+        <div className="flex flex-col flex-1 min-h-[400px]">
+          {/* Leaflet map - only mount when open so map initializes correctly */}
+          {open ? (
+            <div className="flex-1 min-h-[300px] w-full relative">
+              <ViewOnlyLeafletMap
+                center={[restaurant.latitude, restaurant.longitude]}
+                zoom={15}
+                className="w-full h-full min-h-[300px] rounded-none"
               />
             </div>
-          ) : (
-            <div
-              className="flex-1 flex flex-col items-center justify-center cursor-pointer"
-              style={{ backgroundColor: colors.surface }}
-              onClick={handleOpenInMaps}
-            >
-              <div className="text-center p-8">
-                <MapPin
-                  className="h-16 w-16 mx-auto mb-4"
-                  style={{ color: colors.primary }}
-                />
-                <p className="mb-2" style={{ color: colors.text }}>
-                  {restaurant.name}
-                </p>
-                {restaurant.address && (
-                  <p
-                    className="text-sm mb-4"
-                    style={{ color: colors.textSecondary }}
-                  >
-                    {restaurant.address}
-                  </p>
-                )}
-                <p className="text-sm" style={{ color: colors.textSecondary }}>
-                  {t("promotions.clickToOpenInMaps")}
-                </p>
-              </div>
-            </div>
-          )}
+          ) : null}
 
           {/* Restaurant Info */}
           <div
@@ -143,20 +98,22 @@ export function RestaurantMapModal({
               backgroundColor: colors.surface,
             }}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <MapPin className="h-5 w-5" style={{ color: colors.primary }} />
-              <h3 className="text-lg font-bold" style={{ color: colors.text }}>
-                {restaurant.name}
-              </h3>
+            <div className="flex flex-col gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 shrink-0" style={{ color: colors.primary }} />
+                <h3 className="text-lg font-bold" style={{ color: colors.text }}>
+                  {restaurant.name}
+                </h3>
+              </div>
+              {restaurant.address && (
+                <p
+                  className="text-sm ml-7"
+                  style={{ color: colors.textSecondary }}
+                >
+                  {restaurant.address}
+                </p>
+              )}
             </div>
-            {restaurant.address && (
-              <p
-                className="text-sm mb-4 ml-7"
-                style={{ color: colors.textSecondary }}
-              >
-                {restaurant.address}
-              </p>
-            )}
             <Button
               onClick={handleOpenInMaps}
               className="w-full"

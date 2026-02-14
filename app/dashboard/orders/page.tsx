@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import Link from "next/link";
 import {
@@ -38,7 +38,7 @@ import {
   Utensils,
   Lock,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import {
   Dialog,
@@ -81,6 +81,14 @@ export default function OrdersPage() {
     { id: number; name: string; number: number } | { takeAway: true } | null
   >(null);
   const [isTableOrdersModalOpen, setIsTableOrdersModalOpen] = useState(false);
+
+  const completedStats = useMemo(() => {
+    const completed = orders.filter((o) => o.status === "COMPLETED");
+    return {
+      count: completed.length,
+      revenue: completed.reduce((sum, o) => sum + o.totalPrice, 0),
+    };
+  }, [orders]);
 
   const markOrderAsSeen = useCallback((orderId: number) => {
     setNewOrderIds((prev) => {
@@ -327,53 +335,55 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="space-y-6" dir={isRTL ? "rtl" : "ltr"}>
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold">Orders</h1>
+    <div className="w-full min-w-0 space-y-4 sm:space-y-6" dir={isRTL ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between w-full min-w-0">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h1 className="text-xl font-bold break-words sm:text-2xl lg:text-3xl">
+              Orders
+            </h1>
             {isConnected && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-500/10 px-2 py-0.5 text-xs font-medium text-green-600 dark:text-green-400 shrink-0">
                 <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
                 Live
               </span>
             )}
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-0.5">
             View and manage customer orders
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border p-0.5 bg-muted/50">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto min-w-0">
+          <div className="flex rounded-lg border p-0.5 bg-muted/50 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setViewMode("list")}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                "flex-1 sm:flex-none rounded-md px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors min-w-0",
                 viewMode === "list"
                   ? "bg-background text-foreground shadow"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <List className="h-4 w-4 inline-block mr-1.5 align-middle" />
-              {t("dashboard.orders.viewList") || "List"}
+              <List className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block mr-1 sm:mr-1.5 align-middle shrink-0" />
+              <span className="truncate">{t("dashboard.orders.viewList") || "List"}</span>
             </button>
             <button
               type="button"
               onClick={() => setViewMode("tables")}
               className={cn(
-                "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+                "flex-1 sm:flex-none rounded-md px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium transition-colors min-w-0",
                 viewMode === "tables"
                   ? "bg-background text-foreground shadow"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <LayoutGrid className="h-4 w-4 inline-block mr-1.5 align-middle" />
-              {t("dashboard.orders.viewTables") || "Tables"}
+              <LayoutGrid className="h-3.5 w-3.5 sm:h-4 sm:w-4 inline-block mr-1 sm:mr-1.5 align-middle shrink-0" />
+              <span className="truncate">{t("dashboard.orders.viewTables") || "Tables"}</span>
             </button>
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px] min-w-0 text-xs sm:text-sm">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
@@ -387,6 +397,30 @@ export default function OrdersPage() {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      {/* Completed orders summary */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full min-w-0 max-w-2xl">
+        <Card className="min-w-0">
+          <CardContent className="p-4">
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("dashboard.orders.completedOrdersCount") || "Completed orders"}
+            </p>
+            <p className="text-2xl sm:text-3xl font-bold mt-1">
+              {completedStats.count}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="min-w-0">
+          <CardContent className="p-4">
+            <p className="text-sm font-medium text-muted-foreground">
+              {t("dashboard.orders.completedRevenue") || "Revenue (completed)"}
+            </p>
+            <p className="text-2xl sm:text-3xl font-bold text-primary mt-1">
+              ${completedStats.revenue.toFixed(2)}
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
       {viewMode === "tables" ? (
@@ -408,7 +442,7 @@ export default function OrdersPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 w-full min-w-0">
               {tables.map((table) => {
                 const tableOrders = getOrdersForTable(table);
                 const hasNew = tableHasNewOrder(table);
@@ -416,7 +450,7 @@ export default function OrdersPage() {
                   <Card
                     key={table.id}
                     className={cn(
-                      "cursor-pointer transition-all hover:shadow-md min-h-[100px] flex flex-col items-center justify-center",
+                      "cursor-pointer transition-all hover:shadow-md min-h-[100px] flex flex-col items-center justify-center min-w-0 overflow-hidden",
                       hasNew &&
                         "ring-2 ring-primary ring-offset-2 ring-offset-background"
                     )}
@@ -472,18 +506,18 @@ export default function OrdersPage() {
       ) : (
         <>
           {viewMode === "list" && tables.length > 0 && (
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base">
+            <Card className="w-full min-w-0 overflow-hidden">
+              <CardHeader className="pb-2 p-3 sm:p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg">
                   {t("dashboard.tables.tableSessions") || "Table sessions"}
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-xs sm:text-sm">
                   {t("dashboard.tables.tableSessionsHint") ||
                     "Check to open session, uncheck to close. Customers can only order when the table session is open."}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-4 gap-y-3">
+              <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
+                <div className="flex flex-wrap gap-3 sm:gap-4 gap-y-3">
                   {tables.map((table) => (
                     <div key={table.id} className="flex items-center gap-2">
                       <Checkbox
@@ -516,29 +550,29 @@ export default function OrdersPage() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 w-full min-w-0">
               {orders.map((order) => (
                 <Card
                   key={order.id}
                   className={cn(
-                    "hover:shadow-md transition-shadow cursor-pointer",
+                    "hover:shadow-md transition-shadow cursor-pointer w-full min-w-0 overflow-hidden",
                     newOrderIds.has(order.id) &&
                       "ring-2 ring-primary ring-offset-2 ring-offset-background"
                   )}
                   onClick={() => markOrderAsSeen(order.id)}
                 >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="flex items-center gap-2">
-                          Order #{order.id}
+                  <CardHeader className="pb-2 sm:pb-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between min-w-0">
+                      <div className="min-w-0 flex-1">
+                        <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+                          <span className="break-all">Order #{order.id}</span>
                           {getStatusBadge(order.status)}
                         </CardTitle>
-                        <CardDescription className="mt-1 flex flex-wrap items-center gap-1">
+                        <CardDescription className="mt-1 flex flex-wrap items-center gap-1 text-xs sm:text-sm">
                           {order.orderType && (
                             <Badge
                               variant="secondary"
-                              className="text-xs font-normal"
+                              className="text-xs font-normal shrink-0"
                             >
                               {order.orderType === "ON_TABLE"
                                 ? t("dashboard.orders.orderTypeOnTable") ||
@@ -548,32 +582,34 @@ export default function OrdersPage() {
                             </Badge>
                           )}
                           {order.tableNumber && (
-                            <span className="font-medium">
+                            <span className="font-medium shrink-0">
                               Table {order.tableNumber}
                             </span>
                           )}
                           {order.tableNumber && " • "}
-                          {new Date(order.createdAt).toLocaleString()}
+                          <span className="break-all sm:break-normal">
+                            {new Date(order.createdAt).toLocaleString()}
+                          </span>
                         </CardDescription>
                       </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-primary">
+                      <div className="text-left sm:text-right shrink-0">
+                        <p className="text-xl sm:text-2xl font-bold text-primary">
                           ${order.totalPrice.toFixed(2)}
                         </p>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-0 sm:pt-0">
                     <div className="space-y-3">
                       {order.items.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex gap-3 p-3 rounded-lg bg-muted/50"
+                          className="flex gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50 min-w-0"
                         >
                           {item.itemImage && (
-                            <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                            <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0">
                               <Image
-                                src={item.itemImage}
+                                src={getImageUrl(item.itemImage)}
                                 alt={item.itemTitle}
                                 fill
                                 className="object-cover"
@@ -582,31 +618,31 @@ export default function OrdersPage() {
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1">
-                                <p className="font-semibold">
+                            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-2 min-w-0">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-sm sm:text-base break-words">
                                   {item.itemTitle}
                                 </p>
                                 {item.itemDescription && (
-                                  <p className="text-sm text-muted-foreground line-clamp-1">
+                                  <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 break-words">
                                     {item.itemDescription}
                                   </p>
                                 )}
                                 {item.kitchenSection && (
                                   <Badge
                                     variant="outline"
-                                    className="mt-1 text-xs"
+                                    className="mt-1 text-xs shrink-0"
                                   >
                                     <ChefHat className="h-3 w-3 mr-1" />
                                     {item.kitchenSection}
                                   </Badge>
                                 )}
                               </div>
-                              <div className="text-right">
-                                <p className="font-semibold">
+                              <div className="text-left sm:text-right shrink-0">
+                                <p className="font-semibold text-sm sm:text-base">
                                   ${item.totalPrice.toFixed(2)}
                                 </p>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-xs sm:text-sm text-muted-foreground">
                                   × {item.quantity}
                                 </p>
                               </div>
@@ -640,11 +676,13 @@ export default function OrdersPage() {
                       ))}
                     </div>
                     <div
-                      className="mt-4 flex items-center justify-between pt-4 border-t"
+                      className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-4 border-t"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Button
                         variant="outline"
+                        size="sm"
+                        className="w-full sm:w-auto text-xs sm:text-sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           markOrderAsSeen(order.id);
@@ -654,11 +692,12 @@ export default function OrdersPage() {
                       >
                         View Details
                       </Button>
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2 justify-end">
                         {order.status === "PENDING" && (
                           <>
                             <Button
                               size="sm"
+                              className="text-xs sm:text-sm px-2 sm:px-3"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleStatusUpdate(order.id, "CONFIRMED");
@@ -670,6 +709,7 @@ export default function OrdersPage() {
                             <Button
                               size="sm"
                               variant="destructive"
+                              className="text-xs sm:text-sm px-2 sm:px-3"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleStatusUpdate(order.id, "CANCELLED");
@@ -683,6 +723,7 @@ export default function OrdersPage() {
                         {order.status === "CONFIRMED" && (
                           <Button
                             size="sm"
+                            className="text-xs sm:text-sm px-2 sm:px-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleStatusUpdate(order.id, "PREPARING");
@@ -695,6 +736,7 @@ export default function OrdersPage() {
                         {order.status === "PREPARING" && (
                           <Button
                             size="sm"
+                            className="text-xs sm:text-sm px-2 sm:px-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleStatusUpdate(order.id, "READY");
@@ -707,6 +749,7 @@ export default function OrdersPage() {
                         {order.status === "READY" && (
                           <Button
                             size="sm"
+                            className="text-xs sm:text-sm px-2 sm:px-3"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleStatusUpdate(order.id, "COMPLETED");
@@ -727,19 +770,23 @@ export default function OrdersPage() {
       )}
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2 py-2">
           <Button
             variant="outline"
+            size="sm"
+            className="text-xs sm:text-sm px-2 sm:px-3"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
           >
             Previous
           </Button>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs sm:text-sm text-muted-foreground">
             Page {page} of {totalPages}
           </span>
           <Button
             variant="outline"
+            size="sm"
+            className="text-xs sm:text-sm px-2 sm:px-3"
             disabled={page === totalPages}
             onClick={() => setPage(page + 1)}
           >
@@ -756,9 +803,9 @@ export default function OrdersPage() {
           if (!open) setSelectedTableForModal(null);
         }}
       >
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-base sm:text-lg break-words">
               {selectedTableForModal &&
                 ("takeAway" in selectedTableForModal
                   ? t("dashboard.orders.orderTypeTakeAway") || "Take away"
@@ -768,67 +815,136 @@ export default function OrdersPage() {
                       selectedTableForModal.number)}
             </DialogTitle>
             <DialogDescription>
-              {selectedTableForModal &&
-                getOrdersForTable(selectedTableForModal).length}{" "}
-              {t("dashboard.orders.orders") || "orders"}
+              {selectedTableForModal && (() => {
+                const all = getOrdersForTable(selectedTableForModal);
+                const total = all.length;
+                if (total === 0) return null;
+                const lastThree = [...all].sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                ).slice(0, 3);
+                return total > 3
+                  ? (t("dashboard.orders.last3Orders") || "Last 3 orders") + ` (${total} ${t("dashboard.orders.orders") || "orders"} total)`
+                  : `${total} ${t("dashboard.orders.orders") || "orders"}`;
+              })()}
             </DialogDescription>
           </DialogHeader>
-          {selectedTableForModal && (
-            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-              {getOrdersForTable(selectedTableForModal).length === 0 ? (
+          {selectedTableForModal && (() => {
+            const all = getOrdersForTable(selectedTableForModal);
+            const lastThreeOrders = [...all]
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .slice(0, 3);
+            return (
+            <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+              {lastThreeOrders.length === 0 ? (
                 <p className="text-muted-foreground text-center py-4">
                   {t("dashboard.orders.noOrdersForTable") ||
                     "No orders for this table"}
                 </p>
               ) : (
-                getOrdersForTable(selectedTableForModal).map((order) => (
+                lastThreeOrders.map((order) => (
                   <Card
                     key={order.id}
-                    className="cursor-pointer hover:shadow-md transition-shadow"
-                    onClick={() => {
-                      setSelectedOrder(order);
-                      setIsDialogOpen(true);
-                    }}
+                    className="w-full min-w-0 overflow-hidden border-2"
                   >
-                    <CardContent className="py-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">Order #{order.id}</p>
-                          <p className="text-sm text-muted-foreground">
-                            ${order.totalPrice.toFixed(2)} •{" "}
-                            {new Date(order.createdAt).toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
+                    <CardHeader className="py-3 px-3 sm:px-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                        <CardTitle className="text-base sm:text-lg flex items-center gap-2 flex-wrap">
+                          <span className="break-words">Order #{order.id}</span>
                           {getStatusBadge(order.status)}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedOrder(order);
-                              setIsDialogOpen(true);
-                            }}
-                          >
-                            {t("dashboard.orders.viewDetails") ||
-                              "View Details"}
-                          </Button>
+                        </CardTitle>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="text-lg font-bold text-primary">
+                            ${order.totalPrice.toFixed(2)}
+                          </span>
+                          <span className="text-xs sm:text-sm text-muted-foreground">
+                            {new Date(order.createdAt).toLocaleString()}
+                          </span>
                         </div>
                       </div>
+                    </CardHeader>
+                    <CardContent className="pt-0 px-3 sm:px-4 pb-3 sm:pb-4 space-y-3">
+                      <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
+                        <span className="font-semibold text-sm">Total:</span>
+                        <span className="font-bold text-primary">
+                          ${order.totalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="p-2 sm:p-3 rounded-lg border min-w-0">
+                          <div className="flex gap-2 sm:gap-3 min-w-0">
+                            {item.itemImage && (
+                              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                <Image
+                                  src={getImageUrl(item.itemImage)}
+                                  alt={item.itemTitle}
+                                  fill
+                                  className="object-cover"
+                                  unoptimized
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex flex-col gap-0.5 sm:flex-row sm:items-start sm:justify-between min-w-0">
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-sm break-words">{item.itemTitle}</p>
+                                  {item.itemDescription && (
+                                    <p className="text-xs text-muted-foreground line-clamp-2 break-words">
+                                      {item.itemDescription}
+                                    </p>
+                                  )}
+                                </div>
+                                <div className="text-left sm:text-right shrink-0 text-sm">
+                                  <p className="font-semibold">${item.totalPrice.toFixed(2)}</p>
+                                  <p className="text-xs text-muted-foreground">× {item.quantity}</p>
+                                </div>
+                              </div>
+                              {item.kitchenSection && (
+                                <Badge variant="outline" className="mt-1 text-xs">
+                                  <ChefHat className="h-3 w-3 mr-1" />
+                                  {item.kitchenSection}
+                                </Badge>
+                              )}
+                              {item.selectedExtras && item.selectedExtras.length > 0 && (
+                                <div className="mt-1 space-y-0.5">
+                                  <p className="text-xs font-medium">Extras:</p>
+                                  {item.selectedExtras.map((extra, extraIdx) => (
+                                    <p key={extraIdx} className="text-xs text-muted-foreground">
+                                      + {extra.name} (+${extra.price.toFixed(2)})
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                              {item.notes && (
+                                <div className="mt-1 p-2 rounded bg-primary/10">
+                                  <p className="text-xs font-medium">Notes:</p>
+                                  <p className="text-xs text-muted-foreground">{item.notes}</p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </CardContent>
                   </Card>
                 ))
               )}
             </div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
       {/* Order Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Order #{selectedOrder?.id} Details</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg break-words">Order #{selectedOrder?.id} Details</DialogTitle>
             <DialogDescription className="flex flex-wrap items-center gap-2">
               {selectedOrder?.orderType && (
                 <Badge variant="secondary" className="text-xs">
@@ -846,21 +962,21 @@ export default function OrdersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 rounded-lg bg-muted">
-                <span className="font-semibold">Total:</span>
-                <span className="text-2xl font-bold text-primary">
+            <div className="space-y-4 min-w-0">
+              <div className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-muted gap-2">
+                <span className="font-semibold text-sm sm:text-base">Total:</span>
+                <span className="text-xl sm:text-2xl font-bold text-primary shrink-0">
                   ${selectedOrder.totalPrice.toFixed(2)}
                 </span>
               </div>
               <div className="space-y-3">
                 {selectedOrder.items.map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-lg border">
-                    <div className="flex gap-3">
+                  <div key={idx} className="p-3 sm:p-4 rounded-lg border min-w-0">
+                    <div className="flex gap-2 sm:gap-3 min-w-0">
                       {item.itemImage && (
-                        <div className="relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                        <div className="relative w-14 h-14 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
-                            src={item.itemImage}
+                            src={getImageUrl(item.itemImage)}
                             alt={item.itemTitle}
                             fill
                             className="object-cover"
@@ -868,21 +984,21 @@ export default function OrdersPage() {
                           />
                         </div>
                       )}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <p className="font-semibold">{item.itemTitle}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between min-w-0">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm sm:text-base break-words">{item.itemTitle}</p>
                             {item.itemDescription && (
-                              <p className="text-sm text-muted-foreground mt-1">
+                              <p className="text-xs sm:text-sm text-muted-foreground mt-1 break-words line-clamp-2">
                                 {item.itemDescription}
                               </p>
                             )}
                           </div>
-                          <div className="text-right">
-                            <p className="font-semibold">
+                          <div className="text-left sm:text-right shrink-0">
+                            <p className="font-semibold text-sm sm:text-base">
                               ${item.totalPrice.toFixed(2)}
                             </p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs sm:text-sm text-muted-foreground">
                               × {item.quantity}
                             </p>
                           </div>

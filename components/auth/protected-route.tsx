@@ -36,6 +36,17 @@ export function ProtectedRoute({
     }
   }, [isAuthenticated, isLoading, router]);
 
+  // Require email verification before dashboard/client (admin can skip if backend allows)
+  useEffect(() => {
+    if (isLoading || !isAuthenticated || !user) return;
+    const mustVerify = user.emailVerified === false || user.emailVerified === undefined;
+    const isAdmin = user.role === "ADMIN" || user.role === "SUBADMIN";
+    if (mustVerify && !isAdmin) {
+      router.replace(`/auth/verify-email?email=${encodeURIComponent(user.email)}`);
+      return;
+    }
+  }, [isLoading, isAuthenticated, user, router]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

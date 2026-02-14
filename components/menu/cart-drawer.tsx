@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useMenuCart } from "@/contexts/menu-cart-context";
 import { useClientTheme } from "@/hooks/useClientTheme";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -195,7 +195,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                       {item.image && (
                         <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                           <Image
-                            src={item.image}
+                            src={getImageUrl(item.image)}
                             alt={item.title}
                             fill
                             className="object-cover"

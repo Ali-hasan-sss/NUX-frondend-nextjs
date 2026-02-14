@@ -18,7 +18,7 @@
   "tabs": {
     "home": "Home",
     "promotions": "Promotions",
-    "purchase": "Purchase",
+    "purchase": "Wallet",
     "account": "Account"
   },
   "restaurant": {
@@ -40,6 +40,7 @@
   },
   "drawer": {
     "menu": "Menu",
+    "restaurants": "Restaurants",
     "accountSettings": "Account Settings",
     "language": "Language",
     "theme": "Theme",
@@ -56,6 +57,9 @@
     "search": "Search promotions...",
     "food": "Food",
     "drinks": "Drinks",
+    "closestToMe": "Closest to me",
+    "locationNotSupported": "Location is not supported by your device.",
+    "locationDenied": "Location access was denied. Enable it to see nearby ads.",
     "noPromotions": "No promotions available",
     "openInMaps": "Open in Google Maps",
     "mapLoadError": "Failed to load map",
@@ -134,6 +138,7 @@
   "gift": {
     "scanQRCode": "Scan QR Code",
     "qrScanned": "QR Code Scanned",
+    "clearCode": "Clear Code",
     "sendGift": "Send Gift",
     "sending": "Sending",
     "selectImage": "Upload QR Code Image",
@@ -570,7 +575,10 @@
       "orders": "orders",
       "noOrdersForTable": "No orders for this table",
       "noTablesForView": "No tables found. Create tables in QR Codes to see orders by table.",
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "completedOrdersCount": "Completed orders",
+      "completedRevenue": "Revenue (completed)",
+      "last3Orders": "Last 3 orders"
     },
     "waiterRequests": {
       "title": "Waiter requests",
@@ -788,8 +796,9 @@
       "items": "items"
     },
     "payments": {
-      "title": "Customer Payments",
-      "description": "View and manage customer payments for the restaurant",
+      "title": "Loyalty points log",
+      "description": "Record of loyalty points (stars) earned and redeemed by customers.",
+      "pointsLogNotMoney": "Loyalty points (★) — not monetary payments.",
       "loadingPaymentData": "Loading payment data...",
       "errorLoadingData": "Error loading data",
       "totalPayments": "Total Payments",
@@ -815,14 +824,14 @@
       "last30Days": "Last 30 Days",
       "filterData": "Filter Data",
       "clearFilters": "Clear Filters",
-      "paymentRecords": "Payment Records",
-      "viewAllPaymentRecords": "View all customer payment records",
+      "paymentRecords": "Points records",
+      "viewAllPaymentRecords": "View all loyalty points (stars) records",
       "loadingPaymentRecords": "Loading payment records...",
       "noPaymentRecordsFound": "No payment records found",
       "customer": "Customer",
       "type": "Type",
       "date": "Date",
-      "amount": "Amount",
+      "amount": "Points",
       "showing": "Showing",
       "to": "to",
       "of": "of",

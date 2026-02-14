@@ -11,14 +11,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
@@ -36,6 +28,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 interface NotificationsPageProps {
   /** When true, hide page title and card header (e.g. when embedded in admin page). */
@@ -46,7 +39,7 @@ export function NotificationsPage({ embedded }: NotificationsPageProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { items, pagination, unreadCount, isLoading, error } = useSelector(
-    (s: RootState) => s.notifications
+    (s: RootState) => s.notifications,
   );
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,116 +62,121 @@ export function NotificationsPage({ embedded }: NotificationsPageProps) {
   };
 
   return (
-    <div className={embedded ? "space-y-4" : "p-6 space-y-6"}>
+    <div
+      className={cn(
+        "w-full min-w-0",
+        embedded ? "space-y-4" : "p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6",
+      )}
+    >
       {!embedded && (
-        <>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">{t("dashboard.notifications.title")}</h1>
-              <p className="text-muted-foreground">{t("dashboard.notifications.stayUpdated")}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Badge variant={unreadCount > 0 ? "default" : "secondary"}>
-                {t("dashboard.notifications.unreadFilter")}: {unreadCount}
-              </Badge>
-              <Button
-                variant="outline"
-                onClick={handleMarkAll}
-                disabled={unreadCount === 0}
-              >
-                {t("dashboard.notifications.markAllRead")}
-              </Button>
-            </div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground truncate">
+              {t("dashboard.notifications.title")}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {t("dashboard.notifications.stayUpdated")}
+            </p>
           </div>
-        </>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 shrink-0">
+            <Badge variant={unreadCount > 0 ? "default" : "secondary"}>
+              {t("dashboard.notifications.unreadFilter")}: {unreadCount}
+            </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              className="sm:size-default"
+              onClick={handleMarkAll}
+              disabled={unreadCount === 0}
+            >
+              {t("dashboard.notifications.markAllRead")}
+            </Button>
+          </div>
+        </div>
       )}
 
-      <Card>
+      <Card className="w-full min-w-0 overflow-hidden">
         {!embedded && (
-          <CardHeader>
-            <CardTitle>{t("dashboard.notifications.title")} ({pagination.totalItems})</CardTitle>
-            <CardDescription>{t("dashboard.notifications.listOfNotifications")}</CardDescription>
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-base sm:text-lg">
+              {t("dashboard.notifications.title")} ({pagination.totalItems})
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              {t("dashboard.notifications.listOfNotifications")}
+            </CardDescription>
           </CardHeader>
         )}
-        <CardContent className={embedded ? "pt-4" : undefined}>
+        <CardContent className={cn("w-full min-w-0", embedded && "pt-4")}>
           {error && (
             <div className="text-sm text-destructive mb-3">{error}</div>
           )}
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t("dashboard.notifications.title")}</TableHead>
-                  <TableHead>{t("dashboard.notifications.created")}</TableHead>
-                  <TableHead className="w-12"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={3}>
-                      <div className="py-6 text-center text-muted-foreground">
-                        {t("dashboard.notifications.loading")}
+
+          {isLoading ? (
+            <div className="py-8 sm:py-12 text-center text-muted-foreground text-sm">
+              {t("dashboard.notifications.loading")}
+            </div>
+          ) : items.length === 0 ? (
+            <div className="py-8 sm:py-12 text-center text-muted-foreground text-sm">
+              {t("dashboard.notifications.noNotifications")}
+            </div>
+          ) : (
+            <ul className="divide-y divide-border w-full min-w-0 list-none p-0 m-0">
+              {items.map((n) => (
+                <li
+                  key={n.id}
+                  className={cn(
+                    "py-3 sm:py-4 px-0 first:pt-0 last:pb-0",
+                    !n.isRead && "bg-muted/40",
+                  )}
+                >
+                  <div className="flex flex-col gap-1 sm:gap-2 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 min-w-0">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-foreground break-words">
+                          {n.title}
+                        </p>
+                        {n.body && (
+                          <p className="text-muted-foreground text-sm mt-1 line-clamp-3 break-words">
+                            {String(n.body)}
+                          </p>
+                        )}
                       </div>
-                    </TableCell>
-                  </TableRow>
-                ) : items.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3}>
-                      <div className="py-6 text-center text-muted-foreground">
-                        {t("dashboard.notifications.noNotifications")}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  items.map((n) => (
-                    <TableRow key={n.id}>
-                      <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{n.title}</span>
-                          {n.body && (
-                            <span className="text-muted-foreground text-sm line-clamp-2">
-                              {n.body}
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{formatDate(n.createdAt)}</TableCell>
-                      <TableCell className="text-right">
+                      <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">
+                          {formatDate(n.createdAt)}
+                        </span>
                         {!n.isRead && (
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="shrink-0"
                             onClick={() => handleMarkRead(n.id)}
                           >
                             {t("dashboard.notifications.markRead")}
                           </Button>
                         )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {pagination && pagination.totalPages > 1 && (
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center mt-4 sm:mt-6">
               <Pagination>
-                <PaginationContent>
+                <PaginationContent className="flex-wrap gap-1">
                   <PaginationItem>
                     <PaginationPrevious
                       onClick={() =>
                         currentPage > 1 && setCurrentPage(currentPage - 1)
                       }
-                      className={
-                        currentPage === 1
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
+                      className={cn(
+                        currentPage === 1 && "pointer-events-none opacity-50",
+                      )}
                     />
                   </PaginationItem>
-
                   {Array.from({ length: pagination.totalPages }, (_, i) => (
                     <PaginationItem key={i + 1}>
                       <PaginationLink
@@ -189,18 +187,16 @@ export function NotificationsPage({ embedded }: NotificationsPageProps) {
                       </PaginationLink>
                     </PaginationItem>
                   ))}
-
                   <PaginationItem>
                     <PaginationNext
                       onClick={() =>
                         currentPage < pagination.totalPages &&
                         setCurrentPage(currentPage + 1)
                       }
-                      className={
-                        currentPage === pagination.totalPages
-                          ? "pointer-events-none opacity-50"
-                          : ""
-                      }
+                      className={cn(
+                        currentPage === pagination.totalPages &&
+                          "pointer-events-none opacity-50",
+                      )}
                     />
                   </PaginationItem>
                 </PaginationContent>

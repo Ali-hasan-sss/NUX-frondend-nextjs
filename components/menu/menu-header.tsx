@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { useMenuCart } from "@/contexts/menu-cart-context";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -35,7 +35,8 @@ export function MenuHeader({
     return null;
   }
 
-  const showLogo = !!restaurantLogo;
+  const logoUrl = getImageUrl(restaurantLogo ?? undefined);
+  const showLogo = !!logoUrl;
   const showName = !showLogo && !!restaurantName;
 
   return (
@@ -52,7 +53,7 @@ export function MenuHeader({
         <div className="flex items-center gap-3 min-w-0">
           {showLogo ? (
             <Image
-              src={restaurantLogo}
+              src={logoUrl}
               alt={restaurantName || "Restaurant"}
               width={72}
               height={28}

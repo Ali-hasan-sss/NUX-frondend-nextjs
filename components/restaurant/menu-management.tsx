@@ -63,6 +63,7 @@ import FileUploader from "@/components/upload/file-uploader";
 import { seedService } from "@/features/restaurant/menu/seedService";
 import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
 import { toast } from "sonner";
+import { getImageUrl } from "@/lib/utils";
 
 export function MenuManagement() {
   const { t } = useTranslation();
@@ -454,8 +455,8 @@ export function MenuManagement() {
   }
 
   return (
-    <div className="p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+    <div className="w-full min-w-0 p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center min-w-0">
         <div className="min-w-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
             {t("dashboard.menu.title")}
@@ -511,45 +512,48 @@ export function MenuManagement() {
       </div>
 
       {/* Categories Accordion */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("dashboard.menu.categories")}</CardTitle>
-          <CardDescription>
+      <Card className="w-full min-w-0 overflow-hidden">
+        <CardHeader className="p-3 sm:p-4 md:p-6">
+          <CardTitle className="text-base sm:text-lg">{t("dashboard.menu.categories")}</CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             {t("dashboard.menu.expandToManage")}
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-4 md:p-6 pt-0">
           <Accordion type="single" collapsible>
             {categories.map((c) => (
               <AccordionItem key={c.id} value={`cat-${c.id}`}>
                 <AccordionTrigger
+                  className="px-3 sm:px-4 py-3 hover:no-underline [&[data-state=open]>svg]:rotate-180"
                   onClick={() => (
                     setActiveCategoryId(c.id),
                     dispatch(fetchItemsByCategory(c.id))
                   )}
                 >
-                  <div className="flex w-full items-center justify-between">
-                    <div className="flex items-center gap-3 text-left">
+                  <div className="flex w-full items-center justify-between gap-2 min-w-0">
+                    <div className="flex items-center gap-2 sm:gap-3 text-left min-w-0 flex-1">
                       {c.image && (
                         <img
-                          src={c.image}
+                          src={getImageUrl(c.image)}
                           alt={c.title}
-                          className="h-10 w-10 rounded-full object-cover"
+                          className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover flex-shrink-0"
                         />
                       )}
-                      <div>
-                        <div className="font-medium">{c.title}</div>
-                        <div className="text-xs text-muted-foreground">
+                      <div className="min-w-0">
+                        <div className="font-medium text-sm sm:text-base truncate">{c.title}</div>
+                        <div className="text-xs text-muted-foreground truncate hidden sm:block">
                           {c.description}
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 ml-4">
+                    <div className="flex gap-1 sm:gap-2 ml-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           openDiscountForCategory(c.id);
                         }}
                         title={
@@ -557,24 +561,28 @@ export function MenuManagement() {
                           "Apply discount to this category"
                         }
                       >
-                        <Percent className="h-4 w-4" />
+                        <Percent className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           setOpenAddItem(c.id);
                         }}
                         title="Add item"
                       >
-                        <PlusCircle className="h-4 w-4" />
+                        <PlusCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           setEditCat({
                             id: c.id,
                             title: c.title,
@@ -585,13 +593,15 @@ export function MenuManagement() {
                         }}
                         title="Edit category"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="h-8 w-8 sm:h-9 sm:w-9"
                         onClick={(e) => {
                           e.preventDefault();
+                          e.stopPropagation();
                           setDeleteTarget({
                             type: "category",
                             categoryId: c.id,
@@ -601,7 +611,7 @@ export function MenuManagement() {
                         }}
                         title="Delete category"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
                     </div>
                   </div>
@@ -611,24 +621,24 @@ export function MenuManagement() {
                     {(itemsByCategory[c.id] ?? []).map((i) => (
                       <div
                         key={i.id}
-                        className="flex items-center justify-between gap-4 p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-2 sm:p-3 border rounded-lg hover:bg-muted/50 transition-colors min-w-0"
                       >
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                        <div className="flex items-start sm:items-center gap-2 sm:gap-4 flex-1 min-w-0">
                           {i.image && (
                             <img
-                              src={i.image}
+                              src={getImageUrl(i.image)}
                               alt={i.title}
-                              className="h-10 w-10 rounded-md object-cover flex-shrink-0"
+                              className="h-9 w-9 sm:h-10 sm:w-10 rounded-md object-cover flex-shrink-0"
                             />
                           )}
-                          <div className="flex items-center gap-4 flex-1 min-w-0 flex-wrap">
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 flex-1 min-w-0">
                             {/* Title */}
-                            <div className="font-medium text-sm min-w-[120px]">
+                            <div className="font-medium text-sm break-words min-w-0">
                               {i.title}
                             </div>
 
                             {/* Price */}
-                            <div className="text-sm font-semibold text-primary min-w-[80px]">
+                            <div className="text-xs sm:text-sm font-semibold text-primary shrink-0">
                               {i.discountType && i.discountValue ? (
                                 <>
                                   <span className="line-through text-muted-foreground text-xs mr-1">
@@ -654,7 +664,7 @@ export function MenuManagement() {
                             {i.discountType && i.discountValue && (
                               <Badge
                                 variant="secondary"
-                                className="text-xs hover:bg-secondary"
+                                className="text-xs hover:bg-secondary shrink-0"
                               >
                                 {i.discountType === "PERCENTAGE"
                                   ? `-${i.discountValue}%`
@@ -664,21 +674,21 @@ export function MenuManagement() {
 
                             {/* Preparation Time */}
                             {i.preparationTime && (
-                              <div className="text-xs text-muted-foreground min-w-[60px]">
+                              <div className="text-xs text-muted-foreground shrink-0">
                                 ⏱️ {i.preparationTime}min
                               </div>
                             )}
 
                             {/* Calories */}
                             {i.calories && (
-                              <div className="text-xs text-muted-foreground min-w-[50px]">
+                              <div className="text-xs text-muted-foreground shrink-0">
                                 🔥 {i.calories} cal
                               </div>
                             )}
 
                             {/* Allergies */}
                             {i.allergies && i.allergies.length > 0 && (
-                              <div className="flex flex-wrap gap-1 min-w-0">
+                              <div className="flex flex-wrap gap-1 min-w-0 w-full sm:w-auto">
                                 {i.allergies.map((allergy, idx) => (
                                   <Badge
                                     key={idx}
@@ -695,7 +705,7 @@ export function MenuManagement() {
                             {i.extras &&
                               Array.isArray(i.extras) &&
                               i.extras.length > 0 && (
-                                <div className="flex flex-wrap gap-1 min-w-0">
+                                <div className="flex flex-wrap gap-1 min-w-0 w-full sm:w-auto">
                                   {i.extras.map((extra: any, idx: number) => (
                                     <Badge
                                       key={idx}
@@ -710,16 +720,17 @@ export function MenuManagement() {
 
                             {/* Description (truncated) */}
                             {i.description && (
-                              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              <div className="text-xs text-muted-foreground truncate max-w-full sm:max-w-[200px]">
                                 {i.description}
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex gap-1 sm:gap-2 flex-shrink-0 self-end sm:self-center">
                           <Button
                             size="icon"
                             variant="ghost"
+                            className="h-8 w-8 sm:h-9 sm:w-9"
                             onClick={() =>
                               setOpenEditItem({
                                 id: i.id,
@@ -739,11 +750,12 @@ export function MenuManagement() {
                             }
                             title="Edit item"
                           >
-                            <Edit className="h-4 w-4" />
+                            <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </Button>
                           <Button
                             size="icon"
                             variant="ghost"
+                            className="h-8 w-8 sm:h-9 sm:w-9"
                             onClick={() => {
                               setDeleteTarget({
                                 type: "item",
@@ -755,7 +767,7 @@ export function MenuManagement() {
                             }}
                             title="Delete item"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </Button>
                         </div>
                       </div>
@@ -770,7 +782,7 @@ export function MenuManagement() {
 
       {/* Add/Edit Category Dialogs */}
       <Dialog open={openAddCategory} onOpenChange={setOpenAddCategory}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md">
           <DialogHeader>
             <DialogTitle>{t("dashboard.menu.addCategory")}</DialogTitle>
           </DialogHeader>
@@ -825,7 +837,7 @@ export function MenuManagement() {
       </Dialog>
 
       <Dialog open={openEditCategory} onOpenChange={setOpenEditCategory}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md">
           <DialogHeader>
             <DialogTitle>{t("dashboard.menu.editCategory")}</DialogTitle>
           </DialogHeader>
@@ -892,7 +904,7 @@ export function MenuManagement() {
           setOpenDiscountDialog(v);
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md">
           <DialogHeader>
             <DialogTitle>
               {discountTarget === "all"
@@ -1003,13 +1015,13 @@ export function MenuManagement() {
           setOpenAddItem(v ? openAddItem : null);
         }}
       >
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t("dashboard.menu.addItem")}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">{t("dashboard.menu.addItem")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>{t("dashboard.menu.title")} *</Label>
+              <Label className="text-sm">{t("dashboard.menu.title")} *</Label>
               <Input
                 placeholder={t("dashboard.menu.title")}
                 value={newItem.title}
@@ -1028,21 +1040,22 @@ export function MenuManagement() {
                 }
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{t("dashboard.menu.price")} *</Label>
+                <Label className="text-sm">{t("dashboard.menu.price")} *</Label>
                 <Input
                   type="number"
                   step="0.01"
                   placeholder={t("dashboard.menu.price")}
                   value={newItem.price}
+                  className="text-sm sm:text-base"
                   onChange={(e) =>
                     setNewItem({ ...newItem, price: e.target.value })
                   }
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t("dashboard.menu.preparationTime")}</Label>
+                <Label className="text-sm">{t("dashboard.menu.preparationTime")}</Label>
                 <Input
                   type="number"
                   placeholder={t("dashboard.menu.preparationTimeMinutes")}
@@ -1050,12 +1063,13 @@ export function MenuManagement() {
                   onChange={(e) =>
                     setNewItem({ ...newItem, preparationTime: e.target.value })
                   }
+                  className="text-sm sm:text-base"
                 />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{t("dashboard.menu.calories")}</Label>
+                <Label className="text-sm">{t("dashboard.menu.calories")}</Label>
                 <Input
                   type="number"
                   placeholder={t("dashboard.menu.calories")}
@@ -1063,10 +1077,11 @@ export function MenuManagement() {
                   onChange={(e) =>
                     setNewItem({ ...newItem, calories: e.target.value })
                   }
+                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="space-y-2">
-                <Label>{t("dashboard.menu.kitchenSection")}</Label>
+                <Label className="text-sm">{t("dashboard.menu.kitchenSection")}</Label>
                 <Select
                   value={newItem.kitchenSectionId || "none"}
                   onValueChange={(value) =>
@@ -1095,8 +1110,8 @@ export function MenuManagement() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>{t("dashboard.menu.discount")}</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <Label className="text-sm">{t("dashboard.menu.discount")}</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Select
                   value={newItem.discountType || "none"}
                   onValueChange={(value: "PERCENTAGE" | "AMOUNT" | "none") =>
@@ -1137,11 +1152,12 @@ export function MenuManagement() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>{t("dashboard.menu.allergies")}</Label>
-              <div className="flex gap-2">
+              <Label className="text-sm">{t("dashboard.menu.allergies")}</Label>
+              <div className="flex flex-wrap gap-2">
                 <Input
                   placeholder={t("dashboard.menu.allergiesPlaceholder")}
                   value={newAllergyInput}
+                  className="flex-1 min-w-[120px] text-sm sm:text-base"
                   onChange={(e) => setNewAllergyInput(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
@@ -1210,10 +1226,11 @@ export function MenuManagement() {
               <Label>{t("dashboard.menu.extras")}</Label>
               <div className="space-y-2">
                 {newItem.extras.map((extra, index) => (
-                  <div key={index} className="flex gap-2">
+                  <div key={index} className="flex flex-col sm:flex-row gap-2">
                     <Input
                       placeholder={t("dashboard.menu.extraName")}
                       value={extra.name}
+                      className="text-sm sm:text-base"
                       onChange={(e) => {
                         const newExtras = [...newItem.extras];
                         newExtras[index].name = e.target.value;
@@ -1343,9 +1360,9 @@ export function MenuManagement() {
           setOpenEditItem(v ? openEditItem : null);
         }}
       >
-        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{t("dashboard.menu.editItem")}</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">{t("dashboard.menu.editItem")}</DialogTitle>
           </DialogHeader>
           {openEditItem && (
             <div className="space-y-4">
@@ -1372,9 +1389,9 @@ export function MenuManagement() {
                   }
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t("dashboard.menu.price")} *</Label>
+                  <Label className="text-sm">{t("dashboard.menu.price")} *</Label>
                   <Input
                     type="number"
                     step="0.01"
@@ -1386,10 +1403,11 @@ export function MenuManagement() {
                         price: e.target.value,
                       })
                     }
+                    className="text-sm sm:text-base"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t("dashboard.menu.preparationTime")}</Label>
+                  <Label className="text-sm">{t("dashboard.menu.preparationTime")}</Label>
                   <Input
                     type="number"
                     placeholder={t("dashboard.menu.preparationTimeMinutes")}
@@ -1405,13 +1423,14 @@ export function MenuManagement() {
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t("dashboard.menu.calories")}</Label>
+                  <Label className="text-sm">{t("dashboard.menu.calories")}</Label>
                   <Input
                     type="number"
                     placeholder={t("dashboard.menu.calories")}
                     value={openEditItem.calories?.toString() || ""}
+                    className="text-sm sm:text-base"
                     onChange={(e) =>
                       setOpenEditItem({
                         ...openEditItem,
@@ -1453,8 +1472,8 @@ export function MenuManagement() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>{t("dashboard.menu.discount")}</Label>
-                <div className="grid grid-cols-2 gap-2">
+                <Label className="text-sm">{t("dashboard.menu.discount")}</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <Select
                     value={openEditItem.discountType || "none"}
                     onValueChange={(value: "PERCENTAGE" | "AMOUNT" | "none") =>
@@ -1580,10 +1599,11 @@ export function MenuManagement() {
                     ? openEditItem.extras
                     : []
                   ).map((extra: any, index: number) => (
-                    <div key={index} className="flex gap-2">
+                    <div key={index} className="flex flex-col sm:flex-row gap-2">
                       <Input
                         placeholder={t("dashboard.menu.extraName")}
                         value={extra.name || ""}
+                        className="text-sm sm:text-base"
                         onChange={(e) => {
                           const currentExtras = Array.isArray(
                             openEditItem.extras

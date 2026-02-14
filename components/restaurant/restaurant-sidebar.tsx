@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { useSocket } from "@/contexts/SocketContext";
 import { logout } from "@/features/auth/authSlice";
@@ -222,7 +222,7 @@ export function RestaurantSidebar() {
             {restaurant?.logo ? (
               <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-background/80">
                 <Image
-                  src={restaurant.logo}
+                  src={getImageUrl(restaurant.logo) || "/placeholder-logo.png"}
                   alt={restaurant.name || "Restaurant logo"}
                   width={40}
                   height={40}

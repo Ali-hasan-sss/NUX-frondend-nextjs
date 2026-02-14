@@ -12,7 +12,10 @@ import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/app/hooks";
 
-function getRedirectPath(role: string | undefined): string {
+function getRedirectPath(role: string | undefined, emailVerified?: boolean): string {
+  if (emailVerified === false || emailVerified === undefined) {
+    return "/auth/verify-email";
+  }
   if (role === "ADMIN" || role === "SUBADMIN") return "/admin";
   if (role === "RESTAURANT_OWNER") return "/dashboard";
   return "/client/home";
@@ -32,7 +35,12 @@ function LoginPageContent() {
   useEffect(() => {
     if (!mounted) return;
     if (isAuthenticated && user) {
-      router.replace(getRedirectPath(user.role));
+      const path = getRedirectPath(user.role, user.emailVerified);
+      if (path === "/auth/verify-email") {
+        router.replace(`/auth/verify-email?email=${encodeURIComponent(user.email)}`);
+      } else {
+        router.replace(path);
+      }
     }
   }, [mounted, isAuthenticated, user, router]);
 

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { axiosInstance } from "@/utils/axiosInstance";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { UploadCloud, X, ImagePlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -77,7 +77,7 @@ export default function FileUploader({
           headers: { "Content-Type": "multipart/form-data" },
         });
         const data = res?.data?.data;
-        const url: string | undefined = data?.url;
+        const url: string | undefined = data?.url ?? data?.path;
         if (!url) throw new Error(t("dashboard.fileUpload.uploadFailed"));
         setPreviewUrl(url);
         onChange(url, {
@@ -163,7 +163,7 @@ export default function FileUploader({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={previewUrl}
+                src={getImageUrl(previewUrl, axiosInstance.defaults.baseURL)}
                 alt="uploaded"
                 className="h-full w-full object-cover"
               />

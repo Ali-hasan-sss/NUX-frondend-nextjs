@@ -476,34 +476,73 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
 
             {/* QR Code Section */}
             {giftAmount && numericAmount > 0 && !hasInsufficientBalance && (
-              <div>
+              <div className="space-y-3">
                 {scannedQRCode ? (
-                  <div
-                    className="p-4 rounded-xl border"
-                    style={{
-                      backgroundColor: `${colors.success}20`,
-                      borderColor: colors.success,
-                    }}
-                  >
-                    <p
-                      className="text-sm font-medium"
-                      style={{ color: colors.success }}
+                  <>
+                    <div
+                      className="p-4 rounded-xl border"
+                      style={{
+                        backgroundColor: `${colors.success}20`,
+                        borderColor: colors.success,
+                      }}
                     >
-                      {t("gift.qrScanned")}
-                    </p>
-                    <p
-                      className="text-xs mt-1"
-                      style={{ color: colors.textSecondary }}
-                    >
-                      {scannedQRCode.substring(0, 20)}...
-                    </p>
-                  </div>
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: colors.success }}
+                      >
+                        {t("gift.qrScanned")}
+                      </p>
+                      <p
+                        className="text-xs mt-1"
+                        style={{ color: colors.textSecondary }}
+                      >
+                        {scannedQRCode.substring(0, 20)}...
+                      </p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Button
+                        onClick={() => setScannedQRCode("")}
+                        disabled={loading.gift}
+                        variant="outline"
+                        className="flex-1 w-full sm:w-auto"
+                        style={{
+                          borderColor: colors.error,
+                          color: colors.error,
+                        }}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        {t("gift.clearCode")}
+                      </Button>
+                      <Button
+                        onClick={handlePickImageFromGallery}
+                        disabled={loading.gift || isScanningImage}
+                        variant="outline"
+                        className="flex-1 w-full sm:w-auto"
+                        style={{
+                          borderColor: colors.primary,
+                          color: colors.primary,
+                        }}
+                      >
+                        {isScanningImage ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            {t("gift.scanning")}...
+                          </>
+                        ) : (
+                          <>
+                            <ImageIcon className="h-4 w-4 mr-2" />
+                            {t("gift.selectImage")}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       onClick={handleScanForGift}
                       disabled={loading.gift || isScanningImage}
-                      className="flex-1"
+                      className="flex-1 w-full sm:w-auto"
                       style={{
                         backgroundColor: colors.primary,
                         color: "white",
@@ -516,7 +555,7 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
                       onClick={handlePickImageFromGallery}
                       disabled={loading.gift || isScanningImage}
                       variant="outline"
-                      className="flex-1"
+                      className="flex-1 w-full sm:w-auto"
                       style={{
                         borderColor: colors.primary,
                         color: colors.primary,
@@ -534,15 +573,15 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
                         </>
                       )}
                     </Button>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageFileSelect}
-                    />
                   </div>
                 )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageFileSelect}
+                />
               </div>
             )}
 

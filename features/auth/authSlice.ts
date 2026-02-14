@@ -38,6 +38,21 @@ const authSlice = createSlice({
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
     },
+    setEmailVerified: (state) => {
+      if (state.user) {
+        state.user.emailVerified = true;
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("user");
+          if (stored) {
+            try {
+              const u = JSON.parse(stored);
+              u.emailVerified = true;
+              localStorage.setItem("user", JSON.stringify(u));
+            } catch {}
+          }
+        }
+      }
+    },
     setTokens: (state, action: PayloadAction<AuthTokens>) => {
       state.tokens = action.payload;
       // Save to localStorage
@@ -226,6 +241,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setError, setTokens, initializeAuth } =
+export const { logout, clearError, setError, setTokens, setEmailVerified, initializeAuth } =
   authSlice.actions;
 export default authSlice.reducer;

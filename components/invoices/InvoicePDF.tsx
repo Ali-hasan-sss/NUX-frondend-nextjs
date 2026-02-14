@@ -10,6 +10,23 @@ const formatPrice = (price: number, currency: string) => {
   }).format(price);
 };
 
+const TAX_RATE = 0.19; // 19% German VAT
+
+/** Plan total is gross (incl. tax). Net = total / (1 + 0.19), tax = total - net */
+function getNetAndTax(grossTotal: number) {
+  const net = grossTotal / (1 + TAX_RATE);
+  const tax = grossTotal - net;
+  return { net, tax };
+}
+
+const COMPANY_TAX = {
+  name: "NUX",
+  email: "info@nuxapp.de",
+  address: "Bundesallee 38, 10717 Berlin Deutschland",
+  steuerNummer: "27/304/00089",
+  amtsgericht: "Amtsgericht Charlottenburg (zu HRB 279128 B)",
+};
+
 interface InvoicePDFProps {
   invoice: any;
   restaurant: any;
@@ -93,14 +110,16 @@ export const InvoicePDF = forwardRef<HTMLDivElement, InvoicePDFProps>(
               <p>Issue Date: {formatDate(invoiceData.createdAt)}</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right text-sm text-gray-600">
             {appLogo && (
               <img src={appLogo} alt="App Logo" className="h-16 w-auto mb-4" />
             )}
-            <div className="text-sm text-gray-600">
-              <p className="font-semibold text-lg">NUX</p>
-              <p>Restaurant Management System</p>
-            </div>
+            <p className="font-semibold text-lg text-gray-900">{COMPANY_TAX.name}</p>
+            <p>Restaurant Management System</p>
+            <p className="mt-2">{COMPANY_TAX.address}</p>
+            <p>{COMPANY_TAX.email}</p>
+            <p className="mt-2 font-medium text-gray-700">Steuer-Nr. {COMPANY_TAX.steuerNummer}</p>
+            <p>{COMPANY_TAX.amtsgericht}</p>
           </div>
         </div>
 
@@ -147,46 +166,56 @@ export const InvoicePDF = forwardRef<HTMLDivElement, InvoicePDFProps>(
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className="border border-gray-300 px-4 py-3">
-                    {invoiceData.subscription?.plan?.title ||
-                      "Subscription Plan"}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3 text-center">
-                    1
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3 text-center">
-                    {formatPrice(invoiceData.amountDue, invoiceData.currency)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-3 text-center font-semibold">
-                    {formatPrice(invoiceData.amountDue, invoiceData.currency)}
-                  </td>
-                </tr>
+                {(() => {
+                  const { net, tax } = getNetAndTax(invoiceData.amountDue);
+                  return (
+                    <tr>
+                      <td className="border border-gray-300 px-4 py-3">
+                        {invoiceData.subscription?.plan?.title ||
+                          "Subscription Plan"}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-center">
+                        1
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-center">
+                        {formatPrice(net, invoiceData.currency)}
+                      </td>
+                      <td className="border border-gray-300 px-4 py-3 text-center font-semibold">
+                        {formatPrice(net, invoiceData.currency)}
+                      </td>
+                    </tr>
+                  );
+                })()}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Totals */}
+        {/* Totals - Net + 19% tax = Total (plan price) */}
         <div className="flex justify-end mb-8">
           <div className="w-full max-w-md">
             <div className="space-y-2">
-              <div className="flex justify-between py-2 border-b border-gray-200">
-                <span className="font-medium">Subtotal:</span>
-                <span>
-                  {formatPrice(invoiceData.amountDue, invoiceData.currency)}
-                </span>
-              </div>
-              <div className="flex justify-between py-2 border-b border-gray-200">
-                <span className="font-medium">Tax:</span>
-                <span>0.00 {invoiceData.currency.toUpperCase()}</span>
-              </div>
-              <div className="flex justify-between py-3 text-lg font-bold bg-gray-100 px-4 rounded">
-                <span>Total:</span>
-                <span>
-                  {formatPrice(invoiceData.amountDue, invoiceData.currency)}
-                </span>
-              </div>
+              {(() => {
+                const { net, tax } = getNetAndTax(invoiceData.amountDue);
+                return (
+                  <>
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="font-medium">Subtotal (net):</span>
+                      <span>{formatPrice(net, invoiceData.currency)}</span>
+                    </div>
+                    <div className="flex justify-between py-2 border-b border-gray-200">
+                      <span className="font-medium">VAT 19%:</span>
+                      <span>{formatPrice(tax, invoiceData.currency)}</span>
+                    </div>
+                    <div className="flex justify-between py-3 text-lg font-bold bg-gray-100 px-4 rounded">
+                      <span>Total:</span>
+                      <span>
+                        {formatPrice(invoiceData.amountDue, invoiceData.currency)}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -276,7 +305,10 @@ export const InvoicePDF = forwardRef<HTMLDivElement, InvoicePDFProps>(
         <div className="mt-12 pt-6 border-t-2 border-gray-200 text-center text-sm text-gray-600">
           <p>Thank you for using NUX</p>
           <p className="mt-2">
-            For inquiries, please contact us at: support@nuxapp.com
+            {COMPANY_TAX.name} · {COMPANY_TAX.address}
+          </p>
+          <p>
+            For inquiries: <a href={`mailto:${COMPANY_TAX.email}`} className="underline">{COMPANY_TAX.email}</a>
           </p>
         </div>
       </div>

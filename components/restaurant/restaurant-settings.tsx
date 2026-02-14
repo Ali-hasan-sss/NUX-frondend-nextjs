@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { getImageUrl } from "@/lib/utils";
 import {
   Settings,
   Building2,
@@ -459,7 +460,7 @@ export function RestaurantSettings() {
                   <div className="overflow-hidden bg-muted rounded-md h-16 w-16">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={restaurantForm.logo}
+                      src={getImageUrl(restaurantForm.logo)}
                       alt="Restaurant logo"
                       className="h-full w-full object-cover"
                     />

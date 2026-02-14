@@ -18,7 +18,7 @@
   "tabs": {
     "home": "Startseite",
     "promotions": "Angebote",
-    "purchase": "Kaufen",
+    "purchase": "Wallet",
     "account": "Konto"
   },
   "restaurant": {
@@ -40,6 +40,7 @@
   },
   "drawer": {
     "menu": "Menü",
+    "restaurants": "Restaurants",
     "accountSettings": "Kontoeinstellungen",
     "language": "Sprache",
     "theme": "Design",
@@ -56,6 +57,9 @@
     "search": "Angebote suchen...",
     "food": "Essen",
     "drinks": "Getränke",
+    "closestToMe": "In meiner Nähe",
+    "locationNotSupported": "Standort wird von Ihrem Gerät nicht unterstützt.",
+    "locationDenied": "Standortzugriff wurde verweigert. Aktivieren Sie ihn für Angebote in der Nähe.",
     "noPromotions": "Keine Angebote verfügbar",
     "openInMaps": "In Google Maps öffnen",
     "mapLoadError": "Karte konnte nicht geladen werden",
@@ -134,6 +138,7 @@
   "gift": {
     "scanQRCode": "QR-Code scannen",
     "qrScanned": "QR-Code gescannt",
+    "clearCode": "Code löschen",
     "sendGift": "Geschenk senden",
     "sending": "Wird gesendet",
     "selectImage": "QR-Code-Bild hochladen",
@@ -441,7 +446,10 @@
       "orders": "Bestellungen",
       "noOrdersForTable": "Keine Bestellungen für diesen Tisch",
       "noTablesForView": "Keine Tische gefunden. Erstellen Sie Tische unter QR-Codes, um Bestellungen nach Tisch anzuzeigen.",
-      "viewDetails": "Details anzeigen"
+      "viewDetails": "Details anzeigen",
+      "completedOrdersCount": "Abgeschlossene Bestellungen",
+      "completedRevenue": "Umsatz (abgeschlossen)",
+      "last3Orders": "Letzte 3 Bestellungen"
     },
     "waiterRequests": {
       "title": "Kellneranfragen",
@@ -658,8 +666,9 @@
       "items": "Elemente"
     },
     "payments": {
-      "title": "Kundenzahlungen",
-      "description": "Anzeigen und Verwalten von Kundenzahlungen für das Restaurant",
+      "title": "Treuepunkte-Protokoll",
+      "description": "Protokoll der von Kunden gesammelten und eingelösten Treuepunkte (Sterne).",
+      "pointsLogNotMoney": "Treuepunkte (★) — keine Geldzahlungen.",
       "loadingPaymentData": "Zahlungsdaten werden geladen...",
       "errorLoadingData": "Fehler beim Laden der Daten",
       "totalPayments": "Gesamtzahlungen",
@@ -685,14 +694,14 @@
       "last30Days": "Letzte 30 Tage",
       "filterData": "Daten filtern",
       "clearFilters": "Filter löschen",
-      "paymentRecords": "Zahlungsaufzeichnungen",
-      "viewAllPaymentRecords": "Alle Kundenzahlungsaufzeichnungen anzeigen",
+      "paymentRecords": "Punkteaufzeichnungen",
+      "viewAllPaymentRecords": "Alle Treuepunkte- (Sterne-) Aufzeichnungen anzeigen",
       "loadingPaymentRecords": "Zahlungsaufzeichnungen werden geladen...",
       "noPaymentRecordsFound": "Keine Zahlungsaufzeichnungen gefunden",
       "customer": "Kunde",
       "type": "Typ",
       "date": "Datum",
-      "amount": "Betrag",
+      "amount": "Punkte",
       "showing": "Zeige",
       "to": "bis",
       "of": "von",

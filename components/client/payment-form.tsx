@@ -17,7 +17,6 @@ import {
   UtensilsCrossed,
   Wallet,
   X,
-  ArrowRight,
   Loader2,
   AlertCircle,
 } from "lucide-react";
@@ -476,17 +475,6 @@ export function PaymentForm({
                 backgroundColor: colors.surface,
               }}
             >
-              {/* Arrow hints in background */}
-              <div className="absolute inset-0 flex items-center justify-center gap-1 pointer-events-none">
-                {Array.from({ length: 4 }).map((_, index) => (
-                  <ArrowRight
-                    key={index}
-                    className="h-4 w-4"
-                    style={{ color: colors.textSecondary }}
-                  />
-                ))}
-              </div>
-
               {/* Draggable button */}
               <div
                 ref={slideRef}
@@ -505,12 +493,10 @@ export function PaymentForm({
               >
                 {isProcessing ? (
                   <Loader2 className="h-5 w-5 animate-spin text-white" />
-                ) : (
-                  <ArrowRight className="h-6 w-6 text-white" />
-                )}
+                ) : null}
               </div>
 
-              {/* Text overlay */}
+              {/* Label: swipe to pay */}
               <span
                 className="text-sm font-medium pointer-events-none z-0"
                 style={{ color: colors.textSecondary }}

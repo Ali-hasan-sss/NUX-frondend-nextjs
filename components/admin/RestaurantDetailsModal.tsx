@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatDate } from "@/lib/utils";
+import { formatDate, getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -102,7 +102,7 @@ export function RestaurantDetailsModal({
           <div className="flex items-start gap-4">
             <Avatar className="h-16 w-16">
               <AvatarImage
-                src={restaurant.logo || "/placeholder-logo.png"}
+                src={getImageUrl(restaurant.logo) || "/placeholder-logo.png"}
                 alt={restaurant.name}
               />
               <AvatarFallback>

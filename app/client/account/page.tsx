@@ -425,22 +425,19 @@ export default function AccountPage() {
             {t("account.qrCodeDesc")}
           </p>
 
-          <div className="flex justify-center items-center p-5">
+          <div className="flex justify-center items-center p-5 rounded-xl bg-white">
             {profile.qrCode && profile.qrCode.trim() !== "" ? (
               <QRCodeSVG
                 value={profile.qrCode}
                 size={200}
-                fgColor={colors.text}
-                bgColor={colors.background}
+                fgColor="#000000"
+                bgColor="#ffffff"
                 level="M"
                 includeMargin={true}
               />
             ) : (
-              <div
-                className="w-[200px] h-[200px] rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: colors.background }}
-              >
-                <p className="text-sm" style={{ color: colors.textSecondary }}>
+              <div className="w-[200px] h-[200px] rounded-lg flex items-center justify-center bg-white">
+                <p className="text-sm text-gray-500">
                   {loading.profile
                     ? t("common.loading")
                     : t("account.noQRCode")}

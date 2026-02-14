@@ -6,7 +6,7 @@ import { Header } from "@/components/landing/header";
 import { Footer } from "@/components/landing/footer";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Search, Store, MapPin, Loader2, AlertCircle, Navigation, ArrowUpDown, RefreshCw, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -588,7 +588,7 @@ function RestaurantsContent({
                         {restaurant.logo ? (
                           <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-cyan-400/20">
                             <Image
-                              src={restaurant.logo}
+                              src={getImageUrl(restaurant.logo)!}
                               alt={restaurant.name}
                               fill
                               className="object-cover"

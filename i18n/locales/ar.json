@@ -18,7 +18,7 @@
   "tabs": {
     "home": "الرئيسية",
     "promotions": "العروض",
-    "purchase": "الشراء",
+    "purchase": "المحفظة",
     "account": "الحساب"
   },
   "restaurant": {
@@ -40,6 +40,7 @@
   },
   "drawer": {
     "menu": "القائمة",
+    "restaurants": "المطاعم",
     "accountSettings": "إعدادات الحساب",
     "language": "اللغة",
     "theme": "المظهر",
@@ -56,6 +57,9 @@
     "search": "ابحث عن العروض...",
     "food": "طعام",
     "drinks": "مشروبات",
+    "closestToMe": "الأقرب إلي",
+    "locationNotSupported": "الموقع غير مدعوم على جهازك.",
+    "locationDenied": "تم رفض الوصول للموقع. فعّله لعرض العروض القريبة.",
     "noPromotions": "لا توجد عروض متاحة",
     "openInMaps": "فتح في خرائط جوجل",
     "mapLoadError": "فشل تحميل الخريطة",
@@ -134,6 +138,7 @@
   "gift": {
     "scanQRCode": "مسح رمز QR",
     "qrScanned": "تم مسح رمز QR",
+    "clearCode": "مسح الكود",
     "sendGift": "إرسال الهدية",
     "sending": "جاري الإرسال",
     "selectImage": "ارفع صورة الكود",
@@ -570,7 +575,10 @@
       "orders": "طلبات",
       "noOrdersForTable": "لا توجد طلبات لهذه الطاولة",
       "noTablesForView": "لا توجد طاولات. أنشئ طاولات من رموز QR لعرض الطلبات حسب الطاولة.",
-      "viewDetails": "عرض التفاصيل"
+      "viewDetails": "عرض التفاصيل",
+      "completedOrdersCount": "الطلبات المكتملة",
+      "completedRevenue": "الإيرادات (المكتملة)",
+      "last3Orders": "آخر 3 طلبات"
     },
     "waiterRequests": {
       "title": "طلبات النادل",
@@ -788,8 +796,9 @@
       "items": "عنصر"
     },
     "payments": {
-      "title": "مدفوعات العملاء",
-      "description": "عرض وإدارة مدفوعات العملاء للمطعم",
+      "title": "سجل نقاط الولاء",
+      "description": "سجل نقاط الولاء (النجوم) المكتسبة والمستبدلة من العملاء.",
+      "pointsLogNotMoney": "نقاط ولاء (★) — وليست مدفوعات نقدية.",
       "loadingPaymentData": "جاري تحميل بيانات المدفوعات...",
       "errorLoadingData": "خطأ في تحميل البيانات",
       "totalPayments": "إجمالي المدفوعات",
@@ -815,14 +824,14 @@
       "last30Days": "آخر 30 يوم",
       "filterData": "تصفية البيانات",
       "clearFilters": "مسح الفلاتر",
-      "paymentRecords": "سجلات المدفوعات",
-      "viewAllPaymentRecords": "عرض جميع سجلات مدفوعات العملاء",
+      "paymentRecords": "سجلات النقاط",
+      "viewAllPaymentRecords": "عرض جميع سجلات نقاط الولاء (النجوم)",
       "loadingPaymentRecords": "جاري تحميل سجلات المدفوعات...",
       "noPaymentRecordsFound": "لم يتم العثور على سجلات مدفوعات",
       "customer": "العميل",
       "type": "النوع",
       "date": "التاريخ",
-      "amount": "المبلغ",
+      "amount": "النقاط",
       "showing": "عرض",
       "to": "إلى",
       "of": "من",

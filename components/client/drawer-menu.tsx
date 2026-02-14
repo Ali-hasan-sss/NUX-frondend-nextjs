@@ -14,6 +14,7 @@ import {
   Moon,
   Sun,
   Monitor,
+  Store,
 } from "lucide-react";
 import {
   Sheet,
@@ -73,7 +74,7 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
         side="left"
         className={cn(
           "w-[280px] p-0 transition-colors",
-          isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
+          isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]",
         )}
         style={{
           borderRightColor: colors.border,
@@ -93,15 +94,20 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
 
         <div className="flex flex-col h-full overflow-y-auto p-5">
           <div className="space-y-6">
-            {/* Account Settings */}
+            {/* Restaurants - search for a restaurant */}
             <button
+              type="button"
+              onClick={() => {
+                router.push("/restaurants");
+                onOpenChange(false);
+              }}
               className={cn(
-                "flex items-center gap-3 hover:opacity-80 transition-opacity"
+                "flex items-center gap-3 w-full hover:opacity-80 transition-opacity text-left",
               )}
               style={{ color: colors.text }}
             >
-              <Settings className="h-5 w-5" style={{ color: colors.primary }} />
-              <span>{t("drawer.accountSettings")}</span>
+              <Store className="h-5 w-5" style={{ color: colors.primary }} />
+              <span>{t("drawer.restaurants")}</span>
             </button>
 
             {/* Language */}
@@ -127,8 +133,8 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
                       currentLanguage === lang.code
                         ? "bg-[#00D9FF] text-white"
                         : isDark
-                        ? "bg-white/10 text-white/75 hover:bg-white/20"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          ? "bg-white/10 text-white/75 hover:bg-white/20"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200",
                     )}
                   >
                     {lang.label}
@@ -168,7 +174,7 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
                       key={themeOption.code}
                       onClick={() =>
                         handleThemeChange(
-                          themeOption.code as "light" | "dark" | "system"
+                          themeOption.code as "light" | "dark" | "system",
                         )
                       }
                       className={cn(
@@ -176,8 +182,8 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
                         isSelected
                           ? "bg-[#00D9FF] text-white"
                           : isDark
-                          ? "bg-white/10 text-white/75 hover:bg-white/20"
-                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            ? "bg-white/10 text-white/75 hover:bg-white/20"
+                            : "bg-gray-100 text-gray-700 hover:bg-gray-200",
                       )}
                     >
                       <Icon className="h-3.5 w-3.5" />
@@ -191,7 +197,7 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
             {/* Terms of Use */}
             <button
               className={cn(
-                "flex items-center gap-3 hover:opacity-80 transition-opacity"
+                "flex items-center gap-3 hover:opacity-80 transition-opacity",
               )}
               style={{ color: colors.text }}
             >
@@ -202,7 +208,7 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
             {/* Privacy Policy */}
             <button
               className={cn(
-                "flex items-center gap-3 hover:opacity-80 transition-opacity"
+                "flex items-center gap-3 hover:opacity-80 transition-opacity",
               )}
               style={{ color: colors.text }}
             >
@@ -213,7 +219,7 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
             {/* About App */}
             <button
               className={cn(
-                "flex items-center gap-3 hover:opacity-80 transition-opacity"
+                "flex items-center gap-3 hover:opacity-80 transition-opacity",
               )}
               style={{ color: colors.text }}
             >

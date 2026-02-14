@@ -3,6 +3,8 @@ export interface User {
   email: string;
   fullName: string;
   role: "ADMIN" | "RESTAURANT_OWNER" | "USER" | "SUBADMIN";
+  /** If false or undefined, user must verify email before accessing dashboard/client */
+  emailVerified?: boolean;
   restaurantName?: string;
   address?: string;
   latitude?: number;

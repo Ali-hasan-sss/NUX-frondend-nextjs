@@ -308,17 +308,6 @@ export function InvoiceViewer({
                 appLogo={appLogo}
                 className="flex-1"
               />
-              {invoice.hostedInvoiceUrl && (
-                <Button variant="outline" asChild className="flex-1">
-                  <a
-                    href={invoice.hostedInvoiceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    View in Stripe
-                  </a>
-                </Button>
-              )}
             </div>
           </div>
         ) : (

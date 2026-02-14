@@ -12,8 +12,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useTheme } from "next-themes";
 import { I18nProvider } from "@/components/client/i18n-provider";
 import { useTranslation } from "react-i18next";
-import { useAppSelector } from "@/app/hooks";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { authService } from "@/features/auth/authService";
+import { setEmailVerified } from "@/features/auth/authSlice";
 import { Home, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -22,12 +23,14 @@ function VerifyEmailContent() {
   const { t } = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const dispatch = useAppDispatch();
   const { theme } = useTheme();
   const user = useAppSelector((state) => state.auth.user);
   const [mounted, setMounted] = useState(false);
 
   const emailFromQuery = searchParams?.get("email") || "";
-  const [email, setEmail] = useState(emailFromQuery);
+  const emailLocked = !!(emailFromQuery || user?.email);
+  const [email, setEmail] = useState(emailFromQuery || user?.email || "");
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
@@ -39,7 +42,8 @@ function VerifyEmailContent() {
   }, []);
   useEffect(() => {
     if (emailFromQuery) setEmail(emailFromQuery);
-  }, [emailFromQuery]);
+    else if (user?.email) setEmail(user.email);
+  }, [emailFromQuery, user?.email]);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +56,7 @@ function VerifyEmailContent() {
       setSubmitting(true);
       await authService.verifyEmail(email, code.trim());
       setSuccess(true);
+      dispatch(setEmailVerified());
       const redirectPath =
         user?.role === "ADMIN"
           ? "/admin"
@@ -137,9 +142,13 @@ function VerifyEmailContent() {
                   type="email"
                   placeholder={t("landing.auth.enterEmail")}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => !emailLocked && setEmail(e.target.value)}
+                  readOnly={emailLocked}
                   required
-                  className="h-12 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
+                  className={cn(
+                    "h-12 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0",
+                    emailLocked && "cursor-not-allowed opacity-90"
+                  )}
                 />
               </div>
               <div className="space-y-2">

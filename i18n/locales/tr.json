@@ -18,7 +18,7 @@
   "tabs": {
     "home": "Ana Sayfa",
     "promotions": "Kampanyalar",
-    "purchase": "Satın Al",
+    "purchase": "Cüzdan",
     "account": "Hesap"
   },
   "restaurant": {
@@ -40,6 +40,7 @@
   },
   "drawer": {
     "menu": "Menü",
+    "restaurants": "Restoranlar",
     "accountSettings": "Hesap Ayarları",
     "language": "Dil",
     "theme": "Tema",
@@ -56,6 +57,9 @@
     "search": "Kampanya ara...",
     "food": "Yemek",
     "drinks": "İçecekler",
+    "closestToMe": "Bana en yakın",
+    "locationNotSupported": "Konum cihazınız tarafından desteklenmiyor.",
+    "locationDenied": "Konum erişimi reddedildi. Yakındaki kampanyalar için etkinleştirin.",
     "noPromotions": "Kampanya bulunamadı",
     "openInMaps": "Google Maps'te Aç",
     "mapLoadError": "Harita yüklenemedi",
@@ -134,6 +138,7 @@
   "gift": {
     "scanQRCode": "QR Kodu Tara",
     "qrScanned": "QR Kodu Tarandı",
+    "clearCode": "Kodu Temizle",
     "sendGift": "Hediye Gönder",
     "sending": "Gönderiliyor",
     "selectImage": "QR Kod Görseli Yükle",
@@ -570,7 +575,10 @@
       "orders": "sipariş",
       "noOrdersForTable": "Bu masa için sipariş yok",
       "noTablesForView": "Masa bulunamadı. Masaya göre siparişleri görmek için QR Kodları'nda masa oluşturun.",
-      "viewDetails": "Detayları Görüntüle"
+      "viewDetails": "Detayları Görüntüle",
+      "completedOrdersCount": "Tamamlanan siparişler",
+      "completedRevenue": "Gelir (tamamlanan)",
+      "last3Orders": "Son 3 sipariş"
     },
     "waiterRequests": {
       "title": "Garson talepleri",
@@ -785,8 +793,9 @@
       "items": "öğe"
     },
     "payments": {
-      "title": "Müşteri Ödemeleri",
-      "description": "Restoran için müşteri ödemelerini görüntüleyin ve yönetin",
+      "title": "Sadakat puanları kaydı",
+      "description": "Müşterilerin kazandığı ve kullandığı sadakat puanları (yıldız) kaydı.",
+      "pointsLogNotMoney": "Sadakat puanları (★) — parasal ödeme değildir.",
       "loadingPaymentData": "Ödeme verileri yükleniyor...",
       "errorLoadingData": "Veri yüklenirken hata",
       "totalPayments": "Toplam Ödemeler",
@@ -811,14 +820,14 @@
       "last7Days": "Son 7 Gün",
       "filterData": "Veriyi Filtrele",
       "clearFilters": "Filtreleri Temizle",
-      "paymentRecords": "Ödeme Kayıtları",
-      "viewAllPaymentRecords": "Tüm müşteri ödeme kayıtlarını görüntüleyin",
+      "paymentRecords": "Puan kayıtları",
+      "viewAllPaymentRecords": "Tüm sadakat puanı (yıldız) kayıtlarını görüntüleyin",
       "loadingPaymentRecords": "Ödeme kayıtları yükleniyor...",
       "noPaymentRecordsFound": "Ödeme kaydı bulunamadı",
       "customer": "Müşteri",
       "type": "Tür",
       "date": "Tarih",
-      "amount": "Tutar",
+      "amount": "Puan",
       "showing": "Gösterilen",
       "to": "-",
       "of": "/",

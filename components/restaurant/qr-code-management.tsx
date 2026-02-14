@@ -128,7 +128,7 @@ function PrintableFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className="label-sticker border rounded-lg p-4 w-[320px] bg-white text-black">
+    <div className="label-sticker border rounded-lg p-3 sm:p-4 w-full max-w-[320px] bg-white text-black">
       <div className="label-qr-box flex justify-center items-center min-h-[200px]">
         {children}
       </div>
@@ -250,20 +250,20 @@ export function QRCodeManagement() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="w-full min-w-0 p-3 sm:p-6 space-y-4 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
         <div className="min-w-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground truncate">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground break-words">
             {t("dashboard.qrCodes.title")}
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground truncate">
+          <p className="text-xs sm:text-sm text-muted-foreground break-words mt-0.5">
             {t("dashboard.qrCodes.description")}
           </p>
         </div>
       </div>
 
-      <Tabs defaultValue="main" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+      <Tabs defaultValue="main" className="w-full min-w-0">
+        <TabsList className="grid w-full grid-cols-2 h-auto p-1 text-xs sm:text-sm">
           <TabsTrigger value="main">
             {t("dashboard.qrCodes.mainCodes") || "Main QR Codes"}
           </TabsTrigger>
@@ -272,10 +272,10 @@ export function QRCodeManagement() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="main" className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 justify-end">
-            <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm text-muted-foreground">
+        <TabsContent value="main" className="space-y-4 sm:space-y-6 mt-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end w-full min-w-0">
+            <div className="flex items-center gap-2 order-first sm:order-none">
+              <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                 {t("dashboard.qrCodes.autoRefresh")}
               </span>
               <Switch
@@ -283,36 +283,40 @@ export function QRCodeManagement() {
                 aria-label="Auto refresh QR every 5 minutes"
               />
             </div>
-            <Button
-              variant="outline"
-              onClick={handleRegenerate}
-              disabled={isLoading}
-              className="h-9 px-3 sm:h-10 sm:px-4"
-            >
-              {t("dashboard.qrCodes.regenerateDrinkMeal")}
-            </Button>
-            <Button
-              onClick={handlePrint}
-              className="h-9 px-3 sm:h-10 sm:px-4"
-              disabled={!mainPrintReady}
-              title={!mainPrintReady ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR images to load" : undefined}
-            >
-              {t("dashboard.qrCodes.printAll")}
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                onClick={handleRegenerate}
+                disabled={isLoading}
+                size="sm"
+                className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm"
+              >
+                {t("dashboard.qrCodes.regenerateDrinkMeal")}
+              </Button>
+              <Button
+                onClick={handlePrint}
+                size="sm"
+                className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm"
+                disabled={!mainPrintReady}
+                title={!mainPrintReady ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR images to load" : undefined}
+              >
+                {t("dashboard.qrCodes.printAll")}
+              </Button>
+            </div>
           </div>
 
-          <div className="flex flex-col gap-4" ref={printRef}>
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("dashboard.qrCodes.drinkQR")}</CardTitle>
-                <CardDescription>
+          <div className="flex flex-col gap-4 w-full min-w-0" ref={printRef}>
+            <Card className="w-full min-w-0 overflow-hidden">
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg">{t("dashboard.qrCodes.drinkQR")}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
                   {t("dashboard.qrCodes.scanToCollectDrink")}{" "}
                   {data?.name ?? t("dashboard.qrCodes.drinkQR")}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex justify-center">
-                  <div ref={drinkRef} className="frame">
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex justify-center min-w-0">
+                  <div ref={drinkRef} className="frame w-full max-w-[320px]">
                     <PrintableFrame
                       title={data?.name ?? "Restaurant"}
                       subtitle={t("dashboard.qrCodes.drinkQR")}
@@ -335,9 +339,11 @@ export function QRCodeManagement() {
                     </PrintableFrame>
                   </div>
                 </div>
-                <div className="mt-3 flex justify-center gap-2">
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
                   <Button
                     variant="outline"
+                    size="sm"
+                    className="text-xs sm:text-sm"
                     onClick={() => handlePrintSingle("drink")}
                     disabled={!data?.qrCode_drink}
                     title={!data?.qrCode_drink ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
@@ -346,9 +352,9 @@ export function QRCodeManagement() {
                   </Button>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
+                      <Button size="sm" className="text-xs sm:text-sm">{t("dashboard.qrCodes.fullscreen")}</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[640px]">
+                    <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
                       <DialogHeader>
                         <DialogTitle>
                           {t("dashboard.qrCodes.drinkQR")}
@@ -372,17 +378,17 @@ export function QRCodeManagement() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("dashboard.qrCodes.mealQR")}</CardTitle>
-                <CardDescription>
+            <Card className="w-full min-w-0 overflow-hidden">
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg">{t("dashboard.qrCodes.mealQR")}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
                   {t("dashboard.qrCodes.scanToCollectMeal")}{" "}
                   {data?.name ?? t("dashboard.qrCodes.mealQR")}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex justify-center">
-                  <div ref={mealRef} className="frame">
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex justify-center min-w-0">
+                  <div ref={mealRef} className="frame w-full max-w-[320px]">
                     <PrintableFrame
                       title={data?.name ?? "Restaurant"}
                       subtitle={t("dashboard.qrCodes.mealQR")}
@@ -405,9 +411,11 @@ export function QRCodeManagement() {
                     </PrintableFrame>
                   </div>
                 </div>
-                <div className="mt-3 flex justify-center gap-2">
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
                   <Button
                     variant="outline"
+                    size="sm"
+                    className="text-xs sm:text-sm"
                     onClick={() => handlePrintSingle("meal")}
                     disabled={!data?.qrCode_meal}
                     title={!data?.qrCode_meal ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
@@ -416,11 +424,11 @@ export function QRCodeManagement() {
                   </Button>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
+                      <Button size="sm" className="text-xs sm:text-sm">{t("dashboard.qrCodes.fullscreen")}</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[640px]">
+                    <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
                       <DialogHeader>
-                        <DialogTitle>
+                        <DialogTitle className="text-base sm:text-lg">
                           {t("dashboard.qrCodes.mealQR")}
                         </DialogTitle>
                       </DialogHeader>
@@ -442,16 +450,16 @@ export function QRCodeManagement() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t("dashboard.qrCodes.menuQR")}</CardTitle>
-                <CardDescription>
+            <Card className="w-full min-w-0 overflow-hidden">
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <CardTitle className="text-base sm:text-lg">{t("dashboard.qrCodes.menuQR")}</CardTitle>
+                <CardDescription className="text-xs sm:text-sm">
                   {t("dashboard.qrCodes.scanToViewMenu")} {data?.name ?? ""}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="flex justify-center">
-                  <div ref={menuRef} className="frame">
+              <CardContent className="p-3 sm:p-4 md:p-6">
+                <div className="flex justify-center min-w-0">
+                  <div ref={menuRef} className="frame w-full max-w-[320px]">
                     <PrintableFrame
                       title={data?.name ?? "Restaurant"}
                       subtitle="Menu QR"
@@ -477,9 +485,11 @@ export function QRCodeManagement() {
                 <div className="mt-3 text-xs text-muted-foreground break-all text-center">
                   {menuUrl}
                 </div>
-                <div className="mt-3 flex justify-center gap-2">
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
                   <Button
                     variant="outline"
+                    size="sm"
+                    className="text-xs sm:text-sm"
                     onClick={() => handlePrintSingle("menu")}
                     disabled={!menuUrl}
                     title={!menuUrl ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
@@ -488,11 +498,11 @@ export function QRCodeManagement() {
                   </Button>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <Button>{t("dashboard.qrCodes.fullscreen")}</Button>
+                      <Button size="sm" className="text-xs sm:text-sm">{t("dashboard.qrCodes.fullscreen")}</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[640px]">
+                    <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
                       <DialogHeader>
-                        <DialogTitle>
+                        <DialogTitle className="text-base sm:text-lg">
                           {t("dashboard.qrCodes.menuQR")}
                         </DialogTitle>
                       </DialogHeader>
@@ -515,9 +525,9 @@ export function QRCodeManagement() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 w-full min-w-0">
+            <Card className="min-w-0 overflow-hidden">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center space-x-2">
                   <QrCode className="h-5 w-5 text-primary" />
                   <div>
@@ -565,42 +575,42 @@ function TableCard({
   useEffect(() => setImageLoaded(false), [table.id]);
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              {table.name}
+    <Card className="hover:shadow-md transition-shadow w-full min-w-0 overflow-hidden">
+      <CardHeader className="p-3 sm:p-4">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between min-w-0">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="flex flex-wrap items-center gap-2 text-base sm:text-lg">
+              <span className="break-words">{table.name}</span>
               {!table.isActive && (
-                <Badge variant="secondary" className="text-xs">
+                <Badge variant="secondary" className="text-xs shrink-0">
                   {t("dashboard.tables.inactive") || "Inactive"}
                 </Badge>
               )}
               <Badge
                 variant={table.isSessionOpen ? "default" : "secondary"}
-                className="text-xs"
+                className="text-xs shrink-0"
               >
                 {table.isSessionOpen
                   ? t("dashboard.tables.sessionOpen") || "Session open"
                   : t("dashboard.tables.sessionClosed") || "Session closed"}
               </Badge>
             </CardTitle>
-            <CardDescription className="mt-1">
+            <CardDescription className="mt-1 text-xs sm:text-sm">
               {t("dashboard.tables.tableNumber") || "Table"} #{table.number}
             </CardDescription>
           </div>
-          <div className="flex gap-1">
-            <Button variant="ghost" size="sm" onClick={() => onEdit(table)}>
+          <div className="flex gap-1 shrink-0">
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onEdit(table)}>
               <Pencil className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => onDelete(table)}>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => onDelete(table)}>
               <Trash2 className="h-4 w-4 text-destructive" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="flex justify-center gap-2 mb-4">
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex justify-center gap-2 mb-3 sm:mb-4">
           <Button
             variant={table.isSessionOpen ? "outline" : "default"}
             size="sm"
@@ -611,8 +621,8 @@ function TableCard({
               : t("dashboard.tables.openSession") || "Open session"}
           </Button>
         </div>
-        <div className="flex justify-center mb-4">
-          <div ref={tableRef} className="frame">
+        <div className="flex justify-center mb-3 sm:mb-4 min-w-0">
+          <div ref={tableRef} className="frame w-full max-w-[320px]">
             <PrintableFrame
               title={table.name}
               subtitle={`${t("dashboard.tables.tableNumber") || "Table"} #${
@@ -634,10 +644,11 @@ function TableCard({
         <div className="text-xs text-muted-foreground break-all text-center mb-2">
           {table.qrCode}
         </div>
-        <div className="flex justify-center gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           <Button
             variant="outline"
             size="sm"
+            className="text-xs sm:text-sm"
             onClick={handlePrint}
             disabled={!imageLoaded}
             title={!imageLoaded ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR to load" : undefined}
@@ -646,11 +657,11 @@ function TableCard({
           </Button>
           <Dialog>
             <DialogTrigger asChild>
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" className="text-xs sm:text-sm">
                 {t("dashboard.qrCodes.fullscreen") || "Fullscreen"}
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[640px]">
+            <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
               <DialogHeader>
                 <DialogTitle>{table.name}</DialogTitle>
               </DialogHeader>
@@ -900,21 +911,23 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
   }
 
   return (
-    <div className="space-y-6" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">
+    <div className="space-y-4 sm:space-y-6 w-full min-w-0" dir={i18n.language === "ar" ? "rtl" : "ltr"}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between min-w-0">
+        <div className="min-w-0">
+          <h2 className="text-lg sm:text-xl font-semibold break-words">
             {t("dashboard.tables.title") || "Table Management"}
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground break-words mt-0.5">
             {t("dashboard.tables.description") ||
               "Create and manage table QR codes"}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 shrink-0">
           {tables.length > 0 && (
             <Button
               variant="outline"
+              size="sm"
+              className="text-xs sm:text-sm"
               onClick={handlePrintAllTables}
               disabled={tables.length === 0}
               title={
@@ -923,12 +936,12 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
                   : undefined
               }
             >
-              <Printer className="h-4 w-4 mr-2" />
+              <Printer className="h-4 w-4 mr-1.5 sm:mr-2" />
               {t("dashboard.tables.printAll")}
             </Button>
           )}
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+          <Button size="sm" className="text-xs sm:text-sm" onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-1.5 sm:mr-2" />
             {t("dashboard.tables.createTables") || "Create Tables"}
           </Button>
         </div>
@@ -954,7 +967,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 w-full min-w-0">
           {tables.map((table) => (
             <TableCard
               key={table.id}
@@ -972,7 +985,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
 
       {/* Create Tables Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md">
           <DialogHeader>
             <DialogTitle>
               {t("dashboard.tables.createTables") || "Create Tables"}
@@ -1024,7 +1037,7 @@ function TablesManagement({ restaurantId }: { restaurantId: string }) {
 
       {/* Edit Table Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-md">
           <DialogHeader>
             <DialogTitle>
               {t("dashboard.tables.editTable") || "Edit Table"}

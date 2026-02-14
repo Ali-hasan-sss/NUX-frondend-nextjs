@@ -23,7 +23,7 @@ import {
   X,
   UtensilsCrossed,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import Image from "next/image";
@@ -314,12 +314,13 @@ function PublicMenuPageContent() {
             <div
               className="flex-1 min-h-0 overflow-y-auto px-4 py-5 max-w-7xl mx-auto w-full"
               style={{
+                // Reserve space above fixed buttons on mobile so footer never overlaps
                 paddingBottom:
                   tableNumberParam && totalItems > 0
-                    ? "calc(12rem + env(safe-area-inset-bottom, 0px))"
+                    ? "calc(14rem + env(safe-area-inset-bottom, 0px))"
                     : tableNumberParam || totalItems > 0
-                      ? "calc(8.5rem + env(safe-area-inset-bottom, 0px))"
-                      : "calc(5rem + env(safe-area-inset-bottom, 0px))",
+                      ? "calc(9rem + env(safe-area-inset-bottom, 0px))"
+                      : "calc(4rem + env(safe-area-inset-bottom, 0px))",
               }}
             >
               {/* Header */}
@@ -479,7 +480,7 @@ function PublicMenuPageContent() {
                           {item.image ? (
                             <div className="relative w-28 h-28 rounded-lg overflow-hidden flex-shrink-0">
                               <Image
-                                src={item.image}
+                                src={getImageUrl(item.image)}
                                 alt={item.title}
                                 fill
                                 className="object-cover"
@@ -738,7 +739,7 @@ function PublicMenuPageContent() {
                   {selectedItem.image && (
                     <div className="relative w-full h-48 rounded-lg overflow-hidden">
                       <Image
-                        src={selectedItem.image}
+                        src={getImageUrl(selectedItem.image)}
                         alt={selectedItem.title}
                         fill
                         className="object-cover"
@@ -1102,12 +1103,13 @@ function PublicMenuPageContent() {
           <div
             className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full"
             style={{
+              // Reserve space above fixed buttons on mobile so footer never overlaps
               paddingBottom:
                 tableNumberParam && totalItems > 0
-                  ? "calc(12rem + env(safe-area-inset-bottom, 0px))"
+                  ? "calc(14rem + env(safe-area-inset-bottom, 0px))"
                   : tableNumberParam || totalItems > 0
-                    ? "calc(8.5rem + env(safe-area-inset-bottom, 0px))"
-                    : "calc(5rem + env(safe-area-inset-bottom, 0px))",
+                    ? "calc(9rem + env(safe-area-inset-bottom, 0px))"
+                    : "calc(4rem + env(safe-area-inset-bottom, 0px))",
             }}
           >
             {/* Header */}
@@ -1247,7 +1249,7 @@ function PublicMenuPageContent() {
                     {category.image ? (
                       <div className="relative w-full h-32 flex-shrink-0">
                         <Image
-                          src={category.image}
+                          src={getImageUrl(category.image)}
                           alt={category.title}
                           fill
                           className="object-cover"

@@ -5,14 +5,34 @@ import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchAds, refreshAds, setFilters } from "@/features/client";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
-import { Search, Filter, MapPin, X } from "lucide-react";
+import { Search, Filter, MapPin, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import { RestaurantMapModal } from "./restaurant-map-modal";
-import { Ad } from "@/features/client/ads/adsTypes";
+import { Ad, AdsFilters } from "@/features/client/ads/adsTypes";
+
+const NEARBY_RADIUS_KM = 50;
+
+function haversineKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export function PromotionsPage() {
   const { t } = useTranslation();
@@ -25,6 +45,13 @@ export function PromotionsPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [closestToMe, setClosestToMe] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [mapModalVisible, setMapModalVisible] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Ad | null>(null);
@@ -34,53 +61,43 @@ export function PromotionsPage() {
     { key: "drink", label: t("promotions.drinks") },
   ];
 
-  // Load ads
-  const loadAds = useCallback(
-    (page: number = 1, append: boolean = false) => {
+  const buildAdsFilters = useCallback(
+    (page: number = 1): AdsFilters => {
       const categoryFilter = selectedFilters.find(
         (f) => f === "food" || f === "drink"
       );
-
-      const adsFilters = {
+      const base: AdsFilters = {
         page,
         pageSize: 10,
         search: searchQuery.trim() || undefined,
         category: categoryFilter || undefined,
       };
-
-      dispatch(fetchAds({ filters: adsFilters, append }));
+      if (closestToMe && userLocation) {
+        base.lat = userLocation.lat;
+        base.lng = userLocation.lng;
+        base.radius = NEARBY_RADIUS_KM;
+      }
+      return base;
     },
-    [searchQuery, selectedFilters, dispatch]
+    [searchQuery, selectedFilters, closestToMe, userLocation]
   );
 
-  // Initial fetch and when filters/search change
+  const loadAds = useCallback(
+    (page: number = 1, append: boolean = false) => {
+      dispatch(fetchAds({ filters: buildAdsFilters(page), append }));
+    },
+    [buildAdsFilters, dispatch]
+  );
+
   useEffect(() => {
-    const categoryFilter = selectedFilters.find(
-      (f) => f === "food" || f === "drink"
-    );
+    if (closestToMe && !userLocation && !locationLoading && !locationError) {
+      return;
+    }
+    dispatch(fetchAds({ filters: buildAdsFilters(1), append: false }));
+  }, [searchQuery, selectedFilters, closestToMe, userLocation, dispatch]);
 
-    const adsFilters = {
-      page: 1,
-      pageSize: 10,
-      search: searchQuery.trim() || undefined,
-      category: categoryFilter || undefined,
-    };
-
-    dispatch(fetchAds({ filters: adsFilters, append: false }));
-  }, [searchQuery, selectedFilters, dispatch]);
-
-  // Handle refresh
   const handleRefresh = () => {
-    const categoryFilter = selectedFilters.find(
-      (f) => f === "food" || f === "drink"
-    );
-    const adsFilters = {
-      page: 1,
-      pageSize: 10,
-      search: searchQuery.trim() || undefined,
-      category: categoryFilter || undefined,
-    };
-    dispatch(refreshAds(adsFilters));
+    dispatch(refreshAds(buildAdsFilters(1)));
   };
 
   // Handle load more
@@ -99,6 +116,41 @@ export function PromotionsPage() {
       prev.includes(filterKey)
         ? prev.filter((f) => f !== filterKey)
         : [...prev, filterKey]
+    );
+  };
+
+  const toggleClosestToMe = () => {
+    if (closestToMe) {
+      setClosestToMe(false);
+      setLocationError(null);
+      return;
+    }
+    if (userLocation) {
+      setClosestToMe(true);
+      return;
+    }
+    setLocationLoading(true);
+    setLocationError(null);
+    if (!navigator.geolocation) {
+      setLocationError(t("promotions.locationNotSupported"));
+      setLocationLoading(false);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        });
+        setClosestToMe(true);
+        setLocationLoading(false);
+        setLocationError(null);
+      },
+      () => {
+        setLocationError(t("promotions.locationDenied"));
+        setLocationLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
   };
 
@@ -161,6 +213,27 @@ export function PromotionsPage() {
           {showFilters && (
             <div className="mb-4">
               <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={toggleClosestToMe}
+                  disabled={locationLoading}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-2",
+                    closestToMe ? "text-white" : isDark ? "text-white/75" : "text-gray-700"
+                  )}
+                  style={{
+                    backgroundColor: closestToMe
+                      ? colors.primary
+                      : colors.surface,
+                  }}
+                >
+                  {locationLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <MapPin className="h-4 w-4" />
+                  )}
+                  {t("promotions.closestToMe")}
+                </button>
                 {filterOptions.map((filterOpt) => (
                   <button
                     key={filterOpt.key}
@@ -182,9 +255,13 @@ export function PromotionsPage() {
                     {filterOpt.label}
                   </button>
                 ))}
-                {selectedFilters.length > 0 && (
+                {(selectedFilters.length > 0 || closestToMe) && (
                   <button
-                    onClick={() => setSelectedFilters([])}
+                    onClick={() => {
+                      setSelectedFilters([]);
+                      setClosestToMe(false);
+                      setLocationError(null);
+                    }}
                     className="px-4 py-2 rounded-full text-sm font-medium text-white transition-colors"
                     style={{ backgroundColor: colors.error }}
                   >
@@ -192,6 +269,11 @@ export function PromotionsPage() {
                   </button>
                 )}
               </div>
+              {locationError && (
+                <p className="text-sm mt-2" style={{ color: colors.error }}>
+                  {locationError}
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -225,15 +307,33 @@ export function PromotionsPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {ads.map((ad) => {
+            {[...ads]
+              .sort((a, b) => {
+                if (!userLocation) return 0;
+                const distA = haversineKm(
+                  userLocation.lat,
+                  userLocation.lng,
+                  a.restaurant.latitude,
+                  a.restaurant.longitude
+                );
+                const distB = haversineKm(
+                  userLocation.lat,
+                  userLocation.lng,
+                  b.restaurant.latitude,
+                  b.restaurant.longitude
+                );
+                return distA - distB;
+              })
+              .map((ad) => {
               const imageUri =
-                ad.image ||
-                ad.restaurant.logo ||
+                getImageUrl(ad.image) ||
+                getImageUrl(ad.restaurant?.logo) ||
                 "https://via.placeholder.com/400x160?text=No+Image";
 
               return (
                 <button
                   key={ad.id}
+                  type="button"
                   onClick={() => handleRestaurantLocation(ad)}
                   className={cn(
                     "w-full rounded-2xl overflow-hidden transition-all",
@@ -323,11 +423,14 @@ export function PromotionsPage() {
         )}
       </div>
 
-      {/* Map Modal */}
-      {selectedRestaurant && (
+      {/* Map Modal - show restaurant location when user taps the ad */}
+      {selectedRestaurant?.restaurant != null && (
         <RestaurantMapModal
           open={mapModalVisible}
-          onOpenChange={setMapModalVisible}
+          onOpenChange={(open) => {
+            setMapModalVisible(open);
+            if (!open) setSelectedRestaurant(null);
+          }}
           restaurant={{
             name: selectedRestaurant.restaurant.name,
             latitude: selectedRestaurant.restaurant.latitude,

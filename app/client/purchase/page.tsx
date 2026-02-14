@@ -356,34 +356,24 @@ export default function PurchasePage() {
           >
             {t("account.qrCodeDesc")}
           </p>
-          {/* QR Code */}
-          <div className="mt-4 flex justify-center items-center p-5">
+          {/* QR Code - white background in both themes for reliable scanning */}
+          <div className="mt-4 flex justify-center items-center p-5 rounded-xl bg-white">
             {profileLoading.profile ? (
-              <div
-                className="w-[200px] h-[200px] rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: colors.background }}
-              >
-                <p className="text-sm" style={{ color: colors.textSecondary }}>
-                  {t("common.loading")}...
-                </p>
+              <div className="w-[200px] h-[200px] rounded-lg flex items-center justify-center bg-white">
+                <p className="text-sm text-gray-500">{t("common.loading")}...</p>
               </div>
             ) : clientProfile?.qrCode && clientProfile.qrCode.trim() !== "" ? (
               <QRCodeSVG
                 value={clientProfile.qrCode}
                 size={200}
-                fgColor={colors.text}
-                bgColor={colors.background}
+                fgColor="#000000"
+                bgColor="#ffffff"
                 level="M"
                 includeMargin={true}
               />
             ) : (
-              <div
-                className="w-[200px] h-[200px] rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: colors.background }}
-              >
-                <p className="text-sm" style={{ color: colors.textSecondary }}>
-                  {t("account.noQRCode")}
-                </p>
+              <div className="w-[200px] h-[200px] rounded-lg flex items-center justify-center bg-white">
+                <p className="text-sm text-gray-500">{t("account.noQRCode")}</p>
               </div>
             )}
           </div>

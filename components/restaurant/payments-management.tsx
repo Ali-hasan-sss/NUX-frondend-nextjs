@@ -25,7 +25,6 @@ import {
   Users,
   Calendar,
   Filter,
-  DollarSign,
   Star,
   Coins,
 } from "lucide-react";
@@ -192,8 +191,8 @@ export function PaymentsManagement() {
       case "balance":
         return (
           <Badge variant="secondary" className="bg-green-100 text-green-800">
-            <DollarSign className="h-3 w-3 mr-1" />
-{t("dashboard.payments.balance")}
+            <Star className="h-3 w-3 mr-1" />
+            {t("dashboard.payments.balance")}
           </Badge>
         );
       case "stars_meal":
@@ -219,11 +218,9 @@ export function PaymentsManagement() {
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "EUR",
-    }).format(amount);
+  /** Display amount as loyalty points (stars), not money */
+  const formatPoints = (amount: number) => {
+    return `${Number(amount).toLocaleString()} ★`;
   };
 
   // Only show full page loading on initial load when no data exists
@@ -256,6 +253,9 @@ export function PaymentsManagement() {
         <p className="text-muted-foreground">
           {t("dashboard.payments.description")}
         </p>
+        <p className="text-sm text-muted-foreground mt-1 font-medium">
+          {t("dashboard.payments.pointsLogNotMoney") || "Loyalty points log (★) — not monetary payments."}
+        </p>
       </div>
 
       {/* Statistics Cards */}
@@ -273,7 +273,7 @@ export function PaymentsManagement() {
                 {stats.totalPayments.toLocaleString()}
               </div>
               <p className="text-xs text-muted-foreground">
-                {formatCurrency(stats.totalAmount)} {t("dashboard.payments.total")}
+                {formatPoints(stats.totalAmount)} {t("dashboard.payments.total")}
               </p>
             </CardContent>
           </Card>
@@ -331,7 +331,7 @@ export function PaymentsManagement() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
+                <Star className="h-5 w-5 text-green-600" />
                 <div>
                   <p className="text-sm font-medium">{t("dashboard.payments.balancePayments")}</p>
                   <p className="text-2xl font-bold">{stats.balancePayments}</p>
@@ -471,7 +471,7 @@ export function PaymentsManagement() {
                           {getPaymentTypeBadge(payment.paymentType)}
                         </TableCell>
                         <TableCell className="font-medium">
-                          {formatCurrency(payment.amount)}
+                          {formatPoints(payment.amount)}
                         </TableCell>
                         <TableCell className="text-sm">
                           {formatDate(payment.createdAt)}

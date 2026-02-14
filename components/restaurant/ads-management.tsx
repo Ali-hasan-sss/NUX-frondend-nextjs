@@ -11,6 +11,7 @@ import {
   updateAdThunk,
 } from "@/features/restaurant/ads/adsThunks";
 import type { RestaurantAd } from "@/features/restaurant/ads/adsTypes";
+import { getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -194,7 +195,7 @@ export default function AdsManagement() {
             <div className="w-full h-56 md:h-64 lg:h-72 overflow-hidden bg-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={ad.image}
+                src={getImageUrl(ad.image)}
                 alt={ad.title}
                 className="w-full h-full object-cover"
               />
@@ -418,7 +419,7 @@ export default function AdsManagement() {
               <div className="w-full h-56 rounded-md overflow-hidden bg-muted">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={openView.image}
+                  src={getImageUrl(openView.image)}
                   alt={openView.title}
                   className="w-full h-full object-cover"
                 />

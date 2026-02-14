@@ -10,7 +10,7 @@ import {
   setCurrentRestaurantId,
 } from "@/features/client";
 import { ArrowLeft, Loader2, AlertCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, getImageUrl } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import Image from "next/image";
@@ -140,7 +140,7 @@ export default function MenuPage() {
                   {item.image ? (
                     <div className="relative w-full h-48">
                       <Image
-                        src={item.image}
+                        src={getImageUrl(item.image)}
                         alt={item.name}
                         fill
                         className="object-cover"
@@ -269,7 +269,7 @@ export default function MenuPage() {
                 {category.image ? (
                   <div className="relative w-full h-48">
                     <Image
-                      src={category.image}
+                      src={getImageUrl(category.image)}
                       alt={category.name}
                       fill
                       className="object-cover"
