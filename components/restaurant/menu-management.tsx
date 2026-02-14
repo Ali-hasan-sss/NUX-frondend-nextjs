@@ -60,6 +60,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import FileUploader from "@/components/upload/file-uploader";
+import { AllergenSelect } from "@/components/restaurant/allergen-select";
+import { getTranslatedAllergen } from "@/data/allergens";
 import { seedService } from "@/features/restaurant/menu/seedService";
 import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
 import { toast } from "sonner";
@@ -84,8 +86,6 @@ export function MenuManagement() {
   }>({ id: null, title: "", description: "", image: "" });
 
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
-  const [newAllergyInput, setNewAllergyInput] = useState("");
-  const [editAllergyInput, setEditAllergyInput] = useState("");
   const [newItem, setNewItem] = useState<{
     title: string;
     description: string;
@@ -324,7 +324,6 @@ export function MenuManagement() {
       if (res.type.endsWith("fulfilled")) {
         dispatch(fetchItemsByCategory(openEditItem.categoryId));
         setOpenEditItem(null);
-        setEditAllergyInput("");
       }
     } finally {
       setItemUpdateLoading(false);
@@ -695,7 +694,7 @@ export function MenuManagement() {
                                     variant="outline"
                                     className="text-xs hover:!opacity-100"
                                   >
-                                    {allergy}
+                                    {getTranslatedAllergen(allergy, t)}
                                   </Badge>
                                 ))}
                               </div>
@@ -1010,7 +1009,6 @@ export function MenuManagement() {
               calories: "",
               kitchenSectionId: "",
             });
-            setNewAllergyInput("");
           }
           setOpenAddItem(v ? openAddItem : null);
         }}
@@ -1153,71 +1151,13 @@ export function MenuManagement() {
             </div>
             <div className="space-y-2">
               <Label className="text-sm">{t("dashboard.menu.allergies")}</Label>
-              <div className="flex flex-wrap gap-2">
-                <Input
-                  placeholder={t("dashboard.menu.allergiesPlaceholder")}
-                  value={newAllergyInput}
-                  className="flex-1 min-w-[120px] text-sm sm:text-base"
-                  onChange={(e) => setNewAllergyInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      const trimmed = newAllergyInput.trim();
-                      if (trimmed && !newItem.allergies.includes(trimmed)) {
-                        setNewItem({
-                          ...newItem,
-                          allergies: [...newItem.allergies, trimmed],
-                        });
-                        setNewAllergyInput("");
-                      }
-                    }
-                  }}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => {
-                    const trimmed = newAllergyInput.trim();
-                    if (trimmed && !newItem.allergies.includes(trimmed)) {
-                      setNewItem({
-                        ...newItem,
-                        allergies: [...newItem.allergies, trimmed],
-                      });
-                      setNewAllergyInput("");
-                    }
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {newItem.allergies.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {newItem.allergies.map((allergy, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="flex items-center gap-1 hover:bg-secondary"
-                    >
-                      {allergy}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setNewItem({
-                            ...newItem,
-                            allergies: newItem.allergies.filter(
-                              (_, i) => i !== index
-                            ),
-                          });
-                        }}
-                        className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </Badge>
-                  ))}
-                </div>
-              )}
+              <AllergenSelect
+                value={newItem.allergies}
+                onChange={(allergies) =>
+                  setNewItem({ ...newItem, allergies })
+                }
+                placeholder={t("dashboard.menu.allergiesPlaceholder")}
+              />
               <p className="text-xs text-muted-foreground">
                 {t("dashboard.menu.allergiesHint")}
               </p>
@@ -1322,7 +1262,6 @@ export function MenuManagement() {
                     calories: "",
                     kitchenSectionId: "",
                   });
-                  setNewAllergyInput("");
                   setOpenAddItem(null);
                 }}
               >
@@ -1354,9 +1293,6 @@ export function MenuManagement() {
       <Dialog
         open={openEditItem != null}
         onOpenChange={(v) => {
-          if (!v) {
-            setEditAllergyInput("");
-          }
           setOpenEditItem(v ? openEditItem : null);
         }}
       >
@@ -1520,74 +1456,13 @@ export function MenuManagement() {
               </div>
               <div className="space-y-2">
                 <Label>{t("dashboard.menu.allergies")}</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder={t("dashboard.menu.allergiesPlaceholder")}
-                    value={editAllergyInput}
-                    onChange={(e) => setEditAllergyInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        const trimmed = editAllergyInput.trim();
-                        const currentAllergies = openEditItem.allergies || [];
-                        if (trimmed && !currentAllergies.includes(trimmed)) {
-                          setOpenEditItem({
-                            ...openEditItem,
-                            allergies: [...currentAllergies, trimmed],
-                          });
-                          setEditAllergyInput("");
-                        }
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => {
-                      const trimmed = editAllergyInput.trim();
-                      const currentAllergies = openEditItem.allergies || [];
-                      if (trimmed && !currentAllergies.includes(trimmed)) {
-                        setOpenEditItem({
-                          ...openEditItem,
-                          allergies: [...currentAllergies, trimmed],
-                        });
-                        setEditAllergyInput("");
-                      }
-                    }}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {(openEditItem.allergies || []).length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {(openEditItem.allergies || []).map((allergy, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="flex items-center gap-1 hover:bg-secondary"
-                      >
-                        {allergy}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const currentAllergies =
-                              openEditItem.allergies || [];
-                            setOpenEditItem({
-                              ...openEditItem,
-                              allergies: currentAllergies.filter(
-                                (_, i) => i !== index
-                              ),
-                            });
-                          }}
-                          className="ml-1 rounded-full hover:bg-destructive/20 p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                <AllergenSelect
+                  value={openEditItem.allergies || []}
+                  onChange={(allergies) =>
+                    setOpenEditItem({ ...openEditItem, allergies })
+                  }
+                  placeholder={t("dashboard.menu.allergiesPlaceholder")}
+                />
                 <p className="text-xs text-muted-foreground">
                   {t("dashboard.menu.allergiesHint")}
                 </p>
@@ -1725,7 +1600,6 @@ export function MenuManagement() {
                   variant="outline"
                   onClick={() => {
                     setOpenEditItem(null);
-                    setEditAllergyInput("");
                   }}
                 >
                   {t("dashboard.menu.cancel")}

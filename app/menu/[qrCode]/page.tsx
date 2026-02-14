@@ -37,6 +37,7 @@ import {
   CartItemExtra,
 } from "@/contexts/menu-cart-context";
 import { CartDrawer } from "@/components/menu/cart-drawer";
+import { getTranslatedAllergen } from "@/data/allergens";
 import { orderService } from "@/features/client/orderService";
 import { toast } from "sonner";
 import {
@@ -573,7 +574,7 @@ function PublicMenuPageContent() {
                                         color: colors.error,
                                       }}
                                     >
-                                      {allergy}
+                                      {getTranslatedAllergen(allergy, t)}
                                     </span>
                                   ),
                                 )}

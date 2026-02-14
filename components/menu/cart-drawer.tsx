@@ -32,6 +32,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { getTranslatedAllergen } from "@/data/allergens";
 
 interface CartDrawerProps {
   open: boolean;
@@ -281,7 +282,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                                     color: colors.error,
                                   }}
                                 >
-                                  {allergy}
+                                  {getTranslatedAllergen(allergy, t)}
                                 </span>
                               )
                             )}
