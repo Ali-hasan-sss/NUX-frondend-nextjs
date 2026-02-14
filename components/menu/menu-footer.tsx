@@ -18,8 +18,8 @@ export function MenuFooter() {
     <footer
       className={cn(
         "border-t py-4 mt-auto shrink-0",
-        "pb-6 md:pb-4",
-        isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
+        "pb-6 md:pb-10",
+        isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]",
       )}
       style={{
         borderTopColor: colors.border,
