@@ -117,7 +117,7 @@ function PublicMenuPageContent() {
     ? categories.filter(
         (cat: any) =>
           cat.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          cat.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          cat.description?.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : categories;
 
@@ -125,7 +125,7 @@ function PublicMenuPageContent() {
     ? items.filter(
         (item: any) =>
           item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+          item.description?.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     : items;
 
@@ -146,11 +146,13 @@ function PublicMenuPageContent() {
       if (code === "TABLE_SESSION_NOT_OPEN") {
         toast.error(
           t("menu.tableSessionNotOpen") ||
-            "Table session is not open. Please ask the cashier to start a session."
+            "Table session is not open. Please ask the cashier to start a session.",
         );
       } else {
         toast.error(
-          msg || t("menu.waiterRequestError") || "Failed to send waiter request"
+          msg ||
+            t("menu.waiterRequestError") ||
+            "Failed to send waiter request",
         );
       }
     } finally {
@@ -167,7 +169,7 @@ function PublicMenuPageContent() {
       const query = params.toString();
       return query ? `${base}?${query}` : base;
     },
-    [qrCode, tableNumberParam]
+    [qrCode, tableNumberParam],
   );
 
   const handleCategoryClick = (category: any) => {
@@ -270,7 +272,7 @@ function PublicMenuPageContent() {
         : item.price;
     const extrasPrice = extras.reduce(
       (sum, extra) => sum + (extra.price || 0),
-      0
+      0,
     );
     return basePrice + extrasPrice;
   };
@@ -279,7 +281,7 @@ function PublicMenuPageContent() {
     const baseCalories = item.calories || 0;
     const extrasCalories = extras.reduce(
       (sum, extra) => sum + (extra.calories || 0),
-      0
+      0,
     );
     return baseCalories + extrasCalories;
   };
@@ -298,7 +300,7 @@ function PublicMenuPageContent() {
               "flex flex-col min-h-screen h-screen",
               tableNumberParam && totalItems > 0 && "pb-28",
               tableNumberParam && totalItems === 0 && "pb-14",
-              !tableNumberParam && totalItems > 0 && "pb-14"
+              !tableNumberParam && totalItems > 0 && "pb-14",
             )}
           >
             <MenuHeader
@@ -330,7 +332,7 @@ function PublicMenuPageContent() {
                     onClick={handleBackToCategories}
                     className={cn(
                       "p-2 rounded-lg transition-colors",
-                      isDark ? "hover:bg-white/10" : "hover:bg-gray-100"
+                      isDark ? "hover:bg-white/10" : "hover:bg-gray-100",
                     )}
                     style={{ color: colors.text }}
                   >
@@ -361,7 +363,7 @@ function PublicMenuPageContent() {
                       "pl-10 pr-10 h-10",
                       isDark
                         ? "bg-white/5 border-white/10 text-white placeholder:text-white/50"
-                        : "bg-white border-gray-200 text-gray-900"
+                        : "bg-white border-gray-200 text-gray-900",
                     )}
                     style={{
                       backgroundColor: isDark
@@ -472,7 +474,7 @@ function PublicMenuPageContent() {
                         key={item.id}
                         className={cn(
                           "rounded-xl overflow-hidden shadow-md transition-all",
-                          "hover:shadow-lg"
+                          "hover:shadow-lg",
                         )}
                         style={{ backgroundColor: colors.surface }}
                       >
@@ -573,7 +575,7 @@ function PublicMenuPageContent() {
                                     >
                                       {allergy}
                                     </span>
-                                  )
+                                  ),
                                 )}
                               </div>
                             )}
@@ -603,7 +605,7 @@ function PublicMenuPageContent() {
                                           +{extra.name} (+$
                                           {extra.price?.toFixed(2) || "0.00"})
                                         </span>
-                                      )
+                                      ),
                                     )}
                                   </div>
                                 </div>
@@ -654,7 +656,7 @@ function PublicMenuPageContent() {
                                 onClick={() => handleAddItemClick(item)}
                                 className={cn(
                                   "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors",
-                                  "hover:opacity-90"
+                                  "hover:opacity-90",
                                 )}
                                 style={{
                                   backgroundColor: colors.primary,
@@ -682,11 +684,14 @@ function PublicMenuPageContent() {
               disabled={requestingWaiter}
               className={cn(
                 "fixed z-40 flex items-center justify-center gap-2 rounded-full py-3 px-4 font-semibold text-sm shadow-lg transition-opacity active:opacity-90",
-                totalItems > 0 ? "bottom-20" : "bottom-6"
+                totalItems > 0 ? "bottom-36" : "bottom-20",
               )}
               style={{
                 right: "max(1rem, env(safe-area-inset-right))",
-                bottom: totalItems > 0 ? undefined : "max(1.5rem, env(safe-area-inset-bottom))",
+                bottom:
+                  totalItems > 0
+                    ? undefined
+                    : "max(1.5rem, env(safe-area-inset-bottom))",
                 backgroundColor: colors.primary,
                 color: "white",
               }}
@@ -774,7 +779,7 @@ function PublicMenuPageContent() {
                     <div className="space-y-2">
                       {selectedItem.extras.map((extra: any, idx: number) => {
                         const isSelected = selectedExtras.some(
-                          (e) => e.name === extra.name
+                          (e) => e.name === extra.name,
                         );
                         return (
                           <button
@@ -784,7 +789,7 @@ function PublicMenuPageContent() {
                               "w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all",
                               isSelected
                                 ? "border-primary"
-                                : "border-transparent hover:border-primary/50"
+                                : "border-transparent hover:border-primary/50",
                             )}
                             style={{
                               backgroundColor: isSelected
@@ -798,7 +803,7 @@ function PublicMenuPageContent() {
                                   "w-5 h-5 rounded border-2 flex items-center justify-center",
                                   isSelected
                                     ? "border-primary bg-primary"
-                                    : "border-gray-300"
+                                    : "border-gray-300",
                                 )}
                               >
                                 {isSelected && (
@@ -853,7 +858,7 @@ function PublicMenuPageContent() {
                           "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
                           itemQuantity <= 1
                             ? "opacity-50 cursor-not-allowed"
-                            : "hover:opacity-80"
+                            : "hover:opacity-80",
                         )}
                         style={{
                           backgroundColor: colors.primary,
@@ -873,7 +878,7 @@ function PublicMenuPageContent() {
                         type="button"
                         onClick={() => setItemQuantity((prev) => prev + 1)}
                         className={cn(
-                          "w-10 h-10 rounded-lg flex items-center justify-center transition-colors hover:opacity-80"
+                          "w-10 h-10 rounded-lg flex items-center justify-center transition-colors hover:opacity-80",
                         )}
                         style={{
                           backgroundColor: colors.primary,
@@ -981,7 +986,7 @@ function PublicMenuPageContent() {
                           $
                           {calculateTotalPrice(
                             selectedItem,
-                            selectedExtras
+                            selectedExtras,
                           ).toFixed(2)}
                         </span>
                       </div>
@@ -1038,7 +1043,7 @@ function PublicMenuPageContent() {
                           >
                             {calculateTotalCalories(
                               selectedItem,
-                              selectedExtras
+                              selectedExtras,
                             ) * itemQuantity}{" "}
                             cal
                           </span>
@@ -1087,7 +1092,7 @@ function PublicMenuPageContent() {
             "flex flex-col min-h-screen h-screen",
             tableNumberParam && totalItems > 0 && "pb-28",
             tableNumberParam && totalItems === 0 && "pb-14",
-            !tableNumberParam && totalItems > 0 && "pb-14"
+            !tableNumberParam && totalItems > 0 && "pb-14",
           )}
         >
           <MenuHeader
@@ -1136,7 +1141,7 @@ function PublicMenuPageContent() {
                       "pl-10 pr-10 h-10",
                       isDark
                         ? "bg-white/5 border-white/10 text-white placeholder:text-white/50"
-                        : "bg-white border-gray-200 text-gray-900"
+                        : "bg-white border-gray-200 text-gray-900",
                     )}
                     style={{
                       backgroundColor: isDark
@@ -1236,7 +1241,7 @@ function PublicMenuPageContent() {
                     className={cn(
                       "rounded-2xl overflow-hidden shadow-lg transition-all text-left",
                       "hover:scale-[1.02] active:scale-[0.98] hover:shadow-xl",
-                      "flex flex-col h-full"
+                      "flex flex-col h-full",
                     )}
                     style={{
                       backgroundColor: colors.surface,
@@ -1301,11 +1306,14 @@ function PublicMenuPageContent() {
             disabled={requestingWaiter}
             className={cn(
               "fixed z-40 flex items-center justify-center gap-2 rounded-full py-3 px-4 font-semibold text-sm shadow-lg transition-opacity active:opacity-90",
-              totalItems > 0 ? "bottom-20" : "bottom-6"
+              totalItems > 0 ? "bottom-20" : "bottom-6",
             )}
             style={{
               right: "max(1rem, env(safe-area-inset-right))",
-              bottom: totalItems > 0 ? undefined : "max(1.5rem, env(safe-area-inset-bottom))",
+              bottom:
+                totalItems > 0
+                  ? undefined
+                  : "max(1.5rem, env(safe-area-inset-bottom))",
               backgroundColor: colors.primary,
               color: "white",
             }}
@@ -1319,10 +1327,10 @@ function PublicMenuPageContent() {
           </button>
         )}
         {totalItems > 0 && (
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
             style={{
               backgroundColor: colors.primary,
               color: "white",
