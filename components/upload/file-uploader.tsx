@@ -7,6 +7,71 @@ import { Button } from "@/components/ui/button";
 import { UploadCloud, X, ImagePlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+/** Max width/height (match server). Quality 0-1. */
+const MAX_IMAGE_DIMENSION = 1920;
+const COMPRESS_QUALITY = 0.82;
+
+/**
+ * Compress image in the browser before upload. Returns original file if not an image or compression fails.
+ */
+async function compressImageIfNeeded(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) return file;
+  const accepted = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  if (!accepted.includes(file.type)) return file;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const w = img.naturalWidth;
+      const h = img.naturalHeight;
+      if (w <= 0 || h <= 0) {
+        resolve(file);
+        return;
+      }
+      let targetW = w;
+      let targetH = h;
+      if (w > MAX_IMAGE_DIMENSION || h > MAX_IMAGE_DIMENSION) {
+        if (w >= h) {
+          targetW = MAX_IMAGE_DIMENSION;
+          targetH = Math.round((h * MAX_IMAGE_DIMENSION) / w);
+        } else {
+          targetH = MAX_IMAGE_DIMENSION;
+          targetW = Math.round((w * MAX_IMAGE_DIMENSION) / h);
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = targetW;
+      canvas.height = targetH;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+      ctx.drawImage(img, 0, 0, targetW, targetH);
+      const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const name = file.name.replace(/\.[^.]+$/, "") + (mime === "image/png" ? ".png" : ".jpg");
+          resolve(new File([blob], name, { type: mime }));
+        },
+        mime,
+        COMPRESS_QUALITY
+      );
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(file);
+    };
+    img.src = url;
+  });
+}
+
 type UploadMeta = {
   folder?: string;
   restaurantId?: string;
@@ -66,8 +131,9 @@ export default function FileUploader({
       }
       setIsUploading(true);
       try {
+        const fileToUpload = await compressImageIfNeeded(file);
         const form = new FormData();
-        form.append("file", file);
+        form.append("file", fileToUpload);
         if (meta?.folder) form.append("folder", meta.folder);
         if (meta?.restaurantId) form.append("restaurantId", meta.restaurantId);
         if (meta?.entityType) form.append("entityType", meta.entityType);
@@ -91,7 +157,7 @@ export default function FileUploader({
         setIsUploading(false);
       }
     },
-    [maxSizeMb, meta, onChange]
+    [maxSizeMb, meta, onChange, t]
   );
 
   const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
