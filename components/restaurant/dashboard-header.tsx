@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { UtensilsCrossed, X } from "lucide-react";
+import { Menu, UtensilsCrossed, X } from "lucide-react";
 import type { WaiterRequestItem } from "@/contexts/SocketContext";
 import { NotificationBellDropdown } from "@/components/notifications/NotificationBellDropdown";
 
@@ -38,16 +38,31 @@ function formatWaiterRequestTime(timestamp: string): string {
   }
 }
 
-export function DashboardHeader() {
+type DashboardHeaderProps = {
+  onOpenSidebar?: () => void;
+};
+
+export function DashboardHeader({ onOpenSidebar }: DashboardHeaderProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
   const { waiterRequests, clearWaiterRequest, clearAllWaiterRequests } =
     useSocket();
 
   return (
-    <div className="sticky left-80 md:left-0 top-0 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full">
+    <div className="sticky left-0 top-0 z-30 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full">
       <div className="flex items-center justify-between gap-2 px-2 sm:px-4 py-1.5 sm:py-2 border-b">
-        <div className="flex items-center gap-1 sm:gap-2 pr-1 min-w-0 lg:pl-0 pl-14">
+        <div className="flex items-center gap-1 sm:gap-2 pr-1 min-w-0">
+          {onOpenSidebar && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden shrink-0"
+              onClick={onOpenSidebar}
+              aria-label={t("dashboard.sidebar.openMenu") || "Open menu"}
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
           <Image
             src="/images/logo.png"
             alt="Logo"

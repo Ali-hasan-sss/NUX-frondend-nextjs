@@ -20,23 +20,28 @@ import {
   CreditCard,
   Settings,
   LogOut,
-  Menu,
   X,
-  Package,
+  Menu,
   Megaphone,
   ScanLine,
   Receipt,
   FileText,
   ChevronDown,
-  ChevronRight,
   Wallet,
   Store,
   ChevronUp,
-  ArrowLeft,
   ShoppingCart,
 } from "lucide-react";
 
-export function RestaurantSidebar() {
+type RestaurantSidebarProps = {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+};
+
+export function RestaurantSidebar({
+  open: controlledOpen,
+  onOpenChange,
+}: RestaurantSidebarProps = {}) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
 
@@ -118,7 +123,13 @@ export function RestaurantSidebar() {
       ],
     },
   ];
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isMobileMenuOpen = onOpenChange
+    ? (controlledOpen ?? false)
+    : internalOpen;
+  const setIsMobileMenuOpen = onOpenChange
+    ? (v: boolean) => onOpenChange(v)
+    : setInternalOpen;
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     // Auto-open groups that contain the current active page
@@ -133,7 +144,7 @@ export function RestaurantSidebar() {
   const { user } = useAppSelector((state) => state.auth);
   const { unreadCount } = useAppSelector((state) => state.notifications);
   const { data: restaurant } = useAppSelector(
-    (state) => state.restaurantAccount
+    (state) => state.restaurantAccount,
   );
   const { newOrdersCount } = useSocket();
   const router = useRouter();
@@ -179,69 +190,62 @@ export function RestaurantSidebar() {
 
   return (
     <>
-      {/* Mobile menu button - positioned to not overlap with navbar logo */}
-      <div
-        className={cn(
-          "lg:hidden fixed z-50 transition-all duration-300 ease-in-out",
-          isMobileMenuOpen
-            ? "top-2 right-2" // Move to top-right when sidebar is open
-            : "top-2 left-2" // Position to avoid navbar logo when closed
-        )}
-      >
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className={cn(
-            "shadow-lg transition-all duration-300 ease-in-out border-2 bg-background hover:bg-accent border-border hover:border-accent-foreground/20"
-          )}
-        >
-          <div className="transition-transform duration-300 ease-in-out">
-            {isMobileMenuOpen ? (
-              <ArrowLeft className="h-4 w-4" />
-            ) : (
-              <Menu className="h-4 w-4" />
-            )}
-          </div>
-        </Button>
-      </div>
-
       {/* Sidebar */}
       <div
         className={cn(
           "fixed inset-y-0 left-0 z-40 w-64 sidebar-panel transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 lg:rounded-e-2xl lg:my-2 lg:ml-2 lg:h-[calc(100vh-1rem)]",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
         <div className="flex flex-col h-full overflow-y-auto py-2 sidebar-scroll">
-          {/* Brand */}
+          {/* Top row: brand + close button (mobile) */}
           <div
-            className="sidebar-brand mx-4 mt-4 flex cursor-pointer items-center gap-3 px-4 py-3"
-            onClick={() => router.push("/")}
-          >
-            {restaurant?.logo ? (
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-background/80">
-                <Image
-                  src={getImageUrl(restaurant.logo) || "/placeholder-logo.png"}
-                  alt={restaurant.name || "Restaurant logo"}
-                  width={40}
-                  height={40}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
-                {(restaurant?.name || "N").charAt(0)}
-              </div>
+            className={cn(
+              "mx-4 mt-4 flex items-center gap-3 px-4 py-3",
+              isRTL && "flex-row-reverse",
             )}
-            <div className={cn("min-w-0 flex-1", isRTL ? "text-right" : "")}>
-              <span className="block truncate font-semibold text-sidebar-foreground">
-                {restaurant?.name || "NUX"}
-              </span>
-              <p className="block truncate text-xs text-sidebar-foreground/70">
-                {user?.restaurantName || user?.email}
-              </p>
+          >
+            <div
+              className="sidebar-brand flex flex-1 min-w-0 cursor-pointer items-center gap-3"
+              onClick={() => router.push("/")}
+            >
+              {restaurant?.logo ? (
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-background/80">
+                  <Image
+                    src={
+                      getImageUrl(restaurant.logo) || "/placeholder-logo.png"
+                    }
+                    alt={restaurant.name || "Restaurant logo"}
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold">
+                  {(restaurant?.name || "N").charAt(0)}
+                </div>
+              )}
+              <div className={cn("min-w-0 flex-1", isRTL ? "text-right" : "")}>
+                <span className="block truncate font-semibold text-sidebar-foreground">
+                  {restaurant?.name || "NUX"}
+                </span>
+                <p className="block truncate text-xs text-sidebar-foreground/70">
+                  {user?.restaurantName || user?.email}
+                </p>
+              </div>
             </div>
+            {onOpenChange && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden shrink-0"
+                onClick={() => onOpenChange(false)}
+                aria-label={t("dashboard.sidebar.closeMenu") || "Close menu"}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            )}
           </div>
 
           {/* Navigation */}
@@ -258,7 +262,7 @@ export function RestaurantSidebar() {
                     "sidebar-nav-item flex items-center gap-3 px-3 py-2.5 text-sm",
                     isActive
                       ? "sidebar-nav-item--active"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground",
                   )}
                 >
                   <span className="relative inline-flex shrink-0">
@@ -291,7 +295,7 @@ export function RestaurantSidebar() {
                   className={cn(
                     "pt-1",
                     isOpen &&
-                      "rounded-xl border border-sidebar-border overflow-hidden bg-sidebar-accent/30"
+                      "rounded-xl border border-sidebar-border overflow-hidden bg-sidebar-accent/30",
                   )}
                 >
                   <button
@@ -302,13 +306,13 @@ export function RestaurantSidebar() {
                       isOpen && "rounded-none",
                       isGroupActiveState
                         ? "sidebar-nav-item--active"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground"
+                        : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground",
                     )}
                   >
                     <div
                       className={cn(
                         "flex items-center gap-3",
-                        isRTL && "flex-row-reverse"
+                        isRTL && "flex-row-reverse",
                       )}
                     >
                       <group.groupIcon className="h-5 w-5 shrink-0" />
@@ -325,7 +329,7 @@ export function RestaurantSidebar() {
                     <div
                       className={cn(
                         "space-y-0.5 border-t border-sidebar-border py-1",
-                        isRTL ? "pr-3 pl-3" : "pl-3 pr-3"
+                        isRTL ? "pr-3 pl-3" : "pl-3 pr-3",
                       )}
                     >
                       {group.items.map((item) => {
@@ -339,7 +343,7 @@ export function RestaurantSidebar() {
                               "sidebar-nav-item mx-1.5 flex items-center gap-3 px-3 py-2 text-sm",
                               isActive
                                 ? "sidebar-nav-item--active"
-                                : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground"
+                                : "text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-foreground",
                             )}
                           >
                             <item.icon className="h-4 w-4 shrink-0" />
@@ -360,7 +364,7 @@ export function RestaurantSidebar() {
               <div
                 className={cn(
                   "flex items-center gap-3",
-                  isRTL && "flex-row-reverse"
+                  isRTL && "flex-row-reverse",
                 )}
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold">
@@ -381,7 +385,7 @@ export function RestaurantSidebar() {
                 onClick={handleLogout}
                 className={cn(
                   "mt-2 w-full justify-start gap-2 text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground",
-                  isRTL && "flex-row-reverse"
+                  isRTL && "flex-row-reverse",
                 )}
               >
                 <LogOut className="h-4 w-4 shrink-0" />
@@ -400,7 +404,7 @@ export function RestaurantSidebar() {
           "fixed inset-0 bg-black/50 z-30 lg:hidden transition-opacity duration-300 ease-in-out",
           isMobileMenuOpen
             ? "opacity-100 pointer-events-auto"
-            : "opacity-0 pointer-events-none"
+            : "opacity-0 pointer-events-none",
         )}
         onClick={() => setIsMobileMenuOpen(false)}
       />
