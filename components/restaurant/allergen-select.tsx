@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Popover,
@@ -36,6 +36,7 @@ export function AllergenSelect({
 }: AllergenSelectProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const toggle = (allergy: string) => {
     if (value.includes(allergy)) {
@@ -65,33 +66,46 @@ export function AllergenSelect({
         <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
           <Command>
             <CommandInput placeholder={placeholder ?? "Search..."} />
-            <CommandList>
-              <CommandEmpty>No allergen found.</CommandEmpty>
-              <CommandGroup>
-                {ALLERGENS.map((allergy) => {
-                  const label = getTranslatedAllergen(allergy, t);
-                  return (
-                    <CommandItem
-                      key={allergy}
-                      value={`${allergy} ${label}`}
-                      onSelect={() => toggle(allergy)}
-                    >
-                      <span
-                        className={cn(
-                          "mr-2 h-4 w-4 shrink-0 rounded-sm border border-primary flex items-center justify-center",
-                          value.includes(allergy)
-                            ? "bg-primary text-primary-foreground"
-                            : "opacity-50"
-                        )}
+            <div
+              ref={scrollRef}
+              className="max-h-[300px] overflow-y-auto overflow-x-hidden overscroll-contain"
+              onWheel={(e) => {
+                const el = scrollRef.current;
+                if (!el) return;
+                const maxScroll = el.scrollHeight - el.clientHeight;
+                if (maxScroll <= 0) return;
+                el.scrollTop = Math.max(0, Math.min(maxScroll, el.scrollTop + e.deltaY));
+                e.preventDefault();
+              }}
+            >
+              <CommandList className="max-h-none">
+                <CommandEmpty>No allergen found.</CommandEmpty>
+                <CommandGroup>
+                  {ALLERGENS.map((allergy) => {
+                    const label = getTranslatedAllergen(allergy, t);
+                    return (
+                      <CommandItem
+                        key={allergy}
+                        value={`${allergy} ${label}`}
+                        onSelect={() => toggle(allergy)}
                       >
-                        {value.includes(allergy) ? "✓" : ""}
-                      </span>
-                      {label}
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            </CommandList>
+                        <span
+                          className={cn(
+                            "mr-2 h-4 w-4 shrink-0 rounded-sm border border-primary flex items-center justify-center",
+                            value.includes(allergy)
+                              ? "bg-primary text-primary-foreground"
+                              : "opacity-50"
+                          )}
+                        >
+                          {value.includes(allergy) ? "✓" : ""}
+                        </span>
+                        {label}
+                      </CommandItem>
+                    );
+                  })}
+                </CommandGroup>
+              </CommandList>
+            </div>
           </Command>
         </PopoverContent>
       </Popover>
