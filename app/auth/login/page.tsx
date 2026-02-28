@@ -60,7 +60,7 @@ function LoginPageContent() {
       {/* النصف الأول: الفورم — في منتصف الحاوية، متجاوب */}
       <section
         className={cn(
-          "flex flex-col items-center justify-center min-h-screen w-full px-4 py-8 sm:px-6 sm:py-10 md:px-8 order-2 lg:order-1 bg-background border-t lg:border-t-0 lg:border-e border-border/80"
+          "flex flex-col items-center justify-center min-h-screen w-full px-4 py-8 sm:px-6 sm:py-10 md:px-8 order-2 lg:order-1 bg-background border-t lg:border-t-0"
         )}
       >
         <div className="w-full max-w-[340px] sm:max-w-sm md:max-w-md mx-auto">

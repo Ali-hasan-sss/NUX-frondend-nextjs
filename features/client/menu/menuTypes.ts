@@ -26,6 +26,8 @@ export interface MenuState {
   selectedCategory: MenuCategory | null;
   currentRestaurantId: string | null;
   restaurant: MenuRestaurantInfo | null;
+  /** Restaurant currency code from API (e.g. TRY, USD, EUR). */
+  currency: string | null;
   loading: {
     categories: boolean;
     items: boolean;
@@ -46,10 +48,12 @@ export interface MenuCategoriesApiResponse {
   message?: string;
   data: MenuCategory[];
   restaurant?: MenuRestaurantInfo;
+  currency?: string;
 }
 
 export interface MenuItemsApiResponse {
   success: boolean;
   message?: string;
   data: MenuItem[];
+  currency?: string;
 }

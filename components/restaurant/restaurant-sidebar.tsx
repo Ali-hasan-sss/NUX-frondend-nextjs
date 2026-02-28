@@ -31,6 +31,8 @@ import {
   Store,
   ChevronUp,
   ShoppingCart,
+  Table2,
+  LayoutGrid,
 } from "lucide-react";
 
 type RestaurantSidebarProps = {
@@ -89,6 +91,11 @@ export function RestaurantSidebar({
           icon: QrCode,
         },
         {
+          name: t("dashboard.sidebar.tableCodes"),
+          href: "/dashboard/table-codes",
+          icon: Table2,
+        },
+        {
           name: t("dashboard.sidebar.qrScans"),
           href: "/dashboard/qr-scans",
           icon: ScanLine,
@@ -104,6 +111,11 @@ export function RestaurantSidebar({
       groupName: t("dashboard.sidebar.restaurant"),
       groupIcon: Store,
       items: [
+        {
+          name: t("dashboard.sidebar.floorPlan"),
+          href: "/dashboard/floor-plan",
+          icon: LayoutGrid,
+        },
         {
           name: t("dashboard.sidebar.menu"),
           href: "/dashboard/menu",

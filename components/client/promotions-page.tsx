@@ -8,7 +8,6 @@ import { useClientTheme } from "@/hooks/useClientTheme";
 import { Search, Filter, MapPin, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn, getImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import { RestaurantMapModal } from "./restaurant-map-modal";
@@ -57,15 +56,19 @@ export function PromotionsPage() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<Ad | null>(null);
 
   const filterOptions = [
-    { key: "food", label: t("promotions.food") },
-    { key: "drink", label: t("promotions.drinks") },
+    { key: "all", label: t("promotions.all") },
+    { key: "Desserts", label: t("promotions.desserts") },
+    { key: "Fast Food", label: t("promotions.fastFood") },
+    { key: "Drinks", label: t("promotions.drinks") },
+    { key: "Other", label: t("promotions.other") },
   ];
 
   const buildAdsFilters = useCallback(
     (page: number = 1): AdsFilters => {
-      const categoryFilter = selectedFilters.find(
-        (f) => f === "food" || f === "drink"
-      );
+      const categoryFilter =
+        selectedFilters.length > 0 && selectedFilters[0] !== "all"
+          ? selectedFilters[0]
+          : undefined;
       const base: AdsFilters = {
         page,
         pageSize: 10,
@@ -112,10 +115,12 @@ export function PromotionsPage() {
   };
 
   const toggleFilter = (filterKey: string) => {
+    if (filterKey === "all") {
+      setSelectedFilters([]);
+      return;
+    }
     setSelectedFilters((prev) =>
-      prev.includes(filterKey)
-        ? prev.filter((f) => f !== filterKey)
-        : [...prev, filterKey]
+      prev.includes(filterKey) ? [] : [filterKey]
     );
   };
 
@@ -234,27 +239,29 @@ export function PromotionsPage() {
                   )}
                   {t("promotions.closestToMe")}
                 </button>
-                {filterOptions.map((filterOpt) => (
-                  <button
-                    key={filterOpt.key}
-                    onClick={() => toggleFilter(filterOpt.key)}
-                    className={cn(
-                      "px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                      selectedFilters.includes(filterOpt.key)
-                        ? "text-white"
-                        : isDark
-                        ? "text-white/75"
-                        : "text-gray-700"
-                    )}
-                    style={{
-                      backgroundColor: selectedFilters.includes(filterOpt.key)
-                        ? colors.primary
-                        : colors.surface,
-                    }}
-                  >
-                    {filterOpt.label}
-                  </button>
-                ))}
+                {filterOptions.map((filterOpt) => {
+                  const isSelected =
+                    filterOpt.key === "all"
+                      ? selectedFilters.length === 0
+                      : selectedFilters.includes(filterOpt.key);
+                  return (
+                    <button
+                      key={filterOpt.key}
+                      onClick={() => toggleFilter(filterOpt.key)}
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium transition-colors",
+                        isSelected ? "text-white" : isDark ? "text-white/75" : "text-gray-700"
+                      )}
+                      style={{
+                        backgroundColor: isSelected
+                          ? colors.primary
+                          : colors.surface,
+                      }}
+                    >
+                      {filterOpt.label}
+                    </button>
+                  );
+                })}
                 {(selectedFilters.length > 0 || closestToMe) && (
                   <button
                     onClick={() => {
@@ -353,15 +360,6 @@ export function PromotionsPage() {
                       className="object-cover"
                       unoptimized
                     />
-                    {/* Category Badge */}
-                    <div
-                      className="absolute top-2 right-2 px-3 py-1 rounded-xl"
-                      style={{ backgroundColor: colors.secondary }}
-                    >
-                      <span className="text-white text-sm font-bold">
-                        {ad.category === "food" ? "🍽️" : "☕"}
-                      </span>
-                    </div>
                   </div>
 
                   {/* Content */}

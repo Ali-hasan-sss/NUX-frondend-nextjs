@@ -53,7 +53,7 @@ export function RestaurantMapModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          "max-w-2xl w-full p-0 max-h-[90vh] overflow-hidden",
+          "max-w-2xl w-full p-0 max-h-[90vh] overflow-hidden [&>button]:hidden",
           isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
         )}
         style={{

@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 
 export function LoginForm() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -103,7 +103,8 @@ export function LoginForm() {
             value={formData.password}
             onChange={handleChange}
             required
-            className="h-12 rounded-xl border border-input bg-background pe-12 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
+            dir={i18n.dir()}
+            className="h-12 rounded-xl border border-input bg-background pe-12 rtl:ps-12 rtl:pe-4 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-0"
           />
           <Button
             type="button"

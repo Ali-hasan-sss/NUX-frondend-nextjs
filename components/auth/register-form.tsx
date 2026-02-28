@@ -22,8 +22,10 @@ import { clearError } from "@/features/auth/authSlice";
 import { Eye, EyeOff, Loader2, MapPin } from "lucide-react";
 import GoogleMapPicker from "@/components/common/GoogleMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
+import { useTranslation } from "react-i18next";
 
 export function RegisterForm() {
+  const { t } = useTranslation();
   const [showPassword, setShowPassword] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [formData, setFormData] = useState({
@@ -90,7 +92,9 @@ export function RegisterForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
+              <AlertDescription>
+                {t("landing.auth.registerFailedCheckInfo")}
+              </AlertDescription>
             </Alert>
           )}
 

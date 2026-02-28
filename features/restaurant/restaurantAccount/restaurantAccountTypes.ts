@@ -36,6 +36,12 @@ export interface RestaurantAccountInfo {
   isActive: boolean;
   createdAt: string;
   group: RestaurantGroupInfo | null;
+  /** Points required per food voucher (e.g. 10 = 10 meal points = 1 food voucher) */
+  mealPointsPerVoucher: number | null;
+  /** Points required per drink voucher (e.g. 5 = 5 drink points = 1 drink voucher) */
+  drinkPointsPerVoucher: number | null;
+  /** Primary currency code (e.g. EUR, USD) */
+  currency: string | null;
 }
 
 export interface UpdateRestaurantAccountRequest {
@@ -45,6 +51,9 @@ export interface UpdateRestaurantAccountRequest {
   latitude?: number;
   longitude?: number;
   isActive?: boolean;
+  mealPointsPerVoucher?: number | null;
+  drinkPointsPerVoucher?: number | null;
+  currency?: string | null;
 }
 
 export interface RestaurantAccountState {

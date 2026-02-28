@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { payAtRestaurant, fetchUserBalances } from "@/features/client";
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   X,
   Loader2,
   AlertCircle,
+  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -50,11 +51,20 @@ export function PaymentForm({
   >(initialPaymentType);
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [slidePosition, setSlidePosition] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const slideRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const startXRef = useRef<number>(0);
+
+  const selectedRestaurantBalance = userBalances.find((b: any) => {
+    const id = b.targetId || b.restaurantId;
+    return id === restaurantId;
+  }) as any;
+  const mealPerVoucher = selectedRestaurantBalance?.mealPointsPerVoucher ?? null;
+  const drinkPerVoucher = selectedRestaurantBalance?.drinkPointsPerVoucher ?? null;
+
+  const isVoucherPayment =
+    selectedPaymentType === "meal" || selectedPaymentType === "drink";
+  const pointsPerVoucher =
+    selectedPaymentType === "meal" ? mealPerVoucher : drinkPerVoucher;
+  const useVoucherAmount =
+    isVoucherPayment && pointsPerVoucher != null && pointsPerVoucher > 0;
 
   // Reset form when modal opens
   useEffect(() => {
@@ -62,8 +72,6 @@ export function PaymentForm({
       setAmount("");
       setSelectedPaymentType(initialPaymentType);
       setIsProcessing(false);
-      setSlidePosition(0);
-      setIsDragging(false);
     }
   }, [open, initialPaymentType]);
 
@@ -74,109 +82,18 @@ export function PaymentForm({
     }
   }, [initialPaymentType]);
 
-  // Mouse drag handlers
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging || !containerRef.current) return;
-
-    const containerWidth = containerRef.current.offsetWidth - 60; // 60px for button width + padding
-    const newPosition = Math.max(
-      0,
-      Math.min(e.clientX - startXRef.current, containerWidth)
-    );
-    setSlidePosition(newPosition);
-
-    // If dragged more than 80% of the way, trigger payment
-    if (newPosition >= containerWidth * 0.8) {
-      handleSlideConfirm();
-      setIsDragging(false);
-      setSlidePosition(0);
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (!isDragging) return;
-
-    const containerWidth = containerRef.current?.offsetWidth || 0;
-    const threshold = (containerWidth - 60) * 0.8;
-
-    if (slidePosition < threshold) {
-      // Snap back to start
-      setSlidePosition(0);
-    }
-    setIsDragging(false);
-  };
-
-  // Touch drag handlers
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!isDragging || !containerRef.current) return;
-
-    const containerWidth = containerRef.current.offsetWidth - 60;
-    const newPosition = Math.max(
-      0,
-      Math.min(e.touches[0].clientX - startXRef.current, containerWidth)
-    );
-    setSlidePosition(newPosition);
-
-    if (newPosition >= containerWidth * 0.8) {
-      handleSlideConfirm();
-      setIsDragging(false);
-      setSlidePosition(0);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-
-    const containerWidth = containerRef.current?.offsetWidth || 0;
-    const threshold = (containerWidth - 60) * 0.8;
-
-    if (slidePosition < threshold) {
-      setSlidePosition(0);
-    }
-    setIsDragging(false);
-  };
-
-  // Mouse event listeners
+  // When switching to meal/drink with voucher: set amount to one voucher
   useEffect(() => {
-    if (isDragging) {
-      const mouseMoveHandler = (e: MouseEvent) => handleMouseMove(e);
-      const mouseUpHandler = () => handleMouseUp();
-
-      window.addEventListener("mousemove", mouseMoveHandler);
-      window.addEventListener("mouseup", mouseUpHandler);
-      return () => {
-        window.removeEventListener("mousemove", mouseMoveHandler);
-        window.removeEventListener("mouseup", mouseUpHandler);
-      };
+    if (useVoucherAmount && pointsPerVoucher) {
+      setAmount(String(pointsPerVoucher));
+    } else if (selectedPaymentType === "wallet") {
+      setAmount("");
     }
-  }, [isDragging, slidePosition]);
-
-  // Touch event listeners
-  useEffect(() => {
-    if (isDragging) {
-      const touchMoveHandler = (e: TouchEvent) => handleTouchMove(e);
-      const touchEndHandler = () => handleTouchEnd();
-
-      window.addEventListener("touchmove", touchMoveHandler as any, {
-        passive: false,
-      });
-      window.addEventListener("touchend", touchEndHandler);
-      return () => {
-        window.removeEventListener("touchmove", touchMoveHandler as any);
-        window.removeEventListener("touchend", touchEndHandler);
-      };
-    }
-  }, [isDragging, slidePosition]);
+  }, [selectedPaymentType, useVoucherAmount, pointsPerVoucher]);
 
   if (!mounted) {
     return null;
   }
-
-  // Get selected restaurant balance
-  const selectedRestaurantBalance = userBalances.find((balance: any) => {
-    const id = balance.targetId || balance.restaurantId;
-    return id === restaurantId;
-  });
 
   // Calculate balances for selected restaurant
   const currentBalance = {
@@ -219,42 +136,30 @@ export function PaymentForm({
   const numericAmount = parseFloat(amount) || 0;
   const hasInsufficientBalance = numericAmount > (selectedOption?.balance || 0);
 
-  const handleSlideConfirm = async () => {
-    if (!restaurantId) {
-      return;
-    }
-
-    if (!amount || numericAmount <= 0) {
-      return;
-    }
-
-    if (hasInsufficientBalance) {
-      return;
-    }
+  const handlePayNow = async () => {
+    if (!restaurantId) return;
+    const payAmount = useVoucherAmount ? (pointsPerVoucher ?? 0) : numericAmount;
+    if (!payAmount || payAmount <= 0) return;
+    if (payAmount > (selectedOption?.balance || 0)) return;
 
     setIsProcessing(true);
-
     try {
       const currencyTypeMap = {
         wallet: "balance" as const,
         meal: "stars_meal" as const,
         drink: "stars_drink" as const,
       };
-
       const result = await dispatch(
         payAtRestaurant({
           targetId: restaurantId,
           currencyType: currencyTypeMap[selectedPaymentType],
-          amount: numericAmount,
+          amount: payAmount,
         })
       );
-
       if (payAtRestaurant.fulfilled.match(result)) {
-        // Refresh balances
         await dispatch(fetchUserBalances());
         onPaymentSuccess?.(result.payload);
         setAmount("");
-        setSlidePosition(0);
         onOpenChange(false);
       }
     } catch (error) {
@@ -264,33 +169,12 @@ export function PaymentForm({
     }
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (
-      isProcessing ||
-      !amount ||
-      numericAmount <= 0 ||
-      hasInsufficientBalance
-    ) {
-      return;
-    }
-    setIsDragging(true);
-    startXRef.current = e.clientX - slidePosition;
-    e.preventDefault();
-  };
-
-  // Touch events for mobile
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (
-      isProcessing ||
-      !amount ||
-      numericAmount <= 0 ||
-      hasInsufficientBalance
-    ) {
-      return;
-    }
-    setIsDragging(true);
-    startXRef.current = e.touches[0].clientX - slidePosition;
-  };
+  const canPay =
+    !isProcessing &&
+    (useVoucherAmount
+      ? (pointsPerVoucher ?? 0) > 0 &&
+        (pointsPerVoucher ?? 0) <= (selectedOption?.balance ?? 0)
+      : numericAmount > 0 && !hasInsufficientBalance);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -436,74 +320,75 @@ export function PaymentForm({
             >
               {t("payment.paymentAmount")}
             </p>
-            <Input
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              disabled={isProcessing}
-              className={cn(
-                "w-full p-4 rounded-xl border backdrop-blur-sm",
-                isDark
-                  ? "bg-white/10 border-white/15 text-white placeholder:text-white/50"
-                  : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400",
-                hasInsufficientBalance && "border-red-500",
-                isProcessing && "opacity-50 cursor-not-allowed"
-              )}
-            />
-            {hasInsufficientBalance && (
-              <p className="text-sm mt-2" style={{ color: colors.error }}>
-                {t("payment.insufficientBalance")}
-              </p>
+            {useVoucherAmount ? (
+              <div
+                className={cn(
+                  "w-full p-4 rounded-xl border",
+                  isDark
+                    ? "bg-white/10 border-white/15"
+                    : "bg-white border-gray-200"
+                )}
+              >
+                <p className="font-semibold" style={{ color: colors.text }}>
+                  {t("payment.oneVoucher", { points: pointsPerVoucher })}
+                </p>
+              </div>
+            ) : (
+              <>
+                <Input
+                  type="number"
+                  step={selectedPaymentType === "wallet" ? "0.01" : "1"}
+                  min="0"
+                  placeholder={
+                    selectedPaymentType === "wallet"
+                      ? "0.00"
+                      : t("payment.enterPoints")
+                  }
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  disabled={isProcessing}
+                  className={cn(
+                    "w-full p-4 rounded-xl border backdrop-blur-sm",
+                    isDark
+                      ? "bg-white/10 border-white/15 text-white placeholder:text-white/50"
+                      : "bg-white border-gray-200 text-gray-900 placeholder:text-gray-400",
+                    hasInsufficientBalance && "border-red-500",
+                    isProcessing && "opacity-50 cursor-not-allowed"
+                  )}
+                />
+                {hasInsufficientBalance && (
+                  <p className="text-sm mt-2" style={{ color: colors.error }}>
+                    {t("payment.insufficientBalance")}
+                  </p>
+                )}
+              </>
             )}
           </div>
 
-          {/* Slide to Pay Button */}
+          {/* Pay Now Button */}
           <div className="mt-6">
-            <div
-              ref={containerRef}
+            <Button
+              onClick={handlePayNow}
+              disabled={!canPay}
               className={cn(
-                "relative h-14 rounded-full flex items-center justify-center border overflow-hidden",
-                isDark
-                  ? "bg-white/10 border-white/15"
-                  : "bg-gray-100 border-gray-200"
+                "w-full h-14 rounded-full font-semibold text-base gap-2 transition-all",
+                !canPay && "opacity-50 cursor-not-allowed"
               )}
               style={{
+                background: canPay
+                  ? `linear-gradient(to right, ${colors.primary}, ${colors.accent || colors.primary})`
+                  : colors.surface,
+                color: canPay ? "white" : colors.textSecondary,
                 borderColor: colors.border,
-                backgroundColor: colors.surface,
               }}
             >
-              {/* Draggable button */}
-              <div
-                ref={slideRef}
-                onMouseDown={handleMouseDown}
-                onTouchStart={handleTouchStart}
-                className={cn(
-                  "absolute left-1 h-12 w-12 rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing transition-all z-10",
-                  isProcessing && "opacity-50 cursor-not-allowed"
-                )}
-                style={{
-                  transform: `translateX(${slidePosition}px)`,
-                  background: `linear-gradient(to right, ${colors.primary}, ${colors.accent})`,
-                  userSelect: "none",
-                  touchAction: "none",
-                }}
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-white" />
-                ) : null}
-              </div>
-
-              {/* Label: swipe to pay */}
-              <span
-                className="text-sm font-medium pointer-events-none z-0"
-                style={{ color: colors.textSecondary }}
-              >
-                {t("payment.slideToConfirm")}
-              </span>
-            </div>
+              {isProcessing ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <ArrowRight className="h-5 w-5" />
+              )}
+              {t("payment.payNow")}
+            </Button>
           </div>
         </div>
       </DialogContent>

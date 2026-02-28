@@ -46,8 +46,37 @@ import FileUploader from "@/components/upload/file-uploader";
 import { cn } from "@/lib/utils";
 import { fetchKitchenSections } from "@/features/restaurant/menu/menuThunks";
 import { axiosInstance } from "@/utils/axiosInstance";
-import { Plus, Pencil, Trash2, ChefHat } from "lucide-react";
+import { Plus, Pencil, Trash2, ChefHat, Ticket } from "lucide-react";
 import ConfirmDialog from "@/components/confirmMessage";
+
+/** Popular and European currencies for restaurant primary currency */
+const CURRENCY_OPTIONS: { code: string; label: string }[] = [
+  { code: "EUR", label: "Euro (EUR)" },
+  { code: "USD", label: "US Dollar (USD)" },
+  { code: "GBP", label: "British Pound (GBP)" },
+  { code: "CHF", label: "Swiss Franc (CHF)" },
+  { code: "JPY", label: "Japanese Yen (JPY)" },
+  { code: "CAD", label: "Canadian Dollar (CAD)" },
+  { code: "AUD", label: "Australian Dollar (AUD)" },
+  { code: "AED", label: "UAE Dirham (AED)" },
+  { code: "SAR", label: "Saudi Riyal (SAR)" },
+  { code: "EGP", label: "Egyptian Pound (EGP)" },
+  { code: "TRY", label: "Turkish Lira (TRY)" },
+  { code: "PLN", label: "Polish Zloty (PLN)" },
+  { code: "SEK", label: "Swedish Krona (SEK)" },
+  { code: "NOK", label: "Norwegian Krone (NOK)" },
+  { code: "DKK", label: "Danish Krone (DKK)" },
+  { code: "CZK", label: "Czech Koruna (CZK)" },
+  { code: "RON", label: "Romanian Leu (RON)" },
+  { code: "HUF", label: "Hungarian Forint (HUF)" },
+  { code: "BGN", label: "Bulgarian Lev (BGN)" },
+  { code: "ILS", label: "Israeli Shekel (ILS)" },
+  { code: "MAD", label: "Moroccan Dirham (MAD)" },
+  { code: "CNY", label: "Chinese Yuan (CNY)" },
+  { code: "INR", label: "Indian Rupee (INR)" },
+  { code: "BRL", label: "Brazilian Real (BRL)" },
+  { code: "MXN", label: "Mexican Peso (MXN)" },
+];
 
 type RestaurantFormData = {
   name: string;
@@ -56,6 +85,9 @@ type RestaurantFormData = {
   longitude: number | string;
   logo: string;
   isActive: boolean;
+  mealPointsPerVoucher: string;
+  drinkPointsPerVoucher: string;
+  currency: string;
 };
 
 type PasswordFormData = {
@@ -71,6 +103,9 @@ const initialRestaurantForm: RestaurantFormData = {
   longitude: "",
   logo: "",
   isActive: true,
+  mealPointsPerVoucher: "",
+  drinkPointsPerVoucher: "",
+  currency: "EUR",
 };
 
 const initialPasswordForm: PasswordFormData = {
@@ -140,14 +175,24 @@ export function RestaurantSettings() {
   // Update form when restaurant data loads
   useEffect(() => {
     if (restaurant) {
-      setRestaurantForm({
+      setRestaurantForm((prev) => ({
+        ...prev,
         name: restaurant.name || "",
         address: restaurant.address || "",
-        latitude: restaurant.latitude || "",
-        longitude: restaurant.longitude || "",
+        latitude: restaurant.latitude ?? "",
+        longitude: restaurant.longitude ?? "",
         logo: restaurant.logo || "",
         isActive: restaurant.isActive ?? true,
-      });
+        mealPointsPerVoucher:
+          restaurant.mealPointsPerVoucher != null
+            ? String(restaurant.mealPointsPerVoucher)
+            : "",
+        drinkPointsPerVoucher:
+          restaurant.drinkPointsPerVoucher != null
+            ? String(restaurant.drinkPointsPerVoucher)
+            : "",
+        currency: restaurant.currency ?? "EUR",
+      }));
     }
   }, [restaurant]);
 
@@ -283,6 +328,7 @@ export function RestaurantSettings() {
           name: restaurantForm.name,
           address: restaurantForm.address,
           logo: restaurantForm.logo,
+          currency: restaurantForm.currency || null,
         })
       ).unwrap();
 
@@ -314,6 +360,40 @@ export function RestaurantSettings() {
       setIsLocationFormOpen(false);
     } catch (error: any) {
       toast.error(error.message || "Failed to update restaurant location");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleSaveVouchers = async () => {
+    if (!restaurant) return;
+
+    const mealVal = restaurantForm.mealPointsPerVoucher.trim();
+    const drinkVal = restaurantForm.drinkPointsPerVoucher.trim();
+    const mealPointsPerVoucher = mealVal === "" ? null : parseInt(mealVal, 10);
+    const drinkPointsPerVoucher = drinkVal === "" ? null : parseInt(drinkVal, 10);
+
+    if (mealPointsPerVoucher != null && (isNaN(mealPointsPerVoucher) || mealPointsPerVoucher < 1)) {
+      toast.error(t("dashboard.settings.voucherMealPointsInvalid"));
+      return;
+    }
+    if (drinkPointsPerVoucher != null && (isNaN(drinkPointsPerVoucher) || drinkPointsPerVoucher < 1)) {
+      toast.error(t("dashboard.settings.voucherDrinkPointsInvalid"));
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await dispatch(
+        updateRestaurantAccount({
+          mealPointsPerVoucher: mealPointsPerVoucher ?? null,
+          drinkPointsPerVoucher: drinkPointsPerVoucher ?? null,
+        })
+      ).unwrap();
+      dispatch(fetchRestaurantAccount());
+      toast.success(t("dashboard.settings.vouchersSaved"));
+    } catch (error: any) {
+      toast.error(error.message || t("dashboard.settings.vouchersSaveFailed"));
     } finally {
       setIsUpdating(false);
     }
@@ -499,6 +579,17 @@ export function RestaurantSettings() {
               </div>
             </div>
 
+            {/* Currency Display */}
+            <div className="space-y-2">
+              <Label>{t("dashboard.settings.currency")}</Label>
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-sm font-medium">
+                  {CURRENCY_OPTIONS.find((c) => c.code === restaurantForm.currency)?.label ??
+                    (restaurantForm.currency || "EUR")}
+                </p>
+              </div>
+            </div>
+
             {/* Location Display */}
             <div className="space-y-2">
               <Label>{t("dashboard.settings.location")}</Label>
@@ -641,6 +732,64 @@ export function RestaurantSettings() {
                     : "N/A"}
                 </span>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Vouchers */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Ticket className="h-5 w-5" />
+                <span>{t("dashboard.settings.vouchers")}</span>
+              </CardTitle>
+              <CardDescription>
+                {t("dashboard.settings.vouchersDesc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="mealPointsPerVoucher">
+                  {t("dashboard.settings.mealPointsPerVoucher")}
+                </Label>
+                <Input
+                  id="mealPointsPerVoucher"
+                  type="number"
+                  min={1}
+                  placeholder={t("dashboard.settings.mealPointsPerVoucherPlaceholder")}
+                  value={restaurantForm.mealPointsPerVoucher}
+                  onChange={(e) =>
+                    handleRestaurantFormChange("mealPointsPerVoucher", e.target.value)
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.settings.mealPointsPerVoucherHint")}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="drinkPointsPerVoucher">
+                  {t("dashboard.settings.drinkPointsPerVoucher")}
+                </Label>
+                <Input
+                  id="drinkPointsPerVoucher"
+                  type="number"
+                  min={1}
+                  placeholder={t("dashboard.settings.drinkPointsPerVoucherPlaceholder")}
+                  value={restaurantForm.drinkPointsPerVoucher}
+                  onChange={(e) =>
+                    handleRestaurantFormChange("drinkPointsPerVoucher", e.target.value)
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.settings.drinkPointsPerVoucherHint")}
+                </p>
+              </div>
+              <Button
+                onClick={handleSaveVouchers}
+                disabled={isUpdating}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isUpdating ? t("dashboard.settings.saving") : t("dashboard.settings.save")}
+              </Button>
             </CardContent>
           </Card>
 
@@ -886,6 +1035,24 @@ export function RestaurantSettings() {
                 placeholder="Enter restaurant address"
                 rows={3}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="editCurrency">{t("dashboard.settings.currency")}</Label>
+              <select
+                id="editCurrency"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={restaurantForm.currency || "EUR"}
+                onChange={(e) =>
+                  handleRestaurantFormChange("currency", e.target.value)
+                }
+              >
+                {CURRENCY_OPTIONS.map((opt) => (
+                  <option key={opt.code} value={opt.code}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="space-y-2">

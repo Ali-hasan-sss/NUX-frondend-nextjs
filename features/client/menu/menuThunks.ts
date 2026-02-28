@@ -1,8 +1,8 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { menuService } from "./menuService";
-import { MenuCategory, MenuItem, MenuCategoriesApiResponse } from "./menuTypes";
+import { MenuCategory, MenuItem, MenuCategoriesApiResponse, MenuItemsApiResponse } from "./menuTypes";
 
-// Fetch menu categories by QR code (returns categories + optional restaurant info)
+// Fetch menu categories by QR code (returns categories + optional restaurant info + currency)
 export const fetchMenuCategories = createAsyncThunk<
   MenuCategoriesApiResponse,
   string,
@@ -18,15 +18,15 @@ export const fetchMenuCategories = createAsyncThunk<
   }
 });
 
-// Fetch menu items by category
+// Fetch menu items by category (returns data + currency for display)
 export const fetchMenuItems = createAsyncThunk<
-  MenuItem[],
+  MenuItemsApiResponse,
   number,
   { rejectValue: string }
 >("clientMenu/fetchItems", async (categoryId, { rejectWithValue }) => {
   try {
     const response = await menuService.getItemsByCategory(categoryId);
-    return response.data;
+    return { data: response.data, currency: response.currency };
   } catch (error: any) {
     return rejectWithValue(
       error?.response?.data?.message || "Failed to fetch menu items"

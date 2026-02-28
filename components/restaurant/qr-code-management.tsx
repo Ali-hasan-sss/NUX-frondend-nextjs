@@ -25,7 +25,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -155,6 +154,7 @@ export function QRCodeManagement() {
   const [drinkImgLoaded, setDrinkImgLoaded] = useState(false);
   const [mealImgLoaded, setMealImgLoaded] = useState(false);
   const [menuImgLoaded, setMenuImgLoaded] = useState(false);
+  const [regenerateLoading, setRegenerateLoading] = useState(false);
 
   useEffect(() => {
     dispatch(fetchRestaurantAccount());
@@ -211,8 +211,26 @@ export function QRCodeManagement() {
     (!needMeal || mealImgLoaded) &&
     (!needMenu || menuImgLoaded);
 
+  const runRegenerate = async () => {
+    setRegenerateLoading(true);
+    try {
+      const res: any = await dispatch(regenerateRestaurantQr());
+      if (res?.type?.endsWith?.("fulfilled")) {
+        toast.success(t("dashboard.qrCodes.regenerateSuccess"));
+      } else {
+        const msg = res?.payload?.message ?? res?.error?.message ?? t("dashboard.qrCodes.regenerateError");
+        toast.error(typeof msg === "string" ? msg : t("dashboard.qrCodes.regenerateError"));
+      }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.qrCodes.regenerateError");
+      toast.error(typeof msg === "string" ? msg : t("dashboard.qrCodes.regenerateError"));
+    } finally {
+      setRegenerateLoading(false);
+    }
+  };
+
   const handleRegenerate = async () => {
-    await dispatch(regenerateRestaurantQr());
+    await runRegenerate();
   };
 
   const handlePrintSingle = (type: "drink" | "meal" | "menu") => {
@@ -243,7 +261,7 @@ export function QRCodeManagement() {
     if (enabled) {
       autoRefreshRef.current = setInterval(() => {
         if (autoRefreshEnabledRef.current) {
-          dispatch(regenerateRestaurantQr());
+          runRegenerate();
         }
       }, 5 * 60 * 1000);
     }
@@ -262,17 +280,7 @@ export function QRCodeManagement() {
         </div>
       </div>
 
-      <Tabs defaultValue="main" className="w-full min-w-0">
-        <TabsList className="grid w-full grid-cols-2 h-auto p-1 text-xs sm:text-sm">
-          <TabsTrigger value="main">
-            {t("dashboard.qrCodes.mainCodes") || "Main QR Codes"}
-          </TabsTrigger>
-          <TabsTrigger value="tables">
-            {t("dashboard.qrCodes.tableCodes") || "Table QR Codes"}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="main" className="space-y-4 sm:space-y-6 mt-4">
+      <div className="w-full min-w-0 space-y-4 sm:space-y-6 mt-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end w-full min-w-0">
             <div className="flex items-center gap-2 order-first sm:order-none">
               <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
@@ -282,16 +290,26 @@ export function QRCodeManagement() {
                 onCheckedChange={(checked) => setAutoRefresh(!!checked)}
                 aria-label="Auto refresh QR every 5 minutes"
               />
+              {regenerateLoading && (
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
                 variant="outline"
                 onClick={handleRegenerate}
-                disabled={isLoading}
+                disabled={isLoading || regenerateLoading}
                 size="sm"
                 className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm"
               >
-                {t("dashboard.qrCodes.regenerateDrinkMeal")}
+                {regenerateLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-1.5 sm:mr-2 shrink-0" />
+                    {t("dashboard.qrCodes.regenerateDrinkMeal")}
+                  </>
+                ) : (
+                  t("dashboard.qrCodes.regenerateDrinkMeal")
+                )}
               </Button>
               <Button
                 onClick={handlePrint}
@@ -538,12 +556,7 @@ export function QRCodeManagement() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-
-        <TabsContent value="tables">
-          <TablesManagement restaurantId={data?.id || ""} />
-        </TabsContent>
-      </Tabs>
+      </div>
     </div>
   );
 }
@@ -688,8 +701,8 @@ const PLAN_PERMISSION_CODES = [
   "NO_ACTIVE_SUBSCRIPTION",
 ];
 
-// Tables Management Component
-function TablesManagement({ restaurantId }: { restaurantId: string }) {
+// Tables Management Component – exported for standalone table-codes page
+export function TablesManagement({ restaurantId }: { restaurantId: string }) {
   const { t, i18n } = useTranslation();
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);

@@ -12,29 +12,76 @@ import {
 } from "@/components/ui/dialog";
 import { MapPin, Navigation, Search } from "lucide-react";
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
 
 const LeafletMapView = dynamic(
   () => import("./LeafletMapView").then((m) => m.LeafletMapView),
   { ssr: false }
 );
 
+const GoogleMapView = dynamic(
+  () => import("./GoogleMapView").then((m) => m.GoogleMapView),
+  { ssr: false }
+);
+
+const GOOGLE_MAPS_API_KEY =
+  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+
 interface GoogleMapPickerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialLat?: number;
   initialLng?: number;
+  /** When provided, map will be centered on this address (Google Geocoding) */
+  initialAddress?: string;
   onSelect: (coords: { latitude: number; longitude: number }) => void;
 }
 
 const DEFAULT_CENTER: [number, number] = [40.7128, -74.006];
+
+function geocodeAddress(
+  address: string,
+  apiKey: string
+): Promise<{ lat: number; lng: number } | null> {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
+  return fetch(url)
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.status === "OK" && data.results?.[0]?.geometry?.location) {
+        const loc = data.results[0].geometry.location;
+        return { lat: loc.lat, lng: loc.lng };
+      }
+      return null;
+    })
+    .catch(() => null);
+}
+
+function reverseGeocode(
+  lat: number,
+  lng: number,
+  apiKey: string
+): Promise<string | null> {
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+  return fetch(url)
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.status === "OK" && data.results?.[0]?.formatted_address) {
+        return data.results[0].formatted_address;
+      }
+      return null;
+    })
+    .catch(() => null);
+}
 
 export function GoogleMapPicker({
   open,
   onOpenChange,
   initialLat = 0,
   initialLng = 0,
+  initialAddress,
   onSelect,
 }: GoogleMapPickerProps) {
+  const { t } = useTranslation();
   const [latitude, setLatitude] = useState<number>(initialLat);
   const [longitude, setLongitude] = useState<number>(initialLng);
   const [geoError, setGeoError] = useState<string>("");
@@ -42,6 +89,7 @@ export function GoogleMapPicker({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [locationAccuracy, setLocationAccuracy] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
 
   useEffect(() => setMounted(true), []);
 
@@ -50,10 +98,27 @@ export function GoogleMapPicker({
       setGeoError("");
       setLatitude(initialLat);
       setLongitude(initialLng);
-      setSearchQuery("");
+      setSearchQuery(initialAddress || "");
       setLocationAccuracy(null);
+      setResolvedAddress(null);
+      // Geocode initial address when using Google and address provided
+      if (
+        GOOGLE_MAPS_API_KEY &&
+        initialAddress?.trim() &&
+        (initialLat === 0 || initialLng === 0)
+      ) {
+        geocodeAddress(initialAddress.trim(), GOOGLE_MAPS_API_KEY).then(
+          (coords) => {
+            if (coords) {
+              setLatitude(coords.lat);
+              setLongitude(coords.lng);
+              setResolvedAddress(initialAddress.trim());
+            }
+          }
+        );
+      }
     }
-  }, [open, initialLat, initialLng]);
+  }, [open, initialLat, initialLng, initialAddress]);
 
   const center: [number, number] =
     latitude !== 0 && longitude !== 0
@@ -65,6 +130,12 @@ export function GoogleMapPicker({
   const handlePositionChange = useCallback((lat: number, lng: number) => {
     setLatitude(lat);
     setLongitude(lng);
+    setResolvedAddress(null);
+    if (GOOGLE_MAPS_API_KEY) {
+      reverseGeocode(lat, lng, GOOGLE_MAPS_API_KEY).then((addr) => {
+        setResolvedAddress(addr);
+      });
+    }
   }, []);
 
   const handleUseDeviceLocation = async () => {
@@ -107,6 +178,12 @@ export function GoogleMapPicker({
       setLatitude(lat);
       setLongitude(lng);
       setLocationAccuracy(acc);
+      setResolvedAddress(null);
+      if (GOOGLE_MAPS_API_KEY) {
+        reverseGeocode(lat, lng, GOOGLE_MAPS_API_KEY).then((addr) => {
+          setResolvedAddress(addr);
+        });
+      }
       if (acc !== null) {
         if (acc <= 5) setGeoError(`Excellent accuracy: ±${acc.toFixed(1)}m`);
         else if (acc <= 10) setGeoError(`High accuracy: ±${acc.toFixed(1)}m`);
@@ -136,22 +213,35 @@ export function GoogleMapPicker({
     setIsLoading(true);
     setGeoError("");
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`,
-        { headers: { Accept: "application/json" } }
-      );
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const { lat, lon } = data[0];
-        const latNum = parseFloat(lat);
-        const lngNum = parseFloat(lon);
-        setLatitude(latNum);
-        setLongitude(lngNum);
+      if (GOOGLE_MAPS_API_KEY) {
+        const coords = await geocodeAddress(
+          searchQuery.trim(),
+          GOOGLE_MAPS_API_KEY
+        );
+        if (coords) {
+          setLatitude(coords.lat);
+          setLongitude(coords.lng);
+          setResolvedAddress(searchQuery.trim() || null);
+        } else {
+          setGeoError(t("landing.auth.mapLocationNotFound"));
+        }
       } else {
-        setGeoError("Location not found. Please try a different search term.");
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`,
+          { headers: { Accept: "application/json" } }
+        );
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const { lat, lon } = data[0];
+          setLatitude(parseFloat(lat));
+          setLongitude(parseFloat(lon));
+          setResolvedAddress(null);
+        } else {
+          setGeoError(t("landing.auth.mapLocationNotFound"));
+        }
       }
     } catch {
-      setGeoError("Error searching for location. Please try again.");
+      setGeoError(t("landing.auth.mapSearchError"));
     } finally {
       setIsLoading(false);
     }
@@ -163,24 +253,28 @@ export function GoogleMapPicker({
     onOpenChange(false);
   };
 
+  const useGoogleMap = Boolean(GOOGLE_MAPS_API_KEY);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-2rem)] max-w-[calc(100vw-2rem)] sm:max-w-md md:max-w-3xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-4 sm:p-6">
         <DialogHeader className="min-w-0">
           <DialogTitle className="flex items-center gap-2 text-base sm:text-lg truncate">
             <MapPin className="h-5 w-5 shrink-0" />
-            <span className="min-w-0 truncate">Select Restaurant Location</span>
+            <span className="min-w-0 truncate">
+              {t("landing.auth.stepSelectLocationOnMap")}
+            </span>
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 min-w-0">
           <div className="space-y-2 min-w-0">
-            <Label htmlFor="search">Search Location</Label>
+            <Label htmlFor="search">{t("landing.auth.mapSearchPlaceholder")}</Label>
             <div className="flex gap-2 min-w-0">
               <Input
                 id="search"
                 type="text"
-                placeholder="Enter address or place name"
+                placeholder={t("landing.auth.mapSearchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearchLocation())}
@@ -201,10 +295,25 @@ export function GoogleMapPicker({
 
           <div className="space-y-2 min-w-0">
             <Label className="text-sm font-medium">
-              Click on the map to select your restaurant location
+              {t("landing.auth.mapPickLocationDescription")}
             </Label>
             <div className="w-full min-w-0 h-[240px] sm:h-[300px] overflow-hidden rounded-md border relative">
-              {mounted && open && (
+              {mounted && open && useGoogleMap && (
+                <GoogleMapView
+                  center={center}
+                  zoom={15}
+                  initialPosition={
+                    latitude !== 0 && longitude !== 0
+                      ? [latitude, longitude]
+                      : initialLat !== 0 && initialLng !== 0
+                        ? [initialLat, initialLng]
+                        : null
+                  }
+                  onPositionChange={handlePositionChange}
+                  className="w-full h-full rounded-md"
+                />
+              )}
+              {mounted && open && !useGoogleMap && (
                 <LeafletMapView
                   center={center}
                   zoom={15}
@@ -228,36 +337,27 @@ export function GoogleMapPicker({
                 Nominatim)
               </p>
               <p className="break-all">
-                <strong>Current:</strong>{" "}
-                {latitude !== 0 && longitude !== 0
-                  ? `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
-                  : "No location selected"}
+                <strong>{t("landing.auth.locationSelected")}</strong>
+                {latitude !== 0 && longitude !== 0 ? "" : `: ${t("landing.auth.validation.locationRequired")}`}
               </p>
             </div>
           </div>
 
           {latitude !== 0 && longitude !== 0 && (
-            <div className="text-xs text-muted-foreground bg-muted p-2 rounded min-w-0 break-all">
-              <div className="flex items-center gap-1 min-w-0">
-                <MapPin className="h-3 w-3 text-green-600 shrink-0" />
-                <span className="font-medium text-green-700 dark:text-green-400 min-w-0">
-                  Location selected:
-                </span>
+            <div className="text-xs text-muted-foreground bg-muted p-2 rounded min-w-0 break-words">
+              <div className="flex items-start gap-1 min-w-0">
+                <MapPin className="h-3 w-3 text-green-600 shrink-0 mt-0.5" />
+                <div className="min-w-0">
+                  <span className="font-medium text-green-700 dark:text-green-400">
+                    {t("landing.auth.locationSelected")}
+                  </span>
+                  {resolvedAddress && (
+                    <p className="mt-1 text-foreground/90 break-words">
+                      {resolvedAddress}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="mt-1 break-all">
-                Lat: {latitude.toFixed(6)}, Lng: {longitude.toFixed(6)}
-                {locationAccuracy != null && (
-                  <>
-                    <br />
-                    <span className="text-green-600">
-                      GPS Accuracy: ±{locationAccuracy.toFixed(1)}m
-                    </span>
-                  </>
-                )}
-              </div>
-              <p className="text-xs mt-2 text-muted-foreground">
-                Adjust by clicking or dragging the marker on the map, then tap Confirm.
-              </p>
             </div>
           )}
 
@@ -272,9 +372,7 @@ export function GoogleMapPicker({
               >
                 <Navigation className="h-4 w-4 mr-2 shrink-0" />
                 <span className="min-w-0 truncate">
-                  {isLoading
-                    ? "Getting precise location..."
-                    : "Get My Precise Location"}
+                  {isLoading ? "..." : t("landing.auth.mapGetMyLocation")}
                 </span>
               </Button>
               <Button
@@ -284,7 +382,9 @@ export function GoogleMapPicker({
                 className="w-full sm:flex-1 min-w-0"
               >
                 <MapPin className="h-4 w-4 mr-2 shrink-0" />
-                <span className="min-w-0 truncate">Confirm Location</span>
+                <span className="min-w-0 truncate">
+                  {t("landing.auth.mapConfirmLocation")}
+                </span>
               </Button>
             </div>
 

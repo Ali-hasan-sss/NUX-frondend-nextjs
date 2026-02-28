@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { useMenuCart } from "@/contexts/menu-cart-context";
 import { useClientTheme } from "@/hooks/useClientTheme";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl, formatPrice } from "@/lib/utils";
+import { useAppSelector } from "@/app/hooks";
 import Image from "next/image";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -51,6 +52,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
   const { colors, isDark, mounted } = useClientTheme();
   const { t } = useTranslation();
   const params = useParams();
+  const currency = useAppSelector((state) => state.clientMenu?.currency ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderTypeModalOpen, setOrderTypeModalOpen] = useState(false);
   const restaurantId = params?.qrCode as string;
@@ -302,7 +304,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                                   <span>+</span>
                                   <span>{extra.name}</span>
                                   <span style={{ color: colors.primary }}>
-                                    (+${(extra.price || 0).toFixed(2)})
+                                    (+{formatPrice(extra.price ?? 0, currency)})
                                   </span>
                                 </p>
                               ))}
@@ -335,28 +337,29 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                           className="text-sm font-semibold mb-2"
                           style={{ color: colors.primary }}
                         >
-                          $
-                          {(
+                          {formatPrice(
                             item.price +
-                            (item.selectedExtras?.reduce(
-                              (sum, extra) => sum + (extra.price || 0),
-                              0
-                            ) || 0)
-                          ).toFixed(2)}
+                              (item.selectedExtras?.reduce(
+                                (sum, extra) => sum + (extra.price || 0),
+                                0
+                              ) || 0),
+                            currency
+                          )}
                           {item.quantity > 1 && (
                             <span
                               className="ml-1 text-xs font-normal"
                               style={{ color: colors.textSecondary }}
                             >
-                              × {item.quantity} = $
-                              {(
+                              × {item.quantity} ={" "}
+                              {formatPrice(
                                 (item.price +
                                   (item.selectedExtras?.reduce(
                                     (sum, extra) => sum + (extra.price || 0),
                                     0
                                   ) || 0)) *
-                                item.quantity
-                              ).toFixed(2)}
+                                  item.quantity,
+                                currency
+                              )}
                             </span>
                           )}
                         </p>
@@ -439,7 +442,7 @@ export function CartDrawer({ open, onClose }: CartDrawerProps) {
                   className="text-xl font-bold"
                   style={{ color: colors.primary }}
                 >
-                  ${totalPrice.toFixed(2)}
+                  {formatPrice(totalPrice, currency)}
                 </span>
               </div>
               <button

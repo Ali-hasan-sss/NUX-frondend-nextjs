@@ -54,7 +54,6 @@ import {
   PlusCircle,
   Edit,
   X,
-  Database,
   Loader2,
   Percent,
 } from "lucide-react";
@@ -66,6 +65,39 @@ import { seedService } from "@/features/restaurant/menu/seedService";
 import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
 import { toast } from "sonner";
 import { getImageUrl } from "@/lib/utils";
+import {
+  updateRestaurantAccount,
+  fetchRestaurantAccount,
+} from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
+
+/** Same as restaurant settings: popular and European currencies */
+const CURRENCY_OPTIONS = [
+  { code: "EUR", label: "Euro (EUR)" },
+  { code: "USD", label: "US Dollar (USD)" },
+  { code: "GBP", label: "British Pound (GBP)" },
+  { code: "CHF", label: "Swiss Franc (CHF)" },
+  { code: "JPY", label: "Japanese Yen (JPY)" },
+  { code: "CAD", label: "Canadian Dollar (CAD)" },
+  { code: "AUD", label: "Australian Dollar (AUD)" },
+  { code: "AED", label: "UAE Dirham (AED)" },
+  { code: "SAR", label: "Saudi Riyal (SAR)" },
+  { code: "EGP", label: "Egyptian Pound (EGP)" },
+  { code: "TRY", label: "Turkish Lira (TRY)" },
+  { code: "PLN", label: "Polish Zloty (PLN)" },
+  { code: "SEK", label: "Swedish Krona (SEK)" },
+  { code: "NOK", label: "Norwegian Krone (NOK)" },
+  { code: "DKK", label: "Danish Krone (DKK)" },
+  { code: "CZK", label: "Czech Koruna (CZK)" },
+  { code: "RON", label: "Romanian Leu (RON)" },
+  { code: "HUF", label: "Hungarian Forint (HUF)" },
+  { code: "BGN", label: "Bulgarian Lev (BGN)" },
+  { code: "ILS", label: "Israeli Shekel (ILS)" },
+  { code: "MAD", label: "Moroccan Dirham (MAD)" },
+  { code: "CNY", label: "Chinese Yuan (CNY)" },
+  { code: "INR", label: "Indian Rupee (INR)" },
+  { code: "BRL", label: "Brazilian Real (BRL)" },
+  { code: "MXN", label: "Mexican Peso (MXN)" },
+];
 
 export function MenuManagement() {
   const { t } = useTranslation();
@@ -153,6 +185,9 @@ export function MenuManagement() {
     title?: string;
   }>(null);
   const restaurantId = useAppSelector((s) => s.restaurantAccount.data?.id);
+  const restaurantCurrency = useAppSelector((s) => s.restaurantAccount.data?.currency);
+  const currencyCode = restaurantCurrency ?? "EUR";
+  const [currencyUpdating, setCurrencyUpdating] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [kitchenSections, setKitchenSections] = useState<any[]>([]);
 
@@ -191,8 +226,17 @@ export function MenuManagement() {
     [itemsByCategory, activeCategoryId]
   );
 
+  const getErrorMessage = (res: any, fallbackKey: string) => {
+    const msg = res?.payload?.message ?? res?.error?.message ?? (typeof res?.error === "string" ? res.error : null);
+    if (typeof msg === "string") return msg;
+    return t(fallbackKey) || "An error occurred.";
+  };
+
   const handleCreateCategory = async () => {
-    if (!newCat.title.trim()) return;
+    if (!newCat.title.trim()) {
+      toast.error(t("dashboard.menu.titleRequired") || "Please enter a title.");
+      return;
+    }
     setCategoryCreateLoading(true);
     try {
       const res: any = await dispatch(
@@ -205,7 +249,13 @@ export function MenuManagement() {
       if (res.type.endsWith("fulfilled")) {
         setNewCat({ title: "", description: "", image: "" });
         setOpenAddCategory(false);
+        toast.success(t("dashboard.menu.categoryCreated"));
+      } else {
+        toast.error(getErrorMessage(res, "dashboard.menu.categoryCreateError"));
       }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.menu.categoryCreateError");
+      toast.error(typeof msg === "string" ? msg : t("dashboard.menu.categoryCreateError"));
     } finally {
       setCategoryCreateLoading(false);
     }
@@ -213,9 +263,13 @@ export function MenuManagement() {
 
   const handleUpdateCategory = async () => {
     if (!editCat.id) return;
+    if (!editCat.title.trim()) {
+      toast.error(t("dashboard.menu.titleRequired") || "Please enter a title.");
+      return;
+    }
     setCategoryUpdateLoading(true);
     try {
-      await dispatch(
+      const res: any = await dispatch(
         updateMenuCategory({
           categoryId: editCat.id,
           title: editCat.title || undefined,
@@ -223,7 +277,15 @@ export function MenuManagement() {
           image: editCat.image || undefined,
         })
       );
-      setOpenEditCategory(false);
+      if (res.type.endsWith("fulfilled")) {
+        setOpenEditCategory(false);
+        toast.success(t("dashboard.menu.categoryUpdated"));
+      } else {
+        toast.error(getErrorMessage(res, "dashboard.menu.categoryUpdateError"));
+      }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.menu.categoryUpdateError");
+      toast.error(typeof msg === "string" ? msg : t("dashboard.menu.categoryUpdateError"));
     } finally {
       setCategoryUpdateLoading(false);
     }
@@ -232,18 +294,36 @@ export function MenuManagement() {
   const handleDeleteCategory = async (id: number) => {
     setCategoryDeleteLoading(true);
     try {
-      await dispatch(deleteMenuCategory(id));
-      if (activeCategoryId === id) setActiveCategoryId(null);
+      const res: any = await dispatch(deleteMenuCategory(id));
+      if (res.type.endsWith("fulfilled")) {
+        if (activeCategoryId === id) setActiveCategoryId(null);
+        toast.success(t("dashboard.menu.categoryDeleted"));
+      } else {
+        toast.error(getErrorMessage(res, "dashboard.menu.categoryDeleteError"));
+      }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.menu.categoryDeleteError");
+      toast.error(typeof msg === "string" ? msg : t("dashboard.menu.categoryDeleteError"));
     } finally {
       setCategoryDeleteLoading(false);
     }
   };
 
   const handleCreateItem = async () => {
-    if (openAddItem == null || !newItem.title.trim()) return;
+    if (openAddItem == null) return;
+    if (!newItem.title.trim()) {
+      toast.error(t("dashboard.menu.titleRequired") || "Please enter a title.");
+      return;
+    }
+    if (!newItem.price.trim()) {
+      toast.error(t("dashboard.menu.priceRequired") || "Please enter a price.");
+      return;
+    }
     const priceNum = Number(newItem.price);
-    if (Number.isNaN(priceNum)) return;
-
+    if (Number.isNaN(priceNum) || priceNum < 0) {
+      toast.error(t("dashboard.menu.priceInvalid") || "Please enter a valid price (number ≥ 0).");
+      return;
+    }
     const extrasArray = newItem.extras
       .filter((e) => e.name.trim())
       .map((e) => ({
@@ -292,7 +372,13 @@ export function MenuManagement() {
         });
         setOpenAddItem(null);
         dispatch(fetchItemsByCategory(openAddItem));
+        toast.success(t("dashboard.menu.itemCreated"));
+      } else {
+        toast.error(getErrorMessage(res, "dashboard.menu.itemCreateError"));
       }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.menu.itemCreateError");
+      toast.error(typeof msg === "string" ? msg : t("dashboard.menu.itemCreateError"));
     } finally {
       setItemCreateLoading(false);
     }
@@ -300,9 +386,19 @@ export function MenuManagement() {
 
   const handleUpdateItem = async () => {
     if (!openEditItem) return;
-    const priceNum = openEditItem.price
-      ? Number(openEditItem.price)
-      : undefined;
+    if (!openEditItem.title.trim()) {
+      toast.error(t("dashboard.menu.titleRequired") || "Please enter a title.");
+      return;
+    }
+    const priceStr = openEditItem.price;
+    if (priceStr !== undefined && priceStr !== "") {
+      const priceNum = Number(priceStr);
+      if (Number.isNaN(priceNum) || priceNum < 0) {
+        toast.error(t("dashboard.menu.priceInvalid") || "Please enter a valid price (number ≥ 0).");
+        return;
+      }
+    }
+    const priceNum = priceStr ? Number(priceStr) : undefined;
     setItemUpdateLoading(true);
     try {
       const res: any = await dispatch(
@@ -324,7 +420,13 @@ export function MenuManagement() {
       if (res.type.endsWith("fulfilled")) {
         dispatch(fetchItemsByCategory(openEditItem.categoryId));
         setOpenEditItem(null);
+        toast.success(t("dashboard.menu.itemUpdated"));
+      } else {
+        toast.error(getErrorMessage(res, "dashboard.menu.itemUpdateError"));
       }
+    } catch (e: any) {
+      const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.menu.itemUpdateError");
+      toast.error(typeof msg === "string" ? msg : t("dashboard.menu.itemUpdateError"));
     } finally {
       setItemUpdateLoading(false);
     }
@@ -484,22 +586,6 @@ export function MenuManagement() {
             variant="outline"
             size="sm"
             className="sm:h-10 sm:px-4 text-xs sm:text-sm"
-            onClick={() => setSeedConfirmOpen(true)}
-            disabled={isSeeding}
-          >
-            {isSeeding ? (
-              <Loader2 className="h-4 w-4 mr-1.5 sm:mr-2 animate-spin shrink-0" />
-            ) : (
-              <Database className="h-4 w-4 mr-1.5 sm:mr-2 shrink-0" />
-            )}
-            <span className="whitespace-nowrap">
-              {t("dashboard.menu.seedData") || "Add Sample Data"}
-            </span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="sm:h-10 sm:px-4 text-xs sm:text-sm"
             onClick={() => setOpenAddCategory(true)}
           >
             <Plus className="h-4 w-4 mr-1.5 sm:mr-2 shrink-0" />
@@ -508,6 +594,43 @@ export function MenuManagement() {
             </span>
           </Button>
         </div>
+      </div>
+
+      {/* Primary currency (menu prices) */}
+      <div className="flex flex-wrap items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-lg border bg-card">
+        <Label className="text-sm font-medium shrink-0">
+          {t("dashboard.settings.currency") || "Primary currency"}
+        </Label>
+        <Select
+          value={currencyCode}
+          onValueChange={async (value) => {
+            setCurrencyUpdating(true);
+            try {
+              await dispatch(updateRestaurantAccount({ currency: value || null })).unwrap();
+              await dispatch(fetchRestaurantAccount()).unwrap();
+              toast.success(t("dashboard.settings.currencyUpdated") || "Currency updated");
+            } catch (e: any) {
+              toast.error(e?.message || "Failed to update currency");
+            } finally {
+              setCurrencyUpdating(false);
+            }
+          }}
+          disabled={currencyUpdating}
+        >
+          <SelectTrigger className="w-[180px] sm:w-[220px]">
+            <SelectValue placeholder="EUR" />
+          </SelectTrigger>
+          <SelectContent>
+            {CURRENCY_OPTIONS.map((opt) => (
+              <SelectItem key={opt.code} value={opt.code}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {currencyUpdating && (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        )}
       </div>
 
       {/* Categories Accordion */}
@@ -571,7 +694,7 @@ export function MenuManagement() {
                           e.stopPropagation();
                           setOpenAddItem(c.id);
                         }}
-                        title="Add item"
+                        title={t("dashboard.menu.addItem")}
                       >
                         <PlusCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
@@ -590,7 +713,7 @@ export function MenuManagement() {
                           });
                           setOpenEditCategory(true);
                         }}
-                        title="Edit category"
+                        title={t("dashboard.menu.editCategory")}
                       >
                         <Pencil className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
@@ -608,7 +731,7 @@ export function MenuManagement() {
                           });
                           setConfirmOpen(true);
                         }}
-                        title="Delete category"
+                        title={t("dashboard.menu.deleteCategory")}
                       >
                         <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                       </Button>
@@ -641,21 +764,21 @@ export function MenuManagement() {
                               {i.discountType && i.discountValue ? (
                                 <>
                                   <span className="line-through text-muted-foreground text-xs mr-1">
-                                    {i.price} EUR
+                                    {i.price} {currencyCode}
                                   </span>
                                   <span>
                                     {i.discountType === "PERCENTAGE"
                                       ? `${(
                                           i.price *
                                           (1 - i.discountValue / 100)
-                                        ).toFixed(2)} EUR`
+                                        ).toFixed(2)} ${currencyCode}`
                                       : `${(i.price - i.discountValue).toFixed(
                                           2
-                                        )} EUR`}
+                                        )} ${currencyCode}`}
                                   </span>
                                 </>
                               ) : (
-                                <span>{i.price} EUR</span>
+                                <span>{i.price} {currencyCode}</span>
                               )}
                             </div>
 
@@ -667,7 +790,7 @@ export function MenuManagement() {
                               >
                                 {i.discountType === "PERCENTAGE"
                                   ? `-${i.discountValue}%`
-                                  : `-${i.discountValue} EUR`}
+                                  : `-${i.discountValue} ${currencyCode}`}
                               </Badge>
                             )}
 
@@ -711,7 +834,7 @@ export function MenuManagement() {
                                       variant="secondary"
                                       className="text-xs hover:bg-secondary"
                                     >
-                                      +{extra.name} ({extra.price}€)
+                                      +{extra.name} ({extra.price} {currencyCode})
                                     </Badge>
                                   ))}
                                 </div>
@@ -747,7 +870,7 @@ export function MenuManagement() {
                                 kitchenSectionId: i.kitchenSectionId ?? null,
                               })
                             }
-                            title="Edit item"
+                            title={t("dashboard.menu.editItem")}
                           >
                             <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </Button>
@@ -764,7 +887,7 @@ export function MenuManagement() {
                               });
                               setConfirmOpen(true);
                             }}
-                            title="Delete item"
+                            title={t("dashboard.menu.deleteItem")}
                           >
                             <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           </Button>
@@ -1273,7 +1396,8 @@ export function MenuManagement() {
                   isLoading ||
                   uploading ||
                   itemCreateLoading ||
-                  !newItem.title.trim()
+                  !newItem.title.trim() ||
+                  !newItem.price.trim()
                 }
               >
                 {itemCreateLoading ? (
@@ -1675,13 +1799,21 @@ export function MenuManagement() {
           ) {
             setItemDeleteLoading(true);
             try {
-              await dispatch(
+              const res: any = await dispatch(
                 deleteMenuItemThunk({
                   categoryId: deleteTarget.categoryId,
                   itemId: deleteTarget.itemId,
                 })
               );
-              setDeleteTarget(null);
+              if (res.type.endsWith("fulfilled")) {
+                setDeleteTarget(null);
+                toast.success(t("dashboard.menu.itemDeleted"));
+              } else {
+                toast.error(getErrorMessage(res, "dashboard.menu.itemDeleteError"));
+              }
+            } catch (e: any) {
+              const msg = e?.response?.data?.message ?? e?.message ?? t("dashboard.menu.itemDeleteError");
+              toast.error(typeof msg === "string" ? msg : t("dashboard.menu.itemDeleteError"));
             } finally {
               setItemDeleteLoading(false);
             }

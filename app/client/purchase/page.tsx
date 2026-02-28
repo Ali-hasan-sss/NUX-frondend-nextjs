@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchUserBalances, fetchClientProfile } from "@/features/client";
 import { RestaurantSelector } from "@/components/client/restaurant-selector";
@@ -14,11 +14,17 @@ import {
   UtensilsCrossed,
   Wallet,
   Camera,
+  Share2,
+  Loader2,
+  Check,
+  Circle,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
 
 export default function PurchasePage() {
   const dispatch = useAppDispatch();
@@ -38,6 +44,66 @@ export default function PurchasePage() {
   >("wallet");
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showPackagesModal, setShowPackagesModal] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
+  const qrShareRef = useRef<HTMLDivElement>(null);
+
+  const handleShareMyCode = useCallback(async () => {
+    if (!clientProfile?.qrCode || clientProfile.qrCode.trim() === "" || !qrShareRef.current) return;
+    setShareLoading(true);
+    try {
+      const canvas = await html2canvas(qrShareRef.current, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+      });
+      canvas.toBlob(
+        async (blob) => {
+          if (!blob) {
+            toast.error(t("account.shareFailed"));
+            setShareLoading(false);
+            return;
+          }
+          const file = new File([blob], "my-qr-code.png", { type: "image/png" });
+          const canShare =
+            "share" in navigator &&
+            (navigator.canShare?.({ files: [file] }) ?? true);
+          if (canShare) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: t("account.myQRCode"),
+              });
+              toast.success(t("account.shareSuccess") || "QR code shared");
+            } catch (shareErr: unknown) {
+              if ((shareErr as { name?: string })?.name !== "AbortError") {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "my-qr-code.png";
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success(t("account.shareDownload") || "QR code saved");
+              }
+            }
+          } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "my-qr-code.png";
+            a.click();
+            URL.revokeObjectURL(url);
+            toast.success(t("account.shareDownload") || "QR code saved");
+          }
+          setShareLoading(false);
+        },
+        "image/png",
+        1
+      );
+    } catch {
+      toast.error(t("account.shareFailed"));
+      setShareLoading(false);
+    }
+  }, [clientProfile?.qrCode, t]);
 
   // Fetch balances and profile on mount
   useEffect(() => {
@@ -81,11 +147,27 @@ export default function PurchasePage() {
     return id === selectedRestaurantId;
   });
 
-  // Calculate balances for selected restaurant
+  // Calculate balances and vouchers for selected restaurant
+  const bal = selectedRestaurantBalance as any;
+  const mealVouchers = bal?.vouchers_meal ?? 0;
+  const drinkVouchers = bal?.vouchers_drink ?? 0;
+  const mealPerVoucher = bal?.mealPointsPerVoucher || 1;
+  const drinkPerVoucher = bal?.drinkPointsPerVoucher || 1;
+  const mealStars = bal?.stars_meal ?? 0;
+  const drinkStars = bal?.stars_drink ?? 0;
+  const mealTowardNext = mealPerVoucher > 0 ? mealStars - mealVouchers * mealPerVoucher : 0;
+  const drinkTowardNext = drinkPerVoucher > 0 ? drinkStars - drinkVouchers * drinkPerVoucher : 0;
+
   const currentBalance = {
-    walletBalance: selectedRestaurantBalance?.balance || 0,
-    mealPoints: selectedRestaurantBalance?.stars_meal || 0,
-    drinkPoints: selectedRestaurantBalance?.stars_drink || 0,
+    walletBalance: bal?.balance ?? 0,
+    mealPoints: mealStars,
+    drinkPoints: drinkStars,
+    mealVouchers,
+    drinkVouchers,
+    mealPerVoucher,
+    drinkPerVoucher,
+    mealTowardNext: Math.min(mealTowardNext, mealPerVoucher),
+    drinkTowardNext: Math.min(drinkTowardNext, drinkPerVoucher),
   };
 
   // Convert to RestaurantSelector format
@@ -191,61 +273,114 @@ export default function PurchasePage() {
       {/* Balance Cards */}
       {selectedRestaurant && (
         <div className="mb-6 space-y-3">
-          {/* Meal and Drink Points Row */}
-          <div className="flex gap-3">
-            <div
-              className={cn(
-                "flex-1 rounded-2xl p-4 flex flex-col items-center",
-                "shadow-lg"
-              )}
-              style={{ backgroundColor: colors.surface }}
-            >
+          {/* Meal Vouchers */}
+          <div
+            className={cn(
+              "rounded-2xl p-4 flex flex-col gap-3 shadow-lg"
+            )}
+            style={{ backgroundColor: colors.surface }}
+          >
+            <div className="flex items-center gap-2">
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: `${colors.primary}20` }}
               >
-                <UtensilsCrossed
-                  className="h-6 w-6"
-                  style={{ color: colors.primary }}
-                />
+                <UtensilsCrossed className="h-5 w-5" style={{ color: colors.primary }} />
               </div>
-              <p
-                className="text-xs mb-1"
-                style={{ color: colors.textSecondary }}
-              >
-                {t("purchase.mealPoints")}
-              </p>
-              <p className="text-xl font-bold" style={{ color: colors.text }}>
-                {currentBalance.mealPoints}
-              </p>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: colors.text }}>
+                  {t("purchase.mealVouchers", { count: currentBalance.mealVouchers })}
+                </p>
+                {currentBalance.mealPerVoucher > 0 && (
+                  <p className="text-xs" style={{ color: colors.textSecondary }}>
+                    {t("purchase.pointsTowardNext", {
+                      current: currentBalance.mealTowardNext,
+                      total: currentBalance.mealPerVoucher,
+                    })}
+                  </p>
+                )}
+              </div>
             </div>
+            {currentBalance.mealPerVoucher > 0 && (
+              <div className="flex items-center gap-2">
+                {Array.from({ length: currentBalance.mealPerVoucher }, (_, i) => (
+                  <div
+                    key={`meal-${i}`}
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center border-2",
+                      i < currentBalance.mealTowardNext
+                        ? "border-transparent"
+                        : "border-dashed"
+                    )}
+                    style={{
+                      backgroundColor: i < currentBalance.mealTowardNext ? colors.primary : "transparent",
+                      borderColor: i >= currentBalance.mealTowardNext ? colors.textSecondary : undefined,
+                    }}
+                  >
+                    {i < currentBalance.mealTowardNext ? (
+                      <Check className="h-5 w-5 text-white" strokeWidth={3} />
+                    ) : (
+                      <Circle className="h-5 w-5" style={{ color: colors.textSecondary }} strokeWidth={1.5} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-            <div
-              className={cn(
-                "flex-1 rounded-2xl p-4 flex flex-col items-center",
-                "shadow-lg"
-              )}
-              style={{ backgroundColor: colors.surface }}
-            >
+          {/* Drink Vouchers */}
+          <div
+            className={cn(
+              "rounded-2xl p-4 flex flex-col gap-3 shadow-lg"
+            )}
+            style={{ backgroundColor: colors.surface }}
+          >
+            <div className="flex items-center gap-2">
               <div
-                className="w-12 h-12 rounded-full flex items-center justify-center mb-2"
+                className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{ backgroundColor: `${colors.secondary}20` }}
               >
-                <Coffee
-                  className="h-6 w-6"
-                  style={{ color: colors.secondary }}
-                />
+                <Coffee className="h-5 w-5" style={{ color: colors.secondary }} />
               </div>
-              <p
-                className="text-xs mb-1"
-                style={{ color: colors.textSecondary }}
-              >
-                {t("purchase.drinkPoints")}
-              </p>
-              <p className="text-xl font-bold" style={{ color: colors.text }}>
-                {currentBalance.drinkPoints}
-              </p>
+              <div>
+                <p className="text-sm font-semibold" style={{ color: colors.text }}>
+                  {t("purchase.drinkVouchers", { count: currentBalance.drinkVouchers })}
+                </p>
+                {currentBalance.drinkPerVoucher > 0 && (
+                  <p className="text-xs" style={{ color: colors.textSecondary }}>
+                    {t("purchase.pointsTowardNext", {
+                      current: currentBalance.drinkTowardNext,
+                      total: currentBalance.drinkPerVoucher,
+                    })}
+                  </p>
+                )}
+              </div>
             </div>
+            {currentBalance.drinkPerVoucher > 0 && (
+              <div className="flex items-center gap-2">
+                {Array.from({ length: currentBalance.drinkPerVoucher }, (_, i) => (
+                  <div
+                    key={`drink-${i}`}
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center border-2",
+                      i < currentBalance.drinkTowardNext
+                        ? "border-transparent"
+                        : "border-dashed"
+                    )}
+                    style={{
+                      backgroundColor: i < currentBalance.drinkTowardNext ? colors.secondary : "transparent",
+                      borderColor: i >= currentBalance.drinkTowardNext ? colors.textSecondary : undefined,
+                    }}
+                  >
+                    {i < currentBalance.drinkTowardNext ? (
+                      <Check className="h-5 w-5 text-white" strokeWidth={3} />
+                    ) : (
+                      <Circle className="h-5 w-5" style={{ color: colors.textSecondary }} strokeWidth={1.5} />
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Wallet Balance Card */}
@@ -357,26 +492,63 @@ export default function PurchasePage() {
             {t("account.qrCodeDesc")}
           </p>
           {/* QR Code - white background in both themes for reliable scanning */}
-          <div className="mt-4 flex justify-center items-center p-5 rounded-xl bg-white">
-            {profileLoading.profile ? (
+          {clientProfile?.qrCode && clientProfile.qrCode.trim() !== "" && !profileLoading.profile ? (
+            <>
+              <div
+                ref={qrShareRef}
+                className="inline-flex flex-col items-center p-5 rounded-xl bg-white shadow-md mt-4"
+              >
+                <QRCodeSVG
+                  value={clientProfile.qrCode}
+                  size={200}
+                  fgColor="#000000"
+                  bgColor="#ffffff"
+                  level="M"
+                  includeMargin={true}
+                />
+                <p className="text-sm font-medium text-gray-800 mt-3">
+                  {clientProfile.fullName || ""}
+                </p>
+                <p className="text-xs text-gray-500">{clientProfile.email || ""}</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleShareMyCode}
+                disabled={shareLoading}
+                className={cn(
+                  "w-full mt-4 py-3 rounded-xl font-medium flex items-center justify-center gap-2 transition-opacity",
+                  shareLoading && "opacity-70 cursor-not-allowed"
+                )}
+                style={{
+                  backgroundColor: colors.surface,
+                  borderWidth: "1px",
+                  borderColor: colors.border,
+                  color: colors.text,
+                }}
+              >
+                {shareLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Share2 className="h-5 w-5" />
+                )}
+                {shareLoading
+                  ? t("common.loading")
+                  : t("account.shareCode")}
+              </button>
+            </>
+          ) : profileLoading.profile ? (
+            <div className="mt-4 flex justify-center items-center p-5 rounded-xl bg-white">
               <div className="w-[200px] h-[200px] rounded-lg flex items-center justify-center bg-white">
                 <p className="text-sm text-gray-500">{t("common.loading")}...</p>
               </div>
-            ) : clientProfile?.qrCode && clientProfile.qrCode.trim() !== "" ? (
-              <QRCodeSVG
-                value={clientProfile.qrCode}
-                size={200}
-                fgColor="#000000"
-                bgColor="#ffffff"
-                level="M"
-                includeMargin={true}
-              />
-            ) : (
+            </div>
+          ) : (
+            <div className="mt-4 flex justify-center items-center p-5 rounded-xl bg-white">
               <div className="w-[200px] h-[200px] rounded-lg flex items-center justify-center bg-white">
                 <p className="text-sm text-gray-500">{t("account.noQRCode")}</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 

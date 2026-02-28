@@ -63,19 +63,31 @@ export default function RestaurantsPage() {
   );
 }
 
+const RESTAURANTS_PAGE_SIZE = 50;
+
 function RestaurantsPageContent() {
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [filteredRestaurants, setFilteredRestaurants] = useState<Restaurant[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("name");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [isLoadingLocation, setIsLoadingLocation] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const isDark = theme === "dark" || theme === "system";
+
+  // Debounce search for API
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   // Get user location
   const getUserLocation = () => {
@@ -122,9 +134,55 @@ function RestaurantsPageContent() {
     }
   }, []);
 
+  const fetchRestaurants = async (pageNum: number = 1, append: boolean = false) => {
+    try {
+      if (!append) setIsLoading(true);
+      else setLoadingMore(true);
+      setError(null);
+      const response = await axiosInstance.get("/restaurants", {
+        params: { page: pageNum, limit: RESTAURANTS_PAGE_SIZE, search: debouncedSearch || undefined },
+      });
+      const data = response.data?.data;
+      const restaurantsData = data?.restaurants ?? [];
+      const pagination = data?.pagination;
+      const activeRestaurants = Array.isArray(restaurantsData)
+        ? restaurantsData.filter((r: Restaurant) => r.isActive !== false)
+        : [];
+      setPage(pageNum);
+      setTotalPages(pagination?.totalPages ?? 1);
+      if (append) {
+        setRestaurants((prev) => [...prev, ...activeRestaurants]);
+      } else {
+        setRestaurants(activeRestaurants);
+      }
+    } catch (err: any) {
+      console.error("Error fetching restaurants:", err);
+      setError(err?.response?.data?.message || t("restaurants.failedToLoad"));
+      if (!append) setRestaurants([]);
+    } finally {
+      setIsLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
   useEffect(() => {
-    fetchRestaurants();
-  }, []);
+    fetchRestaurants(1, false);
+  }, [debouncedSearch]);
+
+  // Load more when user scrolls near bottom
+  useEffect(() => {
+    const handleScroll = () => {
+      if (loadingMore || isLoading) return;
+      if (page >= totalPages) return;
+      const scrollBottom = window.scrollY + window.innerHeight;
+      const threshold = document.documentElement.scrollHeight - 400;
+      if (scrollBottom >= threshold) {
+        fetchRestaurants(page + 1, true);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, totalPages, loadingMore, isLoading, debouncedSearch]);
 
   // Filter and sort restaurants
   useEffect(() => {
@@ -176,27 +234,6 @@ function RestaurantsPageContent() {
     setFilteredRestaurants(filtered);
   }, [searchQuery, restaurants, sortBy, userLocation]);
 
-  const fetchRestaurants = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await axiosInstance.get("/restaurants");
-      // The API returns { success, message, data: { restaurants, pagination } }
-      const restaurantsData = response.data?.data?.restaurants || response.data?.data || [];
-      // Filter only active restaurants (though API already filters by isActive: true)
-      const activeRestaurants = Array.isArray(restaurantsData) 
-        ? restaurantsData.filter((r: Restaurant) => r.isActive !== false)
-        : [];
-      setRestaurants(activeRestaurants);
-      setFilteredRestaurants(activeRestaurants);
-    } catch (err: any) {
-      console.error("Error fetching restaurants:", err);
-      setError(err?.response?.data?.message || t("restaurants.failedToLoad"));
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleRestaurantClick = (restaurantId: string) => {
     router.push(`/menu/${restaurantId}`);
   };
@@ -218,6 +255,7 @@ function RestaurantsPageContent() {
         onSearchChange={setSearchQuery}
         onRestaurantClick={handleRestaurantClick}
         isLoading={isLoading}
+        loadingMore={loadingMore}
         error={error}
         isDark={isDark}
         sortBy={sortBy}
@@ -237,6 +275,7 @@ function RestaurantsContent({
   onSearchChange,
   onRestaurantClick,
   isLoading,
+  loadingMore,
   error,
   isDark,
   sortBy,
@@ -250,6 +289,7 @@ function RestaurantsContent({
   onSearchChange: (query: string) => void;
   onRestaurantClick: (id: string) => void;
   isLoading: boolean;
+  loadingMore?: boolean;
   error: string | null;
   isDark: boolean;
   sortBy: SortOption;
@@ -565,6 +605,7 @@ function RestaurantsContent({
               </p>
             </div>
           ) : (
+            <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {restaurants.map((restaurant, index) => (
                 <motion.div
@@ -681,6 +722,20 @@ function RestaurantsContent({
                 </motion.div>
               ))}
             </div>
+            {loadingMore && (
+              <div className="flex justify-center py-8">
+                <Loader2
+                  className={cn(
+                    "h-8 w-8 animate-spin",
+                    isDark ? "text-cyan-400" : "text-cyan-600"
+                  )}
+                />
+                <span className={cn("ml-2", isDark ? "text-white/70" : "text-gray-600")}>
+                  {t("landing.restaurants.loading") || "Loading..."}
+                </span>
+              </div>
+            )}
+            </>
           )}
         </div>
       </section>

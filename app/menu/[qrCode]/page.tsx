@@ -23,7 +23,7 @@ import {
   X,
   UtensilsCrossed,
 } from "lucide-react";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl, formatPrice, getPriceAfterDiscount } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import Image from "next/image";
@@ -58,7 +58,16 @@ function PublicMenuPageContent() {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { colors, isDark, mounted } = useClientTheme();
-  const { addItem, totalItems, setTableNumber } = useMenuCart();
+  const { addItem, totalItems, setTableNumber, items: cartItems } = useMenuCart();
+
+  // Total quantity of a menu item in cart (all variants: with/without extras)
+  const getCartQuantityForItem = useCallback(
+    (menuItemId: number) =>
+      cartItems
+        .filter((ci) => ci.id === menuItemId)
+        .reduce((sum, ci) => sum + ci.quantity, 0),
+    [cartItems]
+  );
   const qrCode = params?.qrCode as string;
   const tableNumberParam = searchParams?.get("table");
   const categoryIdParam = searchParams?.get("category");
@@ -72,7 +81,7 @@ function PublicMenuPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [allItems, setAllItems] = useState<any[]>([]);
 
-  const { categories, items, selectedCategory, loading, error, restaurant } =
+  const { categories, items, selectedCategory, loading, error, restaurant, currency } =
     useAppSelector((state) => state.clientMenu);
 
   useEffect(() => {
@@ -196,12 +205,11 @@ function PublicMenuPageContent() {
         id: item.id,
         title: item.title,
         description: item.description,
-        price:
-          item.discountType && item.discountValue
-            ? item.discountType === "PERCENTAGE"
-              ? item.price * (1 - item.discountValue / 100)
-              : item.price - item.discountValue
-            : item.price,
+        price: getPriceAfterDiscount(
+          item.price,
+          item.discountType,
+          item.discountValue
+        ),
         image: item.image,
         baseCalories: item.calories || 0,
         selectedExtras: [],
@@ -233,12 +241,11 @@ function PublicMenuPageContent() {
   const handleConfirmAddWithExtras = () => {
     if (!selectedItem) return;
 
-    const basePrice =
-      selectedItem.discountType && selectedItem.discountValue
-        ? selectedItem.discountType === "PERCENTAGE"
-          ? selectedItem.price * (1 - selectedItem.discountValue / 100)
-          : selectedItem.price - selectedItem.discountValue
-        : selectedItem.price;
+    const basePrice = getPriceAfterDiscount(
+      selectedItem.price,
+      selectedItem.discountType,
+      selectedItem.discountValue
+    );
 
     // Add item multiple times based on quantity
     for (let i = 0; i < itemQuantity; i++) {
@@ -265,12 +272,11 @@ function PublicMenuPageContent() {
   };
 
   const calculateTotalPrice = (item: any, extras: CartItemExtra[]) => {
-    const basePrice =
-      item.discountType && item.discountValue
-        ? item.discountType === "PERCENTAGE"
-          ? item.price * (1 - item.discountValue / 100)
-          : item.price - item.discountValue
-        : item.price;
+    const basePrice = getPriceAfterDiscount(
+      item.price,
+      item.discountType,
+      item.discountValue
+    );
     const extrasPrice = extras.reduce(
       (sum, extra) => sum + (extra.price || 0),
       0,
@@ -299,6 +305,7 @@ function PublicMenuPageContent() {
           <div
             className={cn(
               "flex flex-col min-h-screen h-screen",
+              "md:pb-0",
               tableNumberParam && totalItems > 0 && "pb-28",
               tableNumberParam && totalItems === 0 && "pb-14",
               !tableNumberParam && totalItems > 0 && "pb-14",
@@ -315,9 +322,8 @@ function PublicMenuPageContent() {
               restaurantName={restaurant?.name}
             />
             <div
-              className="flex-1 min-h-0 overflow-y-auto px-4 py-5 max-w-7xl mx-auto w-full"
+              className="flex-1 min-h-0 overflow-y-auto px-4 py-5 md:px-6 lg:px-8 max-w-7xl mx-auto w-full md:!pb-0"
               style={{
-                // Reserve space above fixed buttons on mobile so footer never overlaps
                 paddingBottom:
                   tableNumberParam && totalItems > 0
                     ? "calc(14rem + env(safe-area-inset-bottom, 0px))"
@@ -328,27 +334,27 @@ function PublicMenuPageContent() {
             >
               {/* Header */}
               <div className="mb-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <button
-                    onClick={handleBackToCategories}
-                    className={cn(
-                      "p-2 rounded-lg transition-colors",
-                      isDark ? "hover:bg-white/10" : "hover:bg-gray-100",
-                    )}
-                    style={{ color: colors.text }}
-                  >
-                    <ArrowLeft className="h-5 w-5" />
-                  </button>
-                  <h1
-                    className="text-2xl font-bold flex-1"
-                    style={{ color: colors.text }}
-                  >
-                    {selectedCategory.title}
-                  </h1>
-                </div>
-
-                {/* Search Bar */}
-                <div className="relative">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={handleBackToCategories}
+                      className={cn(
+                        "p-2 rounded-lg transition-colors shrink-0",
+                        isDark ? "hover:bg-white/10" : "hover:bg-gray-100",
+                      )}
+                      style={{ color: colors.text }}
+                    >
+                      <ArrowLeft className="h-5 w-5" />
+                    </button>
+                    <h1
+                      className="text-2xl md:text-3xl font-bold flex-1 min-w-0"
+                      style={{ color: colors.text }}
+                    >
+                      {selectedCategory.title}
+                    </h1>
+                  </div>
+                  {/* Search Bar - full width on mobile, max width on desktop */}
+                  <div className="relative w-full md:max-w-sm md:shrink-0">
                   <Search
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4"
                     style={{ color: colors.textSecondary }}
@@ -383,12 +389,13 @@ function PublicMenuPageContent() {
                       <X className="h-4 w-4" />
                     </button>
                   )}
+                  </div>
                 </div>
               </div>
 
               {selectedCategory.description && (
                 <p
-                  className="text-sm mb-6"
+                  className="text-sm mb-6 max-w-3xl"
                   style={{ color: colors.textSecondary }}
                 >
                   {selectedCategory.description}
@@ -460,15 +467,14 @@ function PublicMenuPageContent() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                   {filteredItems.map((item: any) => {
-                    // Calculate final price with discount
-                    const finalPrice =
-                      item.discountType && item.discountValue
-                        ? item.discountType === "PERCENTAGE"
-                          ? item.price * (1 - item.discountValue / 100)
-                          : item.price - item.discountValue
-                        : item.price;
+                    // Calculate final price with discount (never negative)
+                    const finalPrice = getPriceAfterDiscount(
+                      item.price,
+                      item.discountType,
+                      item.discountValue
+                    );
 
                     return (
                       <div
@@ -479,9 +485,9 @@ function PublicMenuPageContent() {
                         )}
                         style={{ backgroundColor: colors.surface }}
                       >
-                        <div className="flex gap-4 p-4">
+                        <div className="flex gap-4 p-4 md:p-5">
                           {item.image ? (
-                            <div className="relative w-28 h-28 rounded-lg overflow-hidden flex-shrink-0">
+                            <div className="relative w-28 h-28 md:w-36 md:h-36 rounded-lg overflow-hidden flex-shrink-0">
                               <Image
                                 src={getImageUrl(item.image)}
                                 alt={item.title}
@@ -496,11 +502,11 @@ function PublicMenuPageContent() {
                             </div>
                           ) : (
                             <div
-                              className="w-28 h-28 rounded-lg flex items-center justify-center flex-shrink-0"
+                              className="w-28 h-28 md:w-36 md:h-36 rounded-lg flex items-center justify-center flex-shrink-0"
                               style={{ backgroundColor: `${colors.primary}10` }}
                             >
                               <span
-                                className="text-2xl font-bold"
+                                className="text-2xl md:text-3xl font-bold"
                                 style={{ color: colors.primary }}
                               >
                                 {item.title.charAt(0).toUpperCase()}
@@ -510,7 +516,7 @@ function PublicMenuPageContent() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2 mb-1">
                               <h3
-                                className="font-bold text-lg flex-1"
+                                className="font-bold text-lg md:text-xl flex-1"
                                 style={{ color: colors.text }}
                               >
                                 {item.title}
@@ -603,8 +609,7 @@ function PublicMenuPageContent() {
                                             color: colors.text,
                                           }}
                                         >
-                                          +{extra.name} (+$
-                                          {extra.price?.toFixed(2) || "0.00"})
+                                          +{extra.name} (+{formatPrice(extra.price ?? 0, currency)})
                                         </span>
                                       ),
                                     )}
@@ -624,13 +629,13 @@ function PublicMenuPageContent() {
                                       className="text-lg font-bold"
                                       style={{ color: colors.primary }}
                                     >
-                                      ${finalPrice.toFixed(2)}
+                                      {formatPrice(finalPrice, currency)}
                                     </p>
                                     <p
                                       className="text-sm line-through"
                                       style={{ color: colors.textSecondary }}
                                     >
-                                      ${item.price.toFixed(2)}
+                                      {formatPrice(item.price, currency)}
                                     </p>
                                     <span
                                       className="px-2 py-0.5 rounded text-xs font-medium"
@@ -641,7 +646,7 @@ function PublicMenuPageContent() {
                                     >
                                       {item.discountType === "PERCENTAGE"
                                         ? `-${item.discountValue}%`
-                                        : `-$${item.discountValue.toFixed(2)}`}
+                                        : `-${formatPrice(item.discountValue, currency)}`}
                                     </span>
                                   </div>
                                 ) : (
@@ -649,24 +654,30 @@ function PublicMenuPageContent() {
                                     className="text-lg font-bold"
                                     style={{ color: colors.primary }}
                                   >
-                                    ${item.price.toFixed(2)}
+                                    {formatPrice(item.price, currency)}
                                   </p>
                                 )}
                               </div>
-                              <button
-                                onClick={() => handleAddItemClick(item)}
-                                className={cn(
-                                  "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors",
-                                  "hover:opacity-90",
-                                )}
-                                style={{
-                                  backgroundColor: colors.primary,
-                                  color: "white",
-                                }}
-                              >
-                                <Plus className="h-4 w-4" />
-                                <span>Add</span>
-                              </button>
+                              {tableNumberParam && (
+                                <button
+                                  onClick={() => handleAddItemClick(item)}
+                                  className={cn(
+                                    "flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-150",
+                                    "hover:opacity-90 active:scale-95 active:opacity-100",
+                                  )}
+                                  style={{
+                                    backgroundColor: colors.primary,
+                                    color: "white",
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4 shrink-0" />
+                                  <span>
+                                    {getCartQuantityForItem(item.id) > 0
+                                      ? getCartQuantityForItem(item.id)
+                                      : t("menu.add") || "Add"}
+                                  </span>
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -685,7 +696,8 @@ function PublicMenuPageContent() {
               disabled={requestingWaiter}
               className={cn(
                 "fixed z-40 flex items-center justify-center gap-2 rounded-full py-3 px-4 font-semibold text-sm shadow-lg transition-opacity active:opacity-90",
-                totalItems > 0 ? "bottom-36" : "bottom-20",
+                "md:py-3 md:px-5",
+                totalItems > 0 ? "bottom-36 md:bottom-8" : "bottom-20 md:bottom-6",
               )}
               style={{
                 right: "max(1rem, env(safe-area-inset-right))",
@@ -709,7 +721,7 @@ function PublicMenuPageContent() {
             <button
               type="button"
               onClick={() => setCartOpen(true)}
-              className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
+              className="fixed left-0 right-0 bottom-0 z-40 w-full md:left-1/2 md:right-auto md:bottom-6 md:w-auto md:min-w-[280px] md:max-w-md md:-translate-x-1/2 md:rounded-2xl md:shadow-xl py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
               style={{
                 backgroundColor: colors.primary,
                 color: "white",
@@ -833,7 +845,7 @@ function PublicMenuPageContent() {
                               className="font-semibold text-sm"
                               style={{ color: colors.primary }}
                             >
-                              +${(extra.price || 0).toFixed(2)}
+                              +{formatPrice(extra.price ?? 0, currency)}
                             </p>
                           </button>
                         );
@@ -936,15 +948,14 @@ function PublicMenuPageContent() {
                           className="font-medium"
                           style={{ color: colors.text }}
                         >
-                          $
-                          {(selectedItem.discountType &&
-                          selectedItem.discountValue
-                            ? selectedItem.discountType === "PERCENTAGE"
-                              ? selectedItem.price *
-                                (1 - selectedItem.discountValue / 100)
-                              : selectedItem.price - selectedItem.discountValue
-                            : selectedItem.price
-                          ).toFixed(2)}
+                          {formatPrice(
+                            getPriceAfterDiscount(
+                              selectedItem.price,
+                              selectedItem.discountType,
+                              selectedItem.discountValue
+                            ),
+                            currency
+                          )}
                         </span>
                       </div>
                       {selectedExtras.length > 0 && (
@@ -964,7 +975,7 @@ function PublicMenuPageContent() {
                                 className="font-medium"
                                 style={{ color: colors.text }}
                               >
-                                +${(extra.price || 0).toFixed(2)}
+                                +{formatPrice(extra.price ?? 0, currency)}
                               </span>
                             </div>
                           ))}
@@ -984,11 +995,10 @@ function PublicMenuPageContent() {
                           className="font-bold"
                           style={{ color: colors.text }}
                         >
-                          $
-                          {calculateTotalPrice(
-                            selectedItem,
-                            selectedExtras,
-                          ).toFixed(2)}
+                          {formatPrice(
+                            calculateTotalPrice(selectedItem, selectedExtras),
+                            currency
+                          )}
                         </span>
                       </div>
                       {itemQuantity > 1 && (
@@ -1021,11 +1031,11 @@ function PublicMenuPageContent() {
                           className="font-bold text-lg"
                           style={{ color: colors.primary }}
                         >
-                          $
-                          {(
+                          {formatPrice(
                             calculateTotalPrice(selectedItem, selectedExtras) *
-                            itemQuantity
-                          ).toFixed(2)}
+                              itemQuantity,
+                            currency
+                          )}
                         </span>
                       </div>
                       {(selectedItem.calories ||
@@ -1091,6 +1101,7 @@ function PublicMenuPageContent() {
         <div
           className={cn(
             "flex flex-col min-h-screen h-screen",
+            "md:pb-0",
             tableNumberParam && totalItems > 0 && "pb-28",
             tableNumberParam && totalItems === 0 && "pb-14",
             !tableNumberParam && totalItems > 0 && "pb-14",
@@ -1104,10 +1115,9 @@ function PublicMenuPageContent() {
             restaurantLogo={restaurant?.logo}
             restaurantName={restaurant?.name}
           />
-          <div
-            className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 py-4 sm:py-5 max-w-7xl mx-auto w-full"
+<div
+          className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 max-w-7xl mx-auto w-full md:!pb-0"
             style={{
-              // Reserve space above fixed buttons on mobile so footer never overlaps
               paddingBottom:
                 tableNumberParam && totalItems > 0
                   ? "calc(14rem + env(safe-area-inset-bottom, 0px))"
@@ -1118,14 +1128,14 @@ function PublicMenuPageContent() {
           >
             {/* Header */}
             <div className="mb-4 sm:mb-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 md:gap-6">
                 <h1
-                  className="text-xl sm:text-2xl font-bold"
+                  className="text-xl sm:text-2xl md:text-3xl font-bold"
                   style={{ color: colors.text }}
                 >
                   {t("menu.title")}
                 </h1>
-                <div className="relative flex-1 sm:max-w-md">
+                <div className="relative flex-1 sm:max-w-md md:max-w-sm lg:max-w-md">
                   <Search
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4"
                     style={{ color: colors.textSecondary }}
@@ -1234,7 +1244,7 @@ function PublicMenuPageContent() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                 {filteredCategories.map((category: any) => (
                   <button
                     key={category.id}
@@ -1251,7 +1261,7 @@ function PublicMenuPageContent() {
                     }}
                   >
                     {category.image ? (
-                      <div className="relative w-full h-32 flex-shrink-0">
+                      <div className="relative w-full h-32 md:h-36 flex-shrink-0">
                         <Image
                           src={getImageUrl(category.image)}
                           alt={category.title}
@@ -1266,20 +1276,20 @@ function PublicMenuPageContent() {
                       </div>
                     ) : (
                       <div
-                        className="w-full h-32 flex items-center justify-center flex-shrink-0"
+                        className="w-full h-32 md:h-36 flex items-center justify-center flex-shrink-0"
                         style={{ backgroundColor: `${colors.primary}10` }}
                       >
                         <span
-                          className="text-3xl font-bold"
+                          className="text-3xl md:text-4xl font-bold"
                           style={{ color: colors.primary }}
                         >
                           {category.title.charAt(0).toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between min-h-0">
+                    <div className="p-3 sm:p-4 md:p-4 flex-1 flex flex-col justify-between min-h-0">
                       <h3
-                        className="font-bold text-base sm:text-lg mb-1 line-clamp-1"
+                        className="font-bold text-base sm:text-lg md:text-xl mb-1 line-clamp-1"
                         style={{ color: colors.text }}
                       >
                         {category.title}
@@ -1307,7 +1317,8 @@ function PublicMenuPageContent() {
             disabled={requestingWaiter}
             className={cn(
               "fixed z-40 flex items-center justify-center gap-2 rounded-full py-3 px-4 font-semibold text-sm shadow-lg transition-opacity active:opacity-90",
-              totalItems > 0 ? "bottom-20" : "bottom-6",
+              "md:py-3 md:px-5 md:bottom-6",
+              totalItems > 0 ? "bottom-20 md:bottom-16" : "bottom-6",
             )}
             style={{
               right: "max(1rem, env(safe-area-inset-right))",
@@ -1331,7 +1342,7 @@ function PublicMenuPageContent() {
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="fixed left-0 right-0 bottom-0 z-40 w-full py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
+            className="fixed left-0 right-0 bottom-0 z-40 w-full md:left-1/2 md:right-auto md:bottom-6 md:w-auto md:min-w-[280px] md:max-w-md md:-translate-x-1/2 md:rounded-2xl md:shadow-xl py-3.5 px-4 text-center font-semibold text-base shadow-lg transition-opacity active:opacity-90"
             style={{
               backgroundColor: colors.primary,
               color: "white",

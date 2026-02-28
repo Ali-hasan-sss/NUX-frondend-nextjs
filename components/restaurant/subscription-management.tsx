@@ -462,7 +462,7 @@ export function SubscriptionManagement() {
       )}
 
       {/* Available Plans */}
-      <div>
+      <div className="overflow-visible">
         <h2 className="text-2xl font-bold text-foreground mb-4">
           {t("dashboard.subscription.availablePlans")}
         </h2>
@@ -491,7 +491,7 @@ export function SubscriptionManagement() {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 overflow-visible">
             {plans.map((plan) => {
               const isCurrent = currentPlan?.id === plan.id;
               const isSelected = selectedPlan === plan.id;
@@ -507,7 +507,7 @@ export function SubscriptionManagement() {
               return (
                 <Card
                   key={plan.id}
-                  className={`relative flex flex-col h-full ${
+                  className={`relative flex flex-col h-full overflow-visible ${
                     plan.title.toLowerCase().includes("premium") ||
                     plan.title.toLowerCase().includes("pro")
                       ? "border-primary shadow-lg"
@@ -520,16 +520,16 @@ export function SubscriptionManagement() {
                 >
                   {(plan.title.toLowerCase().includes("premium") ||
                     plan.title.toLowerCase().includes("pro")) && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium">
-                        Most Popular
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <span className="inline-block bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium whitespace-nowrap">
+                        {t("dashboard.subscription.mostPopular")}
                       </span>
                     </div>
                   )}
 
                   {isCurrent && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-green-600 dark:bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                      <span className="inline-block bg-green-600 dark:bg-green-500 text-white px-4 py-1 rounded-full text-sm font-medium shadow-lg whitespace-nowrap">
                         {t("dashboard.subscription.currentPlan")}
                       </span>
                     </div>

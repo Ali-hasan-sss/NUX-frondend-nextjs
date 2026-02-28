@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   fetchClientProfile,
@@ -11,7 +11,6 @@ import {
 import { logout } from "@/features/auth/authSlice";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   User,
   Phone,
@@ -20,13 +19,15 @@ import {
   Save,
   Trash2,
   Loader2,
-  AlertCircle,
+  Share2,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
 
 export default function AccountPage() {
   const dispatch = useAppDispatch();
@@ -45,6 +46,8 @@ export default function AccountPage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
+  const [shareLoading, setShareLoading] = useState(false);
+  const qrShareRef = useRef<HTMLDivElement>(null);
 
   // Load profile on mount
   useEffect(() => {
@@ -61,13 +64,78 @@ export default function AccountPage() {
     }
   }, [profile]);
 
+  // Show toast when profile load fails
+  useEffect(() => {
+    if (error.profile) {
+      toast.error(error.profile);
+    }
+  }, [error.profile]);
+
+  const handleShareMyCode = useCallback(async () => {
+    if (!profile?.qrCode || profile.qrCode.trim() === "" || !qrShareRef.current) return;
+    setShareLoading(true);
+    try {
+      const canvas = await html2canvas(qrShareRef.current, {
+        backgroundColor: "#ffffff",
+        scale: 2,
+        useCORS: true,
+      });
+      canvas.toBlob(
+        async (blob) => {
+          if (!blob) {
+            toast.error(t("account.shareFailed"));
+            setShareLoading(false);
+            return;
+          }
+          const file = new File([blob], "my-qr-code.png", { type: "image/png" });
+          const canShare =
+            "share" in navigator &&
+            (navigator.canShare?.({ files: [file] }) ?? true);
+          if (canShare) {
+            try {
+              await navigator.share({
+                files: [file],
+                title: t("account.myQRCode"),
+              });
+              toast.success(t("account.shareSuccess") || "QR code shared");
+            } catch (shareErr: any) {
+              if (shareErr?.name !== "AbortError") {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "my-qr-code.png";
+                a.click();
+                URL.revokeObjectURL(url);
+                toast.success(t("account.shareDownload") || "QR code saved");
+              }
+            }
+          } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "my-qr-code.png";
+            a.click();
+            URL.revokeObjectURL(url);
+            toast.success(t("account.shareDownload") || "QR code saved");
+          }
+          setShareLoading(false);
+        },
+        "image/png",
+        1
+      );
+    } catch (err) {
+      toast.error(t("account.shareFailed"));
+      setShareLoading(false);
+    }
+  }, [profile?.qrCode, t]);
+
   if (!mounted) {
     return null;
   }
 
   const handleSaveProfile = async () => {
     if (!name.trim() || !email.trim()) {
-      alert(t("account.fillAllFields"));
+      toast.error(t("account.fillAllFields"));
       return;
     }
 
@@ -80,28 +148,28 @@ export default function AccountPage() {
       );
 
       if (updateClientProfile.fulfilled.match(result)) {
-        alert(t("account.profileUpdated"));
+        toast.success(t("account.profileUpdated"));
       } else {
-        alert((result.payload as string) || t("account.failedToUpdateProfile"));
+        toast.error((result.payload as string) || t("account.failedToUpdateProfile"));
       }
     } catch (error: any) {
-      alert(error.message || t("account.failedToUpdateProfile"));
+      toast.error(error.message || t("account.failedToUpdateProfile"));
     }
   };
 
   const handleUpdatePassword = async () => {
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-      alert(t("account.fillAllPasswordFields"));
+      toast.error(t("account.fillAllPasswordFields"));
       return;
     }
 
     if (newPassword !== confirmNewPassword) {
-      alert(t("account.passwordsDoNotMatch"));
+      toast.error(t("account.passwordsDoNotMatch"));
       return;
     }
 
     if (newPassword.length < 6) {
-      alert(t("account.passwordMinLength"));
+      toast.error(t("account.passwordMinLength"));
       return;
     }
 
@@ -114,23 +182,23 @@ export default function AccountPage() {
       );
 
       if (changeClientPassword.fulfilled.match(result)) {
-        alert(t("account.passwordUpdated"));
+        toast.success(t("account.passwordUpdated"));
         setCurrentPassword("");
         setNewPassword("");
         setConfirmNewPassword("");
       } else {
-        alert(
+        toast.error(
           (result.payload as string) || t("account.failedToUpdatePassword")
         );
       }
     } catch (error: any) {
-      alert(error.message || t("account.failedToUpdatePassword"));
+      toast.error(error.message || t("account.failedToUpdatePassword"));
     }
   };
 
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
-      alert(t("account.enterPasswordToDelete"));
+      toast.error(t("account.enterPasswordToDelete"));
       return;
     }
 
@@ -151,14 +219,14 @@ export default function AccountPage() {
       );
 
       if (deleteClientAccount.fulfilled.match(result)) {
-        alert(t("account.accountDeleted"));
+        toast.success(t("account.accountDeleted"));
         dispatch(logout());
         router.push("/");
       } else {
-        alert((result.payload as string) || t("account.failedToDeleteAccount"));
+        toast.error((result.payload as string) || t("account.failedToDeleteAccount"));
       }
     } catch (error: any) {
-      alert(error.message || t("account.failedToDeleteAccount"));
+      toast.error(error.message || t("account.failedToDeleteAccount"));
     }
   };
 
@@ -175,14 +243,16 @@ export default function AccountPage() {
 
   if (error.profile) {
     return (
-      <div className="min-h-screen bg-transparent pb-20 px-5 py-5">
-        <Alert
-          variant="destructive"
-          className="bg-red-500/20 border-red-500 text-red-500"
+      <div className="min-h-screen bg-transparent pb-20 px-5 py-5 flex flex-col items-center justify-center gap-4">
+        <p className="text-center" style={{ color: colors.textSecondary }}>
+          {error.profile}
+        </p>
+        <Button
+          onClick={() => dispatch(fetchClientProfile())}
+          style={{ backgroundColor: colors.primary }}
         >
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error.profile}</AlertDescription>
-        </Alert>
+          {t("home.retry")}
+        </Button>
       </div>
     );
   }
@@ -295,16 +365,6 @@ export default function AccountPage() {
               </>
             )}
           </Button>
-
-          {error.updateProfile && (
-            <Alert
-              variant="destructive"
-              className="mt-4 bg-red-500/20 border-red-500 text-red-500"
-            >
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error.updateProfile}</AlertDescription>
-            </Alert>
-          )}
         </div>
 
         {/* Change Password Section */}
@@ -398,16 +458,6 @@ export default function AccountPage() {
               </>
             )}
           </Button>
-
-          {error.changePassword && (
-            <Alert
-              variant="destructive"
-              className="mt-4 bg-red-500/20 border-red-500 text-red-500"
-            >
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error.changePassword}</AlertDescription>
-            </Alert>
-          )}
         </div>
 
         {/* QR Code Section */}
@@ -425,26 +475,58 @@ export default function AccountPage() {
             {t("account.qrCodeDesc")}
           </p>
 
-          <div className="flex justify-center items-center p-5 rounded-xl bg-white">
-            {profile.qrCode && profile.qrCode.trim() !== "" ? (
-              <QRCodeSVG
-                value={profile.qrCode}
-                size={200}
-                fgColor="#000000"
-                bgColor="#ffffff"
-                level="M"
-                includeMargin={true}
-              />
-            ) : (
-              <div className="w-[200px] h-[200px] rounded-lg flex items-center justify-center bg-white">
-                <p className="text-sm text-gray-500">
-                  {loading.profile
-                    ? t("common.loading")
-                    : t("account.noQRCode")}
+          {profile.qrCode && profile.qrCode.trim() !== "" ? (
+            <div className="flex flex-col items-center">
+              <div
+                ref={qrShareRef}
+                className="inline-flex flex-col items-center p-5 rounded-xl bg-white shadow-md"
+              >
+                <QRCodeSVG
+                  value={profile.qrCode}
+                  size={200}
+                  fgColor="#000000"
+                  bgColor="#ffffff"
+                  level="M"
+                  includeMargin={true}
+                />
+                {profile.fullName && (
+                  <p className="mt-3 font-semibold text-gray-900 text-base">
+                    {profile.fullName}
+                  </p>
+                )}
+                <p className="text-sm text-gray-600 mt-1">
+                  {user?.email || profile.email}
                 </p>
               </div>
-            )}
-          </div>
+              <Button
+                onClick={handleShareMyCode}
+                disabled={shareLoading}
+                variant="outline"
+                className="w-full mt-4 gap-2 transition-colors hover:!bg-primary hover:!text-white hover:!border-primary max-w-[320px]"
+                style={{
+                  borderColor: colors.primary,
+                  color: colors.primary,
+                }}
+              >
+                {shareLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Share2 className="h-5 w-5" />
+                )}
+                {shareLoading
+                  ? t("common.loading")
+                  : t("account.shareCode")}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center p-5 rounded-xl bg-white w-[200px] h-[200px] mx-auto">
+              <p className="text-sm text-gray-500">
+                {loading.profile
+                  ? t("common.loading")
+                  : t("account.noQRCode")}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Delete Account Section */}
@@ -503,16 +585,6 @@ export default function AccountPage() {
               </>
             )}
           </Button>
-
-          {error.deleteAccount && (
-            <Alert
-              variant="destructive"
-              className="mt-4 bg-red-500/20 border-red-500 text-red-500"
-            >
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error.deleteAccount}</AlertDescription>
-            </Alert>
-          )}
         </div>
       </div>
     </div>

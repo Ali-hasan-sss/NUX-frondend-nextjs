@@ -29,13 +29,14 @@ export function Footer() {
     <footer
       id="contact"
       className={cn(
-        "py-10 px-4 md:px-0 flex items-center justify-center border-t transition-colors",
+        "py-10 w-full flex items-center justify-center border-t transition-colors",
+        "px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12",
         isDark
           ? "bg-gradient-to-b from-[#2D1B4E] to-[#0A0E27] border-purple-500/20"
           : "bg-gradient-to-b from-gray-50 to-white border-gray-200"
       )}
     >
-      <div className="container w-full">
+      <div className="container w-full max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">

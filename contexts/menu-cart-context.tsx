@@ -139,13 +139,13 @@ export function MenuCartProvider({ children }: { children: React.ReactNode }) {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => {
-    const itemPrice = item.price;
+    const itemPrice = Math.max(0, Number(item.price) || 0);
     const extrasPrice =
       item.selectedExtras?.reduce(
-        (extrasSum, extra) => extrasSum + (extra.price || 0),
+        (extrasSum, extra) => extrasSum + Math.max(0, extra.price || 0),
         0
       ) || 0;
-    return sum + (itemPrice + extrasPrice) * item.quantity;
+    return sum + Math.max(0, itemPrice + extrasPrice) * item.quantity;
   }, 0);
 
   return (

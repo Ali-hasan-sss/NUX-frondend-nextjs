@@ -57,24 +57,24 @@ export function Header() {
           : "border-gray-200 bg-white/95 bg-white/60"
       )}
     >
-      <div className="mx-auto max-w-7xl w-full px-4 md:px-6 lg:px-8 flex h-20 items-center relative">
+      <div className="mx-auto max-w-7xl w-full px-4 sm:px-5 md:px-6 lg:px-8 flex h-16 sm:h-[4.5rem] lg:h-20 items-center relative gap-2">
         {/* Logo - Larger - Left in LTR, Right in RTL */}
         <Link
           href="/"
-          className={cn("flex items-center gap-2 z-10", isRTL ? "ml-auto" : "")}
+          className={cn("flex items-center gap-2 z-10 shrink-0", isRTL ? "ml-auto" : "")}
         >
           <Image
             src="/images/logo.png"
             alt="NUX"
             width={120}
             height={60}
-            className="h-12 md:h-14 w-auto"
+            className="h-10 sm:h-11 md:h-12 lg:h-14 w-auto max-w-[100px] sm:max-w-[110px] lg:max-w-none"
             priority
           />
         </Link>
 
-        {/* Desktop Navigation Links - Centered */}
-        <nav className="hidden md:flex items-center gap-6 absolute left-1/2 transform -translate-x-1/2">
+        {/* Desktop Navigation Links - Centered (from lg only for tablet comfort) */}
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-6 absolute left-1/2 transform -translate-x-1/2">
           <Link
             href="/"
             className={cn(
@@ -155,7 +155,7 @@ export function Header() {
         {/* Desktop Right Side (LTR) / Left Side (RTL) - Language Switcher, Theme Toggle, Buttons */}
         <div
           className={cn(
-            "hidden md:flex items-center gap-4",
+            "hidden lg:flex items-center gap-3 xl:gap-4 shrink-0",
             isRTL ? "mr-auto" : "ml-auto"
           )}
         >
@@ -243,8 +243,8 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
-        <div className="flex items-center space-x-2 md:hidden">
+        {/* Mobile & Tablet Menu Button (visible until lg) */}
+        <div className={cn("flex items-center gap-1 sm:gap-2 lg:hidden", isRTL ? "mr-auto" : "ml-auto")}>
           {/* Language Switcher - Mobile */}
           <LanguageSwitcher />
 
@@ -272,17 +272,17 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile & Tablet Navigation (dropdown until lg) */}
       {isMenuOpen && (
         <div
           className={cn(
-            "md:hidden border-t transition-colors",
+            "lg:hidden border-t transition-colors",
             isDark
               ? "border-purple-500/20 bg-[#1A1F3A]"
               : "border-gray-200 bg-white"
           )}
         >
-          <nav className="container py-4 space-y-4">
+          <nav className="container py-4 px-4 sm:px-5 md:px-6 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto">
             <div className="flex flex-col space-y-3 pt-2">
               <Link
                 href="/"
@@ -377,8 +377,8 @@ export function Header() {
                       className={cn(
                         "w-full justify-start gap-2 transition-colors",
                         isDark
-                          ? "text-white border-purple-500/30 hover:bg-purple-500/20"
-                          : "text-gray-900 border-gray-300 hover:bg-gray-100"
+                          ? "bg-transparent text-white border-purple-500/50 hover:bg-purple-500/25 hover:text-white"
+                          : "bg-transparent text-gray-900 border-gray-300 hover:bg-gray-100 hover:text-gray-900"
                       )}
                     >
                       <LayoutDashboard className="h-4 w-4" />
@@ -406,8 +406,8 @@ export function Header() {
                       className={cn(
                         "w-full transition-colors",
                         isDark
-                          ? "text-white border-purple-500/30 hover:bg-purple-500/20"
-                          : "text-gray-900 border-gray-300 hover:bg-gray-100"
+                          ? "bg-transparent text-white border-purple-500/50 hover:bg-purple-500/25 hover:text-white focus-visible:ring-cyan-400/50"
+                          : "bg-transparent text-gray-900 border-gray-300 hover:bg-gray-100 hover:text-gray-900"
                       )}
                     >
                       {t("landing.auth.login") || "Login"}

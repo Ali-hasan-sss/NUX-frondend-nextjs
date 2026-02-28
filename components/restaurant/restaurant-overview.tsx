@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { QrCode, Users, TrendingUp, Bell, Star, Mail } from "lucide-react";
+import { QrCode, Users, TrendingUp, Bell, Star, Mail, Table2 } from "lucide-react";
 import { AppDispatch, RootState } from "@/app/store";
 import { fetchRestaurantOverview } from "@/features/restaurant/overview/restaurantOverviewThunks";
 import { useTranslation } from "react-i18next";
@@ -100,6 +100,16 @@ export function RestaurantOverview() {
           <Link href="/dashboard/qr-codes">
             <QrCode className="h-4 w-4" />
             <span>{t("dashboard.overview.generateQRCode")}</span>
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="flex items-center space-x-2 bg-transparent"
+        >
+          <Link href="/dashboard/table-codes">
+            <Table2 className="h-4 w-4" />
+            <span>{t("dashboard.overview.tableCodes")}</span>
           </Link>
         </Button>
         <Button

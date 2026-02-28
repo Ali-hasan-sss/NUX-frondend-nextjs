@@ -8,6 +8,7 @@ const initialState: MenuState = {
   selectedCategory: null,
   currentRestaurantId: null,
   restaurant: null,
+  currency: null,
   loading: {
     categories: false,
     items: false,
@@ -34,6 +35,7 @@ const menuSlice = createSlice({
       state.selectedCategory = null;
       state.currentRestaurantId = null;
       state.restaurant = null;
+      state.currency = null;
     },
     setSelectedCategory: (
       state,
@@ -57,6 +59,7 @@ const menuSlice = createSlice({
         const payload = action.payload;
         state.categories = payload.data ?? [];
         state.restaurant = payload.restaurant ?? null;
+        state.currency = payload.currency ?? state.currency ?? null;
         state.error.categories = null;
       })
       .addCase(fetchMenuCategories.rejected, (state, action) => {
@@ -72,7 +75,9 @@ const menuSlice = createSlice({
       })
       .addCase(fetchMenuItems.fulfilled, (state, action) => {
         state.loading.items = false;
-        state.items = action.payload;
+        const payload = action.payload;
+        state.items = Array.isArray(payload) ? payload : (payload?.data ?? []);
+        state.currency = (payload as any)?.currency ?? state.currency ?? null;
         state.error.items = null;
       })
       .addCase(fetchMenuItems.rejected, (state, action) => {

@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ChevronDown, X, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ALLERGENS, getTranslatedAllergen } from "@/data/allergens";
 
@@ -36,7 +37,17 @@ export function AllergenSelect({
 }: AllergenSelectProps) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [customInput, setCustomInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const addCustom = () => {
+    const trimmed = customInput.trim();
+    if (!trimmed) return;
+    const normalized = trimmed;
+    if (value.includes(normalized)) return;
+    onChange([...value, normalized]);
+    setCustomInput("");
+  };
 
   const toggle = (allergy: string) => {
     if (value.includes(allergy)) {
@@ -105,6 +116,29 @@ export function AllergenSelect({
                   })}
                 </CommandGroup>
               </CommandList>
+            </div>
+            <div className="p-2 border-t flex gap-2">
+              <Input
+                placeholder={t("dashboard.menu.addCustomAllergy") || "Add custom allergy..."}
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustom();
+                  }
+                }}
+                className="flex-1 min-w-0 text-sm"
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={addCustom}
+                disabled={!customInput.trim()}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
           </Command>
         </PopoverContent>

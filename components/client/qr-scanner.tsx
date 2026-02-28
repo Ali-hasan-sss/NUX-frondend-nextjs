@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { scanQrCode, clearQrScanError } from "@/features/client";
 import { useTranslation } from "react-i18next";
@@ -16,6 +17,30 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Camera, X, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { BrowserQRCodeReader } from "@zxing/browser";
 import "@/styles/qr-scanner.css";
+
+const UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
+function isMenuLink(raw: string): boolean {
+  return /\/menu\//i.test(raw.trim());
+}
+function parseMenuParams(raw: string): { qrCode: string; table?: number } {
+  const trimmed = raw.trim();
+  const uuidOnly = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(trimmed);
+  if (uuidOnly) return { qrCode: trimmed };
+  try {
+    const urlString = /^https?:\/\//i.test(trimmed)
+      ? trimmed
+      : `https://dummy.example${trimmed.startsWith("/") ? "" : "/"}${trimmed}`;
+    const url = new URL(urlString);
+    const pathMatch = url.pathname.match(/\/menu\/([0-9a-f-]{36})/i);
+    const qrCode = pathMatch ? pathMatch[1] : (trimmed.match(UUID_REGEX)?.[0] ?? trimmed);
+    const tableParam = url.searchParams.get("table");
+    const table = tableParam != null && tableParam !== "" ? parseInt(tableParam, 10) : undefined;
+    const tableValid = table != null && !isNaN(table) && table > 0;
+    return { qrCode, table: tableValid ? table : undefined };
+  } catch {
+    return { qrCode: trimmed.match(UUID_REGEX)?.[0] ?? trimmed };
+  }
+}
 
 /** Map API error message to translated string (avoids client-side exception from raw messages) */
 function getScanErrorMessage(apiMessage: string | null | undefined, t: (key: string) => string): string {
@@ -41,6 +66,7 @@ export const QRScanner = React.memo(function QRScanner({
   onScanSuccess,
 }: QRScannerProps) {
   const { t } = useTranslation();
+  const router = useRouter();
   const dispatch = useAppDispatch();
   const { loading, error } = useAppSelector((state) => state.clientBalances);
   const displayError = useMemo(
@@ -149,6 +175,15 @@ export const QRScanner = React.memo(function QRScanner({
     if (mode === "gift") {
       onOpenChange(false);
       onScanSuccess?.(qrCodeMessage);
+      return;
+    }
+
+    // Menu link: navigate to menu page (same as mobile app)
+    if (isMenuLink(qrCodeMessage)) {
+      const { qrCode, table } = parseMenuParams(qrCodeMessage);
+      onOpenChange(false);
+      const path = table != null ? `/menu/${qrCode}?table=${table}` : `/menu/${qrCode}`;
+      router.push(path);
       return;
     }
 
@@ -404,25 +439,14 @@ export const QRScanner = React.memo(function QRScanner({
   return (
     <Dialog open={open} onOpenChange={handleClose} modal>
       <DialogContent
-        className="w-[calc(100vw-2rem)] max-w-sm !max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden"
+        className="w-[calc(100vw-2rem)] max-w-sm !max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden [&>button]:left-4 [&>button]:right-auto"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader className="flex-shrink-0">
-          <div className="flex items-center justify-between gap-2 min-w-0">
-            <DialogTitle className="flex items-center gap-2 min-w-0 truncate text-base sm:text-lg">
-              <Camera className="h-5 w-5 flex-shrink-0" />
-              <span className="truncate">{t("scan.title")}</span>
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleClose}
-              className="h-8 w-8 flex-shrink-0 touch-manipulation"
-              type="button"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="flex items-center gap-2 min-w-0 truncate text-base sm:text-lg">
+            <Camera className="h-5 w-5 flex-shrink-0" />
+            <span className="truncate">{t("scan.title")}</span>
+          </DialogTitle>
           <DialogDescription className="text-left text-sm">
             {t("scan.description")}
           </DialogDescription>
@@ -479,12 +503,13 @@ export const QRScanner = React.memo(function QRScanner({
                   muted
                   className="w-full h-full object-cover rounded-xl bg-black"
                 />
-                {/* QR Frame Overlay */}
-                <div className="absolute inset-0 pointer-events-none">
-                  <div className="w-full h-full flex items-center justify-center">
-                    <div className="w-48 h-48 border-2 border-white rounded-lg shadow-lg">
-                      <div className="w-full h-full border-2 border-dashed border-white/50 rounded-lg"></div>
-                    </div>
+                {/* QR Frame Overlay - corners like mobile scanner */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  <div className="w-48 h-48 sm:w-56 sm:h-56 border-2 border-white rounded-2xl relative bg-transparent">
+                    <div className="absolute -top-0.5 -left-0.5 w-5 h-5 border-t-4 border-l-4 border-white rounded-tl-2xl" />
+                    <div className="absolute -top-0.5 -right-0.5 w-5 h-5 border-t-4 border-r-4 border-white rounded-tr-2xl" />
+                    <div className="absolute -bottom-0.5 -left-0.5 w-5 h-5 border-b-4 border-l-4 border-white rounded-bl-2xl" />
+                    <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 border-b-4 border-r-4 border-white rounded-br-2xl" />
                   </div>
                 </div>
               </div>

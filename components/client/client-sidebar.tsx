@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Tag, ShoppingBag, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useClientTheme } from "@/hooks/useClientTheme";
 
@@ -28,7 +29,7 @@ const tabs = [
   },
 ];
 
-export function ClientTabs() {
+export function ClientSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useTranslation();
@@ -39,19 +40,28 @@ export function ClientTabs() {
   }
 
   return (
-    <nav
+    <aside
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-50 border-t backdrop-blur-sm transition-colors md:hidden",
-        "pb-[env(safe-area-inset-bottom)]",
+        "hidden md:flex md:flex-col md:w-56 lg:w-64 shrink-0 border-r",
         isDark
-          ? "bg-[rgba(26,31,58,0.95)] shadow-[0_-2px_8px_rgba(0,0,0,0.3)]"
-          : "bg-[rgba(255,255,255,0.95)] shadow-[0_-2px_8px_rgba(0,0,0,0.1)]"
+          ? "bg-[rgba(26,31,58,0.98)] border-gray-700"
+          : "bg-[rgba(255,255,255,0.98)] border-gray-200"
       )}
       style={{
-        borderTopColor: colors.border,
+        backgroundColor: colors.background,
+        borderRightColor: colors.border,
       }}
     >
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="p-4 border-b" style={{ borderBottomColor: colors.border }}>
+        <Image
+          src="/images/logo.png"
+          alt="Logo"
+          width={100}
+          height={50}
+          className="object-contain w-full h-auto"
+        />
+      </div>
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = pathname === tab.path;
@@ -60,22 +70,23 @@ export function ClientTabs() {
               key={tab.id}
               onClick={() => router.push(tab.path)}
               className={cn(
-                "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors flex-1",
+                "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-left",
                 isActive
-                  ? "text-[#00D9FF]"
+                  ? "text-white"
                   : isDark
-                  ? "text-[rgba(255,255,255,0.75)]"
-                  : "text-[rgba(26,26,26,0.75)]"
+                    ? "text-white/75 hover:bg-white/10 hover:text-white"
+                    : "text-gray-700 hover:bg-gray-100"
               )}
+              style={{
+                backgroundColor: isActive ? colors.primary : undefined,
+              }}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-xs font-medium">
-                {t(tab.translationKey)}
-              </span>
+              <Icon className="h-5 w-5 shrink-0" />
+              <span className="font-medium">{t(tab.translationKey)}</span>
             </button>
           );
         })}
-      </div>
-    </nav>
+      </nav>
+    </aside>
   );
 }
