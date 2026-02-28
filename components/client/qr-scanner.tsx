@@ -439,14 +439,26 @@ export const QRScanner = React.memo(function QRScanner({
   return (
     <Dialog open={open} onOpenChange={handleClose} modal>
       <DialogContent
-        className="w-[calc(100vw-2rem)] max-w-sm !max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden [&>button]:left-4 [&>button]:right-auto"
+        className="w-[calc(100vw-2rem)] max-w-sm !max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden"
+        hideCloseButton
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle className="flex items-center gap-2 min-w-0 truncate text-base sm:text-lg">
-            <Camera className="h-5 w-5 flex-shrink-0" />
-            <span className="truncate">{t("scan.title")}</span>
-          </DialogTitle>
+        <DialogHeader className="flex-shrink-0 space-y-1">
+          <div className="flex items-center justify-between gap-2">
+            <DialogTitle className="flex items-center gap-2 min-w-0 truncate text-base sm:text-lg">
+              <Camera className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate">{t("scan.title")}</span>
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleClose}
+              className="h-9 w-9 shrink-0 rounded-full"
+              aria-label={t("scan.cancel")}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
           <DialogDescription className="text-left text-sm">
             {t("scan.description")}
           </DialogDescription>

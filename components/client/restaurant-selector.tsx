@@ -93,6 +93,7 @@ export function RestaurantSelector({
             "max-w-md max-h-[70vh] p-0 transition-colors",
             isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
           )}
+          hideCloseButton
           style={{
             borderColor: colors.border,
           }}
