@@ -142,7 +142,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      <GoogleSignInButton mode="signin" className="flex justify-center" />
+      <GoogleSignInButton mode="signin" className="w-full" />
 
       <div className="space-y-3 pt-2">
         {error && (error.includes("verify") || error.includes("verif")) && (

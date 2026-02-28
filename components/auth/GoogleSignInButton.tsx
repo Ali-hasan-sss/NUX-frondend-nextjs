@@ -51,7 +51,13 @@ export function GoogleSignInButton({
       : undefined;
 
   return (
-    <div className={cn("flex w-full justify-center", className)}>
+    <div
+      dir="ltr"
+      className={cn(
+        "flex w-full justify-center items-center rounded-xl border border-input bg-background min-h-[3rem] py-1 overflow-hidden",
+        className
+      )}
+    >
       <GoogleLogin
         onSuccess={(res) => handleSuccess(res?.credential)}
         onError={() => {
@@ -62,13 +68,13 @@ export function GoogleSignInButton({
         size="large"
         text={mode === "signup" ? "signup_with" : "signin_with"}
         shape="rectangular"
-        width="280"
+        width="320"
         use_fedcm_for_button={false}
         ux_mode={useRedirect ? "redirect" : "popup"}
         {...(useRedirect && loginUri ? { login_uri: loginUri } : {})}
         containerProps={{
-          className: "flex justify-center",
-          style: { minHeight: 48 },
+          className: "!w-full !flex !justify-center !min-h-[2.5rem] [&>div]:!min-h-[2.5rem]",
+          style: { minHeight: 40, width: "100%" },
         }}
       />
     </div>

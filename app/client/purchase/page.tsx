@@ -302,12 +302,12 @@ export default function PurchasePage() {
               </div>
             </div>
             {currentBalance.mealPerVoucher > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {Array.from({ length: currentBalance.mealPerVoucher }, (_, i) => (
                   <div
                     key={`meal-${i}`}
                     className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center border-2",
+                      "shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2",
                       i < currentBalance.mealTowardNext
                         ? "border-transparent"
                         : "border-dashed"
@@ -357,12 +357,12 @@ export default function PurchasePage() {
               </div>
             </div>
             {currentBalance.drinkPerVoucher > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {Array.from({ length: currentBalance.drinkPerVoucher }, (_, i) => (
                   <div
                     key={`drink-${i}`}
                     className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center border-2",
+                      "shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2",
                       i < currentBalance.drinkTowardNext
                         ? "border-transparent"
                         : "border-dashed"

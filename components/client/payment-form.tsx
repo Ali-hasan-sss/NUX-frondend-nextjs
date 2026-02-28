@@ -179,6 +179,7 @@ export function PaymentForm({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        hideCloseButton
         className={cn(
           "max-w-md max-h-[90vh] overflow-y-auto p-0 transition-colors",
           isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"

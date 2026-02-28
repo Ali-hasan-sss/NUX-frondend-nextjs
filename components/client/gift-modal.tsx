@@ -335,6 +335,7 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
+          hideCloseButton
           className={cn(
             "w-[calc(100vw-2rem)] max-w-md max-h-[90vh] overflow-y-auto p-0 transition-colors",
             isDark ? "bg-[rgba(26,31,58,0.95)]" : "bg-[rgba(255,255,255,0.95)]"
