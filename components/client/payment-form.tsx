@@ -15,7 +15,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Coffee,
   UtensilsCrossed,
-  Wallet,
   X,
   Loader2,
   AlertCircle,
@@ -28,7 +27,7 @@ import { useClientTheme } from "@/hooks/useClientTheme";
 interface PaymentFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialPaymentType?: "drink" | "meal" | "wallet";
+  initialPaymentType?: "drink" | "meal";
   restaurantId?: string;
   onPaymentSuccess?: (result: any) => void;
 }
@@ -36,7 +35,7 @@ interface PaymentFormProps {
 export function PaymentForm({
   open,
   onOpenChange,
-  initialPaymentType = "wallet",
+  initialPaymentType = "meal",
   restaurantId,
   onPaymentSuccess,
 }: PaymentFormProps) {
@@ -46,9 +45,9 @@ export function PaymentForm({
   const { userBalances, loading, error } = useAppSelector(
     (state) => state.clientBalances
   );
-  const [selectedPaymentType, setSelectedPaymentType] = useState<
-    "drink" | "meal" | "wallet"
-  >(initialPaymentType);
+  const [selectedPaymentType, setSelectedPaymentType] = useState<"drink" | "meal">(
+    initialPaymentType ?? "meal"
+  );
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -86,8 +85,6 @@ export function PaymentForm({
   useEffect(() => {
     if (useVoucherAmount && pointsPerVoucher) {
       setAmount(String(pointsPerVoucher));
-    } else if (selectedPaymentType === "wallet") {
-      setAmount("");
     }
   }, [selectedPaymentType, useVoucherAmount, pointsPerVoucher]);
 
@@ -95,23 +92,12 @@ export function PaymentForm({
     return null;
   }
 
-  // Calculate balances for selected restaurant
   const currentBalance = {
-    walletBalance: selectedRestaurantBalance?.balance || 0,
     mealPoints: selectedRestaurantBalance?.stars_meal || 0,
     drinkPoints: selectedRestaurantBalance?.stars_drink || 0,
   };
 
-  // Payment options
   const paymentOptions = [
-    {
-      type: "wallet" as const,
-      label: t("payment.walletBalance"),
-      icon: Wallet,
-      balance: currentBalance.walletBalance,
-      color: colors.success,
-      prefix: "$",
-    },
     {
       type: "drink" as const,
       label: t("payment.drinkPoints"),
@@ -145,7 +131,6 @@ export function PaymentForm({
     setIsProcessing(true);
     try {
       const currencyTypeMap = {
-        wallet: "balance" as const,
         meal: "stars_meal" as const,
         drink: "stars_drink" as const,
       };
@@ -338,13 +323,9 @@ export function PaymentForm({
               <>
                 <Input
                   type="number"
-                  step={selectedPaymentType === "wallet" ? "0.01" : "1"}
+                  step="1"
                   min="0"
-                  placeholder={
-                    selectedPaymentType === "wallet"
-                      ? "0.00"
-                      : t("payment.enterPoints")
-                  }
+                  placeholder={t("payment.enterPoints")}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   disabled={isProcessing}

@@ -8,7 +8,8 @@
     "welcomeToNux": "مرحباً بك في nux",
     "scanCode": "مسح الرمز",
     "scanCodeDesc": "امسح رمز QR الخاص بالمطعم",
-    "payWallet": "ادفع من المحفظة",
+    "payWallet": "ادفع بنقاط الولاء",
+    "openWalletPage": "محفظة التطبيق (يورو)",
     "selectRestaurantFirst": "اختر مطعماً أولاً",
     "noBalances": "لا توجد أرصدة",
     "noBalancesDesc": "امسح رموز QR لبدء جمع النقاط!",
@@ -18,7 +19,8 @@
   "tabs": {
     "home": "الرئيسية",
     "promotions": "العروض",
-    "purchase": "المحفظة",
+    "purchase": "الولاء",
+    "wallet": "المحفظة",
     "account": "الحساب"
   },
   "restaurant": {
@@ -134,7 +136,61 @@
     "deleting": "جاري الحذف",
     "accountDeleted": "تم حذف حسابك بنجاح",
     "failedToDeleteAccount": "فشل حذف الحساب",
-    "deleteAccountConfirm": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء."
+    "deleteAccountConfirm": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+    "walletCardTitle": "محفظة التطبيق",
+    "walletCardDesc": "إضافة رصيد، الدفع في المطاعم، وطلبات السحب",
+    "openWallet": "فتح المحفظة"
+  },
+  "wallet": {
+    "title": "المحفظة",
+    "subtitle": "رصيدك يعمل في كل مطاعم NUX.",
+    "balance": "الرصيد المتاح",
+    "addFunds": "إضافة رصيد",
+    "payRestaurant": "دفع لمطعم",
+    "requestWithdrawal": "طلب سحب",
+    "transactions": "النشاط",
+    "loadMore": "تحميل المزيد",
+    "noTransactions": "لا توجد معاملات بعد",
+    "credit": "إيداع",
+    "debit": "خصم",
+    "source": "المصدر",
+    "amount": "المبلغ",
+    "amountEur": "المبلغ (يورو)",
+    "continueToPayment": "متابعة للدفع",
+    "confirmPayment": "تأكيد الدفع",
+    "topUpSuccess": "تم الدفع بنجاح.",
+    "topUpSyncPending": "تم الدفع لكن تعذر مزامنة الرصيد. حدّث الصفحة لاحقاً أو تحقق من الاتصال؛ قد يُضاف الرصيد تلقائياً عبر Stripe.",
+    "topUpFailed": "فشل الدفع",
+    "minAmount": "الحد الأدنى للمبلغ 1 يورو",
+    "stripeNotConfigured": "Stripe غير مُعد. اضبط NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY لشحن البطاقة.",
+    "noClientSecret": "تعذر بدء الدفع بالبطاقة",
+    "selectRestaurant": "اختر مطعماً",
+    "searchRestaurant": "البحث عن مطاعم…",
+    "invalidAmount": "أدخل مبلغاً صالحاً",
+    "available": "متاح",
+    "paySuccess": "تم إرسال الدفع للمطعم",
+    "withdrawSubmitted": "تم إرسال طلب السحب للمراجعة",
+    "withdrawHint": "سيراجع المسؤول طلبك. لا يُخصم شيء حتى الموافقة.",
+    "fillPayoutDetails": "أدخل IBAN واسم صاحب الحساب",
+    "accountHolder": "اسم صاحب الحساب",
+    "submitRequest": "إرسال الطلب",
+    "appWalletBalance": "محفظة التطبيق (يورو)",
+    "legacyPerRestaurant": "رصيد المال لكل مطعم لم يعد يُستخدم للدفع. استخدم محفظة التطبيق أدناه.",
+    "payWithAppWallet": "الدفع بمحفظة التطبيق",
+    "addFundsShort": "إضافة يورو",
+    "groupWalletHint": "الدفع بمحفظة التطبيق يتطلب مطعماً واحداً (وليس مجموعة). افتح صفحة المحفظة لاختيار أي مطعم.",
+    "ledgerDesc": {
+      "restaurantOrderCredit": "دفع من عميل",
+      "restaurantOrderDebit": "خصم مرتبط بطلب",
+      "userOrderDebit": "دفع لمطعم",
+      "userOrderCredit": "استرداد أو رصيد من طلب",
+      "topUpCardUser": "شحن المحفظة بالبطاقة",
+      "topUpCardRestaurant": "شحن محفظة المطعم بالبطاقة",
+      "topUpPaypal": "شحن المحفظة عبر PayPal",
+      "withdrawalDebit": "سحب",
+      "adminCredit": "تعديل رصيد (إيداع)",
+      "adminDebit": "تعديل رصيد (خصم)"
+    }
   },
   "scan": {
     "title": "مسح رمز QR",
@@ -714,6 +770,7 @@
       "packages": "الباقات",
       "ads": "الإعلانات",
       "groups": "المجموعات",
+      "wallet": "المحفظة",
       "signOut": "تسجيل الخروج"
     },
     "orders": {
@@ -1014,6 +1071,17 @@
       "items": "عنصر",
       "notSpecified": "غير محدد",
       "email": "البريد الإلكتروني"
+    },
+    "wallet": {
+      "title": "المحفظة (مدفوعات العملاء)",
+      "description": "رصيد من العملاء الذين يدفعون بمحفظة التطبيق في مطعمك. التحويلات تُدار وفقاً لاتفاقك مع المنصة.",
+      "pageDescription": "رصيد من مدفوعات محفظة العملاء وشحن البطاقة والسحوبات المعتمدة — نفس أدوات دفتر المحفظة كمحفظة المستخدم.",
+      "activityHint": "تظهر أدناه الإيداعات والخصومات. يمكنك الشحن بالبطاقة أو طلب تحويل بنكي.",
+      "balance": "الرصيد",
+      "loadError": "تعذر تحميل رصيد المحفظة",
+      "transactionsError": "تعذر تحميل الحركات",
+      "withdrawError": "فشل إرسال طلب السحب",
+      "refresh": "تحديث"
     },
     "settings": {
       "title": "إعدادات المطعم",

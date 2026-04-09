@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Tag, ShoppingBag, User } from "lucide-react";
+import { Home, Tag, ShoppingBag, User, WalletCards } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useClientTheme } from "@/hooks/useClientTheme";
@@ -19,6 +19,12 @@ const tabs = [
     translationKey: "tabs.purchase",
     icon: ShoppingBag,
     path: "/client/purchase",
+  },
+  {
+    id: "wallet",
+    translationKey: "tabs.wallet",
+    icon: WalletCards,
+    path: "/client/wallet",
   },
   {
     id: "account",
@@ -54,7 +60,10 @@ export function ClientTabs() {
       <div className="flex items-center justify-around px-2 py-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = pathname === tab.path;
+          const isActive =
+            tab.path === "/client/wallet"
+              ? pathname.startsWith("/client/wallet")
+              : pathname === tab.path;
           return (
             <button
               key={tab.id}

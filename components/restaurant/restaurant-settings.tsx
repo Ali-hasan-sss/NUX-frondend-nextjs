@@ -45,6 +45,7 @@ import GoogleMapPicker from "@/components/common/GoogleMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
 import { cn } from "@/lib/utils";
 import { fetchKitchenSections } from "@/features/restaurant/menu/menuThunks";
+import { RestaurantWalletPanel } from "@/components/restaurant/restaurant-wallet-panel";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { Plus, Pencil, Trash2, ChefHat, Ticket } from "lucide-react";
 import ConfirmDialog from "@/components/confirmMessage";
@@ -508,6 +509,8 @@ export function RestaurantSettings() {
           {t("dashboard.settings.description")}
         </p>
       </div>
+
+      <RestaurantWalletPanel />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Restaurant Information */}

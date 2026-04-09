@@ -8,7 +8,8 @@
     "welcomeToNux": "Welcome to nux",
     "scanCode": "Scan Code",
     "scanCodeDesc": "Scan restaurant QR code",
-    "payWallet": "Pay with Wallet",
+    "payWallet": "Pay with loyalty stars",
+    "openWalletPage": "App wallet (EUR)",
     "selectRestaurantFirst": "Select Restaurant First",
     "noBalances": "No Balances",
     "noBalancesDesc": "Scan QR codes to start earning points!",
@@ -18,7 +19,8 @@
   "tabs": {
     "home": "Home",
     "promotions": "Promotions",
-    "purchase": "Wallet",
+    "purchase": "Loyalty",
+    "wallet": "Wallet",
     "account": "Account"
   },
   "restaurant": {
@@ -134,7 +136,61 @@
     "deleting": "Deleting",
     "accountDeleted": "Your account has been deleted successfully",
     "failedToDeleteAccount": "Failed to delete account",
-    "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone."
+    "deleteAccountConfirm": "Are you sure you want to delete your account? This action cannot be undone.",
+    "walletCardTitle": "App wallet",
+    "walletCardDesc": "Top up, pay at restaurants, and request withdrawals",
+    "openWallet": "Open wallet"
+  },
+  "wallet": {
+    "title": "Wallet",
+    "subtitle": "Your balance works at every restaurant on NUX.",
+    "balance": "Available balance",
+    "addFunds": "Add funds",
+    "payRestaurant": "Pay a restaurant",
+    "requestWithdrawal": "Request withdrawal",
+    "transactions": "Activity",
+    "loadMore": "Load more",
+    "noTransactions": "No transactions yet",
+    "credit": "Credit",
+    "debit": "Debit",
+    "source": "Source",
+    "amount": "Amount",
+    "amountEur": "Amount (EUR)",
+    "continueToPayment": "Continue to payment",
+    "confirmPayment": "Confirm payment",
+    "topUpSuccess": "Payment successful.",
+    "topUpSyncPending": "Payment succeeded but balance sync failed. Refresh in a moment or check your connection; the webhook may still apply the credit.",
+    "topUpFailed": "Payment failed",
+    "minAmount": "Minimum amount is 1 EUR",
+    "stripeNotConfigured": "Stripe is not configured. Set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY for card top-ups.",
+    "noClientSecret": "Could not start card payment",
+    "selectRestaurant": "Select a restaurant",
+    "searchRestaurant": "Search restaurants…",
+    "invalidAmount": "Enter a valid amount",
+    "available": "Available",
+    "paySuccess": "Payment sent to the restaurant",
+    "withdrawSubmitted": "Withdrawal request submitted for review",
+    "withdrawHint": "An administrator will review your request. You are not charged until approval.",
+    "fillPayoutDetails": "Fill IBAN and account holder",
+    "accountHolder": "Account holder name",
+    "submitRequest": "Submit request",
+    "appWalletBalance": "App wallet (EUR)",
+    "legacyPerRestaurant": "Per-restaurant money balance is no longer used for payment. Use your app wallet below.",
+    "payWithAppWallet": "Pay with app wallet",
+    "addFundsShort": "Add EUR",
+    "groupWalletHint": "Paying with the app wallet requires a single restaurant (not a group). Open the wallet page to choose any restaurant.",
+    "ledgerDesc": {
+      "restaurantOrderCredit": "Payment from customer",
+      "restaurantOrderDebit": "Order-related debit",
+      "userOrderDebit": "Payment to a restaurant",
+      "userOrderCredit": "Order refund or credit",
+      "topUpCardUser": "Wallet top-up (card)",
+      "topUpCardRestaurant": "Restaurant wallet top-up (card)",
+      "topUpPaypal": "Wallet top-up (PayPal)",
+      "withdrawalDebit": "Withdrawal",
+      "adminCredit": "Balance adjustment (credit)",
+      "adminDebit": "Balance adjustment (debit)"
+    }
   },
   "scan": {
     "title": "Scan QR Code",
@@ -714,6 +770,7 @@
       "packages": "Packages",
       "ads": "Ads",
       "groups": "Groups",
+      "wallet": "Wallet",
       "signOut": "Sign Out"
     },
     "orders": {
@@ -1014,6 +1071,17 @@
       "items": "items",
       "notSpecified": "Not specified",
       "email": "Email"
+    },
+    "wallet": {
+      "title": "Wallet (customer payments)",
+      "description": "Balance from customers who pay with their app wallet at your restaurant. Payouts are handled separately by your agreement with the platform.",
+      "pageDescription": "Balance from customer wallet payments, card top-ups, and approved withdrawals — same ledger tools as the customer app wallet.",
+      "activityHint": "Credits and debits are listed below. Top up by card or request a bank payout.",
+      "balance": "Balance",
+      "loadError": "Could not load wallet balance",
+      "transactionsError": "Could not load activity",
+      "withdrawError": "Withdrawal request failed",
+      "refresh": "Refresh"
     },
     "settings": {
       "title": "Restaurant Settings",

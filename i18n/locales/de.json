@@ -8,7 +8,8 @@
     "welcomeToNux": "Willkommen bei nux",
     "scanCode": "Code scannen",
     "scanCodeDesc": "Restaurant QR-Code scannen",
-    "payWallet": "Mit Geldbörse bezahlen",
+    "payWallet": "Mit Treue-Sternen zahlen",
+    "openWalletPage": "App-Wallet (EUR)",
     "selectRestaurantFirst": "Wählen Sie zuerst ein Restaurant aus",
     "noBalances": "Keine Guthaben",
     "noBalancesDesc": "Scannen Sie QR-Codes, um Punkte zu sammeln!",
@@ -18,7 +19,8 @@
   "tabs": {
     "home": "Startseite",
     "promotions": "Angebote",
-    "purchase": "Wallet",
+    "purchase": "Treue",
+    "wallet": "Wallet",
     "account": "Konto"
   },
   "restaurant": {
@@ -134,7 +136,61 @@
     "deleting": "Wird gelöscht",
     "accountDeleted": "Ihr Konto wurde erfolgreich gelöscht",
     "failedToDeleteAccount": "Konto konnte nicht gelöscht werden",
-    "deleteAccountConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden."
+    "deleteAccountConfirm": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "walletCardTitle": "App-Wallet",
+    "walletCardDesc": "Aufladen, in Restaurants zahlen und Auszahlungen beantragen",
+    "openWallet": "Wallet öffnen"
+  },
+  "wallet": {
+    "title": "Wallet",
+    "subtitle": "Ihr Guthaben gilt in allen NUX-Restaurants.",
+    "balance": "Verfügbares Guthaben",
+    "addFunds": "Guthaben aufladen",
+    "payRestaurant": "Restaurant bezahlen",
+    "requestWithdrawal": "Auszahlung beantragen",
+    "transactions": "Aktivität",
+    "loadMore": "Mehr laden",
+    "noTransactions": "Noch keine Transaktionen",
+    "credit": "Gutschrift",
+    "debit": "Belastung",
+    "source": "Quelle",
+    "amount": "Betrag",
+    "amountEur": "Betrag (EUR)",
+    "continueToPayment": "Weiter zur Zahlung",
+    "confirmPayment": "Zahlung bestätigen",
+    "topUpSuccess": "Zahlung erfolgreich.",
+    "topUpSyncPending": "Zahlung OK, aber Synchronisierung fehlgeschlagen. Seite später aktualisieren oder Verbindung prüfen; der Webhook kann das Guthaben noch gutschreiben.",
+    "topUpFailed": "Zahlung fehlgeschlagen",
+    "minAmount": "Mindestbetrag ist 1 EUR",
+    "stripeNotConfigured": "Stripe ist nicht konfiguriert. Setzen Sie NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY für Kartenaufladung.",
+    "noClientSecret": "Kartenzahlung konnte nicht gestartet werden",
+    "selectRestaurant": "Restaurant auswählen",
+    "searchRestaurant": "Restaurants suchen…",
+    "invalidAmount": "Geben Sie einen gültigen Betrag ein",
+    "available": "Verfügbar",
+    "paySuccess": "Zahlung an das Restaurant gesendet",
+    "withdrawSubmitted": "Auszahlungsantrag zur Prüfung eingereicht",
+    "withdrawHint": "Ein Administrator prüft Ihren Antrag. Es wird nichts abgebucht, bis zur Freigabe.",
+    "fillPayoutDetails": "IBAN und Kontoinhaber angeben",
+    "accountHolder": "Kontoinhaber",
+    "submitRequest": "Antrag senden",
+    "appWalletBalance": "App-Wallet (EUR)",
+    "legacyPerRestaurant": "Pro-Restaurant-Geldguthaben wird für Zahlungen nicht mehr genutzt. Nutzen Sie unten die App-Wallet.",
+    "payWithAppWallet": "Mit App-Wallet zahlen",
+    "addFundsShort": "EUR aufladen",
+    "groupWalletHint": "Zahlung mit der App-Wallet erfordert ein einzelnes Restaurant (keine Gruppe). Öffnen Sie die Wallet-Seite, um ein Restaurant zu wählen.",
+    "ledgerDesc": {
+      "restaurantOrderCredit": "Zahlung von einem Kunden",
+      "restaurantOrderDebit": "Bestellungsbezogene Belastung",
+      "userOrderDebit": "Zahlung an ein Restaurant",
+      "userOrderCredit": "Bestellungsrückerstattung oder Gutschrift",
+      "topUpCardUser": "Wallet-Aufladung (Karte)",
+      "topUpCardRestaurant": "Restaurant-Wallet-Aufladung (Karte)",
+      "topUpPaypal": "Wallet-Aufladung (PayPal)",
+      "withdrawalDebit": "Auszahlung",
+      "adminCredit": "Guthabenanpassung (Gutschrift)",
+      "adminDebit": "Guthabenanpassung (Belastung)"
+    }
   },
   "scan": {
     "title": "QR-Code scannen",
@@ -585,6 +641,7 @@
       "packages": "Pakete",
       "ads": "Anzeigen",
       "groups": "Gruppen",
+      "wallet": "Wallet",
       "signOut": "Abmelden"
     },
     "orders": {
@@ -884,6 +941,17 @@
       "items": "Elemente",
       "notSpecified": "Nicht angegeben",
       "email": "E-Mail"
+    },
+    "wallet": {
+      "title": "Wallet (Kundenzahlungen)",
+      "description": "Guthaben von Kunden, die in Ihrem Restaurant mit der App-Wallet zahlen. Auszahlungen erfolgen gemäß Ihrer Vereinbarung mit der Plattform.",
+      "pageDescription": "Guthaben aus Kunden-Wallet-Zahlungen, Kartenaufladungen und genehmigten Auszahlungen — dieselben Funktionen wie in der Kunden-Wallet.",
+      "activityHint": "Gutschriften und Belastungen sehen Sie unten. Aufladen per Karte oder Bankauszahlung beantragen.",
+      "balance": "Guthaben",
+      "loadError": "Wallet-Guthaben konnte nicht geladen werden",
+      "transactionsError": "Aktivität konnte nicht geladen werden",
+      "withdrawError": "Auszahlungsantrag fehlgeschlagen",
+      "refresh": "Aktualisieren"
     },
     "settings": {
       "title": "Restaurant-Einstellungen",

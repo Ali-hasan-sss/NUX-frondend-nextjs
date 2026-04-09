@@ -28,6 +28,7 @@ import {
   FileText,
   ChevronDown,
   Wallet,
+  WalletCards,
   Store,
   ChevronUp,
   ShoppingCart,
@@ -72,6 +73,11 @@ export function RestaurantSidebar({
       name: t("dashboard.sidebar.invoices"),
       href: "/dashboard/invoices",
       icon: FileText,
+    },
+    {
+      name: t("dashboard.sidebar.wallet"),
+      href: "/dashboard/wallet",
+      icon: WalletCards,
     },
     {
       name: t("dashboard.sidebar.settings"),

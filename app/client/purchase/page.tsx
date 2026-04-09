@@ -2,11 +2,18 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { fetchUserBalances, fetchClientProfile } from "@/features/client";
+import {
+  fetchUserBalances,
+  fetchClientProfile,
+  fetchWalletBalance,
+} from "@/features/client";
 import { RestaurantSelector } from "@/components/client/restaurant-selector";
 import { PaymentForm } from "@/components/client/payment-form";
 import { GiftModal } from "@/components/client/gift-modal";
 import { PackagesModal } from "@/components/client/packages-modal";
+import { WalletTopUpDialog } from "@/components/client/wallet-top-up-dialog";
+import { WalletPayRestaurantDialog } from "@/components/client/wallet-pay-restaurant-dialog";
+import Link from "next/link";
 import {
   CreditCard,
   Gift,
@@ -34,14 +41,17 @@ export default function PurchasePage() {
   const { userBalances, loading, error } = useAppSelector(
     (state) => state.clientBalances
   );
+  const { balance: appWalletBalance, loading: walletLoading } = useAppSelector(
+    (state) => state.clientWallet
+  );
   const { profile: clientProfile, loading: profileLoading } = useAppSelector(
     (state) => state.clientAccount
   );
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string>("");
   const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<
-    "drink" | "meal" | "wallet"
-  >("wallet");
+  const [selectedPaymentType, setSelectedPaymentType] = useState<"drink" | "meal">("meal");
+  const [walletTopUpOpen, setWalletTopUpOpen] = useState(false);
+  const [walletPayOpen, setWalletPayOpen] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showPackagesModal, setShowPackagesModal] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
@@ -110,6 +120,7 @@ export default function PurchasePage() {
     if (user?.role === "USER") {
       dispatch(fetchUserBalances());
       dispatch(fetchClientProfile());
+      dispatch(fetchWalletBalance());
     }
   }, [dispatch, user]);
 
@@ -158,8 +169,9 @@ export default function PurchasePage() {
   const mealTowardNext = mealPerVoucher > 0 ? mealStars - mealVouchers * mealPerVoucher : 0;
   const drinkTowardNext = drinkPerVoucher > 0 ? drinkStars - drinkVouchers * drinkPerVoucher : 0;
 
+  const isGroupBalance = Boolean(bal?.isGroup);
+
   const currentBalance = {
-    walletBalance: bal?.balance ?? 0,
     mealPoints: mealStars,
     drinkPoints: drinkStars,
     mealVouchers,
@@ -178,7 +190,6 @@ export default function PurchasePage() {
       id,
       name: name || "Unknown Restaurant",
       userBalance: {
-        walletBalance: balance.balance || 0,
         mealPoints: balance.stars_meal || 0,
         drinkPoints: balance.stars_drink || 0,
       },
@@ -207,12 +218,6 @@ export default function PurchasePage() {
       return;
     }
     setShowGiftModal(true);
-  };
-
-  const handlePayWithWallet = () => {
-    if (!selectedRestaurant) return;
-    setSelectedPaymentType("wallet");
-    setShowPaymentForm(true);
   };
 
   return (
@@ -383,31 +388,69 @@ export default function PurchasePage() {
             )}
           </div>
 
-          {/* Wallet Balance Card */}
+          <p className="text-xs px-1" style={{ color: colors.textSecondary }}>
+            {t("wallet.legacyPerRestaurant")}
+          </p>
+
+          {/* App wallet (EUR) */}
           <div
-            className={cn(
-              "rounded-2xl p-4 flex items-center gap-4",
-              "shadow-lg"
-            )}
+            className={cn("rounded-2xl p-4 flex flex-col gap-3 shadow-lg")}
             style={{ backgroundColor: colors.surface }}
           >
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: `${colors.success}20` }}
-            >
-              <Wallet className="h-6 w-6" style={{ color: colors.success }} />
-            </div>
-            <div className="flex-1">
-              <p
-                className="text-xs mb-1"
-                style={{ color: colors.textSecondary }}
+            <div className="flex items-center gap-4">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${colors.success}20` }}
               >
-                {t("purchase.walletBalance")}
-              </p>
-              <p className="text-2xl font-bold" style={{ color: colors.text }}>
-                ${currentBalance.walletBalance.toFixed(2)}
-              </p>
+                <Wallet className="h-6 w-6" style={{ color: colors.success }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs mb-1" style={{ color: colors.textSecondary }}>
+                  {t("wallet.appWalletBalance")}
+                </p>
+                {walletLoading.balance && !appWalletBalance ? (
+                  <Loader2 className="h-6 w-6 animate-spin" style={{ color: colors.primary }} />
+                ) : (
+                  <p className="text-2xl font-bold tabular-nums" style={{ color: colors.text }}>
+                    {appWalletBalance?.balance ?? "—"} {appWalletBalance?.currency ?? "EUR"}
+                  </p>
+                )}
+              </div>
             </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setWalletTopUpOpen(true)}
+                className="px-4 py-2 rounded-xl text-sm font-semibold text-white"
+                style={{ backgroundColor: colors.primary }}
+              >
+                {t("wallet.addFundsShort")}
+              </button>
+              <button
+                type="button"
+                disabled={isGroupBalance}
+                onClick={() => !isGroupBalance && setWalletPayOpen(true)}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-sm font-semibold text-white",
+                  isGroupBalance && "opacity-50 cursor-not-allowed"
+                )}
+                style={{ backgroundColor: colors.secondary }}
+              >
+                {t("wallet.payWithAppWallet")}
+              </button>
+              <Link
+                href="/client/wallet"
+                className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold border"
+                style={{ borderColor: colors.border, color: colors.text }}
+              >
+                {t("account.openWallet")}
+              </Link>
+            </div>
+            {isGroupBalance && (
+              <p className="text-xs" style={{ color: colors.textSecondary }}>
+                {t("wallet.groupWalletHint")}
+              </p>
+            )}
           </div>
         </div>
       )}
@@ -581,6 +624,16 @@ export default function PurchasePage() {
           open={showPackagesModal}
           onOpenChange={setShowPackagesModal}
           restaurantId={selectedRestaurant.id}
+        />
+      )}
+
+      <WalletTopUpDialog open={walletTopUpOpen} onOpenChange={setWalletTopUpOpen} />
+      {selectedRestaurant && (
+        <WalletPayRestaurantDialog
+          open={walletPayOpen}
+          onOpenChange={setWalletPayOpen}
+          fixedRestaurantId={isGroupBalance ? undefined : selectedRestaurant.id}
+          fixedRestaurantName={isGroupBalance ? undefined : selectedRestaurant.name}
         />
       )}
     </div>

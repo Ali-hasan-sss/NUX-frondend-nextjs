@@ -16,7 +16,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Coffee,
   UtensilsCrossed,
-  Wallet,
   X,
   Camera,
   Loader2,
@@ -43,9 +42,7 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
   const { userBalances, loading, error } = useAppSelector(
     (state) => state.clientBalances
   );
-  const [selectedGiftType, setSelectedGiftType] = useState<
-    "wallet" | "drink" | "meal"
-  >("wallet");
+  const [selectedGiftType, setSelectedGiftType] = useState<"drink" | "meal">("meal");
   const [giftAmount, setGiftAmount] = useState("");
   const [scannedQRCode, setScannedQRCode] = useState("");
   const [showQRScanner, setShowQRScanner] = useState(false);
@@ -61,7 +58,6 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
 
   // Calculate balances for selected restaurant
   const currentBalance = {
-    walletBalance: selectedRestaurantBalance?.balance || 0,
     mealPoints: selectedRestaurantBalance?.stars_meal || 0,
     drinkPoints: selectedRestaurantBalance?.stars_drink || 0,
   };
@@ -70,7 +66,7 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
   useEffect(() => {
     if (open) {
       setGiftAmount("");
-      setSelectedGiftType("wallet");
+      setSelectedGiftType("meal");
       setScannedQRCode("");
       setAmountError("");
       setShowQRScanner(false);
@@ -94,10 +90,6 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
     let balanceType = "";
 
     switch (selectedGiftType) {
-      case "wallet":
-        availableBalance = currentBalance.walletBalance;
-        balanceType = "$";
-        break;
       case "meal":
         availableBalance = currentBalance.mealPoints;
         balanceType = t("purchase.mealPoints");
@@ -160,7 +152,6 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
     }
 
     const currencyTypeMap = {
-      wallet: "balance" as const,
       meal: "stars_meal" as const,
       drink: "stars_drink" as const,
     };
@@ -195,9 +186,6 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
     let availableBalance = 0;
 
     switch (selectedGiftType) {
-      case "wallet":
-        availableBalance = currentBalance.walletBalance;
-        break;
       case "meal":
         availableBalance = currentBalance.mealPoints;
         break;
@@ -222,9 +210,6 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
     let availableBalance = 0;
 
     switch (selectedGiftType) {
-      case "wallet":
-        availableBalance = currentBalance.walletBalance;
-        break;
       case "meal":
         availableBalance = currentBalance.mealPoints;
         break;
@@ -297,14 +282,6 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
   }
 
   const giftOptions = [
-    {
-      type: "wallet" as const,
-      label: t("payment.walletBalance"),
-      icon: Wallet,
-      balance: currentBalance.walletBalance,
-      color: colors.success,
-      prefix: "$",
-    },
     {
       type: "drink" as const,
       label: t("payment.drinkPoints"),
@@ -453,9 +430,9 @@ export function GiftModal({ open, onOpenChange, targetId }: GiftModalProps) {
               </p>
               <Input
                 type="number"
-                step="0.01"
+                step="1"
                 min="0"
-                placeholder="0.00"
+                placeholder="0"
                 value={giftAmount}
                 onChange={(e) => setGiftAmount(e.target.value)}
                 disabled={loading.gift}

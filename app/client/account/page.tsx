@@ -7,6 +7,7 @@ import {
   updateClientProfile,
   changeClientPassword,
   deleteClientAccount,
+  fetchWalletBalance,
 } from "@/features/client";
 import { logout } from "@/features/auth/authSlice";
 import { Input } from "@/components/ui/input";
@@ -20,12 +21,14 @@ import {
   Trash2,
   Loader2,
   Share2,
+  Wallet,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 
@@ -37,6 +40,9 @@ export default function AccountPage() {
   const { user } = useAppSelector((state) => state.auth);
   const { profile, loading, error } = useAppSelector(
     (state) => state.clientAccount
+  );
+  const { balance: walletBalance, loading: walletLoading } = useAppSelector(
+    (state) => state.clientWallet
   );
 
   const [name, setName] = useState("");
@@ -53,6 +59,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (user?.role === "USER") {
       dispatch(fetchClientProfile());
+      dispatch(fetchWalletBalance());
     }
   }, [dispatch, user]);
 
@@ -271,6 +278,43 @@ export default function AccountPage() {
       </div>
 
       <div className="space-y-6">
+        <div
+          className={cn(
+            "rounded-2xl p-5 shadow-lg flex flex-col sm:flex-row sm:items-center gap-4",
+            isDark ? "bg-white/10" : "bg-white"
+          )}
+          style={{ backgroundColor: colors.surface }}
+        >
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+            style={{ backgroundColor: `${colors.primary}22` }}
+          >
+            <Wallet className="h-6 w-6" style={{ color: colors.primary }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold" style={{ color: colors.text }}>
+              {t("account.walletCardTitle")}
+            </h2>
+            <p className="text-sm mb-2" style={{ color: colors.textSecondary }}>
+              {t("account.walletCardDesc")}
+            </p>
+            {walletLoading.balance && !walletBalance ? (
+              <Loader2 className="h-6 w-6 animate-spin" style={{ color: colors.primary }} />
+            ) : (
+              <p className="text-xl font-bold tabular-nums" style={{ color: colors.text }}>
+                {walletBalance?.balance ?? "—"} {walletBalance?.currency ?? "EUR"}
+              </p>
+            )}
+          </div>
+          <Button
+            asChild
+            className="shrink-0"
+            style={{ backgroundColor: colors.primary, color: "#fff" }}
+          >
+            <Link href="/client/wallet">{t("account.openWallet")}</Link>
+          </Button>
+        </div>
+
         {/* Profile Section */}
         <div
           className={cn(

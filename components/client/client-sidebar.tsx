@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Tag, ShoppingBag, User } from "lucide-react";
+import { Home, Tag, ShoppingBag, User, WalletCards } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,12 @@ const tabs = [
     translationKey: "tabs.purchase",
     icon: ShoppingBag,
     path: "/client/purchase",
+  },
+  {
+    id: "wallet",
+    translationKey: "tabs.wallet",
+    icon: WalletCards,
+    path: "/client/wallet",
   },
   {
     id: "account",
@@ -64,7 +70,10 @@ export function ClientSidebar() {
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = pathname === tab.path;
+          const isActive =
+            tab.path === "/client/wallet"
+              ? pathname.startsWith("/client/wallet")
+              : pathname === tab.path;
           return (
             <button
               key={tab.id}

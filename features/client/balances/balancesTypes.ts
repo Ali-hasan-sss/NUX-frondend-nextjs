@@ -71,14 +71,14 @@ export interface QrScanData {
 
 export interface PaymentData {
   targetId: string;
-  currencyType: "balance" | "stars_meal" | "stars_drink";
+  currencyType: "stars_meal" | "stars_drink";
   amount: number;
 }
 
 export interface GiftData {
   targetId: string;
   qrCode: string;
-  currencyType: "balance" | "stars_meal" | "stars_drink";
+  currencyType: "stars_meal" | "stars_drink";
   amount: number;
 }
 

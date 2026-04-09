@@ -18,7 +18,6 @@ interface Restaurant {
   id: string;
   name: string;
   userBalance: {
-    walletBalance: number;
     mealPoints: number;
     drinkPoints: number;
   };
@@ -163,7 +162,7 @@ export function RestaurantSelector({
                             : "border-gray-300 text-gray-700"
                         )}
                       >
-                        ${restaurant.userBalance.walletBalance.toFixed(2)}
+                        {restaurant.userBalance.mealPoints} {t("purchase.mealPoints")}
                       </Badge>
                       <Badge
                         variant="outline"
@@ -174,18 +173,7 @@ export function RestaurantSelector({
                             : "border-gray-300 text-gray-700"
                         )}
                       >
-                        {restaurant.userBalance.mealPoints} Meal
-                      </Badge>
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          "text-xs",
-                          isDark
-                            ? "border-white/30 text-white/75"
-                            : "border-gray-300 text-gray-700"
-                        )}
-                      >
-                        {restaurant.userBalance.drinkPoints} Drink
+                        {restaurant.userBalance.drinkPoints} {t("purchase.drinkPoints")}
                       </Badge>
                     </div>
                   </div>

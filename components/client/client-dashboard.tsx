@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { fetchUserBalances } from "@/features/client";
+import { fetchUserBalances, fetchWalletBalance } from "@/features/client";
 import { QRScanner } from "./qr-scanner";
 import { PaymentForm } from "./payment-form";
 import { Camera, Coffee, UtensilsCrossed, Wallet, Star } from "lucide-react";
@@ -19,18 +19,18 @@ export function ClientDashboard() {
   const { userBalances, loading, error } = useAppSelector(
     (state) => state.clientBalances
   );
+  const { balance: appWalletBalance } = useAppSelector((state) => state.clientWallet);
   const [showQRScanner, setShowQRScanner] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string>("");
-  const [selectedPaymentType, setSelectedPaymentType] = useState<
-    "drink" | "meal" | "wallet"
-  >("wallet");
+  const [selectedPaymentType, setSelectedPaymentType] = useState<"drink" | "meal">("meal");
   const [showWelcome, setShowWelcome] = useState(true);
 
   // All hooks must be called before any conditional returns
   useEffect(() => {
     if (user?.role === "USER") {
       dispatch(fetchUserBalances());
+      dispatch(fetchWalletBalance());
     }
   }, [dispatch, user]);
 
@@ -77,8 +77,8 @@ export function ClientDashboard() {
     setShowQRScanner(true);
   };
 
-  const handlePayWithWallet = () => {
-    setSelectedPaymentType("wallet");
+  const handlePayWithStars = () => {
+    setSelectedPaymentType("meal");
     setShowPaymentForm(true);
   };
 
@@ -97,7 +97,6 @@ export function ClientDashboard() {
 
   // Calculate balances for selected restaurant
   const currentBalance = {
-    walletBalance: selectedRestaurantBalance?.balance || 0,
     mealPoints: selectedRestaurantBalance?.stars_meal || 0,
     drinkPoints: selectedRestaurantBalance?.stars_drink || 0,
   };
@@ -110,7 +109,6 @@ export function ClientDashboard() {
       id,
       name: name || "Unknown Restaurant",
       userBalance: {
-        walletBalance: balance.balance || 0,
         mealPoints: balance.stars_meal || 0,
         drinkPoints: balance.stars_drink || 0,
       },
@@ -213,7 +211,7 @@ export function ClientDashboard() {
         {/* Payment Button */}
         <div className="mt-4">
           <button
-            onClick={selectedRestaurant ? handlePayWithWallet : undefined}
+            onClick={selectedRestaurant ? handlePayWithStars : undefined}
             disabled={!selectedRestaurant}
             className={cn(
               "w-full rounded-2xl p-4 shadow-lg transition-all",
@@ -237,7 +235,8 @@ export function ClientDashboard() {
                   className="text-sm font-semibold"
                   style={{ color: "#34D399" }}
                 >
-                  {currentBalance.walletBalance.toFixed(2)} $
+                  {appWalletBalance?.balance ?? "—"}{" "}
+                  {appWalletBalance?.currency ?? "EUR"}
                 </span>
               </div>
               <div className="flex-1 flex flex-col items-center">

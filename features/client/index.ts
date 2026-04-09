@@ -34,3 +34,9 @@ export * from "./ads/adsService";
 export * from "./ads/adsThunks";
 export { default as clientAdsReducer } from "./ads/adsSlice";
 export { setFilters, clearFilters } from "./ads/adsSlice";
+
+export * from "./wallet/walletTypes";
+export * from "./wallet/walletService";
+export * from "./wallet/walletThunks";
+export { default as clientWalletReducer } from "./wallet/walletSlice";
+export { clearWalletErrors, resetWalletTransactions } from "./wallet/walletSlice";
