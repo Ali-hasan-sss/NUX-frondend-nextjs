@@ -32,9 +32,22 @@ export interface PaymentsResponse {
 export interface PaymentStats {
   totalPayments: number;
   totalAmount: number;
-  balancePayments: number;
   starsMealPayments: number;
   starsDrinkPayments: number;
+  /** Sum of `amount` for meal-star redemptions (voucher points). */
+  starsMealAmountSum: number;
+  /** Sum of `amount` for drink-star redemptions (voucher points). */
+  starsDrinkAmountSum: number;
+  /** Stars granted from QR scans (meal), same date range as payment stats. */
+  scanStarsMealGrantedTotal: number;
+  /** Stars granted from QR scans (drink), same date range as payment stats. */
+  scanStarsDrinkGrantedTotal: number;
+  scanMealCount: number;
+  scanDrinkCount: number;
+  /** True when scan-granted stars ≥ redeemed stars for both meal and drink in this period. */
+  pointsIntegrityHealthy: boolean;
+  pointsIntegrityMealOk: boolean;
+  pointsIntegrityDrinkOk: boolean;
   uniqueCustomers: number;
   paymentsToday: number;
   paymentsThisWeek: number;

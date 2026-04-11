@@ -103,14 +103,8 @@ const walletSlice = createSlice({
         state.loading.pay = true;
         state.error.pay = null;
       })
-      .addCase(payRestaurantWithWallet.fulfilled, (state, action) => {
+      .addCase(payRestaurantWithWallet.fulfilled, (state) => {
         state.loading.pay = false;
-        if (state.balance) {
-          state.balance = {
-            ...state.balance,
-            balance: action.payload.userBalanceAfter,
-          };
-        }
       })
       .addCase(payRestaurantWithWallet.rejected, (state, action) => {
         state.loading.pay = false;

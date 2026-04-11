@@ -21,5 +21,7 @@ export default function TableCodesPage() {
     );
   }
 
-  return <TablesManagement restaurantId={data.id} />;
+  return (
+    <TablesManagement restaurantId={data.id} restaurantLogo={data.logo} />
+  );
 }

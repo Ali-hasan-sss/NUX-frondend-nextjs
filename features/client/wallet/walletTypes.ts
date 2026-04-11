@@ -24,6 +24,17 @@ export interface PayRestaurantPayload {
   orderReference?: string;
 }
 
+/** Response from POST /client/wallet/pay-restaurant/request */
+export interface WalletPayApprovalRequestData {
+  approvalId: string;
+  approvalToken: string;
+  expiresAt: string;
+  restaurantName: string;
+  amount: string;
+  currency: string;
+  initiatedFrom: string;
+}
+
 export interface WithdrawalPayload {
   amount: number;
   currency?: string;

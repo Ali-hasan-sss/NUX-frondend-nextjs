@@ -4,6 +4,7 @@ import type {
   WalletLedgerEntry,
   PayRestaurantPayload,
   WithdrawalPayload,
+  WalletPayApprovalRequestData,
 } from "./walletTypes";
 
 const CLIENT_WALLET = "/client/wallet";
@@ -46,11 +47,19 @@ export const walletService = {
     return unwrapData<{ applied: boolean; duplicate?: boolean }>(res);
   },
 
-  payRestaurant: async (
+  /** Start wallet pay; user must approve on mobile (WebSocket + PIN/biometric). */
+  requestPayRestaurant: async (
     payload: PayRestaurantPayload
-  ): Promise<{ userBalanceAfter: string }> => {
-    const res = await axiosInstance.post(`${CLIENT_WALLET}/pay-restaurant`, payload);
-    return unwrapData<{ userBalanceAfter: string }>(res);
+  ): Promise<WalletPayApprovalRequestData> => {
+    const res = await axiosInstance.post(`${CLIENT_WALLET}/pay-restaurant/request`, {
+      ...payload,
+      initiatedFrom: "web",
+    });
+    return unwrapData<WalletPayApprovalRequestData>(res);
+  },
+
+  rejectPayRestaurantApproval: async (approvalId: string): Promise<void> => {
+    await axiosInstance.post(`${CLIENT_WALLET}/pay-restaurant/reject`, { approvalId });
   },
 
   requestWithdrawal: async (payload: WithdrawalPayload): Promise<{ id: string }> => {

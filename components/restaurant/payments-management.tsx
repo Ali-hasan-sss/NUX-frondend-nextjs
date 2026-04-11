@@ -27,6 +27,7 @@ import {
   Filter,
   Star,
   Coins,
+  QrCode,
 } from "lucide-react";
 import { AppDispatch, RootState } from "@/app/store";
 import {
@@ -65,6 +66,14 @@ export function PaymentsManagement() {
   // Loading state for table only
   const [isTableLoading, setIsTableLoading] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  // Balance filter removed from UI; normalize legacy "balance" selection
+  useEffect(() => {
+    setFilters((prev) => {
+      if (prev.paymentType !== "balance") return prev;
+      return { ...prev, paymentType: "all", page: 1 };
+    });
+  }, []);
 
   // Calculate date range based on selection
   const getDateRange = (range: string) => {
@@ -114,10 +123,7 @@ export function PaymentsManagement() {
       ...(dateRangeData.endDate && { endDate: dateRangeData.endDate }),
       ...(filters.paymentType &&
         filters.paymentType !== "all" && {
-          paymentType: filters.paymentType as
-            | "balance"
-            | "stars_meal"
-            | "stars_drink",
+          paymentType: filters.paymentType as "stars_meal" | "stars_drink",
         }),
     };
 
@@ -325,28 +331,91 @@ export function PaymentsManagement() {
         </div>
       )}
 
-      {/* Payment Type Breakdown */}
+      {/* Scan grants + integrity vs star redemptions (same period) */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <Star className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm font-medium">{t("dashboard.payments.balancePayments")}</p>
-                  <p className="text-2xl font-bold">{stats.balancePayments}</p>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <QrCode className="h-5 w-5 text-muted-foreground shrink-0" />
+                  <p className="text-sm font-medium leading-tight">
+                    {t("dashboard.payments.scanGrantedTitle")}
+                  </p>
+                </div>
+                <Badge
+                  variant={
+                    stats.pointsIntegrityHealthy ? "secondary" : "destructive"
+                  }
+                  className={
+                    stats.pointsIntegrityHealthy
+                      ? "shrink-0 bg-emerald-100 text-emerald-900 hover:bg-emerald-100"
+                      : "shrink-0"
+                  }
+                >
+                  {stats.pointsIntegrityHealthy
+                    ? t("dashboard.payments.pointsIntegrityGood")
+                    : t("dashboard.payments.pointsIntegrityWarning")}
+                </Badge>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <Star className="h-4 w-4 text-orange-600 shrink-0" />
+                  <span className="text-muted-foreground">
+                    {t("dashboard.payments.scanMealLine")}
+                  </span>
+                  <span className="font-semibold tabular-nums">
+                    {formatPoints(stats.scanStarsMealGrantedTotal ?? 0)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("dashboard.payments.scanOperationsCount", {
+                      count: stats.scanMealCount ?? 0,
+                    })}
+                  </span>
+                  {!stats.pointsIntegrityMealOk && (
+                    <Badge variant="outline" className="text-amber-800 border-amber-300 text-xs">
+                      {t("dashboard.payments.pointsIntegrityMealIssue")}
+                    </Badge>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <Coins className="h-4 w-4 text-blue-600 shrink-0" />
+                  <span className="text-muted-foreground">
+                    {t("dashboard.payments.scanDrinkLine")}
+                  </span>
+                  <span className="font-semibold tabular-nums">
+                    {formatPoints(stats.scanStarsDrinkGrantedTotal ?? 0)}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {t("dashboard.payments.scanOperationsCount", {
+                      count: stats.scanDrinkCount ?? 0,
+                    })}
+                  </span>
+                  {!stats.pointsIntegrityDrinkOk && (
+                    <Badge variant="outline" className="text-amber-800 border-amber-300 text-xs">
+                      {t("dashboard.payments.pointsIntegrityDrinkIssue")}
+                    </Badge>
+                  )}
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground leading-snug">
+                {t("dashboard.payments.pointsIntegrityHint")}
+              </p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Star className="h-5 w-5 text-orange-600" />
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium">{t("dashboard.payments.mealStars")}</p>
                   <p className="text-2xl font-bold">
-                    {stats.starsMealPayments}
+                    {formatPoints(stats.starsMealAmountSum ?? 0)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("dashboard.payments.statsTransactionCount", {
+                      count: stats.starsMealPayments,
+                    })}
                   </p>
                 </div>
               </div>
@@ -356,10 +425,15 @@ export function PaymentsManagement() {
             <CardContent className="p-4">
               <div className="flex items-center space-x-2">
                 <Coins className="h-5 w-5 text-blue-600" />
-                <div>
+                <div className="min-w-0">
                   <p className="text-sm font-medium">{t("dashboard.payments.drinkStars")}</p>
                   <p className="text-2xl font-bold">
-                    {stats.starsDrinkPayments}
+                    {formatPoints(stats.starsDrinkAmountSum ?? 0)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("dashboard.payments.statsTransactionCount", {
+                      count: stats.starsDrinkPayments,
+                    })}
                   </p>
                 </div>
               </div>
@@ -393,13 +467,22 @@ export function PaymentsManagement() {
 
               <LabeledSelect
                 label={t("dashboard.payments.paymentType")}
-                value={filters.paymentType}
+                value={
+                  filters.paymentType === "balance"
+                    ? "all"
+                    : filters.paymentType
+                }
                 onChange={(value) => handleFilterChange("paymentType", value)}
                 options={[
-                  { label: "All Types", value: "all" },
-                  { label: "Balance", value: "balance" },
-                  { label: "Meal Stars", value: "stars_meal" },
-                  { label: "Drink Stars", value: "stars_drink" },
+                  { label: t("dashboard.payments.allTypes"), value: "all" },
+                  {
+                    label: t("dashboard.payments.mealStarsType"),
+                    value: "stars_meal",
+                  },
+                  {
+                    label: t("dashboard.payments.drinkStarsType"),
+                    value: "stars_drink",
+                  },
                 ]}
               />
 

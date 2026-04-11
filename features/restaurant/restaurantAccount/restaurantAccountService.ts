@@ -58,6 +58,7 @@ export type FloorPlanElementType =
   | "chair"
   | "bar"
   | "barStool"
+  | "refrigerator"
   | "coffeeMachine"
   | "juiceMachine"
   | "iceCreamMachine"

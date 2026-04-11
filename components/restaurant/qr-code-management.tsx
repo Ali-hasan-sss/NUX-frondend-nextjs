@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Card,
@@ -10,7 +10,17 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { QrCode, Plus, Pencil, Trash2, Loader2, Printer } from "lucide-react";
+import {
+  QrCode,
+  Plus,
+  Pencil,
+  Trash2,
+  Loader2,
+  Printer,
+  Coffee,
+  UtensilsCrossed,
+  Store,
+} from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   fetchRestaurantAccount,
@@ -52,8 +62,37 @@ const LABEL_PRINT_STYLES = `
   .label-sticker .label-qr-box {
     width: 100%; height: 4cm; max-width: 4cm; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .label-sticker .label-qr-box img {
-    width: 100%; height: 100%; object-fit: contain;
+  .label-qr-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 4cm;
+    aspect-ratio: 1;
+    max-height: 4cm;
+    margin: 0 auto;
+  }
+  .label-qr-wrap .qr-base {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .label-qr-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .label-qr-badge {
+    background: #fff;
+    border-radius: 3px;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
   }
   .label-sticker .label-caption {
     width: 100%; margin-top: 3mm; padding: 0; box-sizing: border-box;
@@ -70,9 +109,70 @@ const LABEL_PRINT_STYLES = `
   }
 `;
 
+/** Inline SVG data-URIs for print (print window has no React / Lucide). */
+const PRINT_DRINK_ICON_DATA_URI = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><path d="M6 2v2"/><path d="M10 2v2"/><path d="M14 2v2"/></svg>'
+)}`;
+const PRINT_MEAL_ICON_DATA_URI = `data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"/><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L22 21"/><path d="m2 2 20 20"/><path d="M4.5 4.5 12 12"/></svg>'
+)}`;
+
+function escapeAttr(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;");
+}
+
+/** Print popup document is about:blank — relative /uploads or /branding URLs must be absolute. */
+function absoluteUrlForPrint(href: string): string {
+  const v = href.trim();
+  if (!v) return v;
+  if (v.startsWith("http://") || v.startsWith("https://") || v.startsWith("data:")) {
+    return v;
+  }
+  if (typeof window === "undefined") return v;
+  const origin = window.location.origin;
+  return v.startsWith("/") ? `${origin}${v}` : `${origin}/${v}`;
+}
+
+type PrintStickerOverlay =
+  | { kind: "icon"; which: "drink" | "meal" }
+  | { kind: "logo"; src: string };
+
+const PRINT_QR_PIXEL = 300;
+
+function buildPrintQrBlock(
+  imgSrc: string,
+  overlay: PrintStickerOverlay | null | undefined
+): string {
+  const safeSrc = escapeAttr(imgSrc);
+  const px = PRINT_QR_PIXEL;
+  if (!overlay) {
+    return `<div class="label-qr-wrap"><img class="qr-base" src="${safeSrc}" width="${px}" height="${px}" alt="" /></div>`;
+  }
+  if (overlay.kind === "icon") {
+    const badge = centerOverlaySize(px, "icon");
+    const inner = Math.round(badge * 0.72);
+    const iconSrc =
+      overlay.which === "drink"
+        ? PRINT_DRINK_ICON_DATA_URI
+        : PRINT_MEAL_ICON_DATA_URI;
+    return `<div class="label-qr-wrap"><img class="qr-base" src="${safeSrc}" width="${px}" height="${px}" alt="" /><div class="label-qr-overlay"><div class="label-qr-badge" style="width:${badge}px;height:${badge}px;"><img src="${escapeAttr(iconSrc)}" width="${inner}" height="${inner}" alt="" /></div></div></div>`;
+  }
+  const badge = centerOverlaySize(px, "logo");
+  const safeLogo = escapeAttr(overlay.src);
+  return `<div class="label-qr-wrap"><img class="qr-base" src="${safeSrc}" width="${px}" height="${px}" alt="" /><div class="label-qr-overlay"><div class="label-qr-badge" style="width:${badge}px;height:${badge}px;"><img src="${safeLogo}" alt="" style="max-width:90%;max-height:90%;width:auto;height:auto;object-fit:contain;" /></div></div></div>`;
+}
+
 /** Build print window with only label stickers stacked vertically; wait for images then print. */
 function printLabelStickers(
-  stickers: { imgSrc: string; title: string; subtitle: string }[],
+  stickers: {
+    imgSrc: string;
+    title: string;
+    subtitle: string;
+    overlay?: PrintStickerOverlay | null;
+  }[],
   styles: string
 ) {
   const stickersHtml = stickers
@@ -80,7 +180,7 @@ function printLabelStickers(
       (s) => `
     <div class="label-sticker">
       <div class="label-qr-box">
-        <img src="${s.imgSrc.replace(/"/g, "&quot;")}" width="200" height="200" alt="" />
+        ${buildPrintQrBlock(s.imgSrc, s.overlay)}
       </div>
       <div class="label-caption">
         <div class="title">${escapeHtml(s.title)}</div>
@@ -115,6 +215,140 @@ function escapeHtml(text: string) {
   const el = document.createElement("div");
   el.textContent = text;
   return el.innerHTML;
+}
+
+function buildPaymentQrPayload(restaurantId: string, restaurantName: string) {
+  const englishName = restaurantName.trim().replace(/\s+/g, " ");
+  return `PAYMENT::${restaurantId}::${englishName}`;
+}
+
+/** High ECC so a small center mark (icon/logo) does not break scanning (goqr.me API). */
+function qrServerUrl(data: string, size: number) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&ecc=H&data=${encodeURIComponent(data)}`;
+}
+
+function noxLogoSrc() {
+  const u = process.env.NEXT_PUBLIC_NOX_LOGO_URL?.trim();
+  if (u && u.length > 0) return u;
+  return "/branding/nox-logo.png";
+}
+
+/** Backend often stores `/uploads/...`; browser must load from API host, not the Next.js origin. */
+function resolveMediaUrl(path: string | null | undefined): string | null {
+  if (!path || typeof path !== "string") return null;
+  const trimmed = path.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+  const api =
+    process.env.NEXT_PUBLIC_API_URL?.trim() || "https://localhost:5000/api";
+  const base = api.replace(/\/api\/?$/, "");
+  const pathClean = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  return `${base}${pathClean}`;
+}
+
+/** ~13% icon / ~17% logo at ecc=H — larger than before but still within typical safe range. */
+function centerOverlaySize(size: number, kind: "icon" | "logo") {
+  if (kind === "icon") {
+    return Math.min(52, Math.max(28, Math.round(size * 0.13)));
+  }
+  return Math.min(68, Math.max(36, Math.round(size * 0.168)));
+}
+
+/** Small center island on top of QR; pair with qrServerUrl (ecc=H). */
+function QrCodeWithCenterMark({
+  qrData,
+  size,
+  alt,
+  onLoad,
+  center,
+  centerKind,
+}: {
+  qrData: string;
+  size: number;
+  alt: string;
+  onLoad?: () => void;
+  center: ReactNode;
+  centerKind: "icon" | "logo";
+}) {
+  const badge = centerOverlaySize(size, centerKind);
+  return (
+    <div
+      className="relative mx-auto shrink-0"
+      style={{ width: size, height: size }}
+    >
+      <img
+        src={qrServerUrl(qrData, size)}
+        width={size}
+        height={size}
+        alt={alt}
+        className="block h-full w-full object-contain"
+        onLoad={onLoad}
+      />
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <div
+          className="flex items-center justify-center overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-black/10"
+          style={{ width: badge, height: badge }}
+        >
+          {centerKind === "icon" ? (
+            <div className="flex h-[72%] w-[72%] items-center justify-center [&_svg]:h-full [&_svg]:w-full">
+              {center}
+            </div>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center p-0.5">
+              {center}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MenuQrCenterLogo({ logoRaw }: { logoRaw: string | null | undefined }) {
+  const resolved = useMemo(() => resolveMediaUrl(logoRaw), [logoRaw]);
+  const [imgFailed, setImgFailed] = useState(false);
+  useEffect(() => {
+    setImgFailed(false);
+  }, [resolved]);
+  if (!resolved || imgFailed) {
+    return (
+      <Store
+        className="max-h-[90%] max-w-[90%] text-muted-foreground"
+        strokeWidth={2}
+        aria-hidden
+      />
+    );
+  }
+  return (
+    <img
+      src={resolved}
+      alt=""
+      className="max-h-[90%] max-w-[90%] object-contain"
+      onError={() => setImgFailed(true)}
+    />
+  );
+}
+
+function PaymentQrCenterLogo() {
+  const primary = noxLogoSrc();
+  const [src, setSrc] = useState(primary);
+  useEffect(() => {
+    setSrc(primary);
+  }, [primary]);
+  return (
+    <img
+      src={src}
+      alt=""
+      className="max-h-[90%] max-w-[90%] object-contain"
+      onError={() =>
+        setSrc((prev) =>
+          prev.endsWith("nox-logo.svg") ? prev : "/branding/nox-logo.svg"
+        )
+      }
+    />
+  );
 }
 
 function PrintableFrame({
@@ -154,6 +388,7 @@ export function QRCodeManagement() {
   const [drinkImgLoaded, setDrinkImgLoaded] = useState(false);
   const [mealImgLoaded, setMealImgLoaded] = useState(false);
   const [menuImgLoaded, setMenuImgLoaded] = useState(false);
+  const [paymentImgLoaded, setPaymentImgLoaded] = useState(false);
   const [regenerateLoading, setRegenerateLoading] = useState(false);
 
   useEffect(() => {
@@ -164,6 +399,7 @@ export function QRCodeManagement() {
     setDrinkImgLoaded(false);
     setMealImgLoaded(false);
     setMenuImgLoaded(false);
+    setPaymentImgLoaded(false);
   }, [data?.qrCode_drink, data?.qrCode_meal, data?.id]);
 
   const appBaseUrl =
@@ -174,29 +410,56 @@ export function QRCodeManagement() {
     // Public menu URL generated from restaurant id
     return `${appBaseUrl}/menu/${data.id}`;
   }, [appBaseUrl, data?.id]);
+  const paymentQrValue = useMemo(() => {
+    if (!data?.id) return "";
+    return buildPaymentQrPayload(data.id, data.name ?? "Restaurant");
+  }, [data?.id, data?.name]);
 
   const handlePrint = () => {
-    const stickers: { imgSrc: string; title: string; subtitle: string }[] = [];
+    const stickers: {
+      imgSrc: string;
+      title: string;
+      subtitle: string;
+      overlay?: PrintStickerOverlay | null;
+    }[] = [];
     const name = data?.name ?? "Restaurant";
+    const menuLogoResolved = resolveMediaUrl(data?.logo);
     if (data?.qrCode_drink) {
       stickers.push({
-        imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_drink)}`,
+        imgSrc: qrServerUrl(data.qrCode_drink, 300),
         title: name,
         subtitle: t("dashboard.qrCodes.drinkQR"),
+        overlay: { kind: "icon", which: "drink" },
       });
     }
     if (data?.qrCode_meal) {
       stickers.push({
-        imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_meal)}`,
+        imgSrc: qrServerUrl(data.qrCode_meal, 300),
         title: name,
         subtitle: t("dashboard.qrCodes.mealQR"),
+        overlay: { kind: "icon", which: "meal" },
       });
     }
     if (menuUrl) {
       stickers.push({
-        imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`,
+        imgSrc: qrServerUrl(menuUrl, 300),
         title: name,
         subtitle: t("dashboard.qrCodes.menuQR"),
+        overlay:
+          menuLogoResolved != null
+            ? { kind: "logo", src: menuLogoResolved }
+            : null,
+      });
+    }
+    if (paymentQrValue) {
+      stickers.push({
+        imgSrc: qrServerUrl(paymentQrValue, 300),
+        title: name,
+        subtitle: t("dashboard.qrCodes.paymentQR"),
+        overlay: {
+          kind: "logo",
+          src: absoluteUrlForPrint(noxLogoSrc()),
+        },
       });
     }
     if (stickers.length === 0) return;
@@ -206,10 +469,12 @@ export function QRCodeManagement() {
   const needDrink = !!data?.qrCode_drink;
   const needMeal = !!data?.qrCode_meal;
   const needMenu = !!menuUrl;
+  const needPayment = !!paymentQrValue;
   const mainPrintReady =
     (!needDrink || drinkImgLoaded) &&
     (!needMeal || mealImgLoaded) &&
-    (!needMenu || menuImgLoaded);
+    (!needMenu || menuImgLoaded) &&
+    (!needPayment || paymentImgLoaded);
 
   const runRegenerate = async () => {
     setRegenerateLoading(true);
@@ -233,22 +498,31 @@ export function QRCodeManagement() {
     await runRegenerate();
   };
 
-  const handlePrintSingle = (type: "drink" | "meal" | "menu") => {
+  const handlePrintSingle = (type: "drink" | "meal" | "menu" | "payment") => {
     const name = data?.name ?? "Restaurant";
     let imgSrc = "";
     let subtitle = "";
+    let overlay: PrintStickerOverlay | null = null;
     if (type === "drink" && data?.qrCode_drink) {
-      imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_drink)}`;
+      imgSrc = qrServerUrl(data.qrCode_drink, 300);
       subtitle = t("dashboard.qrCodes.drinkQR");
+      overlay = { kind: "icon", which: "drink" };
     } else if (type === "meal" && data?.qrCode_meal) {
-      imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(data.qrCode_meal)}`;
+      imgSrc = qrServerUrl(data.qrCode_meal, 300);
       subtitle = t("dashboard.qrCodes.mealQR");
+      overlay = { kind: "icon", which: "meal" };
     } else if (type === "menu" && menuUrl) {
-      imgSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(menuUrl)}`;
+      imgSrc = qrServerUrl(menuUrl, 300);
       subtitle = t("dashboard.qrCodes.menuQR");
+      const r = resolveMediaUrl(data?.logo);
+      overlay = r ? { kind: "logo", src: r } : null;
+    } else if (type === "payment" && paymentQrValue) {
+      imgSrc = qrServerUrl(paymentQrValue, 300);
+      subtitle = t("dashboard.qrCodes.paymentQR");
+      overlay = { kind: "logo", src: absoluteUrlForPrint(noxLogoSrc()) };
     }
     if (!imgSrc) return;
-    printLabelStickers([{ imgSrc, title: name, subtitle }], LABEL_PRINT_STYLES);
+    printLabelStickers([{ imgSrc, title: name, subtitle, overlay }], LABEL_PRINT_STYLES);
   };
 
   // Auto-refresh QR (drink/meal) every 5 minutes when enabled
@@ -326,218 +600,337 @@ export function QRCodeManagement() {
           <div className="flex flex-col gap-4 w-full min-w-0" ref={printRef}>
             <Card className="w-full min-w-0 overflow-hidden">
               <CardHeader className="p-3 sm:p-4 md:p-6">
-                <CardTitle className="text-base sm:text-lg">{t("dashboard.qrCodes.drinkQR")}</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  {t("dashboard.qrCodes.loyaltySectionTitle")}
+                </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  {t("dashboard.qrCodes.scanToCollectDrink")}{" "}
-                  {data?.name ?? t("dashboard.qrCodes.drinkQR")}
+                  {t("dashboard.qrCodes.loyaltySectionDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="flex justify-center min-w-0">
-                  <div ref={drinkRef} className="frame w-full max-w-[320px]">
-                    <PrintableFrame
-                      title={data?.name ?? "Restaurant"}
-                      subtitle={t("dashboard.qrCodes.drinkQR")}
-                    >
-                      {data?.qrCode_drink ? (
-                        <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                            data.qrCode_drink
-                          )}`}
-                          width={240}
-                          height={240}
-                          alt={t("dashboard.qrCodes.drinkQR")}
-                          onLoad={() => setDrinkImgLoaded(true)}
-                        />
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          {t("dashboard.qrCodes.noDrinkQRAvailable")}
-                        </div>
-                      )}
-                    </PrintableFrame>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap justify-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs sm:text-sm"
-                    onClick={() => handlePrintSingle("drink")}
-                    disabled={!data?.qrCode_drink}
-                    title={!data?.qrCode_drink ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
-                  >
-                    {t("dashboard.qrCodes.print")}
-                  </Button>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="text-xs sm:text-sm">{t("dashboard.qrCodes.fullscreen")}</Button>
-                    </DialogTrigger>
-                    <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
-                      <DialogHeader>
-                        <DialogTitle>
-                          {t("dashboard.qrCodes.drinkQR")}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="flex justify-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full min-w-0">
+                  <div className="flex flex-col items-center min-w-0">
+                    <p className="text-sm font-semibold text-foreground text-center">
+                      {t("dashboard.qrCodes.drinkQR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center mt-1 mb-3 px-1">
+                      {t("dashboard.qrCodes.scanToCollectDrink")}{" "}
+                      {data?.name ?? t("dashboard.qrCodes.drinkQR")}
+                    </p>
+                    <div ref={drinkRef} className="frame w-full max-w-[300px] mx-auto">
+                      <PrintableFrame
+                        title={data?.name ?? "Restaurant"}
+                        subtitle={t("dashboard.qrCodes.drinkQR")}
+                      >
                         {data?.qrCode_drink ? (
-                          <img
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                              data.qrCode_drink
-                            )}`}
-                            width={512}
-                            height={512}
+                          <QrCodeWithCenterMark
+                            qrData={data.qrCode_drink}
+                            size={240}
                             alt={t("dashboard.qrCodes.drinkQR")}
+                            onLoad={() => setDrinkImgLoaded(true)}
+                            centerKind="icon"
+                            center={
+                              <Coffee
+                                className="text-amber-800"
+                                strokeWidth={2.25}
+                                aria-hidden
+                              />
+                            }
                           />
-                        ) : null}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="w-full min-w-0 overflow-hidden">
-              <CardHeader className="p-3 sm:p-4 md:p-6">
-                <CardTitle className="text-base sm:text-lg">{t("dashboard.qrCodes.mealQR")}</CardTitle>
-                <CardDescription className="text-xs sm:text-sm">
-                  {t("dashboard.qrCodes.scanToCollectMeal")}{" "}
-                  {data?.name ?? t("dashboard.qrCodes.mealQR")}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="flex justify-center min-w-0">
-                  <div ref={mealRef} className="frame w-full max-w-[320px]">
-                    <PrintableFrame
-                      title={data?.name ?? "Restaurant"}
-                      subtitle={t("dashboard.qrCodes.mealQR")}
-                    >
-                      {data?.qrCode_meal ? (
-                        <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                            data.qrCode_meal
-                          )}`}
-                          width={240}
-                          height={240}
-                          alt={t("dashboard.qrCodes.mealQR")}
-                          onLoad={() => setMealImgLoaded(true)}
-                        />
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          {t("dashboard.qrCodes.noMealQRAvailable")}
-                        </div>
-                      )}
-                    </PrintableFrame>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            {t("dashboard.qrCodes.noDrinkQRAvailable")}
+                          </div>
+                        )}
+                      </PrintableFrame>
+                    </div>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs sm:text-sm"
+                        onClick={() => handlePrintSingle("drink")}
+                        disabled={!data?.qrCode_drink}
+                        title={
+                          !data?.qrCode_drink
+                            ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR"
+                            : undefined
+                        }
+                      >
+                        {t("dashboard.qrCodes.print")}
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="text-xs sm:text-sm">
+                            {t("dashboard.qrCodes.fullscreen")}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
+                          <DialogHeader>
+                            <DialogTitle>{t("dashboard.qrCodes.drinkQR")}</DialogTitle>
+                          </DialogHeader>
+                          <div className="flex justify-center">
+                            {data?.qrCode_drink ? (
+                              <QrCodeWithCenterMark
+                                qrData={data.qrCode_drink}
+                                size={512}
+                                alt={t("dashboard.qrCodes.drinkQR")}
+                                centerKind="icon"
+                                center={
+                                  <Coffee
+                                    className="text-amber-800"
+                                    strokeWidth={2.25}
+                                    aria-hidden
+                                  />
+                                }
+                              />
+                            ) : null}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
-                </div>
-                <div className="mt-3 flex flex-wrap justify-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs sm:text-sm"
-                    onClick={() => handlePrintSingle("meal")}
-                    disabled={!data?.qrCode_meal}
-                    title={!data?.qrCode_meal ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
-                  >
-                    {t("dashboard.qrCodes.print")}
-                  </Button>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="text-xs sm:text-sm">{t("dashboard.qrCodes.fullscreen")}</Button>
-                    </DialogTrigger>
-                    <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
-                      <DialogHeader>
-                        <DialogTitle className="text-base sm:text-lg">
-                          {t("dashboard.qrCodes.mealQR")}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="flex justify-center">
+
+                  <div className="flex flex-col items-center min-w-0">
+                    <p className="text-sm font-semibold text-foreground text-center">
+                      {t("dashboard.qrCodes.mealQR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center mt-1 mb-3 px-1">
+                      {t("dashboard.qrCodes.scanToCollectMeal")}{" "}
+                      {data?.name ?? t("dashboard.qrCodes.mealQR")}
+                    </p>
+                    <div ref={mealRef} className="frame w-full max-w-[300px] mx-auto">
+                      <PrintableFrame
+                        title={data?.name ?? "Restaurant"}
+                        subtitle={t("dashboard.qrCodes.mealQR")}
+                      >
                         {data?.qrCode_meal ? (
-                          <img
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                              data.qrCode_meal
-                            )}`}
-                            width={512}
-                            height={512}
+                          <QrCodeWithCenterMark
+                            qrData={data.qrCode_meal}
+                            size={240}
                             alt={t("dashboard.qrCodes.mealQR")}
+                            onLoad={() => setMealImgLoaded(true)}
+                            centerKind="icon"
+                            center={
+                              <UtensilsCrossed
+                                className="text-emerald-700"
+                                strokeWidth={2.25}
+                                aria-hidden
+                              />
+                            }
                           />
-                        ) : null}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            {t("dashboard.qrCodes.noMealQRAvailable")}
+                          </div>
+                        )}
+                      </PrintableFrame>
+                    </div>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs sm:text-sm"
+                        onClick={() => handlePrintSingle("meal")}
+                        disabled={!data?.qrCode_meal}
+                        title={
+                          !data?.qrCode_meal
+                            ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR"
+                            : undefined
+                        }
+                      >
+                        {t("dashboard.qrCodes.print")}
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="text-xs sm:text-sm">
+                            {t("dashboard.qrCodes.fullscreen")}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-base sm:text-lg">
+                              {t("dashboard.qrCodes.mealQR")}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="flex justify-center">
+                            {data?.qrCode_meal ? (
+                              <QrCodeWithCenterMark
+                                qrData={data.qrCode_meal}
+                                size={512}
+                                alt={t("dashboard.qrCodes.mealQR")}
+                                centerKind="icon"
+                                center={
+                                  <UtensilsCrossed
+                                    className="text-emerald-700"
+                                    strokeWidth={2.25}
+                                    aria-hidden
+                                  />
+                                }
+                              />
+                            ) : null}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="w-full min-w-0 overflow-hidden">
               <CardHeader className="p-3 sm:p-4 md:p-6">
-                <CardTitle className="text-base sm:text-lg">{t("dashboard.qrCodes.menuQR")}</CardTitle>
+                <CardTitle className="text-base sm:text-lg">
+                  {t("dashboard.qrCodes.paymentMenuSectionTitle")}
+                </CardTitle>
                 <CardDescription className="text-xs sm:text-sm">
-                  {t("dashboard.qrCodes.scanToViewMenu")} {data?.name ?? ""}
+                  {t("dashboard.qrCodes.paymentMenuSectionDescription")}
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="flex justify-center min-w-0">
-                  <div ref={menuRef} className="frame w-full max-w-[320px]">
-                    <PrintableFrame
-                      title={data?.name ?? "Restaurant"}
-                      subtitle="Menu QR"
-                    >
-                      {menuUrl ? (
-                        <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
-                            menuUrl
-                          )}`}
-                          width={240}
-                          height={240}
-                          alt={t("dashboard.qrCodes.menuQR")}
-                          onLoad={() => setMenuImgLoaded(true)}
-                        />
-                      ) : (
-                        <div className="text-sm text-muted-foreground">
-                          Menu URL not available
-                        </div>
-                      )}
-                    </PrintableFrame>
-                  </div>
-                </div>
-                <div className="mt-3 text-xs text-muted-foreground break-all text-center">
-                  {menuUrl}
-                </div>
-                <div className="mt-3 flex flex-wrap justify-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs sm:text-sm"
-                    onClick={() => handlePrintSingle("menu")}
-                    disabled={!menuUrl}
-                    title={!menuUrl ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR" : undefined}
-                  >
-                    {t("dashboard.qrCodes.print")}
-                  </Button>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="text-xs sm:text-sm">{t("dashboard.qrCodes.fullscreen")}</Button>
-                    </DialogTrigger>
-                    <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
-                      <DialogHeader>
-                        <DialogTitle className="text-base sm:text-lg">
-                          {t("dashboard.qrCodes.menuQR")}
-                        </DialogTitle>
-                      </DialogHeader>
-                      <div className="flex justify-center">
-                        {menuUrl ? (
-                          <img
-                            src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                              menuUrl
-                            )}`}
-                            width={512}
-                            height={512}
-                            alt={t("dashboard.qrCodes.menuQR")}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full min-w-0">
+                  <div className="flex flex-col items-center min-w-0">
+                    <p className="text-sm font-semibold text-foreground text-center">
+                      {t("dashboard.qrCodes.paymentQR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center mt-1 mb-3 px-1">
+                      {t("dashboard.qrCodes.paymentQRScanHint")}
+                    </p>
+                    <div className="frame w-full max-w-[300px] mx-auto">
+                      <PrintableFrame
+                        title={data?.name ?? "Restaurant"}
+                        subtitle={t("dashboard.qrCodes.paymentQR")}
+                      >
+                        {paymentQrValue ? (
+                          <QrCodeWithCenterMark
+                            qrData={paymentQrValue}
+                            size={240}
+                            alt={t("dashboard.qrCodes.paymentQR")}
+                            onLoad={() => setPaymentImgLoaded(true)}
+                            centerKind="logo"
+                            center={<PaymentQrCenterLogo />}
                           />
-                        ) : null}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                        ) : (
+                          <div className="text-sm text-muted-foreground text-center px-2">
+                            {t("dashboard.qrCodes.paymentQRNotAvailable")}
+                          </div>
+                        )}
+                      </PrintableFrame>
+                    </div>
+                    <div className="mt-3 text-xs text-muted-foreground break-all text-center w-full max-w-[300px] mx-auto px-1">
+                      {paymentQrValue}
+                    </div>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs sm:text-sm"
+                        onClick={() => handlePrintSingle("payment")}
+                        disabled={!paymentQrValue}
+                      >
+                        {t("dashboard.qrCodes.print")}
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="text-xs sm:text-sm">
+                            {t("dashboard.qrCodes.fullscreen")}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-base sm:text-lg">
+                              {t("dashboard.qrCodes.paymentQR")}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="flex justify-center">
+                            {paymentQrValue ? (
+                              <QrCodeWithCenterMark
+                                qrData={paymentQrValue}
+                                size={512}
+                                alt={t("dashboard.qrCodes.paymentQR")}
+                                centerKind="logo"
+                                center={<PaymentQrCenterLogo />}
+                              />
+                            ) : null}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center min-w-0">
+                    <p className="text-sm font-semibold text-foreground text-center">
+                      {t("dashboard.qrCodes.menuQR")}
+                    </p>
+                    <p className="text-xs text-muted-foreground text-center mt-1 mb-3 px-1">
+                      {t("dashboard.qrCodes.scanToViewMenu")} {data?.name ?? ""}
+                    </p>
+                    <div ref={menuRef} className="frame w-full max-w-[300px] mx-auto">
+                      <PrintableFrame
+                        title={data?.name ?? "Restaurant"}
+                        subtitle={t("dashboard.qrCodes.menuQR")}
+                      >
+                        {menuUrl ? (
+                          <QrCodeWithCenterMark
+                            qrData={menuUrl}
+                            size={240}
+                            alt={t("dashboard.qrCodes.menuQR")}
+                            onLoad={() => setMenuImgLoaded(true)}
+                            centerKind="logo"
+                            center={<MenuQrCenterLogo logoRaw={data?.logo} />}
+                          />
+                        ) : (
+                          <div className="text-sm text-muted-foreground text-center px-2">
+                            {t("dashboard.qrCodes.menuUrlNotAvailable")}
+                          </div>
+                        )}
+                      </PrintableFrame>
+                    </div>
+                    <div className="mt-3 text-xs text-muted-foreground break-all text-center w-full max-w-[300px] mx-auto px-1">
+                      {menuUrl}
+                    </div>
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs sm:text-sm"
+                        onClick={() => handlePrintSingle("menu")}
+                        disabled={!menuUrl}
+                        title={
+                          !menuUrl
+                            ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR"
+                            : undefined
+                        }
+                      >
+                        {t("dashboard.qrCodes.print")}
+                      </Button>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="text-xs sm:text-sm">
+                            {t("dashboard.qrCodes.fullscreen")}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
+                          <DialogHeader>
+                            <DialogTitle className="text-base sm:text-lg">
+                              {t("dashboard.qrCodes.menuQR")}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="flex justify-center">
+                            {menuUrl ? (
+                              <QrCodeWithCenterMark
+                                qrData={menuUrl}
+                                size={512}
+                                alt={t("dashboard.qrCodes.menuQR")}
+                                centerKind="logo"
+                                center={<MenuQrCenterLogo logoRaw={data?.logo} />}
+                              />
+                            ) : null}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -550,7 +943,7 @@ export function QRCodeManagement() {
                   <QrCode className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm font-medium">Total Codes</p>
-                    <p className="text-2xl font-bold">3</p>
+                    <p className="text-2xl font-bold">4</p>
                   </div>
                 </div>
               </CardContent>
@@ -564,6 +957,7 @@ export function QRCodeManagement() {
 // Table Card Component
 function TableCard({
   table,
+  restaurantLogo,
   onEdit,
   onDelete,
   onSessionToggle,
@@ -572,6 +966,7 @@ function TableCard({
   t,
 }: {
   table: Table;
+  restaurantLogo?: string | null;
   onEdit: (table: Table) => void;
   onDelete: (table: Table) => void;
   onSessionToggle: (table: Table, isSessionOpen: boolean) => void;
@@ -642,14 +1037,13 @@ function TableCard({
                 table.number
               }`}
             >
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-                  table.qrCode
-                )}`}
-                width={200}
-                height={200}
+              <QrCodeWithCenterMark
+                qrData={table.qrCode}
+                size={200}
                 alt={table.name}
                 onLoad={() => setImageLoaded(true)}
+                centerKind="logo"
+                center={<MenuQrCenterLogo logoRaw={restaurantLogo} />}
               />
             </PrintableFrame>
           </div>
@@ -679,13 +1073,12 @@ function TableCard({
                 <DialogTitle>{table.name}</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=512x512&data=${encodeURIComponent(
-                    table.qrCode
-                  )}`}
-                  width={512}
-                  height={512}
+                <QrCodeWithCenterMark
+                  qrData={table.qrCode}
+                  size={512}
                   alt={table.name}
+                  centerKind="logo"
+                  center={<MenuQrCenterLogo logoRaw={restaurantLogo} />}
                 />
               </div>
             </DialogContent>
@@ -702,7 +1095,13 @@ const PLAN_PERMISSION_CODES = [
 ];
 
 // Tables Management Component – exported for standalone table-codes page
-export function TablesManagement({ restaurantId }: { restaurantId: string }) {
+export function TablesManagement({
+  restaurantId,
+  restaurantLogo,
+}: {
+  restaurantId: string;
+  restaurantLogo?: string | null;
+}) {
   const { t, i18n } = useTranslation();
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
@@ -723,6 +1122,12 @@ export function TablesManagement({ restaurantId }: { restaurantId: string }) {
       loadTables();
     }
   }, [restaurantId]);
+
+  const tableStickerLogoSrc = useMemo(() => {
+    const r = resolveMediaUrl(restaurantLogo);
+    if (!r) return null;
+    return absoluteUrlForPrint(r);
+  }, [restaurantLogo]);
 
   const loadTables = async () => {
     setLoading(true);
@@ -878,9 +1283,13 @@ export function TablesManagement({ restaurantId }: { restaurantId: string }) {
     printLabelStickers(
       [
         {
-          imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(table.qrCode)}`,
+          imgSrc: qrServerUrl(table.qrCode, 300),
           title: table.name,
           subtitle: `${tableLabel} #${table.number}`,
+          overlay:
+            tableStickerLogoSrc != null
+              ? { kind: "logo", src: tableStickerLogoSrc }
+              : null,
         },
       ],
       LABEL_PRINT_STYLES
@@ -890,10 +1299,15 @@ export function TablesManagement({ restaurantId }: { restaurantId: string }) {
   const handlePrintAllTables = () => {
     if (tables.length === 0) return;
     const tableLabel = t("dashboard.tables.tableNumber") || "Table";
+    const overlay =
+      tableStickerLogoSrc != null
+        ? ({ kind: "logo" as const, src: tableStickerLogoSrc })
+        : null;
     const stickers = tables.map((table) => ({
-      imgSrc: `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(table.qrCode)}`,
+      imgSrc: qrServerUrl(table.qrCode, 300),
       title: table.name,
       subtitle: `${tableLabel} #${table.number}`,
+      overlay,
     }));
     printLabelStickers(stickers, LABEL_PRINT_STYLES);
   };
@@ -985,6 +1399,7 @@ export function TablesManagement({ restaurantId }: { restaurantId: string }) {
             <TableCard
               key={table.id}
               table={table}
+              restaurantLogo={restaurantLogo}
               onEdit={openEditDialog}
               onDelete={openDeleteDialog}
               onSessionToggle={handleSessionToggle}

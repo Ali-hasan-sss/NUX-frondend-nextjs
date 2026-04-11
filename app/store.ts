@@ -17,6 +17,7 @@ import restaurantInvoicesReducer from "@/features/restaurant/invoices/invoicesSl
 import restaurantOverviewReducer from "@/features/restaurant/overview/restaurantOverviewSlice";
 import qrScansReducer from "@/features/restaurant/qrScans/qrScansSlice";
 import paymentsReducer from "@/features/restaurant/payments/paymentsSlice";
+import walletPaymentsReducer from "@/features/restaurant/walletPayments/walletPaymentsSlice";
 import publicRestaurantsReducer from "@/features/public/restaurants/publicRestaurantsSlice";
 import publicPlansReducer from "@/features/public/plans/publicPlansSlice";
 import {
@@ -48,6 +49,7 @@ export const store = configureStore({
     restaurantOverview: restaurantOverviewReducer,
     qrScans: qrScansReducer,
     payments: paymentsReducer,
+    walletPayments: walletPaymentsReducer,
     publicRestaurants: publicRestaurantsReducer,
     publicPlans: publicPlansReducer,
     clientAccount: clientAccountReducer,

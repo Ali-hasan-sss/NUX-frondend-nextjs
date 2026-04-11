@@ -34,6 +34,9 @@ import {
   ShoppingCart,
   Table2,
   LayoutGrid,
+  Star,
+  Banknote,
+  DollarSign,
 } from "lucide-react";
 
 type RestaurantSidebarProps = {
@@ -109,7 +112,12 @@ export function RestaurantSidebar({
         {
           name: t("dashboard.sidebar.payments"),
           href: "/dashboard/payments",
-          icon: Receipt,
+          icon: Star,
+        },
+        {
+          name: t("dashboard.sidebar.walletPayments"),
+          href: "/dashboard/wallet-payments",
+          icon: DollarSign,
         },
       ],
     },

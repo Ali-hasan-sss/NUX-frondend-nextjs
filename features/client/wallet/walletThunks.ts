@@ -5,6 +5,7 @@ import type {
   WalletLedgerEntry,
   PayRestaurantPayload,
   WithdrawalPayload,
+  WalletPayApprovalRequestData,
 } from "./walletTypes";
 
 export const fetchWalletBalance = createAsyncThunk<
@@ -69,12 +70,12 @@ export const syncWalletTopUpAfterPayment = createAsyncThunk<
 });
 
 export const payRestaurantWithWallet = createAsyncThunk<
-  { userBalanceAfter: string },
+  WalletPayApprovalRequestData,
   PayRestaurantPayload,
   { rejectValue: string }
 >("wallet/payRestaurant", async (payload, { rejectWithValue }) => {
   try {
-    return await walletService.payRestaurant(payload);
+    return await walletService.requestPayRestaurant(payload);
   } catch (e: unknown) {
     const msg =
       (e as { response?: { data?: { message?: string } } })?.response?.data?.message ||
