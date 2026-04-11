@@ -1,5 +1,10 @@
 import { axiosInstance } from "@/utils/axiosInstance";
-import type { WalletBalanceData, WalletLedgerEntry, WithdrawalPayload } from "@/features/client/wallet/walletTypes";
+import type {
+  WalletBalanceData,
+  WalletLedgerEntry,
+  WithdrawalPayload,
+  WalletWithdrawalRequestRow,
+} from "@/features/client/wallet/walletTypes";
 
 const BASE = "/restaurants/account/wallet";
 
@@ -39,5 +44,19 @@ export const restaurantWalletService = {
   requestWithdrawal: async (payload: WithdrawalPayload): Promise<{ id: string }> => {
     const res = await axiosInstance.post(`${BASE}/withdrawals`, payload);
     return unwrapData<{ id: string }>(res);
+  },
+
+  listWithdrawalRequests: async (params?: {
+    take?: number;
+    skip?: number;
+  }): Promise<{ items: WalletWithdrawalRequestRow[]; total: number }> => {
+    const res = await axiosInstance.get(`${BASE}/withdrawals`, {
+      params: { take: params?.take ?? 50, skip: params?.skip ?? 0 },
+    });
+    return unwrapData<{ items: WalletWithdrawalRequestRow[]; total: number }>(res);
+  },
+
+  cancelWithdrawalRequest: async (id: string): Promise<void> => {
+    await axiosInstance.post(`${BASE}/withdrawals/${id}/cancel`);
   },
 };

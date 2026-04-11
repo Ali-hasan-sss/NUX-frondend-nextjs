@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
+import { balanceRowIdFromUserBalance } from "@/lib/paymentQr";
 
 interface PaymentFormProps {
   open: boolean;
@@ -51,10 +52,9 @@ export function PaymentForm({
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const selectedRestaurantBalance = userBalances.find((b: any) => {
-    const id = b.targetId || b.restaurantId;
-    return id === restaurantId;
-  }) as any;
+  const selectedRestaurantBalance = userBalances.find(
+    (b: any) => balanceRowIdFromUserBalance(b) === restaurantId
+  ) as any;
   const mealPerVoucher = selectedRestaurantBalance?.mealPointsPerVoucher ?? null;
   const drinkPerVoucher = selectedRestaurantBalance?.drinkPointsPerVoucher ?? null;
 

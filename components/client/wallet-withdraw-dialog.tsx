@@ -21,9 +21,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 interface WalletWithdrawDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Called after a successful withdrawal request (e.g. refresh list + balance). */
+  onSuccess?: () => void | Promise<void>;
 }
 
-export function WalletWithdrawDialog({ open, onOpenChange }: WalletWithdrawDialogProps) {
+export function WalletWithdrawDialog({ open, onOpenChange, onSuccess }: WalletWithdrawDialogProps) {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const { colors, isDark, mounted } = useClientTheme();
@@ -40,7 +42,7 @@ export function WalletWithdrawDialog({ open, onOpenChange }: WalletWithdrawDialo
     }
   }, [open]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (): Promise<void> => {
     const n = parseFloat(amount);
     if (!Number.isFinite(n) || n <= 0) {
       toast.error(t("wallet.invalidAmount"));
@@ -58,8 +60,9 @@ export function WalletWithdrawDialog({ open, onOpenChange }: WalletWithdrawDialo
       })
     );
     if (requestWalletWithdrawal.fulfilled.match(result)) {
-      toast.success(t("wallet.withdrawSubmitted"));
+      toast.success(t("wallet.withdrawSubmittedFrozen"));
       dispatch(fetchWalletBalance());
+      await onSuccess?.();
       onOpenChange(false);
     }
   };
@@ -81,6 +84,12 @@ export function WalletWithdrawDialog({ open, onOpenChange }: WalletWithdrawDialo
         <p className="text-xs" style={{ color: colors.textSecondary }}>
           {t("wallet.withdrawHint")}
         </p>
+        <Alert className="border-amber-500/40 bg-amber-500/10">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-900 dark:text-amber-100 text-xs">
+            {t("wallet.withdrawFreezeNotice")}
+          </AlertDescription>
+        </Alert>
         {error.withdraw && (
           <Alert variant="destructive" className="bg-red-500/10">
             <AlertCircle className="h-4 w-4" />

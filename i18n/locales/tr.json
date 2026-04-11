@@ -9,11 +9,27 @@
     "scanCode": "Kodu Tara",
     "scanCodeDesc": "Restoran QR kodunu tarayın",
     "payWallet": "Cüzdan ile Öde",
+    "payAtVenue": "Öde",
+    "payAtVenueDesc": "Mekânın ödeme kodunu tarayın; yemek puanı, içecek puanı veya cüzdanla ödeyin — uygulamadaki gibi.",
+    "balancesSummary": "Bakiyeleriniz (tüm restoranlar)",
+    "loyaltyPackagesLink": "Paketler, hediye ve QR kodum",
     "selectRestaurantFirst": "Önce Restoran Seçin",
     "noBalances": "Bakiye Yok",
     "noBalancesDesc": "Puan kazanmaya başlamak için QR kodlarını tarayın!",
     "errorLoadingData": "Veri Yüklenirken Hata",
     "retry": "Tekrar Dene"
+  },
+  "checkout": {
+    "choosePayment": "Nasıl ödemek istersiniz?",
+    "oneVoucherSubtitle": "Tek fiş (uygulamadaki gibi)",
+    "walletEur": "Cüzdan bakiyesi (EUR)",
+    "walletMobileConfirmHint": "Tutarı burada girin; onay yalnızca telefonda.",
+    "scanAgain": "Başka kod tara",
+    "payOneMealVoucher": "Yemek fişiyle öde",
+    "payOneDrinkVoucher": "İçecek fişiyle öde",
+    "voucherNotConfigured": "Bu tür bu restoran için ayarlı değil.",
+    "voucherPaidSuccess": "Fiş ödemesi tamamlandı.",
+    "backToMethods": "Ödeme yöntemini değiştir"
   },
   "tabs": {
     "home": "Ana Sayfa",
@@ -39,7 +55,18 @@
     "processingPayment": "Ödeme İşleniyor...",
     "payNow": "Şimdi Öde",
     "oneVoucher": "1 fiş = {{points}} puan",
-    "enterPoints": "Puan girin"
+    "enterPoints": "Puan girin",
+    "scanRestaurantQr": "Ödeme QR kodunu tara",
+    "scanRestaurantQrHint": "Restoranın gösterdiği ödeme QR kodunu tarayın (menü linki değil). Uygulamadakiyle aynı.",
+    "scanRestaurantInvalid": "Bu koddan restoran okunamadı. Ödeme QR kodunu tekrar deneyin.",
+    "scanRestaurantNotFound": "Bu restoran için sadakat bakiyesi yok. Önce puan toplamak için restoran QR’ı tarayın veya aşağıdan seçin.",
+    "startCameraScan": "Kamerayı aç",
+    "stopCameraScan": "Kamerayı durdur",
+    "enterCodeManually": "Veya kodu yapıştırın",
+    "enterCodePlaceholder": "PAYMENT::… veya restoran UUID",
+    "applyCode": "Uygula",
+    "cameraPreviewHint": "Taramak için kamerayı başlatın veya ödeme kodunu yapıştırın.",
+    "cameraStartFailed": "Kamera başlatılamadı. İzinleri kontrol edin veya kodu yapıştırın."
   },
   "drawer": {
     "menu": "Menü",
@@ -97,7 +124,15 @@
     "rechargeDesc": "Yükleme paketleri satın alın",
     "gift": "Hediye",
     "giftDesc": "Arkadaşınıza puan hediye edin",
-    "selectRestaurantFirst": "Lütfen önce bir restoran seçin"
+    "selectRestaurantFirst": "Lütfen önce bir restoran seçin",
+    "tabLoyalty": "Sadakat ve fişler",
+    "tabWallet": "Uygulama cüzdanı (EUR)",
+    "orChooseRestaurant": "Veya restoranlarınızdan seçin",
+    "restaurantSelected": "{{name}} — ödeme için seçildi",
+    "payWithMeal": "Yemek puanıyla öde",
+    "payWithDrink": "İçecek puanıyla öde",
+    "walletTabHint": "Mekanı kilitlemek için yukarıdaki ödeme QR’ını tarayın, ardından EUR ile ödeyin. Taramadan da ödeme penceresinde arama yapabilirsiniz.",
+    "payOnHomeBanner": "Restoranda ödeme yalnızca Ana Sayfa’dan başlar: Öde’ye dokunun, ödeme QR’ını tarayın, yemek puanı, içecek puanı veya cüzdanı seçin."
   },
   "account": {
     "title": "Hesap",
@@ -849,7 +884,11 @@
       "zoomIn": "Yakınlaştır",
       "zoomOut": "Uzaklaştır",
       "dragFromToolbar": "Çalışma alanına sürükleyin:",
-      "hint": "Üst çubuktan bir öğeyi çalışma alanına sürükleyip bırakarak ekleyin. Duvar: tuvalde sürükleyin. Seç: tek öğe için tıklayın; Shift veya Ctrl/Cmd+tıklama ile seçime ekleyin veya çıkarın. Boş alanda sürükleyerek masaüstü gibi seçim dikdörtgeni çizin; sürerken Shift veya Ctrl/Cmd basılı tutarak içindeki öğeler mevcut seçime eklenir. Grubu birlikte taşıyın. Köşe tutamaçları yalnızca tek seçimde boyutlandırır. Sil, seçilenlerin tümünü kaldırır. Etiket için çift tıklayın.",
+      "copy": "Kopyala",
+      "paste": "Yapıştır",
+      "copyShortcut": "Seçimi kopyala (Ctrl/Cmd+C)",
+      "pasteShortcut": "Kopyayı yapıştır (Ctrl/Cmd+V) — seçim kopyaya geçer, ayrı taşıyabilirsiniz",
+      "hint": "Üst çubuktan öğe sürükleyin. Duvar: tuvalde çizin. Tıklama, Shift/Ctrl/Cmd ile çoklu seçim. Boş alanda seçim dikdörtgeni. Seçili grubu taşıyın (seçili duvarlar dahil). Kopyala (Ctrl/Cmd+C) ve Yapıştır (Ctrl/Cmd+V) ile kopya oluşur ve seçim kopyada kalır. Köşeler yalnızca tek öğede. Sil tüm seçimi kaldırır. Etiket: çift tıklayın.",
       "elements": {
         "table": "Masa",
         "chair": "Sandalye",

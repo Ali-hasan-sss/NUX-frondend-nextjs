@@ -5,26 +5,22 @@ import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import {
   fetchUserBalances,
   fetchClientProfile,
-  fetchWalletBalance,
 } from "@/features/client";
 import { RestaurantSelector } from "@/components/client/restaurant-selector";
-import { PaymentForm } from "@/components/client/payment-form";
 import { GiftModal } from "@/components/client/gift-modal";
 import { PackagesModal } from "@/components/client/packages-modal";
-import { WalletTopUpDialog } from "@/components/client/wallet-top-up-dialog";
-import { WalletPayRestaurantDialog } from "@/components/client/wallet-pay-restaurant-dialog";
 import Link from "next/link";
 import {
   CreditCard,
   Gift,
   Coffee,
   UtensilsCrossed,
-  Wallet,
   Camera,
   Share2,
   Loader2,
   Check,
   Circle,
+  Info,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { cn } from "@/lib/utils";
@@ -32,26 +28,18 @@ import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
+import { balanceRowIdFromUserBalance } from "@/lib/paymentQr";
 
 export default function PurchasePage() {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const { colors, isDark, mounted } = useClientTheme();
+  const { colors, mounted } = useClientTheme();
   const { user } = useAppSelector((state) => state.auth);
-  const { userBalances, loading, error } = useAppSelector(
-    (state) => state.clientBalances
-  );
-  const { balance: appWalletBalance, loading: walletLoading } = useAppSelector(
-    (state) => state.clientWallet
-  );
+  const { userBalances, error } = useAppSelector((state) => state.clientBalances);
   const { profile: clientProfile, loading: profileLoading } = useAppSelector(
     (state) => state.clientAccount
   );
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string>("");
-  const [showPaymentForm, setShowPaymentForm] = useState(false);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<"drink" | "meal">("meal");
-  const [walletTopUpOpen, setWalletTopUpOpen] = useState(false);
-  const [walletPayOpen, setWalletPayOpen] = useState(false);
   const [showGiftModal, setShowGiftModal] = useState(false);
   const [showPackagesModal, setShowPackagesModal] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
@@ -115,28 +103,26 @@ export default function PurchasePage() {
     }
   }, [clientProfile?.qrCode, t]);
 
-  // Fetch balances and profile on mount
   useEffect(() => {
     if (user?.role === "USER") {
       dispatch(fetchUserBalances());
       dispatch(fetchClientProfile());
-      dispatch(fetchWalletBalance());
     }
   }, [dispatch, user]);
 
-  // Auto-select first restaurant when balances are loaded
   useEffect(() => {
     if (userBalances.length > 0 && !selectedRestaurantId) {
-      const validBalances = userBalances.filter((balance: any) => {
-        if (balance.name && balance.targetId) return true;
-        if (balance.restaurant && balance.restaurant.name) return true;
-        return false;
-      });
+      const validBalances = userBalances.filter((balance: any) =>
+        Boolean(
+          balance.targetId ||
+            balance.restaurantId ||
+            balance.restaurant?.id ||
+            (balance.name && balance.restaurant?.name)
+        )
+      );
       if (validBalances.length > 0) {
-        const firstBalance = validBalances[0];
-        const id =
-          (firstBalance as any).targetId || (firstBalance as any).restaurantId;
-        setSelectedRestaurantId(id);
+        const id = balanceRowIdFromUserBalance(validBalances[0]);
+        if (id) setSelectedRestaurantId(id);
       }
     }
   }, [userBalances, selectedRestaurantId]);
@@ -145,20 +131,19 @@ export default function PurchasePage() {
     return null;
   }
 
-  // Get valid restaurants for selector
-  const validRestaurants = userBalances.filter((balance: any) => {
-    if (balance.name && balance.targetId) return true;
-    if (balance.restaurant && balance.restaurant.name) return true;
-    return false;
-  });
+  const validRestaurants = userBalances.filter((balance: any) =>
+    Boolean(
+      balance.targetId ||
+        balance.restaurantId ||
+        balance.restaurant?.id ||
+        (balance.name && balance.restaurant?.name)
+    )
+  );
 
-  // Get selected restaurant balance
-  const selectedRestaurantBalance = userBalances.find((balance: any) => {
-    const id = balance.targetId || balance.restaurantId;
-    return id === selectedRestaurantId;
-  });
+  const selectedRestaurantBalance = userBalances.find(
+    (balance: any) => balanceRowIdFromUserBalance(balance) === selectedRestaurantId
+  );
 
-  // Calculate balances and vouchers for selected restaurant
   const bal = selectedRestaurantBalance as any;
   const mealVouchers = bal?.vouchers_meal ?? 0;
   const drinkVouchers = bal?.vouchers_drink ?? 0;
@@ -169,11 +154,7 @@ export default function PurchasePage() {
   const mealTowardNext = mealPerVoucher > 0 ? mealStars - mealVouchers * mealPerVoucher : 0;
   const drinkTowardNext = drinkPerVoucher > 0 ? drinkStars - drinkVouchers * drinkPerVoucher : 0;
 
-  const isGroupBalance = Boolean(bal?.isGroup);
-
   const currentBalance = {
-    mealPoints: mealStars,
-    drinkPoints: drinkStars,
     mealVouchers,
     drinkVouchers,
     mealPerVoucher,
@@ -182,25 +163,27 @@ export default function PurchasePage() {
     drinkTowardNext: Math.min(drinkTowardNext, drinkPerVoucher),
   };
 
-  // Convert to RestaurantSelector format
-  const restaurantsWithBalances = validRestaurants.map((balance: any) => {
-    const id = balance.targetId || balance.restaurantId;
-    const name = balance.name || balance.restaurant?.name;
-    return {
-      id,
-      name: name || "Unknown Restaurant",
-      userBalance: {
-        mealPoints: balance.stars_meal || 0,
-        drinkPoints: balance.stars_drink || 0,
-      },
-    };
-  });
+  const restaurantsWithBalances = validRestaurants
+    .map((balance: any) => {
+      const id = balanceRowIdFromUserBalance(balance);
+      const name = balance.name || balance.restaurant?.name;
+      return {
+        id,
+        name: name || "Unknown Restaurant",
+        userBalance: {
+          mealPoints: balance.stars_meal || 0,
+          drinkPoints: balance.stars_drink || 0,
+        },
+      };
+    })
+    .filter(
+      (r): r is { id: string; name: string; userBalance: { mealPoints: number; drinkPoints: number } } =>
+        typeof r.id === "string" && r.id.length > 0
+    );
 
-  const selectedRestaurant = restaurantsWithBalances.find(
-    (r) => r.id === selectedRestaurantId
-  );
+  const selectedRestaurant = restaurantsWithBalances.find((r) => r.id === selectedRestaurantId);
 
-  const handleRestaurantChange = (restaurant: any) => {
+  const handleRestaurantChange = (restaurant: { id: string }) => {
     setSelectedRestaurantId(restaurant.id);
   };
 
@@ -222,14 +205,23 @@ export default function PurchasePage() {
 
   return (
     <div className="min-h-screen bg-transparent pb-20 px-5 py-5">
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold" style={{ color: colors.text }}>
           {t("purchase.title")}
         </h1>
       </div>
 
-      {/* Error/Balance Cards */}
+      <Link
+        href="/client/home"
+        className="flex gap-3 rounded-2xl p-4 mb-6 shadow-lg items-start"
+        style={{ backgroundColor: `${colors.primary}18`, borderWidth: 1, borderColor: colors.border }}
+      >
+        <Info className="h-5 w-5 shrink-0 mt-0.5" style={{ color: colors.primary }} />
+        <p className="text-sm" style={{ color: colors.text }}>
+          {t("purchase.payOnHomeBanner")}
+        </p>
+      </Link>
+
       {error.balances ? (
         <div
           className="rounded-2xl p-6 mb-6 text-center"
@@ -260,12 +252,7 @@ export default function PurchasePage() {
           selectedRestaurantId={selectedRestaurantId}
         />
       ) : (
-        <div
-          className="rounded-2xl p-6 mb-6 text-center"
-          style={{
-            backgroundColor: colors.surface,
-          }}
-        >
+        <div className="rounded-2xl p-6 mb-6 text-center" style={{ backgroundColor: colors.surface }}>
           <p className="font-semibold mb-2" style={{ color: colors.text }}>
             {t("home.noBalances")}
           </p>
@@ -275,16 +262,9 @@ export default function PurchasePage() {
         </div>
       )}
 
-      {/* Balance Cards */}
       {selectedRestaurant && (
-        <div className="mb-6 space-y-3">
-          {/* Meal Vouchers */}
-          <div
-            className={cn(
-              "rounded-2xl p-4 flex flex-col gap-3 shadow-lg"
-            )}
-            style={{ backgroundColor: colors.surface }}
-          >
+        <div className="mb-6 mt-6 space-y-3">
+          <div className={cn("rounded-2xl p-4 flex flex-col gap-3 shadow-lg")} style={{ backgroundColor: colors.surface }}>
             <div className="flex items-center gap-2">
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -313,9 +293,7 @@ export default function PurchasePage() {
                     key={`meal-${i}`}
                     className={cn(
                       "shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2",
-                      i < currentBalance.mealTowardNext
-                        ? "border-transparent"
-                        : "border-dashed"
+                      i < currentBalance.mealTowardNext ? "border-transparent" : "border-dashed"
                     )}
                     style={{
                       backgroundColor: i < currentBalance.mealTowardNext ? colors.primary : "transparent",
@@ -333,13 +311,7 @@ export default function PurchasePage() {
             )}
           </div>
 
-          {/* Drink Vouchers */}
-          <div
-            className={cn(
-              "rounded-2xl p-4 flex flex-col gap-3 shadow-lg"
-            )}
-            style={{ backgroundColor: colors.surface }}
-          >
+          <div className={cn("rounded-2xl p-4 flex flex-col gap-3 shadow-lg")} style={{ backgroundColor: colors.surface }}>
             <div className="flex items-center gap-2">
               <div
                 className="w-10 h-10 rounded-full flex items-center justify-center"
@@ -368,9 +340,7 @@ export default function PurchasePage() {
                     key={`drink-${i}`}
                     className={cn(
                       "shrink-0 w-10 h-10 rounded-full flex items-center justify-center border-2",
-                      i < currentBalance.drinkTowardNext
-                        ? "border-transparent"
-                        : "border-dashed"
+                      i < currentBalance.drinkTowardNext ? "border-transparent" : "border-dashed"
                     )}
                     style={{
                       backgroundColor: i < currentBalance.drinkTowardNext ? colors.secondary : "transparent",
@@ -391,79 +361,15 @@ export default function PurchasePage() {
           <p className="text-xs px-1" style={{ color: colors.textSecondary }}>
             {t("wallet.legacyPerRestaurant")}
           </p>
-
-          {/* App wallet (EUR) */}
-          <div
-            className={cn("rounded-2xl p-4 flex flex-col gap-3 shadow-lg")}
-            style={{ backgroundColor: colors.surface }}
-          >
-            <div className="flex items-center gap-4">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-                style={{ backgroundColor: `${colors.success}20` }}
-              >
-                <Wallet className="h-6 w-6" style={{ color: colors.success }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs mb-1" style={{ color: colors.textSecondary }}>
-                  {t("wallet.appWalletBalance")}
-                </p>
-                {walletLoading.balance && !appWalletBalance ? (
-                  <Loader2 className="h-6 w-6 animate-spin" style={{ color: colors.primary }} />
-                ) : (
-                  <p className="text-2xl font-bold tabular-nums" style={{ color: colors.text }}>
-                    {appWalletBalance?.balance ?? "—"} {appWalletBalance?.currency ?? "EUR"}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => setWalletTopUpOpen(true)}
-                className="px-4 py-2 rounded-xl text-sm font-semibold text-white"
-                style={{ backgroundColor: colors.primary }}
-              >
-                {t("wallet.addFundsShort")}
-              </button>
-              <button
-                type="button"
-                disabled={isGroupBalance}
-                onClick={() => !isGroupBalance && setWalletPayOpen(true)}
-                className={cn(
-                  "px-4 py-2 rounded-xl text-sm font-semibold text-white",
-                  isGroupBalance && "opacity-50 cursor-not-allowed"
-                )}
-                style={{ backgroundColor: colors.secondary }}
-              >
-                {t("wallet.payWithAppWallet")}
-              </button>
-              <Link
-                href="/client/wallet"
-                className="inline-flex items-center px-4 py-2 rounded-xl text-sm font-semibold border"
-                style={{ borderColor: colors.border, color: colors.text }}
-              >
-                {t("account.openWallet")}
-              </Link>
-            </div>
-            {isGroupBalance && (
-              <p className="text-xs" style={{ color: colors.textSecondary }}>
-                {t("wallet.groupWalletHint")}
-              </p>
-            )}
-          </div>
         </div>
       )}
 
-      {/* Action Cards */}
       <div className="space-y-4">
-        {/* Recharge Card */}
         <button
           onClick={handleRecharge}
           disabled={!selectedRestaurant}
           className={cn(
-            "w-full rounded-2xl p-5 flex items-center gap-4 transition-all",
-            "shadow-lg",
+            "w-full rounded-2xl p-5 flex items-center gap-4 transition-all shadow-lg",
             selectedRestaurant ? "opacity-100" : "opacity-50 cursor-not-allowed"
           )}
           style={{ backgroundColor: colors.surface }}
@@ -484,13 +390,11 @@ export default function PurchasePage() {
           </div>
         </button>
 
-        {/* Gift Card */}
         <button
           onClick={handleGiftFriend}
           disabled={!selectedRestaurant}
           className={cn(
-            "w-full rounded-2xl p-5 flex items-center gap-4 transition-all",
-            "shadow-lg",
+            "w-full rounded-2xl p-5 flex items-center gap-4 transition-all shadow-lg",
             selectedRestaurant ? "opacity-100" : "opacity-50 cursor-not-allowed"
           )}
           style={{ backgroundColor: colors.surface }}
@@ -511,12 +415,8 @@ export default function PurchasePage() {
           </div>
         </button>
 
-        {/* QR Code Card */}
         <div
-          className={cn(
-            "w-full rounded-2xl p-5 flex flex-col items-center",
-            "shadow-lg"
-          )}
+          className={cn("w-full rounded-2xl p-5 flex flex-col items-center shadow-lg")}
           style={{ backgroundColor: colors.surface }}
         >
           <div
@@ -528,13 +428,9 @@ export default function PurchasePage() {
           <p className="font-bold text-lg mb-2" style={{ color: colors.text }}>
             {t("account.myQRCode")}
           </p>
-          <p
-            className="text-sm text-center"
-            style={{ color: colors.textSecondary }}
-          >
+          <p className="text-sm text-center" style={{ color: colors.textSecondary }}>
             {t("account.qrCodeDesc")}
           </p>
-          {/* QR Code - white background in both themes for reliable scanning */}
           {clientProfile?.qrCode && clientProfile.qrCode.trim() !== "" && !profileLoading.profile ? (
             <>
               <div
@@ -549,9 +445,7 @@ export default function PurchasePage() {
                   level="M"
                   includeMargin={true}
                 />
-                <p className="text-sm font-medium text-gray-800 mt-3">
-                  {clientProfile.fullName || ""}
-                </p>
+                <p className="text-sm font-medium text-gray-800 mt-3">{clientProfile.fullName || ""}</p>
                 <p className="text-xs text-gray-500">{clientProfile.email || ""}</p>
               </div>
               <button
@@ -569,14 +463,8 @@ export default function PurchasePage() {
                   color: colors.text,
                 }}
               >
-                {shareLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Share2 className="h-5 w-5" />
-                )}
-                {shareLoading
-                  ? t("common.loading")
-                  : t("account.shareCode")}
+                {shareLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Share2 className="h-5 w-5" />}
+                {shareLoading ? t("common.loading") : t("account.shareCode")}
               </button>
             </>
           ) : profileLoading.profile ? (
@@ -595,46 +483,19 @@ export default function PurchasePage() {
         </div>
       </div>
 
-      {/* Payment Form Modal */}
       {selectedRestaurant && (
-        <PaymentForm
-          open={showPaymentForm}
-          onOpenChange={setShowPaymentForm}
-          initialPaymentType={selectedPaymentType}
-          restaurantId={selectedRestaurant.id}
-          onPaymentSuccess={(result) => {
-            dispatch(fetchUserBalances());
-            setShowPaymentForm(false);
-          }}
-        />
-      )}
-
-      {/* Gift Modal */}
-      {selectedRestaurant && (
-        <GiftModal
-          open={showGiftModal}
-          onOpenChange={setShowGiftModal}
-          targetId={selectedRestaurant.id}
-        />
-      )}
-
-      {/* Packages Modal */}
-      {selectedRestaurant && (
-        <PackagesModal
-          open={showPackagesModal}
-          onOpenChange={setShowPackagesModal}
-          restaurantId={selectedRestaurant.id}
-        />
-      )}
-
-      <WalletTopUpDialog open={walletTopUpOpen} onOpenChange={setWalletTopUpOpen} />
-      {selectedRestaurant && (
-        <WalletPayRestaurantDialog
-          open={walletPayOpen}
-          onOpenChange={setWalletPayOpen}
-          fixedRestaurantId={isGroupBalance ? undefined : selectedRestaurant.id}
-          fixedRestaurantName={isGroupBalance ? undefined : selectedRestaurant.name}
-        />
+        <>
+          <GiftModal
+            open={showGiftModal}
+            onOpenChange={setShowGiftModal}
+            targetId={selectedRestaurant.id}
+          />
+          <PackagesModal
+            open={showPackagesModal}
+            onOpenChange={setShowPackagesModal}
+            restaurantId={selectedRestaurant.id}
+          />
+        </>
       )}
     </div>
   );

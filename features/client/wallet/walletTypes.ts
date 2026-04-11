@@ -41,6 +41,17 @@ export interface WithdrawalPayload {
   accountInfo: Record<string, string>;
 }
 
+/** Row from GET /client/wallet/withdrawals */
+export interface WalletWithdrawalRequestRow {
+  id: string;
+  amount: string;
+  currency: string;
+  status: string;
+  createdAt: string;
+  reviewedAt: string | null;
+  accountInfo: unknown;
+}
+
 export interface WalletState {
   balance: WalletBalanceData | null;
   transactions: WalletLedgerEntry[];

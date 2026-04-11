@@ -189,6 +189,9 @@ export function FloorPlanEditor() {
     startPointer: { x: number; y: number };
     ids: string[];
     initial: Record<string, { x: number; y: number }>;
+    /** Selected walls move with the same delta when dragging from an element */
+    wallIds?: string[];
+    wallInitial?: Record<string, { x: number; y: number }[]>;
   };
   const [elementDrag, setElementDrag] = useState<ElementDragState | null>(null);
   /** After Ctrl/Shift+click to add to selection, start drag only once pointer moves */
@@ -334,6 +337,11 @@ export function FloorPlanEditor() {
     setSelectedIds(newIds);
     setTool("select");
     justPlacedRef.current = true;
+    clipboardRef.current = {
+      elements: newEls.map((e) => ({ ...e })),
+      walls: newWalls.map((w) => ({ ...w, points: w.points.map((p) => ({ ...p })) })),
+    };
+    setPasteAvailable(true);
   }, []);
 
   useEffect(() => {
@@ -576,10 +584,20 @@ export function FloorPlanEditor() {
             const el = elements.find((e) => e.id === id);
             if (el) initial[id] = { x: el.x, y: el.y };
           }
+          const wallIdsFromSel = selectedIdsRef.current.filter((id) => walls.some((w) => w.id === id));
+          const wallInitial: Record<string, { x: number; y: number }[]> = {};
+          for (const wid of wallIdsFromSel) {
+            const w = walls.find((x) => x.id === wid);
+            if (w && w.points.length >= 2) {
+              wallInitial[wid] = w.points.map((p) => ({ x: p.x, y: p.y }));
+            }
+          }
           setElementDrag({
             startPointer: pt,
             ids: idsToDrag.filter((id) => initial[id] != null),
             initial,
+            wallIds: Object.keys(wallInitial),
+            wallInitial,
           });
           return;
         }
@@ -654,7 +672,21 @@ export function FloorPlanEditor() {
             }
             const ready = ids.filter((id) => initial[id] != null);
             if (ready.length > 0) {
-              setElementDrag({ startPointer: pend.start, ids: ready, initial });
+              const wallIdsFromSel = selectedIdsRef.current.filter((id) => walls.some((w) => w.id === id));
+              const wallInitial: Record<string, { x: number; y: number }[]> = {};
+              for (const wid of wallIdsFromSel) {
+                const w = walls.find((x) => x.id === wid);
+                if (w && w.points.length >= 2) {
+                  wallInitial[wid] = w.points.map((p) => ({ x: p.x, y: p.y }));
+                }
+              }
+              setElementDrag({
+                startPointer: pend.start,
+                ids: ready,
+                initial,
+                wallIds: Object.keys(wallInitial),
+                wallInitial,
+              });
             }
           }
           pendingElementDragRef.current = null;
@@ -725,9 +757,27 @@ export function FloorPlanEditor() {
             };
           })
         );
+        const wids = elementDrag.wallIds;
+        const wini = elementDrag.wallInitial;
+        if (wids?.length && wini) {
+          setWalls((prev) =>
+            prev.map((w) => {
+              if (!wids.includes(w.id)) return w;
+              const ini = wini[w.id];
+              if (!ini) return w;
+              return {
+                ...w,
+                points: ini.map((p) => ({
+                  x: Math.max(0, Math.min(CANVAS_W, p.x + dx)),
+                  y: Math.max(0, Math.min(CANVAS_H, p.y + dy)),
+                })),
+              };
+            })
+          );
+        }
       }
     },
-    [marquee, resizeHandle, wallDragStart, dragWall, elementDrag, getSvgPoint, dist, elements]
+    [marquee, resizeHandle, wallDragStart, dragWall, elementDrag, getSvgPoint, dist, elements, walls]
   );
 
   const releaseMarqueePointerCapture = useCallback(() => {

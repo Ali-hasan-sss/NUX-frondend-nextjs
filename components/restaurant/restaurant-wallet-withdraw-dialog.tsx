@@ -62,7 +62,7 @@ export function RestaurantWalletWithdrawDialog({
         currency: currency || "EUR",
         accountInfo: { iban: iban.trim(), accountHolder: holder.trim() },
       });
-      toast.success(t("wallet.withdrawSubmitted"));
+      toast.success(t("wallet.withdrawSubmittedFrozen"));
       onCompleted();
       onOpenChange(false);
     } catch (e: unknown) {
@@ -82,6 +82,12 @@ export function RestaurantWalletWithdrawDialog({
           <DialogTitle>{t("wallet.requestWithdrawal")}</DialogTitle>
         </DialogHeader>
         <p className="text-xs text-muted-foreground">{t("wallet.withdrawHint")}</p>
+        <Alert className="border-amber-500/40 bg-amber-500/10">
+          <AlertCircle className="h-4 w-4 text-amber-600" />
+          <AlertDescription className="text-amber-950 dark:text-amber-100 text-xs">
+            {t("wallet.withdrawFreezeNotice")}
+          </AlertDescription>
+        </Alert>
         {error && (
           <Alert variant="destructive" className="bg-red-500/10">
             <AlertCircle className="h-4 w-4" />

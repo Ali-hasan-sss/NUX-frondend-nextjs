@@ -28,6 +28,7 @@ import {
   Store,
   FileText,
   UserCog,
+  Wallet,
 } from "lucide-react";
 
 function getNavItems(
@@ -75,6 +76,12 @@ function getNavItems(
       name: t("invoices"),
       href: "/admin/invoices",
       icon: FileText,
+      adminOnly: true,
+    },
+    {
+      name: t("adminWalletNav"),
+      href: "/admin/wallet",
+      icon: Wallet,
       adminOnly: true,
     },
     { name: t("notifications"), href: "/admin/notifications", icon: Bell },

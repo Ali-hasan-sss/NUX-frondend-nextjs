@@ -5,6 +5,7 @@ import type {
   PayRestaurantPayload,
   WithdrawalPayload,
   WalletPayApprovalRequestData,
+  WalletWithdrawalRequestRow,
 } from "./walletTypes";
 
 const CLIENT_WALLET = "/client/wallet";
@@ -65,6 +66,20 @@ export const walletService = {
   requestWithdrawal: async (payload: WithdrawalPayload): Promise<{ id: string }> => {
     const res = await axiosInstance.post(`${CLIENT_WALLET}/withdrawals`, payload);
     return unwrapData<{ id: string }>(res);
+  },
+
+  listWithdrawalRequests: async (params?: {
+    take?: number;
+    skip?: number;
+  }): Promise<{ items: WalletWithdrawalRequestRow[]; total: number }> => {
+    const res = await axiosInstance.get(`${CLIENT_WALLET}/withdrawals`, {
+      params: { take: params?.take ?? 50, skip: params?.skip ?? 0 },
+    });
+    return unwrapData<{ items: WalletWithdrawalRequestRow[]; total: number }>(res);
+  },
+
+  cancelWithdrawalRequest: async (id: string): Promise<void> => {
+    await axiosInstance.post(`${CLIENT_WALLET}/withdrawals/${id}/cancel`);
   },
 
   /** Restaurant owner — ledger credits from customer wallet payments */

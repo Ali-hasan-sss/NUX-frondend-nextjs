@@ -10,7 +10,12 @@ import { Wallet, Loader2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { walletLedgerTitleKey } from "@/lib/walletLedgerTitle";
 import { restaurantWalletService } from "@/features/restaurant/wallet/restaurantWalletService";
-import type { WalletBalanceData, WalletLedgerEntry } from "@/features/client/wallet/walletTypes";
+import type {
+  WalletBalanceData,
+  WalletLedgerEntry,
+  WalletWithdrawalRequestRow,
+} from "@/features/client/wallet/walletTypes";
+import { WalletWithdrawalsSection } from "@/components/client/wallet-withdrawals-section";
 
 const PAGE_TAKE = 20;
 
@@ -30,6 +35,23 @@ function RestaurantWalletPageContent() {
 
   const [topUpOpen, setTopUpOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawals, setWithdrawals] = useState<WalletWithdrawalRequestRow[]>([]);
+  const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
+  const [withdrawalsError, setWithdrawalsError] = useState<string | null>(null);
+  const [cancellingWithdrawalId, setCancellingWithdrawalId] = useState<string | null>(null);
+
+  const fetchWithdrawalRequests = useCallback(async () => {
+    setWithdrawalsLoading(true);
+    setWithdrawalsError(null);
+    try {
+      const { items } = await restaurantWalletService.listWithdrawalRequests({ take: 50, skip: 0 });
+      setWithdrawals(items);
+    } catch {
+      setWithdrawalsError(t("wallet.withdrawalsLoadError"));
+    } finally {
+      setWithdrawalsLoading(false);
+    }
+  }, [t]);
 
   const loadBalance = useCallback(async () => {
     setLoadingBalance(true);
@@ -75,7 +97,8 @@ function RestaurantWalletPageContent() {
   const refreshAll = useCallback(async () => {
     await loadBalance();
     await loadTransactions({ append: false });
-  }, [loadBalance, loadTransactions]);
+    await fetchWithdrawalRequests();
+  }, [loadBalance, loadTransactions, fetchWithdrawalRequests]);
 
   useEffect(() => {
     void refreshAll();
@@ -157,6 +180,17 @@ function RestaurantWalletPageContent() {
           </div>
         </div>
       </div>
+
+      <WalletWithdrawalsSection
+        items={withdrawals}
+        loading={withdrawalsLoading}
+        error={withdrawalsError}
+        currency={balance?.currency ?? "EUR"}
+        cancellingId={cancellingWithdrawalId}
+        setCancellingId={setCancellingWithdrawalId}
+        onCancelRequest={(id) => restaurantWalletService.cancelWithdrawalRequest(id)}
+        onRefresh={refreshAll}
+      />
 
       <div>
         <h2 className="text-lg font-semibold text-foreground">{t("wallet.transactions")}</h2>
