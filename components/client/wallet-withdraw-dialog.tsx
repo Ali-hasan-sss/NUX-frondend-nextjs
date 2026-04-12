@@ -48,6 +48,10 @@ export function WalletWithdrawDialog({ open, onOpenChange, onSuccess }: WalletWi
       toast.error(t("wallet.invalidAmount"));
       return;
     }
+    if (n < 200) {
+      toast.error(t("wallet.minWithdrawal200"));
+      return;
+    }
     if (!iban.trim() || !holder.trim()) {
       toast.error(t("wallet.fillPayoutDetails"));
       return;
@@ -87,7 +91,7 @@ export function WalletWithdrawDialog({ open, onOpenChange, onSuccess }: WalletWi
         <Alert className="border-amber-500/40 bg-amber-500/10">
           <AlertCircle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-900 dark:text-amber-100 text-xs">
-            {t("wallet.withdrawFreezeNotice")}
+            {t("wallet.withdrawFreezeNotice")} {t("wallet.minWithdrawal200Hint")}
           </AlertDescription>
         </Alert>
         {error.withdraw && (
@@ -103,7 +107,7 @@ export function WalletWithdrawDialog({ open, onOpenChange, onSuccess }: WalletWi
             </label>
             <Input
               type="number"
-              min={0.01}
+              min={200}
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}

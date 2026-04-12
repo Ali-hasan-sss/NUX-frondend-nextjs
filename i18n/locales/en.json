@@ -227,6 +227,8 @@
     "cancelWithdrawalConfirm": "Cancel this withdrawal and return the reserved amount to your available balance?",
     "withdrawalCancelSuccess": "Withdrawal cancelled. The funds are available again.",
     "withdrawalCancelError": "Could not cancel this withdrawal.",
+    "minWithdrawal200": "Minimum withdrawal is 200 EUR. For smaller amounts (e.g. account closure), contact support — an admin can process it manually.",
+    "minWithdrawal200Hint": "Minimum request: 200 EUR. Below that, contact administration for manual payout (e.g. closing your account).",
     "fillPayoutDetails": "Fill IBAN and account holder",
     "accountHolder": "Account holder name",
     "submitRequest": "Submit request",

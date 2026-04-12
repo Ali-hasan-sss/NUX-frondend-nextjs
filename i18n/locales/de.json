@@ -227,6 +227,8 @@
     "cancelWithdrawalConfirm": "Diesen Antrag stornieren und den reservierten Betrag wieder freigeben?",
     "withdrawalCancelSuccess": "Antrag storniert. Der Betrag ist wieder verfügbar.",
     "withdrawalCancelError": "Stornierung fehlgeschlagen.",
+    "minWithdrawal200": "Mindestauszahlung: 200 EUR. Kleinere Beträge (z. B. Kontoschließung) nur über den Support — ein Admin kann manuell auszahlen.",
+    "minWithdrawal200Hint": "Mindestantrag: 200 EUR. Darunter bitte die Verwaltung für eine manuelle Auszahlung kontaktieren.",
     "fillPayoutDetails": "IBAN und Kontoinhaber angeben",
     "accountHolder": "Kontoinhaber",
     "submitRequest": "Antrag senden",
