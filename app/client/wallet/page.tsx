@@ -13,10 +13,6 @@ import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { Button } from "@/components/ui/button";
 import { WalletTopUpDialog } from "@/components/client/wallet-top-up-dialog";
-import { WalletWithdrawDialog } from "@/components/client/wallet-withdraw-dialog";
-import { WalletWithdrawalsSection } from "@/components/client/wallet-withdrawals-section";
-import { walletService } from "@/features/client/wallet/walletService";
-import type { WalletWithdrawalRequestRow } from "@/features/client/wallet/walletTypes";
 import { Wallet, Loader2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { walletLedgerTitleKey } from "@/lib/walletLedgerTitle";
@@ -38,31 +34,12 @@ function WalletPageContent() {
   } = useAppSelector((s) => s.clientWallet);
 
   const [topUpOpen, setTopUpOpen] = useState(false);
-  const [withdrawOpen, setWithdrawOpen] = useState(false);
-  const [withdrawals, setWithdrawals] = useState<WalletWithdrawalRequestRow[]>([]);
-  const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
-  const [withdrawalsError, setWithdrawalsError] = useState<string | null>(null);
-  const [cancellingWithdrawalId, setCancellingWithdrawalId] = useState<string | null>(null);
-
-  const fetchWithdrawalRequests = useCallback(async () => {
-    setWithdrawalsLoading(true);
-    setWithdrawalsError(null);
-    try {
-      const { items } = await walletService.listWithdrawalRequests({ take: 50, skip: 0 });
-      setWithdrawals(items);
-    } catch {
-      setWithdrawalsError(t("wallet.withdrawalsLoadError"));
-    } finally {
-      setWithdrawalsLoading(false);
-    }
-  }, [t]);
 
   const refreshLists = useCallback(() => {
     dispatch(fetchWalletBalance());
     dispatch(resetWalletTransactions());
     dispatch(fetchWalletTransactions({ take: 20, append: false }));
-    void fetchWithdrawalRequests();
-  }, [dispatch, fetchWithdrawalRequests]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (user?.role === "USER") {
@@ -163,31 +140,9 @@ function WalletPageContent() {
             >
               {t("wallet.addFunds")}
             </Button>
-            <Button type="button" size="sm" variant="outline" onClick={() => setWithdrawOpen(true)}>
-              {t("wallet.requestWithdrawal")}
-            </Button>
           </div>
         </div>
       </div>
-
-      <WalletWithdrawalsSection
-        items={withdrawals}
-        loading={withdrawalsLoading}
-        error={withdrawalsError}
-        currency={balance?.currency ?? "EUR"}
-        cancellingId={cancellingWithdrawalId}
-        setCancellingId={setCancellingWithdrawalId}
-        onCancelRequest={(id) => walletService.cancelWithdrawalRequest(id)}
-        onRefresh={refreshLists}
-        colors={{
-          surface: colors.surface,
-          border: colors.border,
-          text: colors.text,
-          textSecondary: colors.textSecondary,
-          primary: colors.primary,
-          error: colors.error,
-        }}
-      />
 
       <div className="mb-2">
         <h2 className="text-lg font-semibold" style={{ color: colors.text }}>
@@ -280,11 +235,6 @@ function WalletPageContent() {
       )}
 
       <WalletTopUpDialog open={topUpOpen} onOpenChange={setTopUpOpen} />
-      <WalletWithdrawDialog
-        open={withdrawOpen}
-        onOpenChange={setWithdrawOpen}
-        onSuccess={() => fetchWithdrawalRequests()}
-      />
     </div>
   );
 }

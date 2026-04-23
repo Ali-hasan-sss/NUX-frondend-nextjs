@@ -33,12 +33,20 @@ export interface RecentActivity {
 export interface RestaurantOverviewResponse {
   restaurant: RestaurantInfo;
   stats: RestaurantOverviewStats;
+  wallet: {
+    balance: string;
+    currency: string;
+  };
   recentActivities: RecentActivity[];
 }
 
 export interface RestaurantOverviewState {
   restaurant: RestaurantInfo | null;
   stats: RestaurantOverviewStats | null;
+  wallet: {
+    balance: string;
+    currency: string;
+  } | null;
   recentActivities: RecentActivity[];
   isLoading: boolean;
   error: string | null;

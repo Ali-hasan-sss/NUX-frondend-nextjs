@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -50,7 +51,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Flame, LayoutGrid, List } from "lucide-react";
+import { Flame, LayoutGrid, List, Printer, Settings2 } from "lucide-react";
+import {
+  buildEscPosTicket,
+  listQzPrinters,
+  printRawToQz,
+} from "@/lib/qzPrint";
 
 export default function OrdersPage() {
   const { t, i18n } = useTranslation();
@@ -81,6 +87,53 @@ export default function OrdersPage() {
     { id: number; name: string; number: number } | { takeAway: true } | null
   >(null);
   const [isTableOrdersModalOpen, setIsTableOrdersModalOpen] = useState(false);
+  const [isPrinterConfigOpen, setIsPrinterConfigOpen] = useState(false);
+  const [printerMap, setPrinterMap] = useState<Record<string, string>>({});
+  const [autoPrintMode, setAutoPrintMode] = useState<"browser" | "qz">(
+    "browser"
+  );
+  const [availablePrinters, setAvailablePrinters] = useState<string[]>([]);
+  const [printerLoading, setPrinterLoading] = useState(false);
+
+  const sectionNames = useMemo(() => {
+    const set = new Set<string>();
+    for (const order of orders) {
+      for (const item of order.items ?? []) {
+        const section = item.kitchenSection?.trim();
+        if (section) set.add(section);
+      }
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [orders]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem("restaurant.printerMap.v1");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object") {
+        setPrinterMap(parsed as Record<string, string>);
+      }
+      const mode = localStorage.getItem("restaurant.printerMode.v1");
+      if (mode === "qz" || mode === "browser") setAutoPrintMode(mode);
+    } catch {
+      // ignore invalid local storage
+    }
+  }, []);
+
+  const savePrinterMap = useCallback((next: Record<string, string>) => {
+    setPrinterMap(next);
+    if (typeof window === "undefined") return;
+    localStorage.setItem("restaurant.printerMap.v1", JSON.stringify(next));
+  }, []);
+
+  const savePrinterMode = useCallback((mode: "browser" | "qz") => {
+    setAutoPrintMode(mode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("restaurant.printerMode.v1", mode);
+    }
+  }, []);
 
   const completedStats = useMemo(() => {
     const completed = orders.filter((o) => o.status === "COMPLETED");
@@ -257,6 +310,175 @@ export default function OrdersPage() {
     }
   };
 
+  const getOrderPrintGroups = useCallback(
+    (order: Order) => {
+      const hasAnySection = (order.items ?? []).some(
+        (i) => !!i.kitchenSection?.trim()
+      );
+      if (!hasAnySection) {
+        return [
+          {
+            sectionName: t("dashboard.orders.printAllItems") || "All items",
+            items: order.items ?? [],
+          },
+        ];
+      }
+
+      const grouped = new Map<string, Order["items"]>();
+      for (const item of order.items ?? []) {
+        const section = item.kitchenSection?.trim()
+          ? item.kitchenSection.trim()
+          : t("dashboard.orders.printUnassignedSection") || "Unassigned";
+        if (!grouped.has(section)) grouped.set(section, []);
+        grouped.get(section)!.push(item);
+      }
+      return Array.from(grouped.entries()).map(([sectionName, items]) => ({
+        sectionName,
+        items,
+      }));
+    },
+    [t]
+  );
+
+  const openPrintWindow = useCallback(
+    (order: Order, sectionName: string, items: Order["items"]) => {
+      if (typeof window === "undefined") return;
+      const printerName = printerMap[sectionName] || "";
+      const printWin = window.open("", "_blank", "width=420,height=760");
+      if (!printWin) return;
+
+      const rows = items
+        .map((item) => {
+          const extras = (item.selectedExtras ?? [])
+            .map((e) => `+ ${e.name} (${e.price.toFixed(2)})`)
+            .join("<br/>");
+          return `
+            <div style="padding:6px 0;border-bottom:1px dashed #bbb;">
+              <div style="display:flex;justify-content:space-between;gap:8px;">
+                <div style="font-weight:700;">${item.itemTitle}</div>
+                <div>x${item.quantity}</div>
+              </div>
+              ${
+                item.notes
+                  ? `<div style="margin-top:4px;font-size:12px;">Notes: ${item.notes}</div>`
+                  : ""
+              }
+              ${
+                extras
+                  ? `<div style="margin-top:4px;font-size:12px;">${extras}</div>`
+                  : ""
+              }
+            </div>
+          `;
+        })
+        .join("");
+
+      const html = `
+        <!doctype html>
+        <html>
+          <head>
+            <meta charset="utf-8" />
+            <title>Order ${order.id} - ${sectionName}</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 0; padding: 12px; width: 80mm; }
+              .muted { color: #666; font-size: 12px; }
+              .title { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+              .section { font-size: 14px; font-weight: 700; margin: 8px 0; }
+              .hr { border-top: 1px dashed #999; margin: 8px 0; }
+              @media print { body { margin: 0; } }
+            </style>
+          </head>
+          <body>
+            <div class="title">Order #${order.id}</div>
+            <div class="muted">${new Date(order.createdAt).toLocaleString()}</div>
+            <div class="muted">${
+              order.orderType === "TAKE_AWAY"
+                ? t("dashboard.orders.orderTypeTakeAway") || "Take away"
+                : `${t("dashboard.orders.table") || "Table"} ${order.tableNumber ?? "-"}`
+            }</div>
+            ${
+              printerName
+                ? `<div class="muted">${t("dashboard.orders.printerLabel") || "Printer"}: ${printerName}</div>`
+                : ""
+            }
+            <div class="hr"></div>
+            <div class="section">${sectionName}</div>
+            ${rows}
+          </body>
+        </html>
+      `;
+
+      printWin.document.open();
+      printWin.document.write(html);
+      printWin.document.close();
+      printWin.focus();
+      printWin.print();
+    },
+    [printerMap, t]
+  );
+
+  const printViaQz = useCallback(
+    async (order: Order, sectionName: string, items: Order["items"]) => {
+      const printerName = printerMap[sectionName];
+      if (!printerName) throw new Error(`No printer configured for ${sectionName}`);
+
+      const ticket = buildEscPosTicket({
+        orderId: order.id,
+        createdAt: new Date(order.createdAt).toLocaleString(),
+        orderTypeLabel:
+          order.orderType === "TAKE_AWAY"
+            ? t("dashboard.orders.orderTypeTakeAway") || "Take away"
+            : t("dashboard.orders.orderTypeOnTable") || "At table",
+        tableLabel: `${t("dashboard.orders.table") || "Table"} ${order.tableNumber ?? "-"}`,
+        sectionName,
+        printerName,
+        lines: (items ?? []).map((item) => ({
+          title: item.itemTitle,
+          qty: item.quantity,
+          notes: item.notes ?? undefined,
+          extras: (item.selectedExtras ?? []).map((e) => `${e.name} (${e.price.toFixed(2)})`),
+        })),
+      });
+      await printRawToQz({ printerName, content: ticket });
+    },
+    [printerMap, t]
+  );
+
+  const handlePrintOrder = useCallback(
+    (order: Order) => {
+      const groups = getOrderPrintGroups(order);
+      if (autoPrintMode === "qz") {
+        Promise.allSettled(
+          groups.map((group) => printViaQz(order, group.sectionName, group.items))
+        ).then((results) => {
+          const failed = results.some((r) => r.status === "rejected");
+          if (failed) {
+            // fallback to browser print when QZ fails or mapping missing
+            groups.forEach((group) =>
+              openPrintWindow(order, group.sectionName, group.items)
+            );
+          }
+        });
+        return;
+      }
+      groups.forEach((group) => openPrintWindow(order, group.sectionName, group.items));
+    },
+    [autoPrintMode, getOrderPrintGroups, openPrintWindow, printViaQz]
+  );
+
+  const handleRefreshPrinters = useCallback(async () => {
+    setPrinterLoading(true);
+    try {
+      const printers = await listQzPrinters();
+      setAvailablePrinters(printers);
+    } catch (e) {
+      console.error("Failed to load QZ printers", e);
+      setAvailablePrinters([]);
+    } finally {
+      setPrinterLoading(false);
+    }
+  }, []);
+
   const getStatusBadge = (status: Order["status"]) => {
     const statusConfig = {
       PENDING: {
@@ -354,6 +576,14 @@ export default function OrdersPage() {
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-2 w-full sm:w-auto min-w-0">
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto"
+            onClick={() => setIsPrinterConfigOpen(true)}
+          >
+            <Settings2 className="h-4 w-4 mr-2" />
+            {t("dashboard.orders.printerSettings") || "Printer settings"}
+          </Button>
           <div className="flex rounded-lg border p-0.5 bg-muted/50 w-full sm:w-auto">
             <button
               type="button"
@@ -679,19 +909,33 @@ export default function OrdersPage() {
                       className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pt-4 border-t"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full sm:w-auto text-xs sm:text-sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markOrderAsSeen(order.id);
-                          setSelectedOrder(order);
-                          setIsDialogOpen(true);
-                        }}
-                      >
-                        View Details
-                      </Button>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:w-auto text-xs sm:text-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markOrderAsSeen(order.id);
+                            setSelectedOrder(order);
+                            setIsDialogOpen(true);
+                          }}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full sm:w-auto text-xs sm:text-sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrintOrder(order);
+                          }}
+                        >
+                          <Printer className="h-4 w-4 mr-1" />
+                          {t("dashboard.orders.print") || "Print"}
+                        </Button>
+                      </div>
                       <div className="flex flex-wrap gap-2 justify-end">
                         {order.status === "PENDING" && (
                           <>
@@ -1038,6 +1282,121 @@ export default function OrdersPage() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isPrinterConfigOpen} onOpenChange={setIsPrinterConfigOpen}>
+        <DialogContent className="w-[calc(100vw-2rem)] max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {t("dashboard.orders.printerSettings") || "Printer settings"}
+            </DialogTitle>
+            <DialogDescription>
+              {t("dashboard.orders.printerSettingsHint") ||
+                "Assign a printer name per kitchen section. Browser printing still asks for printer selection unless kiosk/system defaults are configured."}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            <div className="space-y-2">
+              <Label>{t("dashboard.orders.printMode") || "Print mode"}</Label>
+              <Select
+                value={autoPrintMode}
+                onValueChange={(value) =>
+                  savePrinterMode(value as "browser" | "qz")
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="browser">
+                    {t("dashboard.orders.printModeBrowser") || "Browser print dialog"}
+                  </SelectItem>
+                  <SelectItem value="qz">
+                    {t("dashboard.orders.printModeQz") || "Auto print with QZ Tray"}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {autoPrintMode === "qz" && (
+              <div className="space-y-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleRefreshPrinters}
+                  disabled={printerLoading}
+                >
+                  {printerLoading
+                    ? t("dashboard.orders.loadingPrinters") || "Loading printers..."
+                    : t("dashboard.orders.refreshPrinters") || "Refresh printers"}
+                </Button>
+                {availablePrinters.length > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {(t("dashboard.orders.detectedPrinters") || "Detected printers") +
+                      `: ${availablePrinters.join(", ")}`}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {sectionNames.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("dashboard.orders.noSectionsDetected") ||
+                  "No kitchen sections detected in current orders."}
+              </p>
+            ) : (
+              sectionNames.map((section) => (
+                <div key={section} className="space-y-1">
+                  <Label>{section}</Label>
+                  {autoPrintMode === "qz" && availablePrinters.length > 0 ? (
+                    <Select
+                      value={printerMap[section] || "none"}
+                      onValueChange={(value) =>
+                        savePrinterMap({
+                          ...printerMap,
+                          [section]: value === "none" ? "" : value,
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue
+                          placeholder={
+                            t("dashboard.orders.printerNamePlaceholder") ||
+                            "e.g. Kitchen Printer A"
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">
+                          {t("dashboard.orders.none") || "None"}
+                        </SelectItem>
+                        {availablePrinters.map((printer) => (
+                          <SelectItem key={printer} value={printer}>
+                            {printer}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      value={printerMap[section] || ""}
+                      placeholder={
+                        t("dashboard.orders.printerNamePlaceholder") ||
+                        "e.g. Kitchen Printer A"
+                      }
+                      onChange={(e) =>
+                        savePrinterMap({
+                          ...printerMap,
+                          [section]: e.target.value,
+                        })
+                      }
+                    />
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

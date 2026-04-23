@@ -70,6 +70,57 @@ function playWaiterRequestSound() {
   } catch (_) {}
 }
 
+/** Play a distinctive payment alert sound (money / loyalty payment). */
+function playPaymentNotificationSound() {
+  if (
+    typeof window === "undefined" ||
+    (!window.AudioContext && !(window as any).webkitAudioContext)
+  )
+    return;
+  try {
+    const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx = new Ctx();
+    const playBeep = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = "triangle";
+      gain.gain.setValueAtTime(0.18, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+      osc.start(start);
+      osc.stop(start + duration);
+    };
+    const t = ctx.currentTime;
+    playBeep(700, t, 0.09);
+    playBeep(980, t + 0.12, 0.09);
+    playBeep(1260, t + 0.24, 0.12);
+  } catch (_) {}
+}
+
+function isRestaurantDashboard(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.location.pathname.startsWith("/dashboard");
+}
+
+function isPaymentNotification(payload: {
+  title?: string;
+  body?: string;
+  type?: string;
+}): boolean {
+  const title = (payload.title ?? "").toLowerCase();
+  const body = (payload.body ?? "").toLowerCase();
+  const type = (payload.type ?? "").toLowerCase();
+
+  if (type === "payment") return true;
+  if (title.includes("payment") || title.includes("wallet")) return true;
+  if (body.includes("eur") && (body.includes("received") || body.includes("paid")))
+    return true;
+  if (body.includes("stars_meal") || body.includes("stars_drink")) return true;
+  return false;
+}
+
 export interface WaiterRequestItem {
   tableNumber: number;
   tableId: number;
@@ -137,6 +188,9 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         const description = payload?.body ?? "";
         toast(title, { description: description || undefined });
         dispatch(prependNotificationFromSocket(payload));
+        if (isRestaurantDashboard() && isPaymentNotification(payload)) {
+          playPaymentNotificationSound();
+        }
       }
     );
 

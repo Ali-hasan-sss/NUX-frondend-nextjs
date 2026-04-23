@@ -6,6 +6,7 @@ import type {
   WithdrawalPayload,
   WalletPayApprovalRequestData,
   WalletWithdrawalRequestRow,
+  GiftVoucherPayload,
 } from "./walletTypes";
 
 const CLIENT_WALLET = "/client/wallet";
@@ -66,6 +67,22 @@ export const walletService = {
   requestWithdrawal: async (payload: WithdrawalPayload): Promise<{ id: string }> => {
     const res = await axiosInstance.post(`${CLIENT_WALLET}/withdrawals`, payload);
     return unwrapData<{ id: string }>(res);
+  },
+
+  requestGiftVoucher: async (
+    payload: GiftVoucherPayload
+  ): Promise<{
+    approvalId: string;
+    approvalToken: string;
+    recipientUserId: string;
+    recipientName: string;
+    amount: string;
+    currency: string;
+    expiresAt: string;
+    initiatedFrom: string;
+  }> => {
+    const res = await axiosInstance.post(`${CLIENT_WALLET}/gift-voucher`, payload);
+    return unwrapData(res);
   },
 
   listWithdrawalRequests: async (params?: {

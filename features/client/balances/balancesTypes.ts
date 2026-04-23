@@ -75,13 +75,6 @@ export interface PaymentData {
   amount: number;
 }
 
-export interface GiftData {
-  targetId: string;
-  qrCode: string;
-  currencyType: "stars_meal" | "stars_drink";
-  amount: number;
-}
-
 export interface BalancesState {
   userBalances: UserRestaurantBalance[];
   packages: Package[];
@@ -90,14 +83,12 @@ export interface BalancesState {
     packages: boolean;
     qrScan: boolean;
     payment: boolean;
-    gift: boolean;
   };
   error: {
     balances: string | null;
     packages: string | null;
     qrScan: string | null;
     payment: string | null;
-    gift: string | null;
   };
 }
 

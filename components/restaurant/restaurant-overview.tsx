@@ -12,7 +12,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { QrCode, Users, TrendingUp, Bell, Star, Mail, Table2 } from "lucide-react";
+import {
+  QrCode,
+  Users,
+  TrendingUp,
+  Bell,
+  Star,
+  Mail,
+  Table2,
+  Wallet,
+} from "lucide-react";
 import { AppDispatch, RootState } from "@/app/store";
 import { fetchRestaurantOverview } from "@/features/restaurant/overview/restaurantOverviewThunks";
 import { useTranslation } from "react-i18next";
@@ -21,7 +30,7 @@ export function RestaurantOverview() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
-  const { restaurant, stats, recentActivities, isLoading, error } = useSelector(
+  const { restaurant, stats, wallet, recentActivities, isLoading, error } = useSelector(
     (state: RootState) => state.restaurantOverview
   );
 
@@ -146,6 +155,23 @@ export function RestaurantOverview() {
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.overview.walletBalance")}
+            </CardTitle>
+            <Wallet className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {wallet?.currency || "EUR"} {wallet?.balance || "0"}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {t("dashboard.overview.availableBalance")}
+            </p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{t("dashboard.overview.qrCodeScans")}</CardTitle>

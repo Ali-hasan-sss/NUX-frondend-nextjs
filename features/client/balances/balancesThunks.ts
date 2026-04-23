@@ -5,7 +5,6 @@ import {
   Package,
   QrScanData,
   PaymentData,
-  GiftData,
 } from "./balancesTypes";
 
 // Fetch user balances
@@ -52,22 +51,6 @@ export const payAtRestaurant = createAsyncThunk<
   } catch (error: any) {
     return rejectWithValue(
       error?.response?.data?.message || "Failed to process payment"
-    );
-  }
-});
-
-// Gift balance to friend
-export const giftBalance = createAsyncThunk<
-  any,
-  GiftData,
-  { rejectValue: string }
->("balances/giftBalance", async (data, { rejectWithValue }) => {
-  try {
-    const response = await balancesService.giftBalance(data);
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(
-      error?.response?.data?.message || "Failed to gift balance"
     );
   }
 });

@@ -109,13 +109,15 @@ export function MenuManagement() {
     title: "",
     description: "",
     image: "",
+    kitchenSectionId: "",
   });
   const [editCat, setEditCat] = useState<{
     id: number | null;
     title: string;
     description: string;
     image: string;
-  }>({ id: null, title: "", description: "", image: "" });
+    kitchenSectionId: string;
+  }>({ id: null, title: "", description: "", image: "", kitchenSectionId: "" });
 
   const [activeCategoryId, setActiveCategoryId] = useState<number | null>(null);
   const [newItem, setNewItem] = useState<{
@@ -244,10 +246,13 @@ export function MenuManagement() {
           title: newCat.title.trim(),
           description: newCat.description || undefined,
           image: newCat.image || undefined,
+          kitchenSectionId: newCat.kitchenSectionId
+            ? Number(newCat.kitchenSectionId)
+            : undefined,
         })
       );
       if (res.type.endsWith("fulfilled")) {
-        setNewCat({ title: "", description: "", image: "" });
+        setNewCat({ title: "", description: "", image: "", kitchenSectionId: "" });
         setOpenAddCategory(false);
         toast.success(t("dashboard.menu.categoryCreated"));
       } else {
@@ -275,6 +280,9 @@ export function MenuManagement() {
           title: editCat.title || undefined,
           description: editCat.description || undefined,
           image: editCat.image || undefined,
+          kitchenSectionId: editCat.kitchenSectionId
+            ? Number(editCat.kitchenSectionId)
+            : undefined,
         })
       );
       if (res.type.endsWith("fulfilled")) {
@@ -710,6 +718,7 @@ export function MenuManagement() {
                             title: c.title,
                             description: c.description || "",
                             image: c.image || "",
+                            kitchenSectionId: "",
                           });
                           setOpenEditCategory(true);
                         }}
@@ -928,6 +937,36 @@ export function MenuManagement() {
               onUploadingChange={setUploading}
               meta={{ restaurantId: restaurantId, entityType: "category" }}
             />
+            {kitchenSections.length > 0 && (
+              <div className="space-y-2">
+                <Label>{t("dashboard.menu.kitchenSection")}</Label>
+                <Select
+                  value={newCat.kitchenSectionId || "none"}
+                  onValueChange={(value) =>
+                    setNewCat({
+                      ...newCat,
+                      kitchenSectionId: value === "none" ? "" : value,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={t("dashboard.menu.selectKitchenSection")}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      {t("dashboard.menu.none")}
+                    </SelectItem>
+                    {kitchenSections.map((section) => (
+                      <SelectItem key={section.id} value={String(section.id)}>
+                        {section.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -985,6 +1024,36 @@ export function MenuManagement() {
               onUploadingChange={setUploading}
               meta={{ restaurantId: restaurantId, entityType: "category" }}
             />
+            {kitchenSections.length > 0 && (
+              <div className="space-y-2">
+                <Label>{t("dashboard.menu.kitchenSection")}</Label>
+                <Select
+                  value={editCat.kitchenSectionId || "none"}
+                  onValueChange={(value) =>
+                    setEditCat({
+                      ...editCat,
+                      kitchenSectionId: value === "none" ? "" : value,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue
+                      placeholder={t("dashboard.menu.selectKitchenSection")}
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      {t("dashboard.menu.none")}
+                    </SelectItem>
+                    {kitchenSections.map((section) => (
+                      <SelectItem key={section.id} value={String(section.id)}>
+                        {section.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"

@@ -10,6 +10,7 @@ import { fetchRestaurantOverview } from "./restaurantOverviewThunks";
 const initialState: RestaurantOverviewState = {
   restaurant: null,
   stats: null,
+  wallet: null,
   recentActivities: [],
   isLoading: false,
   error: null,
@@ -31,12 +32,19 @@ const restaurantOverviewSlice = createSlice({
     setStats: (state, action: PayloadAction<RestaurantOverviewStats>) => {
       state.stats = action.payload;
     },
+    setWallet: (
+      state,
+      action: PayloadAction<{ balance: string; currency: string }>
+    ) => {
+      state.wallet = action.payload;
+    },
     setRecentActivities: (state, action: PayloadAction<RecentActivity[]>) => {
       state.recentActivities = action.payload;
     },
     clearData: (state) => {
       state.restaurant = null;
       state.stats = null;
+      state.wallet = null;
       state.recentActivities = [];
       state.error = null;
     },
@@ -53,6 +61,7 @@ const restaurantOverviewSlice = createSlice({
         state.isLoading = false;
         state.restaurant = action.payload.restaurant;
         state.stats = action.payload.stats;
+        state.wallet = action.payload.wallet;
         state.recentActivities = action.payload.recentActivities;
         state.error = null;
       })
@@ -68,6 +77,7 @@ export const {
   setError,
   setRestaurant,
   setStats,
+  setWallet,
   setRecentActivities,
   clearData,
   resetState,

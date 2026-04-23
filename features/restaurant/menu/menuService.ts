@@ -29,6 +29,7 @@ export const menuService = {
         title: payload.title,
         description: payload.description,
         image: payload.image,
+        kitchenSectionId: payload.kitchenSectionId,
       }
     );
     return res.data?.data as MenuCategory;

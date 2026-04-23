@@ -30,6 +30,7 @@ export interface CreateCategoryPayload {
   title: string;
   description?: string;
   image?: string;
+  kitchenSectionId?: number;
 }
 
 export interface UpdateCategoryPayload {
@@ -37,6 +38,7 @@ export interface UpdateCategoryPayload {
   title?: string;
   description?: string;
   image?: string;
+  kitchenSectionId?: number;
 }
 
 export interface CreateItemPayload {

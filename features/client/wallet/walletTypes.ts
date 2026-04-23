@@ -41,6 +41,13 @@ export interface WithdrawalPayload {
   accountInfo: Record<string, string>;
 }
 
+export interface GiftVoucherPayload {
+  recipientCode: string;
+  amount: 10 | 20 | 25 | 50;
+  idempotencyKey?: string;
+  initiatedFrom?: "web" | "WEB" | "mobile" | "MOBILE";
+}
+
 /** Row from GET /client/wallet/withdrawals */
 export interface WalletWithdrawalRequestRow {
   id: string;

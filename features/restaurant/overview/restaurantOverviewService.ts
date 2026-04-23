@@ -9,12 +9,13 @@ export const restaurantOverviewService = {
     const response = await axiosInstance.get(API_URL);
     const data = response.data.data;
 
-    // Extract restaurant, stats and recentActivities from the response
-    const { restaurant, stats, recentActivities } = data;
+    // Extract restaurant, stats, wallet and recentActivities from the response
+    const { restaurant, stats, wallet, recentActivities } = data;
 
     return {
       restaurant,
       stats,
+      wallet,
       recentActivities,
     };
   },

@@ -29,6 +29,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { translateNotificationItem } from "@/lib/notificationTranslation";
 
 interface NotificationsPageProps {
   /** When true, hide page title and card header (e.g. when embedded in admin page). */
@@ -122,43 +123,48 @@ export function NotificationsPage({ embedded }: NotificationsPageProps) {
           ) : (
             <ul className="divide-y divide-border w-full min-w-0 list-none p-0 m-0">
               {items.map((n) => (
-                <li
-                  key={n.id}
-                  className={cn(
-                    "py-3 sm:py-4 px-0 first:pt-0 last:pb-0",
-                    !n.isRead && "bg-muted/40",
-                  )}
-                >
-                  <div className="flex flex-col gap-1 sm:gap-2 min-w-0">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 min-w-0">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-medium text-foreground break-words">
-                          {n.title}
-                        </p>
-                        {n.body && (
-                          <p className="text-muted-foreground text-sm mt-1 line-clamp-3 break-words">
-                            {String(n.body)}
-                          </p>
-                        )}
+                (() => {
+                  const translated = translateNotificationItem(n, t);
+                  return (
+                    <li
+                      key={n.id}
+                      className={cn(
+                        "py-3 sm:py-4 px-0 first:pt-0 last:pb-0",
+                        !n.isRead && "bg-muted/40",
+                      )}
+                    >
+                      <div className="flex flex-col gap-1 sm:gap-2 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 min-w-0">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-medium text-foreground break-words">
+                              {translated.title}
+                            </p>
+                            {translated.body && (
+                              <p className="text-muted-foreground text-sm mt-1 line-clamp-3 break-words">
+                                {translated.body}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">
+                              {formatDate(n.createdAt)}
+                            </span>
+                            {!n.isRead && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="shrink-0"
+                                onClick={() => handleMarkRead(n.id)}
+                              >
+                                {t("dashboard.notifications.markRead")}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0">
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">
-                          {formatDate(n.createdAt)}
-                        </span>
-                        {!n.isRead && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="shrink-0"
-                            onClick={() => handleMarkRead(n.id)}
-                          >
-                            {t("dashboard.notifications.markRead")}
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </li>
+                    </li>
+                  );
+                })()
               ))}
             </ul>
           )}

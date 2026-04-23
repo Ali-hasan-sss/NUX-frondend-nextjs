@@ -4,7 +4,6 @@ import {
   fetchUserBalances,
   scanQrCode,
   payAtRestaurant,
-  giftBalance,
   fetchPublicPackages,
 } from "./balancesThunks";
 
@@ -16,14 +15,12 @@ const initialState: BalancesState = {
     packages: false,
     qrScan: false,
     payment: false,
-    gift: false,
   },
   error: {
     balances: null,
     packages: null,
     qrScan: null,
     payment: null,
-    gift: null,
   },
 };
 
@@ -37,7 +34,6 @@ const balancesSlice = createSlice({
         packages: null,
         qrScan: null,
         payment: null,
-        gift: null,
       };
     },
     clearQrScanError: (state) => {
@@ -93,21 +89,6 @@ const balancesSlice = createSlice({
       .addCase(payAtRestaurant.rejected, (state, action) => {
         state.loading.payment = false;
         state.error.payment = action.payload || "Failed to process payment";
-      });
-
-    // Gift balance
-    builder
-      .addCase(giftBalance.pending, (state) => {
-        state.loading.gift = true;
-        state.error.gift = null;
-      })
-      .addCase(giftBalance.fulfilled, (state) => {
-        state.loading.gift = false;
-        state.error.gift = null;
-      })
-      .addCase(giftBalance.rejected, (state, action) => {
-        state.loading.gift = false;
-        state.error.gift = action.payload || "Failed to gift balance";
       });
 
     // Fetch public packages

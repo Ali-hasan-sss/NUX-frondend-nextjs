@@ -18,6 +18,7 @@ import { Bell } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { cn } from "@/lib/utils";
+import { translateNotificationItem } from "@/lib/notificationTranslation";
 
 interface NotificationDropdownProps {
   open: boolean;
@@ -92,45 +93,54 @@ export function NotificationDropdown({
           ) : (
             <div className="divide-y" style={{ borderColor: colors.border }}>
               {latest.map((n) => (
-                <Link
-                  key={n.id}
-                  href="/client/notifications"
-                  onClick={() => {
-                    if (!n.isRead) dispatch(markNotificationRead(n.id));
-                    onOpenChange(false);
-                  }}
-                >
-                  <div
-                    className={cn(
-                      "p-3 text-left transition-colors hover:opacity-90",
-                      !n.isRead && "opacity-100"
-                    )}
-                    style={{
-                      backgroundColor: !n.isRead ? (isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)") : undefined,
-                    }}
-                  >
-                    <div
-                      className="font-medium text-sm line-clamp-1"
-                      style={{ color: colors.text }}
+                (() => {
+                  const translated = translateNotificationItem(n, t);
+                  return (
+                    <Link
+                      key={n.id}
+                      href="/client/notifications"
+                      onClick={() => {
+                        if (!n.isRead) dispatch(markNotificationRead(n.id));
+                        onOpenChange(false);
+                      }}
                     >
-                      {n.title}
-                    </div>
-                    {n.body && (
                       <div
-                        className="text-xs line-clamp-2 mt-0.5"
-                        style={{ color: colors.textSecondary }}
+                        className={cn(
+                          "p-3 text-left transition-colors hover:opacity-90",
+                          !n.isRead && "opacity-100"
+                        )}
+                        style={{
+                          backgroundColor: !n.isRead
+                            ? isDark
+                              ? "rgba(255,255,255,0.06)"
+                              : "rgba(0,0,0,0.04)"
+                            : undefined,
+                        }}
                       >
-                        {String(n.body)}
+                        <div
+                          className="font-medium text-sm line-clamp-1"
+                          style={{ color: colors.text }}
+                        >
+                          {translated.title}
+                        </div>
+                        {translated.body && (
+                          <div
+                            className="text-xs line-clamp-2 mt-0.5"
+                            style={{ color: colors.textSecondary }}
+                          >
+                            {translated.body}
+                          </div>
+                        )}
+                        <div
+                          className="text-xs mt-1"
+                          style={{ color: colors.textSecondary, opacity: 0.9 }}
+                        >
+                          {formatDate(n.createdAt)}
+                        </div>
                       </div>
-                    )}
-                    <div
-                      className="text-xs mt-1"
-                      style={{ color: colors.textSecondary, opacity: 0.9 }}
-                    >
-                      {formatDate(n.createdAt)}
-                    </div>
-                  </div>
-                </Link>
+                    </Link>
+                  );
+                })()
               ))}
             </div>
           )}
