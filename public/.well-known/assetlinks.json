@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.lolity.app",
+      "sha256_cert_fingerprints": [
+        "30:53:AE:33:30:DC:AA:FF:DE:1D:CB:8B:CB:64:6C:F2:86:9C:2D:E3:45:75:35:20:0C:51:03:F2:79:C1:4A:E2",
+        "FA:C6:17:45:DC:09:03:78:6F:B9:ED:E6:2A:96:2B:39:9F:73:48:F0:BB:6F:89:9B:83:32:66:75:91:03:3B:9C"
+      ]
+    }
+  }
+]
+

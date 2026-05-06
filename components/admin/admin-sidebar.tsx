@@ -29,6 +29,7 @@ import {
   FileText,
   UserCog,
   Wallet,
+  Gift,
 } from "lucide-react";
 
 function getNavItems(
@@ -82,6 +83,12 @@ function getNavItems(
       name: t("adminWalletNav"),
       href: "/admin/wallet",
       icon: Wallet,
+      adminOnly: true,
+    },
+    {
+      name: t("adminTopUpBonusNav"),
+      href: "/admin/wallet/top-up-bonuses",
+      icon: Gift,
       adminOnly: true,
     },
     { name: t("notifications"), href: "/admin/notifications", icon: Bell },

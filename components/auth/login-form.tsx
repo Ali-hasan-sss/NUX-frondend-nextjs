@@ -15,6 +15,7 @@ import { clearError } from "@/features/auth/authSlice";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GoogleSignInButton } from "./GoogleSignInButton";
+import { getDashboardPathForRole } from "@/lib/roleDashboard";
 
 export function LoginForm() {
   const { t, i18n } = useTranslation();
@@ -37,13 +38,7 @@ export function LoginForm() {
       setSubmitting(true);
       const result = await dispatch(loginUser(formData));
       if (loginUser.fulfilled.match(result)) {
-        if (result.payload.user.role === "ADMIN") {
-          router.push("/admin");
-        } else if (result.payload.user.role === "RESTAURANT_OWNER") {
-          router.push("/dashboard");
-        } else {
-          router.push("/");
-        }
+        router.push(getDashboardPathForRole(result.payload.user.role));
       }
     } catch (error) {
       console.error("Login failed:", error);

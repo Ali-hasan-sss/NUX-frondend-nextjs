@@ -18,7 +18,7 @@ export interface UserFormInput {
   email: string;
   password?: string;
   fullName: string;
-  role: "ADMIN" | "RESTAURANT_OWNER" | "USER";
+  role: "ADMIN" | "RESTAURANT_OWNER" | "COMPANY_OWNER" | "USER" | "SUBADMIN";
   isActive: boolean;
 }
 
@@ -134,7 +134,9 @@ export function UserForm({
             <SelectContent>
               <SelectItem value="USER">user</SelectItem>
               <SelectItem value="RESTAURANT_OWNER">restaurant owner</SelectItem>
+              <SelectItem value="COMPANY_OWNER">company owner</SelectItem>
               <SelectItem value="ADMIN">admin</SelectItem>
+              <SelectItem value="SUBADMIN">sub-admin</SelectItem>
             </SelectContent>
           </Select>
         </div>

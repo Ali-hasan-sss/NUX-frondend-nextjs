@@ -442,6 +442,30 @@ function CurrencyOverviewCard({
             />
           </div>
 
+          <div className="rounded-lg bg-muted/30 border border-border/40 px-2.5 py-2 space-y-0.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+              {t("adminWalletLedgerCreditsBySource")}
+            </p>
+            <StatRow label={t("adminWalletCreditsStripe")}>
+              <Money amount={row.userCreditsStripe} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsPaypal")}>
+              <Money amount={row.userCreditsPaypal} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsOrder")}>
+              <Money amount={row.userCreditsOrder} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsAdmin")}>
+              <Money amount={row.userCreditsAdmin} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsBonus")}>
+              <Money amount={row.userCreditsBonus} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletLedgerDebitsAdmin")}>
+              <Money amount={row.userDebitsAdmin} ccy={ccy} />
+            </StatRow>
+          </div>
+
           <div className="rounded-lg bg-background/60 border border-border/50 px-2.5 py-0.5">
             <StatRow label={t("adminWalletDebits")}>
               <Money amount={row.totalDebits} ccy={ccy} />
@@ -527,6 +551,30 @@ function CurrencyOverviewCard({
               ccy={ccy}
               accent="out"
             />
+          </div>
+
+          <div className="rounded-lg bg-muted/30 border border-border/40 px-2.5 py-2 space-y-0.5">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+              {t("adminWalletLedgerCreditsBySource")}
+            </p>
+            <StatRow label={t("adminWalletCreditsStripe")}>
+              <Money amount={row.restaurantCreditsStripe} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsPaypal")}>
+              <Money amount={row.restaurantCreditsPaypal} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsOrder")}>
+              <Money amount={row.restaurantCreditsOrder} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsAdmin")}>
+              <Money amount={row.restaurantCreditsAdmin} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletCreditsBonus")}>
+              <Money amount={row.restaurantCreditsBonus} ccy={ccy} />
+            </StatRow>
+            <StatRow label={t("adminWalletLedgerDebitsAdmin")}>
+              <Money amount={row.restaurantDebitsAdmin} ccy={ccy} />
+            </StatRow>
           </div>
 
           <div className="rounded-lg bg-background/60 border border-border/50 px-2.5 py-0.5">

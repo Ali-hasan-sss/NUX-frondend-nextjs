@@ -7,6 +7,7 @@ import { clearError, setError } from "@/features/auth/authSlice";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
+import { getDashboardPathForRole } from "@/lib/roleDashboard";
 
 function isSafari(): boolean {
   if (typeof window === "undefined") return false;
@@ -39,9 +40,7 @@ export function GoogleSignInButton({
     const result = await dispatch(loginWithGoogle(credential));
     if (loginWithGoogle.fulfilled.match(result)) {
       const role = result.payload.user?.role;
-      if (role === "ADMIN") router.push("/admin");
-      else if (role === "RESTAURANT_OWNER") router.push("/dashboard");
-      else router.push("/");
+      router.push(getDashboardPathForRole(role));
     }
   };
 

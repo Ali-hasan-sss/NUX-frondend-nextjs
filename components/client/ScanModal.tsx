@@ -81,13 +81,14 @@ export function ScanModal({ open, onOpenChange }: ScanModalProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const stopScanner = useCallback(() => {
-    if (scannerRef.current && scannerRef.current.isScanning()) {
-      scannerRef.current
-        .stop()
-        .catch(() => {});
-      scannerRef.current.clear().catch(() => {});
-      scannerRef.current = null;
-    }
+    const s = scannerRef.current;
+    if (!s) return;
+    s.stop()
+      .catch(() => {})
+      .finally(() => {
+        s.clear().catch(() => {});
+        scannerRef.current = null;
+      });
   }, []);
 
   const startScanner = useCallback(() => {

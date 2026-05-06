@@ -11,14 +11,13 @@ import Link from "next/link";
 import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/app/hooks";
+import { getDashboardPathForRole } from "@/lib/roleDashboard";
 
 function getRedirectPath(role: string | undefined, emailVerified?: boolean): string {
   if (emailVerified === false || emailVerified === undefined) {
     return "/auth/verify-email";
   }
-  if (role === "ADMIN" || role === "SUBADMIN") return "/admin";
-  if (role === "RESTAURANT_OWNER") return "/dashboard";
-  return "/client/home";
+  return getDashboardPathForRole(role);
 }
 
 function LoginPageContent() {

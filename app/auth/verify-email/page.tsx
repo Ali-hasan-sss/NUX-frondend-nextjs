@@ -18,6 +18,7 @@ import { setEmailVerified } from "@/features/auth/authSlice";
 import { Home, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { getDashboardPathForRole } from "@/lib/roleDashboard";
 
 function VerifyEmailContent() {
   const { t } = useTranslation();
@@ -57,12 +58,7 @@ function VerifyEmailContent() {
       await authService.verifyEmail(email, code.trim());
       setSuccess(true);
       dispatch(setEmailVerified());
-      const redirectPath =
-        user?.role === "ADMIN"
-          ? "/admin"
-          : user?.role === "RESTAURANT_OWNER"
-            ? "/dashboard"
-            : "/";
+      const redirectPath = getDashboardPathForRole(user?.role);
       setTimeout(() => router.push(redirectPath), 1500);
     } catch (err: any) {
       setError(

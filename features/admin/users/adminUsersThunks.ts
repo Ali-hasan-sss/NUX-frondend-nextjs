@@ -4,6 +4,7 @@ import type {
   AdminUser,
   AdminUsersFilters,
   CreateAdminUserRequest,
+  CreateCompanyOwnerRequest,
   UpdateAdminUserRequest,
 } from "./adminUsersTypes";
 
@@ -58,6 +59,22 @@ export const createAdminUser = createAsyncThunk<
       error?.response?.data?.message ||
       error?.message ||
       "Failed to create user";
+    return rejectWithValue(message);
+  }
+});
+
+export const createCompanyOwner = createAsyncThunk<
+  AdminUser,
+  CreateCompanyOwnerRequest,
+  { rejectValue: string }
+>("adminUsers/createCompanyOwner", async (data, { rejectWithValue }) => {
+  try {
+    return await adminUsersService.createCompanyOwnerWithCompany(data);
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to create company owner";
     return rejectWithValue(message);
   }
 });

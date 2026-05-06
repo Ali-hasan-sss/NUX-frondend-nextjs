@@ -13,9 +13,7 @@ export function PageSizeSelect({
     <LabeledSelect
       label="count"
       value={String(value)}
-      as
-      any
-      onChange={(v: string) => onChange(Number(v)) as any}
+      onChange={(v) => onChange(Number(v))}
       options={[
         { label: "10", value: "10" },
         { label: "25", value: "25" },

@@ -13,9 +13,9 @@ import { useTranslation } from "react-i18next";
 import { useClientTheme } from "@/hooks/useClientTheme";
 import { Button } from "@/components/ui/button";
 import { WalletTopUpDialog } from "@/components/client/wallet-top-up-dialog";
-import { Wallet, Loader2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { Wallet, Loader2, ArrowDownLeft, ArrowUpRight, Gift } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { walletLedgerTitleKey } from "@/lib/walletLedgerTitle";
+import { isWalletLedgerPromoBonus, walletLedgerTitleKey } from "@/lib/walletLedgerTitle";
 
 function WalletPageContent() {
   const dispatch = useAppDispatch();
@@ -168,6 +168,7 @@ function WalletPageContent() {
         <ul className="space-y-2">
           {transactions.map((tx) => {
             const isCredit = tx.type === "CREDIT";
+            const isPromoBonus = isWalletLedgerPromoBonus(tx.type, tx.source);
             const titleKey = walletLedgerTitleKey(tx.type, tx.source, "user");
             return (
               <li
@@ -182,10 +183,16 @@ function WalletPageContent() {
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
                   style={{
-                    backgroundColor: isCredit ? `${colors.success}22` : `${colors.error}22`,
+                    backgroundColor: isPromoBonus
+                      ? `${colors.primary}28`
+                      : isCredit
+                        ? `${colors.success}22`
+                        : `${colors.error}22`,
                   }}
                 >
-                  {isCredit ? (
+                  {isPromoBonus ? (
+                    <Gift className="h-5 w-5" style={{ color: colors.primary }} />
+                  ) : isCredit ? (
                     <ArrowDownLeft className="h-5 w-5" style={{ color: colors.success }} />
                   ) : (
                     <ArrowUpRight className="h-5 w-5" style={{ color: colors.error }} />

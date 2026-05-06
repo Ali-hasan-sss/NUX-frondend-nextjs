@@ -1,0 +1,291 @@
+"use client";
+
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { CompanyWalletTopUpDialog } from "@/components/company/company-wallet-top-up-dialog";
+import { CompanyWalletWithdrawDialog } from "@/components/company/company-wallet-withdraw-dialog";
+import { Wallet, Loader2, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { walletLedgerTitleKey } from "@/lib/walletLedgerTitle";
+import { companyWalletService } from "@/features/company/companyWalletService";
+import type { WalletBalanceData, WalletLedgerEntry, WalletWithdrawalRequestRow } from "@/features/client/wallet/walletTypes";
+import { WalletWithdrawalsSection } from "@/components/client/wallet-withdrawals-section";
+
+const PAGE_TAKE = 20;
+
+function CompanyWalletPageContent() {
+  const { t, i18n } = useTranslation();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const params = useParams();
+  const companyId = String(params.companyId ?? "");
+  const wallet = useMemo(() => companyWalletService(companyId), [companyId]);
+
+  const [balance, setBalance] = useState<WalletBalanceData | null>(null);
+  const [transactions, setTransactions] = useState<WalletLedgerEntry[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingBalance, setLoadingBalance] = useState(false);
+  const [loadingTx, setLoadingTx] = useState(false);
+  const [errorBalance, setErrorBalance] = useState<string | null>(null);
+  const [errorTx, setErrorTx] = useState<string | null>(null);
+
+  const [topUpOpen, setTopUpOpen] = useState(false);
+  const [withdrawOpen, setWithdrawOpen] = useState(false);
+  const [withdrawals, setWithdrawals] = useState<WalletWithdrawalRequestRow[]>([]);
+  const [withdrawalsLoading, setWithdrawalsLoading] = useState(false);
+  const [withdrawalsError, setWithdrawalsError] = useState<string | null>(null);
+  const [cancellingWithdrawalId, setCancellingWithdrawalId] = useState<string | null>(null);
+
+  const fetchWithdrawalRequests = useCallback(async () => {
+    setWithdrawalsLoading(true);
+    setWithdrawalsError(null);
+    try {
+      const { items } = await wallet.listWithdrawalRequests({ take: 50, skip: 0 });
+      setWithdrawals(items);
+    } catch {
+      setWithdrawalsError(t("wallet.withdrawalsLoadError"));
+    } finally {
+      setWithdrawalsLoading(false);
+    }
+  }, [t, wallet]);
+
+  const loadBalance = useCallback(async () => {
+    setLoadingBalance(true);
+    setErrorBalance(null);
+    try {
+      const b = await wallet.getBalance();
+      setBalance(b);
+    } catch {
+      setErrorBalance(t("dashboard.wallet.loadError"));
+    } finally {
+      setLoadingBalance(false);
+    }
+  }, [t, wallet]);
+
+  const loadTransactions = useCallback(
+    async (opts: { append: boolean; nextCursor?: string | null }) => {
+      setLoadingTx(true);
+      setErrorTx(null);
+      try {
+        const items = await wallet.getTransactions(
+          PAGE_TAKE,
+          opts.append && opts.nextCursor ? opts.nextCursor : undefined
+        );
+        if (opts.append) {
+          setTransactions((prev) => [...prev, ...items]);
+        } else {
+          setTransactions(items);
+        }
+        if (items.length > 0) {
+          const last = items[items.length - 1];
+          setCursor(last.id);
+        }
+        setHasMore(items.length >= PAGE_TAKE);
+      } catch {
+        setErrorTx(t("dashboard.wallet.transactionsError"));
+      } finally {
+        setLoadingTx(false);
+      }
+    },
+    [t, wallet]
+  );
+
+  const refreshAll = useCallback(async () => {
+    await loadBalance();
+    await loadTransactions({ append: false });
+    await fetchWithdrawalRequests();
+  }, [loadBalance, loadTransactions, fetchWithdrawalRequests]);
+
+  useEffect(() => {
+    void refreshAll();
+  }, [refreshAll]);
+
+  useEffect(() => {
+    const pi = searchParams.get("payment_intent");
+    if (!pi) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        await wallet.syncTopUpAfterPayment(pi);
+      } catch {
+        /* webhook may still apply */
+      }
+      if (!cancelled) {
+        await refreshAll();
+        router.replace(`/company/${companyId}/wallet`);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, router, refreshAll, wallet, companyId]);
+
+  const loadMore = () => {
+    if (!hasMore || loadingTx || !cursor) return;
+    void loadTransactions({ append: true, nextCursor: cursor });
+  };
+
+  const fmtDate = (iso: string) => {
+    try {
+      return new Intl.DateTimeFormat(i18n.language, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(iso));
+    } catch {
+      return iso;
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-2xl font-bold text-foreground">{t("companyPortal.nav.wallet")}</h1>
+        <p className="text-sm text-muted-foreground">{t("dashboard.wallet.pageDescription")}</p>
+      </div>
+
+      <div
+        className={cn(
+          "rounded-2xl border border-violet-500/25 bg-violet-500/5 p-5 shadow-sm flex items-start gap-4"
+        )}
+      >
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-violet-500/15">
+          <Wallet className="h-7 w-7 text-violet-600" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="mb-1 text-xs font-medium text-muted-foreground">{t("dashboard.wallet.balance")}</p>
+          {loadingBalance && !balance ? (
+            <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
+          ) : errorBalance ? (
+            <p className="text-sm text-destructive">{errorBalance}</p>
+          ) : (
+            <p className="text-3xl font-bold tabular-nums text-foreground">
+              {balance?.balance ?? "—"} {balance?.currency ?? "EUR"}
+            </p>
+          )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Button type="button" size="sm" className="bg-violet-600 hover:bg-violet-700" onClick={() => setTopUpOpen(true)}>
+              {t("wallet.addFunds")}
+            </Button>
+            <Button type="button" size="sm" variant="outline" onClick={() => setWithdrawOpen(true)}>
+              {t("wallet.requestWithdrawal")}
+            </Button>
+            <Button type="button" size="sm" variant="ghost" disabled={loadingBalance} onClick={() => void loadBalance()}>
+              {t("dashboard.wallet.refresh")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <WalletWithdrawalsSection
+        items={withdrawals}
+        loading={withdrawalsLoading}
+        error={withdrawalsError}
+        currency={balance?.currency ?? "EUR"}
+        cancellingId={cancellingWithdrawalId}
+        setCancellingId={setCancellingWithdrawalId}
+        onCancelRequest={(id) => wallet.cancelWithdrawalRequest(id)}
+        onRefresh={refreshAll}
+      />
+
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">{t("wallet.transactions")}</h2>
+      </div>
+
+      {errorTx && <p className="text-sm text-destructive">{errorTx}</p>}
+
+      {loadingTx && transactions.length === 0 ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : transactions.length === 0 ? (
+        <p className="py-8 text-center text-sm text-muted-foreground">{t("wallet.noTransactions")}</p>
+      ) : (
+        <ul className="space-y-2">
+          {transactions.map((tx) => {
+            const isCredit = tx.type === "CREDIT";
+            const titleKey = walletLedgerTitleKey(tx.type, tx.source, "company");
+            return (
+              <li
+                key={tx.id}
+                className="flex items-start gap-3 rounded-xl border border-border bg-card p-4"
+              >
+                <div
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full",
+                    isCredit ? "bg-emerald-500/15" : "bg-destructive/10"
+                  )}
+                >
+                  {isCredit ? (
+                    <ArrowDownLeft className="h-5 w-5 text-emerald-600" />
+                  ) : (
+                    <ArrowUpRight className="h-5 w-5 text-destructive" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {titleKey ? t(titleKey) : isCredit ? t("wallet.credit") : t("wallet.debit")}
+                    </span>
+                    <span
+                      className={cn(
+                        "shrink-0 text-sm font-semibold tabular-nums",
+                        isCredit ? "text-emerald-600" : "text-destructive"
+                      )}
+                    >
+                      {isCredit ? "+" : "-"}
+                      {tx.amount} {balance?.currency ?? "EUR"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">{fmtDate(tx.createdAt)}</p>
+                  {!titleKey && (
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {t("wallet.source")}: {tx.source}
+                    </p>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {hasMore && transactions.length > 0 && (
+        <Button type="button" variant="outline" className="w-full" disabled={loadingTx} onClick={loadMore}>
+          {loadingTx ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+          {t("common.loadMore")}
+        </Button>
+      )}
+
+      <CompanyWalletTopUpDialog
+        companyId={companyId}
+        open={topUpOpen}
+        onOpenChange={setTopUpOpen}
+        onCompleted={() => void refreshAll()}
+      />
+      <CompanyWalletWithdrawDialog
+        companyId={companyId}
+        open={withdrawOpen}
+        onOpenChange={setWithdrawOpen}
+        currency={balance?.currency ?? "EUR"}
+        onCompleted={() => void refreshAll()}
+      />
+    </div>
+  );
+}
+
+export default function CompanyWalletPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <CompanyWalletPageContent />
+    </Suspense>
+  );
+}

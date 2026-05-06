@@ -76,13 +76,16 @@ const menuSlice = createSlice({
       .addCase(fetchMenuItems.fulfilled, (state, action) => {
         state.loading.items = false;
         const payload = action.payload;
-        state.items = Array.isArray(payload) ? payload : (payload?.data ?? []);
-        state.currency = (payload as any)?.currency ?? state.currency ?? null;
+        state.items = payload.data ?? [];
+        state.currency = payload.currency ?? state.currency ?? null;
         state.error.items = null;
       })
       .addCase(fetchMenuItems.rejected, (state, action) => {
         state.loading.items = false;
-        state.error.items = action.payload || "Failed to fetch items";
+        state.error.items =
+          typeof action.payload === "string"
+            ? action.payload
+            : "Failed to fetch items";
       });
   },
 });

@@ -4,6 +4,7 @@ import {
   fetchAdminUsers,
   fetchAdminUserById,
   createAdminUser,
+  createCompanyOwner,
   updateAdminUser,
   deleteAdminUser,
 } from "./adminUsersThunks";
@@ -66,6 +67,19 @@ const adminUsersSlice = createSlice({
         state.items.push(action.payload);
       })
       .addCase(createAdminUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error =
+          (action.payload as string) ?? action.error.message ?? null;
+      })
+
+      .addCase(createCompanyOwner.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createCompanyOwner.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(createCompanyOwner.rejected, (state, action) => {
         state.isLoading = false;
         state.error =
           (action.payload as string) ?? action.error.message ?? null;

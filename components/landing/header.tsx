@@ -20,12 +20,7 @@ import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { logout } from "@/features/auth/authSlice";
-
-function getDashboardHref(role: string | undefined): string {
-  if (role === "ADMIN" || role === "SUBADMIN") return "/admin";
-  if (role === "RESTAURANT_OWNER") return "/dashboard";
-  return "/client/home";
-}
+import { getDashboardPathForRole } from "@/lib/roleDashboard";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -196,7 +191,7 @@ export function Header() {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem asChild>
                   <Link
-                    href={getDashboardHref(user.role)}
+                    href={getDashboardPathForRole(user.role)}
                     className="flex items-center gap-2 cursor-pointer"
                   >
                     <LayoutDashboard className="h-4 w-4" />
@@ -369,7 +364,7 @@ export function Header() {
               {isAuthenticated && user ? (
                 <>
                   <Link
-                    href={getDashboardHref(user.role)}
+                    href={getDashboardPathForRole(user.role)}
                     onClick={() => setIsMenuOpen(false)}
                   >
                     <Button

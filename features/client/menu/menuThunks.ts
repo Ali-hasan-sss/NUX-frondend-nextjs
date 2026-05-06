@@ -25,8 +25,7 @@ export const fetchMenuItems = createAsyncThunk<
   { rejectValue: string }
 >("clientMenu/fetchItems", async (categoryId, { rejectWithValue }) => {
   try {
-    const response = await menuService.getItemsByCategory(categoryId);
-    return { data: response.data, currency: response.currency };
+    return await menuService.getItemsByCategory(categoryId);
   } catch (error: any) {
     return rejectWithValue(
       error?.response?.data?.message || "Failed to fetch menu items"

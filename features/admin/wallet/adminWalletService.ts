@@ -16,6 +16,12 @@ export type AdminWalletOverviewCurrency = {
   withdrawalReconciliationDelta: string;
   withdrawalReconciliationOk: boolean;
   pendingUserWithdrawalsTotal: string;
+  userCreditsStripe: string;
+  userCreditsPaypal: string;
+  userCreditsOrder: string;
+  userCreditsAdmin: string;
+  userCreditsBonus: string;
+  userDebitsAdmin: string;
   completedRestaurantWithdrawalsSum: string;
   restaurantWithdrawalDebitsFromLedgerSum: string;
   restaurantWithdrawalReconciliationDelta: string;
@@ -28,6 +34,12 @@ export type AdminWalletOverviewCurrency = {
   restaurantNetFromLedger: string;
   restaurantLedgerReconciliationDelta: string;
   restaurantLedgerReconciliationOk: boolean;
+  restaurantCreditsStripe: string;
+  restaurantCreditsPaypal: string;
+  restaurantCreditsOrder: string;
+  restaurantCreditsAdmin: string;
+  restaurantCreditsBonus: string;
+  restaurantDebitsAdmin: string;
 };
 
 export type AdminWalletOverview = {
@@ -85,6 +97,22 @@ export type AdminWalletSelectRestaurantItem = {
   id: string;
   name: string;
   ownerEmail: string;
+};
+
+export type AdminWalletTopUpBonusCampaign = {
+  id: string;
+  title: string;
+  description: string | null;
+  startsAt: string;
+  endsAt: string;
+  minTopUpAmount: string | number;
+  bonusType: "PERCENTAGE" | "FIXED";
+  bonusValue: string | number;
+  isActive: boolean;
+  createdById: string | null;
+  createdAt: string;
+  updatedAt: string;
+  creator: { id: string; email: string; fullName: string | null } | null;
 };
 
 export type AdminRestaurantWalletDetail = {
@@ -189,5 +217,46 @@ export const adminWalletService = {
   }): Promise<{ availableBalanceAfter: string; currency: string }> {
     const res = await axiosInstance.post("/admin/wallet/manual-debit", payload);
     return unwrap<{ availableBalanceAfter: string; currency: string }>(res);
+  },
+
+  async manualWalletCredit(payload: {
+    ownerType: "USER" | "RESTAURANT";
+    ownerId: string;
+    amount: number;
+    currency?: string;
+    note?: string;
+    idempotencyKey?: string;
+  }): Promise<{ availableBalanceAfter: string; currency: string }> {
+    const res = await axiosInstance.post("/admin/wallet/manual-credit", payload);
+    return unwrap<{ availableBalanceAfter: string; currency: string }>(res);
+  },
+
+  async listTopUpBonusCampaigns(): Promise<AdminWalletTopUpBonusCampaign[]> {
+    const res = await axiosInstance.get("/admin/wallet/top-up-bonuses");
+    return unwrap<AdminWalletTopUpBonusCampaign[]>(res);
+  },
+
+  async createTopUpBonusCampaign(payload: {
+    title: string;
+    description?: string;
+    startsAt: string;
+    endsAt: string;
+    minTopUpAmount: number;
+    bonusType: "PERCENTAGE" | "FIXED";
+    bonusValue: number;
+    sendNotification?: boolean;
+  }): Promise<AdminWalletTopUpBonusCampaign> {
+    const res = await axiosInstance.post("/admin/wallet/top-up-bonuses", payload);
+    return unwrap<AdminWalletTopUpBonusCampaign>(res);
+  },
+
+  async patchTopUpBonusCampaign(
+    id: string,
+    isActive: boolean,
+  ): Promise<AdminWalletTopUpBonusCampaign> {
+    const res = await axiosInstance.patch(`/admin/wallet/top-up-bonuses/${id}`, {
+      isActive,
+    });
+    return unwrap<AdminWalletTopUpBonusCampaign>(res);
   },
 };

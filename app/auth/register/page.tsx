@@ -11,12 +11,7 @@ import Link from "next/link";
 import { Home } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAppSelector } from "@/app/hooks";
-
-function getRedirectPath(role: string | undefined): string {
-  if (role === "ADMIN" || role === "SUBADMIN") return "/admin";
-  if (role === "RESTAURANT_OWNER") return "/dashboard";
-  return "/client/home";
-}
+import { getAuthenticatedAppHome } from "@/lib/roleDashboard";
 
 function RegisterPageContent() {
   const { t } = useTranslation();
@@ -32,7 +27,7 @@ function RegisterPageContent() {
   useEffect(() => {
     if (!mounted) return;
     if (isAuthenticated && user) {
-      router.replace(getRedirectPath(user.role));
+      router.replace(getAuthenticatedAppHome(user.role));
     }
   }, [mounted, isAuthenticated, user, router]);
 

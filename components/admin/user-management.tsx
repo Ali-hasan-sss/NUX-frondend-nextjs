@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   Card,
   CardContent,
@@ -26,7 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, MoreHorizontal, Edit, Trash2, PlusCircle } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, PlusCircle, Eye } from "lucide-react";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,13 +38,24 @@ import {
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   createAdminUser,
+  createCompanyOwner,
   deleteAdminUser,
   fetchAdminUsers,
   updateAdminUser,
 } from "@/features/admin/users/adminUsersThunks";
+import type {
+  AdminUsersFilters,
+  CreateCompanyOwnerRequest,
+} from "@/features/admin/users/adminUsersTypes";
 import { Dialog } from "@radix-ui/react-dialog";
-import { DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { UserForm, UserFormInput } from "./forms/userForm";
+import { CompanyOwnerForm } from "./forms/companyOwnerForm";
 import ConfirmDialog from "../confirmMessage";
 import {
   Pagination,
@@ -84,7 +97,7 @@ interface inetialData {
   id: string;
   fullName: string;
   email: string;
-  role: "USER" | "RESTAURANT_OWNER" | "ADMIN";
+  role: "USER" | "RESTAURANT_OWNER" | "ADMIN" | "COMPANY_OWNER" | "SUBADMIN";
   isActive: boolean;
   password?: string;
 }
@@ -93,10 +106,14 @@ export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [roleFilter, setRoleFilter] = useState<
-    "ADMIN" | "RESTAURANT_OWNER" | "USER" | "all"
+    "ADMIN" | "RESTAURANT_OWNER" | "USER" | "COMPANY_OWNER" | "all"
+  >("all");
+  const [companyHasFilter, setCompanyHasFilter] = useState<
+    "all" | "with" | "without"
   >("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [modalOpen, setModalOpen] = useState(false);
+  const [companyModalOpen, setCompanyModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<inetialData | null>(null);
   const [openDeleteMessage, setOpenDeleteMessage] = useState(false);
   const [deleting, setDeleting] = useState<string | number>("");
@@ -119,49 +136,60 @@ export function UserManagement() {
     };
   }, [searchTerm]);
 
-  useEffect(() => {
-    const role =
+  const listFilters = useMemo((): AdminUsersFilters => {
+    const role: AdminUsersFilters["role"] | undefined =
       roleFilter === "all"
         ? undefined
         : roleFilter === "RESTAURANT_OWNER"
-        ? "RESTAURANT_OWNER"
-        : roleFilter === "ADMIN"
-        ? "ADMIN"
-        : "USER";
+          ? "RESTAURANT_OWNER"
+          : roleFilter === "ADMIN"
+            ? "ADMIN"
+            : roleFilter === "COMPANY_OWNER"
+              ? "COMPANY_OWNER"
+              : "USER";
     const isActive =
       statusFilter === "all" ? undefined : statusFilter === "active";
-
     const email = debouncedSearchTerm.trim() || undefined;
-
-    dispatch(
-      fetchAdminUsers({
-        role,
-        isActive,
-        email,
-        pageNumber: currentPage,
-        pageSize,
-      })
-    );
+    const hasCompany =
+      roleFilter === "COMPANY_OWNER"
+        ? companyHasFilter === "with"
+          ? true
+          : companyHasFilter === "without"
+            ? false
+            : undefined
+        : undefined;
+    const includeCompanies = roleFilter === "COMPANY_OWNER";
+    return {
+      role,
+      isActive,
+      email,
+      hasCompany,
+      includeCompanies,
+      pageNumber: currentPage,
+      pageSize,
+    };
   }, [
-    dispatch,
+    roleFilter,
+    companyHasFilter,
+    statusFilter,
+    debouncedSearchTerm,
     currentPage,
     pageSize,
-    debouncedSearchTerm,
-    roleFilter,
-    statusFilter,
   ]);
 
-  type UIAdminUser = (typeof items)[number] & {
-    restaurantName?: string | null;
-    subscriptionPlan?: string | null;
-    joinDate?: string | null;
-    status: "active" | "inactive";
-  };
+  useEffect(() => {
+    void dispatch(fetchAdminUsers(listFilters));
+  }, [dispatch, listFilters]);
 
-  const uiUsers: UIAdminUser[] = items.map((u) => ({
-    ...u,
-    status: u.isActive ? "active" : "inactive",
-  }));
+  const showCompaniesColumn = roleFilter === "COMPANY_OWNER";
+
+  const roleLabel = (role: string) => {
+    if (role === "RESTAURANT_OWNER") return t("restaurantOwner");
+    if (role === "COMPANY_OWNER") return t("companyOwner");
+    if (role === "ADMIN") return t("admins");
+    if (role === "SUBADMIN") return t("subadminRole");
+    return t("user");
+  };
 
   const handleSubmit = async (data: UserFormInput) => {
     if (editingUser) {
@@ -172,7 +200,22 @@ export function UserManagement() {
       await dispatch(createAdminUser(data));
       setModalOpen(false);
     }
-    console.log(data);
+    await dispatch(fetchAdminUsers(listFilters));
+  };
+
+  const handleCompanyOwnerSubmit = async (data: CreateCompanyOwnerRequest) => {
+    try {
+      await dispatch(createCompanyOwner(data)).unwrap();
+      toast.success(t("adminCompanyOwnerCreated"));
+      setCompanyModalOpen(false);
+      await dispatch(fetchAdminUsers(listFilters));
+    } catch (e: unknown) {
+      const msg =
+        typeof e === "string"
+          ? e
+          : (e as { message?: string })?.message || String(e);
+      toast.error(getTranslatedAdminUserError(msg, t));
+    }
   };
   const handleDelete = async () => {
     if (deleting) await dispatch(deleteAdminUser(deleting?.toString()));
@@ -199,22 +242,43 @@ export function UserManagement() {
               onChange={setSearchTerm}
               placeholder={t("searchByNameEmailRestaurant")}
             />
-            <div className="flex  items-center gap-2">
+            <div className="flex flex-wrap items-end gap-2">
               <LabeledSelect
                 label={t("role")}
                 value={roleFilter}
-                onChange={(v) =>
+                onChange={(v) => {
                   setRoleFilter(
-                    v as "ADMIN" | "RESTAURANT_OWNER" | "USER" | "all"
-                  )
-                }
+                    v as
+                      | "ADMIN"
+                      | "RESTAURANT_OWNER"
+                      | "USER"
+                      | "COMPANY_OWNER"
+                      | "all",
+                  );
+                  setCompanyHasFilter("all");
+                }}
                 options={[
                   { label: t("allRoles"), value: "all" },
                   { label: t("restaurantOwner"), value: "RESTAURANT_OWNER" },
+                  { label: t("companyOwner"), value: "COMPANY_OWNER" },
                   { label: t("admins"), value: "ADMIN" },
                   { label: t("user"), value: "USER" },
                 ]}
               />
+              {roleFilter === "COMPANY_OWNER" && (
+                <LabeledSelect
+                  label={t("companyFilter")}
+                  value={companyHasFilter}
+                  onChange={(v) =>
+                    setCompanyHasFilter(v as "all" | "with" | "without")
+                  }
+                  options={[
+                    { label: t("companyFilterAll"), value: "all" },
+                    { label: t("companyFilterWith"), value: "with" },
+                    { label: t("companyFilterWithout"), value: "without" },
+                  ]}
+                />
+              )}
               <LabeledSelect
                 label={t("status")}
                 value={statusFilter}
@@ -240,16 +304,29 @@ export function UserManagement() {
               </CardTitle>
               <CardDescription>{t("allRegisteredUsers")}</CardDescription>
             </div>
-            <Button
-              className="flex items-center gap-2"
-              onClick={() => {
-                setEditingUser(null);
-                setModalOpen(true);
-              }}
-            >
-              <PlusCircle />
-              <span>{t("addNewUser")}</span>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                className="flex items-center gap-2"
+                variant="secondary"
+                onClick={() => {
+                  setEditingUser(null);
+                  setCompanyModalOpen(true);
+                }}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>{t("addCompanyOwner")}</span>
+              </Button>
+              <Button
+                className="flex items-center gap-2"
+                onClick={() => {
+                  setEditingUser(null);
+                  setModalOpen(true);
+                }}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>{t("addNewUser")}</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -263,6 +340,9 @@ export function UserManagement() {
               <TableHeader>
                 <TableRow>
                   <TableHead>{t("user")}</TableHead>
+                  {showCompaniesColumn && (
+                    <TableHead>{t("companiesColumn")}</TableHead>
+                  )}
                   <TableHead>{t("role")}</TableHead>
                   <TableHead>{t("status")}</TableHead>
                   <TableHead>{t("joinDate")}</TableHead>
@@ -272,7 +352,7 @@ export function UserManagement() {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={7}>
+                    <TableCell colSpan={showCompaniesColumn ? 6 : 5}>
                       <div className="py-6 text-center text-muted-foreground">
                         {t("loadingUsers")}
                       </div>
@@ -280,7 +360,7 @@ export function UserManagement() {
                   </TableRow>
                 ) : items.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7}>
+                    <TableCell colSpan={showCompaniesColumn ? 6 : 5}>
                       <div className="py-6 text-center text-muted-foreground">
                         {t("noUsersFound")}
                       </div>
@@ -297,21 +377,32 @@ export function UserManagement() {
                           </div>
                         </div>
                       </TableCell>
+                      {showCompaniesColumn && (
+                        <TableCell className="max-w-[220px]">
+                          {user.companiesOwned && user.companiesOwned.length > 0 ? (
+                            <span className="text-sm text-muted-foreground line-clamp-2">
+                              {user.companiesOwned
+                                .map((c) => c.name)
+                                .join(", ")}
+                            </span>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      )}
                       <TableCell>
                         <Badge
                           variant={
                             user.role === "ADMIN"
                               ? "destructive"
                               : user.role === "USER"
-                              ? "default"
-                              : "secondary"
+                                ? "default"
+                                : user.role === "COMPANY_OWNER"
+                                  ? "outline"
+                                  : "secondary"
                           }
                         >
-                          {user.role === "RESTAURANT_OWNER"
-                            ? "Restaurant Owner"
-                            : user.role === "USER"
-                            ? "user"
-                            : "Admin"}
+                          {roleLabel(user.role)}
                         </Badge>
                       </TableCell>
 
@@ -319,7 +410,7 @@ export function UserManagement() {
                         <Badge
                           variant={user.isActive ? "default" : "secondary"}
                         >
-                          {user.isActive ? "Active" : "Inactive"}
+                          {user.isActive ? t("active") : t("inactive")}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -337,6 +428,12 @@ export function UserManagement() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/users/${user.id}`}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                {t("viewUserDetails")}
+                              </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={() => {
                                 setEditingUser(user as inetialData);
@@ -428,6 +525,22 @@ export function UserManagement() {
             onSubmit={handleSubmit}
             onClose={() => setModalOpen(false)}
             submitLabel={editingUser ? t("save") : t("create")}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={companyModalOpen} onOpenChange={setCompanyModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{t("addCompanyOwnerTitle")}</DialogTitle>
+            <DialogDescription className="text-left">
+              {t("addCompanyOwnerDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <CompanyOwnerForm
+            onSubmit={handleCompanyOwnerSubmit}
+            onClose={() => setCompanyModalOpen(false)}
+            submitLabel={t("create")}
           />
         </DialogContent>
       </Dialog>
