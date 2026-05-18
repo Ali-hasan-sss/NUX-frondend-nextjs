@@ -13,6 +13,7 @@ import {
 import { MapPin, Navigation, Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
+import { findPlaceLocation, GOOGLE_MAPS_API_KEY } from "./googleMapsLoader";
 
 const LeafletMapView = dynamic(
   () => import("./LeafletMapView").then((m) => m.LeafletMapView),
@@ -24,54 +25,17 @@ const GoogleMapView = dynamic(
   { ssr: false }
 );
 
-const GOOGLE_MAPS_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
-
 interface GoogleMapPickerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   initialLat?: number;
   initialLng?: number;
-  /** When provided, map will be centered on this address (Google Geocoding) */
+  /** When provided, map will be centered on this address using Places search */
   initialAddress?: string;
   onSelect: (coords: { latitude: number; longitude: number }) => void;
 }
 
 const DEFAULT_CENTER: [number, number] = [40.7128, -74.006];
-
-function geocodeAddress(
-  address: string,
-  apiKey: string
-): Promise<{ lat: number; lng: number } | null> {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-  return fetch(url)
-    .then((r) => r.json())
-    .then((data) => {
-      if (data.status === "OK" && data.results?.[0]?.geometry?.location) {
-        const loc = data.results[0].geometry.location;
-        return { lat: loc.lat, lng: loc.lng };
-      }
-      return null;
-    })
-    .catch(() => null);
-}
-
-function reverseGeocode(
-  lat: number,
-  lng: number,
-  apiKey: string
-): Promise<string | null> {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
-  return fetch(url)
-    .then((r) => r.json())
-    .then((data) => {
-      if (data.status === "OK" && data.results?.[0]?.formatted_address) {
-        return data.results[0].formatted_address;
-      }
-      return null;
-    })
-    .catch(() => null);
-}
 
 export function GoogleMapPicker({
   open,
@@ -101,21 +65,19 @@ export function GoogleMapPicker({
       setSearchQuery(initialAddress || "");
       setLocationAccuracy(null);
       setResolvedAddress(null);
-      // Geocode initial address when using Google and address provided
+      // Resolve initial address through Places, not the Geocoding REST API.
       if (
         GOOGLE_MAPS_API_KEY &&
         initialAddress?.trim() &&
         (initialLat === 0 || initialLng === 0)
       ) {
-        geocodeAddress(initialAddress.trim(), GOOGLE_MAPS_API_KEY).then(
-          (coords) => {
-            if (coords) {
-              setLatitude(coords.lat);
-              setLongitude(coords.lng);
-              setResolvedAddress(initialAddress.trim());
-            }
+        findPlaceLocation(initialAddress.trim()).then((place) => {
+          if (place) {
+            setLatitude(place.lat);
+            setLongitude(place.lng);
+            setResolvedAddress(place.label);
           }
-        );
+        });
       }
     }
   }, [open, initialLat, initialLng, initialAddress]);
@@ -131,11 +93,6 @@ export function GoogleMapPicker({
     setLatitude(lat);
     setLongitude(lng);
     setResolvedAddress(null);
-    if (GOOGLE_MAPS_API_KEY) {
-      reverseGeocode(lat, lng, GOOGLE_MAPS_API_KEY).then((addr) => {
-        setResolvedAddress(addr);
-      });
-    }
   }, []);
 
   const handleUseDeviceLocation = async () => {
@@ -179,11 +136,6 @@ export function GoogleMapPicker({
       setLongitude(lng);
       setLocationAccuracy(acc);
       setResolvedAddress(null);
-      if (GOOGLE_MAPS_API_KEY) {
-        reverseGeocode(lat, lng, GOOGLE_MAPS_API_KEY).then((addr) => {
-          setResolvedAddress(addr);
-        });
-      }
       if (acc !== null) {
         if (acc <= 5) setGeoError(`Excellent accuracy: ±${acc.toFixed(1)}m`);
         else if (acc <= 10) setGeoError(`High accuracy: ±${acc.toFixed(1)}m`);
@@ -214,14 +166,11 @@ export function GoogleMapPicker({
     setGeoError("");
     try {
       if (GOOGLE_MAPS_API_KEY) {
-        const coords = await geocodeAddress(
-          searchQuery.trim(),
-          GOOGLE_MAPS_API_KEY
-        );
-        if (coords) {
-          setLatitude(coords.lat);
-          setLongitude(coords.lng);
-          setResolvedAddress(searchQuery.trim() || null);
+        const place = await findPlaceLocation(searchQuery.trim());
+        if (place) {
+          setLatitude(place.lat);
+          setLongitude(place.lng);
+          setResolvedAddress(place.label);
         } else {
           setGeoError(t("landing.auth.mapLocationNotFound"));
         }
@@ -333,8 +282,7 @@ export function GoogleMapPicker({
                 to place marker
               </p>
               <p>
-                <strong>Search:</strong> Use the search box above (OpenStreetMap
-                Nominatim)
+                <strong>Search:</strong> Use the search box above
               </p>
               <p className="break-all">
                 <strong>{t("landing.auth.locationSelected")}</strong>

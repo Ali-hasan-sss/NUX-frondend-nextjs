@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { MapPin, Navigation, Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
+import { findPlaceLocation, GOOGLE_MAPS_API_KEY } from "./googleMapsLoader";
 
 const LeafletMapView = dynamic(
   () => import("./LeafletMapView").then((m) => m.LeafletMapView),
@@ -17,43 +18,6 @@ const GoogleMapView = dynamic(
   () => import("./GoogleMapView").then((m) => m.GoogleMapView),
   { ssr: false }
 );
-
-const GOOGLE_MAPS_API_KEY =
-  process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
-
-function geocodeAddress(
-  address: string,
-  apiKey: string
-): Promise<{ lat: number; lng: number } | null> {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-  return fetch(url)
-    .then((r) => r.json())
-    .then((data) => {
-      if (data.status === "OK" && data.results?.[0]?.geometry?.location) {
-        const loc = data.results[0].geometry.location;
-        return { lat: loc.lat, lng: loc.lng };
-      }
-      return null;
-    })
-    .catch(() => null);
-}
-
-function reverseGeocode(
-  lat: number,
-  lng: number,
-  apiKey: string
-): Promise<string | null> {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
-  return fetch(url)
-    .then((r) => r.json())
-    .then((data) => {
-      if (data.status === "OK" && data.results?.[0]?.formatted_address) {
-        return data.results[0].formatted_address;
-      }
-      return null;
-    })
-    .catch(() => null);
-}
 
 export interface InlineMapPickerProps {
   initialAddress?: string;
@@ -84,7 +48,7 @@ export function InlineMapPicker({
 
   useEffect(() => setMounted(true), []);
 
-  // Sync from parent and geocode initial address
+  // Sync from parent and resolve the initial address through Places.
   useEffect(() => {
     setLatitude(initialLat);
     setLongitude(initialLng);
@@ -96,16 +60,14 @@ export function InlineMapPicker({
       initialAddress?.trim() &&
       (initialLat === 0 || initialLng === 0)
     ) {
-      geocodeAddress(initialAddress.trim(), GOOGLE_MAPS_API_KEY).then(
-        (coords) => {
-          if (coords) {
-            setLatitude(coords.lat);
-            setLongitude(coords.lng);
-            setResolvedAddress(initialAddress.trim());
-            onSelect({ latitude: coords.lat, longitude: coords.lng });
-          }
+      findPlaceLocation(initialAddress.trim()).then((place) => {
+        if (place) {
+          setLatitude(place.lat);
+          setLongitude(place.lng);
+          setResolvedAddress(place.label);
+          onSelect({ latitude: place.lat, longitude: place.lng });
         }
-      );
+      });
     }
   }, [initialAddress, initialLat, initialLng]);
 
@@ -123,11 +85,6 @@ export function InlineMapPicker({
       setGeoError("");
       setResolvedAddress(null);
       onSelect({ latitude: lat, longitude: lng });
-      if (GOOGLE_MAPS_API_KEY) {
-        reverseGeocode(lat, lng, GOOGLE_MAPS_API_KEY).then((addr) => {
-          setResolvedAddress(addr);
-        });
-      }
     },
     [onSelect]
   );
@@ -155,11 +112,6 @@ export function InlineMapPicker({
       setLocationAccuracy(acc);
       onSelect({ latitude: lat, longitude: lng });
       setResolvedAddress(null);
-      if (GOOGLE_MAPS_API_KEY) {
-        reverseGeocode(lat, lng, GOOGLE_MAPS_API_KEY).then((addr) => {
-          setResolvedAddress(addr);
-        });
-      }
       if (acc !== null && acc > 50) {
         setGeoError(
           `Low accuracy: ±${acc.toFixed(1)}m - try outdoors or enable GPS`
@@ -184,15 +136,12 @@ export function InlineMapPicker({
     setGeoError("");
     try {
       if (GOOGLE_MAPS_API_KEY) {
-        const coords = await geocodeAddress(
-          searchQuery.trim(),
-          GOOGLE_MAPS_API_KEY
-        );
-        if (coords) {
-          setLatitude(coords.lat);
-          setLongitude(coords.lng);
-          setResolvedAddress(searchQuery.trim() || null);
-          onSelect({ latitude: coords.lat, longitude: coords.lng });
+        const place = await findPlaceLocation(searchQuery.trim());
+        if (place) {
+          setLatitude(place.lat);
+          setLongitude(place.lng);
+          setResolvedAddress(place.label);
+          onSelect({ latitude: place.lat, longitude: place.lng });
         } else {
           setGeoError(t("landing.auth.mapLocationNotFound"));
         }
