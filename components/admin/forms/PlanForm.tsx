@@ -32,8 +32,11 @@ export interface PlanFormInput {
   title: string;
   description: string;
   price: number;
+  monthlyPrice: number;
+  annualPrice: number;
   currency: string;
   duration: number;
+  displayOrder: number;
   isActive: boolean;
   permissions: PlanPermission[];
 }
@@ -51,16 +54,34 @@ export function PlanForm({
   onClose,
   submitLabel = "Save",
 }: PlanFormProps) {
+  const initialMonthlyPrice = initialData?.monthlyPrice ?? initialData?.price ?? 0;
+  const initialAnnualPrice =
+    initialData?.annualPrice ?? (initialData?.price ?? 0) * 12;
   const [formData, setFormData] = useState<PlanFormInput>(
-    initialData || {
-      title: "",
-      description: "",
-      price: 0,
-      currency: "USD",
-      duration: 30,
-      isActive: true,
-      permissions: [],
-    }
+    initialData
+      ? {
+          ...initialData,
+          monthlyPrice: initialMonthlyPrice,
+          annualPrice: initialAnnualPrice,
+        }
+      : {
+          title: "",
+          description: "",
+          price: 0,
+          monthlyPrice: 0,
+          annualPrice: 0,
+          currency: "USD",
+          duration: 30,
+          displayOrder: 0,
+          isActive: true,
+          permissions: [],
+        }
+  );
+  const [monthlyPriceInput, setMonthlyPriceInput] = useState(
+    String(initialMonthlyPrice)
+  );
+  const [annualPriceInput, setAnnualPriceInput] = useState(
+    String(initialAnnualPrice)
   );
   const [loading, setLoading] = useState(false);
 
@@ -68,11 +89,35 @@ export function PlanForm({
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
+  const parseDecimalInput = (value: string) => {
+    const normalized = value.replace(",", ".").trim();
+    const parsed = Number.parseFloat(normalized);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const handleDecimalInput = (
+    value: string,
+    setValue: (value: string) => void,
+    key: "monthlyPrice" | "annualPrice"
+  ) => {
+    if (!/^\d*([.,]\d*)?$/.test(value)) return;
+
+    setValue(value);
+    if (value === "" || value === "." || value === ",") return;
+    handleChange(key, parseDecimalInput(value));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await onSubmit(formData);
+      await onSubmit({
+        ...formData,
+        monthlyPrice: parseDecimalInput(monthlyPriceInput),
+        annualPrice: parseDecimalInput(annualPriceInput),
+        price: parseDecimalInput(monthlyPriceInput),
+        duration: 30,
+      });
       onClose();
     } finally {
       setLoading(false);
@@ -179,12 +224,37 @@ export function PlanForm({
       {/* Price & Currency */}
       <div className="flex space-x-2">
         <div className="flex-1">
-          <Label htmlFor="price">Price</Label>
+          <Label htmlFor="monthlyPrice">Monthly price</Label>
           <Input
-            id="price"
-            type="number"
-            value={formData.price}
-            onChange={(e) => handleChange("price", parseFloat(e.target.value))}
+            id="monthlyPrice"
+            type="text"
+            inputMode="decimal"
+            value={monthlyPriceInput}
+            onChange={(e) =>
+              handleDecimalInput(
+                e.target.value,
+                setMonthlyPriceInput,
+                "monthlyPrice"
+              )
+            }
+            onFocus={handleFocusSelectAll}
+            required
+          />
+        </div>
+        <div className="flex-1">
+          <Label htmlFor="annualPrice">Annual price</Label>
+          <Input
+            id="annualPrice"
+            type="text"
+            inputMode="decimal"
+            value={annualPriceInput}
+            onChange={(e) =>
+              handleDecimalInput(
+                e.target.value,
+                setAnnualPriceInput,
+                "annualPrice"
+              )
+            }
             onFocus={handleFocusSelectAll}
             required
           />
@@ -210,15 +280,18 @@ export function PlanForm({
         </div>
       </div>
 
-      {/* Duration & Active */}
+      {/* Ordering & Active */}
       <div className="flex items-center space-x-4">
         <div className="flex-1">
-          <Label htmlFor="duration">Duration (days)</Label>
+          <Label htmlFor="displayOrder">Display order</Label>
           <Input
-            id="duration"
+            id="displayOrder"
             type="number"
-            value={formData.duration}
-            onChange={(e) => handleChange("duration", parseInt(e.target.value))}
+            min="0"
+            value={formData.displayOrder}
+            onChange={(e) =>
+              handleChange("displayOrder", parseInt(e.target.value || "0"))
+            }
             onFocus={handleFocusSelectAll}
             required
           />

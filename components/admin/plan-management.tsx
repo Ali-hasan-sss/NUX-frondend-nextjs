@@ -159,15 +159,22 @@ export function PlanManagement() {
                 </Badge>
               </div>
               <div className="mt-4 flex items-center space-x-2">
-                <span className="text-4xl font-bold">${plan.price}</span>
+                <span className="text-4xl font-bold">${plan.monthlyPrice ?? plan.price}</span>
                 {plan.currency && (
                   <span className="text-muted-foreground">
-                    / {plan.currency}
+                    / {plan.currency} monthly
                   </span>
                 )}
               </div>
               <div className="text-sm text-muted-foreground mt-1">
+                Annual: ${plan.annualPrice ?? (plan.monthlyPrice ?? plan.price) * 12}{" "}
+                {plan.currency}
+              </div>
+              <div className="text-sm text-muted-foreground mt-1">
                 {t("durationDays").replace("{days}", String(plan.duration))}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                Display order: {plan.displayOrder}
               </div>
             </CardHeader>
 
@@ -182,7 +189,9 @@ export function PlanManagement() {
                 </div>
 
                 {/* Stripe Integration Status */}
-                {plan.stripeProductId && plan.stripePriceId && (
+                {plan.stripeProductId &&
+                  (plan.stripeMonthlyPriceId || plan.stripePriceId) &&
+                  plan.stripeAnnualPriceId && (
                   <div className="flex items-center space-x-2 text-sm text-green-600">
                     <Check className="h-4 w-4" />
                     <span>{t("stripeIntegrated")}</span>

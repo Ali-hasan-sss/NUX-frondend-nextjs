@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Check,
@@ -30,6 +32,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { CheckoutProvider } from "@/features/restaurant/subscription/subscriptionService";
+import type { BillingCycle } from "@/features/restaurant/subscription/subscriptionService";
 import { toast } from "sonner";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
@@ -57,6 +60,7 @@ export function SubscriptionManagement() {
   >({});
   const [paymentMethodDialogOpen, setPaymentMethodDialogOpen] = useState(false);
   const [paymentMethodPlanId, setPaymentMethodPlanId] = useState<number | null>(null);
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
   const { user } = useAppSelector((state) => state.auth);
   const {
     plans,
@@ -181,6 +185,7 @@ export function SubscriptionManagement() {
     try {
       const response = await subscriptionService.createCheckout(planId, {
         provider,
+        billingCycle,
       });
       if (response?.url) {
         window.location.href = response.url;
@@ -287,6 +292,16 @@ export function SubscriptionManagement() {
   // Check if plan is free
   const isFreePlan = (planPrice: number | null | undefined) =>
     !planPrice || planPrice <= 0;
+
+  const getPlanPrice = (plan: { price: number; monthlyPrice?: number | null; annualPrice?: number | null }) =>
+    billingCycle === "annual"
+      ? plan.annualPrice ?? (plan.monthlyPrice ?? plan.price) * 12
+      : plan.monthlyPrice ?? plan.price;
+
+  const selectedDurationLabel =
+    billingCycle === "annual"
+      ? `365 ${t("dashboard.subscription.days")}`
+      : `30 ${t("dashboard.subscription.days")}`;
 
   // Check if current subscription is in last month (30 days)
   const isInLastMonth = () => {
@@ -466,6 +481,21 @@ export function SubscriptionManagement() {
         <h2 className="text-2xl font-bold text-foreground mb-4">
           {t("dashboard.subscription.availablePlans")}
         </h2>
+        <div className="mb-2 flex items-center justify-center gap-3 rounded-lg border bg-muted/30 p-3">
+          <Label htmlFor="billing-cycle" className="text-sm font-medium">
+            {t("dashboard.subscription.monthly")}
+          </Label>
+          <Switch
+            id="billing-cycle"
+            checked={billingCycle === "annual"}
+            onCheckedChange={(checked) =>
+              setBillingCycle(checked ? "annual" : "monthly")
+            }
+          />
+          <Label htmlFor="billing-cycle" className="text-sm font-medium">
+            {t("dashboard.subscription.annual")}
+          </Label>
+        </div>
 
         {loading.plans ? (
           <div className="flex items-center justify-center p-8">
@@ -574,13 +604,43 @@ export function SubscriptionManagement() {
                         />
                       )}
                     </div>
+                    <div className="mt-4 flex items-center justify-center gap-3 rounded-lg border bg-muted/30 p-2">
+                      <Label
+                        htmlFor={`billing-cycle-${plan.id}`}
+                        className="text-xs font-medium"
+                      >
+                        {t("dashboard.subscription.monthly")}
+                      </Label>
+                      <Switch
+                        id={`billing-cycle-${plan.id}`}
+                        checked={billingCycle === "annual"}
+                        onCheckedChange={(checked) =>
+                          setBillingCycle(checked ? "annual" : "monthly")
+                        }
+                      />
+                      <Label
+                        htmlFor={`billing-cycle-${plan.id}`}
+                        className="text-xs font-medium"
+                      >
+                        {t("dashboard.subscription.annual")}
+                      </Label>
+                    </div>
                     <div className="mt-4">
                       <span className="text-4xl font-bold">
-                        {formatPrice(plan.price || 0, plan.currency || "EUR")}
+                        {formatPrice(getPlanPrice(plan), plan.currency || "EUR")}
                       </span>
                       <span className="text-muted-foreground">
-                        /{formatDuration(plan.duration || 0)}
+                        /
+                        {billingCycle === "annual"
+                          ? t("dashboard.subscription.year")
+                          : t("dashboard.subscription.month")}
                       </span>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {t("dashboard.subscription.priceIncludesTax")}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t("dashboard.subscription.duration")}: {selectedDurationLabel}
+                      </p>
                     </div>
                   </CardHeader>
 
@@ -615,7 +675,7 @@ export function SubscriptionManagement() {
                         <Button className="w-full" disabled>
                           {t("dashboard.subscription.currentPlan")}
                         </Button>
-                      ) : isFreePlan(plan.price) ? (
+                      ) : isFreePlan(getPlanPrice(plan)) ? (
                         <Button className="w-full" disabled>
                           Free Plan - Not Available
                         </Button>
@@ -655,7 +715,7 @@ export function SubscriptionManagement() {
                             )}
                           </Button>
                         )
-                      ) : isDowngrade(plan.price || 0) ? (
+                      ) : isDowngrade(getPlanPrice(plan)) ? (
                         <Button className="w-full" variant="outline" disabled>
                           {t("dashboard.subscription.lowerPlan")}
                         </Button>
@@ -673,7 +733,7 @@ export function SubscriptionManagement() {
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Processing...
                             </>
-                          ) : isUpgrade(plan.price || 0) ? (
+                          ) : isUpgrade(getPlanPrice(plan)) ? (
                             t("dashboard.subscription.upgrade")
                           ) : (
                             t("dashboard.subscription.subscribe")

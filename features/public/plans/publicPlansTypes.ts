@@ -11,8 +11,11 @@ export interface PublicPlan {
   title: string;
   description: string | null;
   price: number;
+  monthlyPrice?: number | null;
+  annualPrice?: number | null;
   currency: string;
   duration: number;
+  displayOrder: number;
   isActive: boolean;
   permissions: PublicPlanPermission[];
 }

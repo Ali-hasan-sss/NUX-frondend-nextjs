@@ -3,12 +3,14 @@ import { axiosInstance } from "@/utils/axiosInstance";
 type CheckoutResponse = { url: string; id: string };
 
 export type CheckoutProvider = "stripe" | "paypal";
+export type BillingCycle = "monthly" | "annual";
 
 export const subscriptionService = {
   async createCheckout(
     planId: number,
     options?: {
       provider?: CheckoutProvider;
+      billingCycle?: BillingCycle;
       successUrl?: string;
       cancelUrl?: string;
     }
@@ -16,6 +18,7 @@ export const subscriptionService = {
     const res = await axiosInstance.post("/restaurants/subscription/checkout", {
       planId,
       provider: options?.provider ?? "stripe",
+      billingCycle: options?.billingCycle ?? "monthly",
       successUrl: options?.successUrl,
       cancelUrl: options?.cancelUrl,
     });

@@ -13,7 +13,10 @@ function mapPlan(api: any): AdminPlan {
     description: api.description ?? null,
     currency: api.currency ?? null,
     price: api.price,
+    monthlyPrice: api.monthlyPrice ?? api.price,
+    annualPrice: api.annualPrice ?? (Number(api.monthlyPrice ?? api.price) * 12),
     duration: api.duration,
+    displayOrder: Number(api.displayOrder ?? 0),
     isActive: Boolean(api.isActive),
     permissions:
       api.permissions?.map((perm: any) => ({
@@ -24,6 +27,8 @@ function mapPlan(api: any): AdminPlan {
       })) || [],
     stripeProductId: api.stripeProductId ?? null,
     stripePriceId: api.stripePriceId ?? null,
+    stripeMonthlyPriceId: api.stripeMonthlyPriceId ?? api.stripePriceId ?? null,
+    stripeAnnualPriceId: api.stripeAnnualPriceId ?? null,
     createdAt: api.createdAt,
     updatedAt: api.updatedAt,
     subscriberCount: api.subscriberCount,
