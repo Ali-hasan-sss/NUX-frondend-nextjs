@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Globe } from "lucide-react"
 import { useLanguage } from "@/hooks/use-language"
 import type { Locale } from "@/lib/i18n"
-import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
@@ -20,7 +19,6 @@ const languages = {
 export function LanguageSwitcher() {
   const { locale: contextLocale, setLocale } = useLanguage()
   const { i18n: i18nInstance } = useTranslation()
-  const { theme } = useTheme()
   const [mounted, setMounted] = useState(false)
   
   // Get current language from i18n
@@ -31,10 +29,18 @@ export function LanguageSwitcher() {
   }, [])
 
   if (!mounted) {
-    return null
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 text-foreground"
+        aria-hidden
+        tabIndex={-1}
+      >
+        <Globe className="h-4 w-4 opacity-0" />
+      </Button>
+    )
   }
-
-  const isDark = theme === "dark" || theme === "system"
 
   return (
     <DropdownMenu>
@@ -43,25 +49,15 @@ export function LanguageSwitcher() {
           variant="ghost"
           size="icon"
           className={cn(
-            "h-9 w-9 transition-colors",
-            isDark
-              ? "text-white hover:bg-purple-500/20 hover:text-cyan-400"
-              : "text-gray-900 hover:bg-gray-100 hover:text-cyan-600"
+            "h-9 w-9 transition-colors text-foreground",
+            "hover:bg-accent hover:text-accent-foreground"
           )}
         >
           <Globe className="h-4 w-4" />
           <span className="sr-only">Switch language</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="end"
-        className={cn(
-          "transition-colors",
-          isDark
-            ? "bg-[#1A1F3A] border-purple-500/20"
-            : "bg-white border-gray-200"
-        )}
-      >
+      <DropdownMenuContent align="end">
         {Object.entries(languages).map(([code, { name, flag }]) => (
           <DropdownMenuItem
             key={code}
@@ -76,12 +72,8 @@ export function LanguageSwitcher() {
             className={cn(
               "transition-colors",
               currentLanguage === code
-                ? isDark
-                  ? "bg-purple-500/20 text-cyan-400"
-                  : "bg-cyan-50 text-cyan-600"
-                : isDark
-                ? "text-white hover:bg-purple-500/10"
-                : "text-gray-900 hover:bg-gray-100"
+                ? "bg-accent text-accent-foreground font-medium"
+                : "text-foreground focus:bg-accent focus:text-accent-foreground"
             )}
           >
             <span className="mr-2">{flag}</span>

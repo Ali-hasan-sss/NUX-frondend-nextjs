@@ -70,6 +70,11 @@
     "cameraPreviewHint": "Start the camera to scan, or paste the payment code below.",
     "cameraStartFailed": "Could not start the camera. Check permissions or paste the code."
   },
+  "legal": {
+    "loadError": "Failed to load document",
+    "empty": "Content is not available yet.",
+    "backHome": "Home"
+  },
   "drawer": {
     "menu": "Menu",
     "restaurants": "Restaurants",
@@ -506,8 +511,8 @@
   },
   "landing": {
     "hero": {
-      "title": "Join the Smart Loyalty Experience",
-      "description": "Power automation, collect and track rewards seamlessly. Transform your customer experience with our innovative loyalty platform.",
+      "title": "The Complete Platform for Restaurants & Guests",
+      "description": "NUX connects mobile apps, digital menus, operations dashboards, wallets, and promotions in one place — built for modern hospitality, not just loyalty points.",
       "downloadAppStore": "Download on the App Store",
       "downloadGooglePlay": "Get it on Google Play",
       "welcomeToNux": "Welcome to nux",
@@ -518,6 +523,166 @@
       "restaurantName": "Restaurant Name",
       "selectRestaurant": "Select a restaurant",
       "payWithWallet": "Pay with Wallet"
+    },
+    "platform": {
+      "badge": "All-in-one hospitality platform",
+      "title": "More than loyalty — run the full guest journey",
+      "description": "From QR menus and table service to corporate wallets and analytics, NUX gives restaurants and diners the tools they need in one ecosystem.",
+      "pillars": {
+        "guests": {
+          "title": "For guests",
+          "description": "Mobile app to discover venues, scan codes, view menus, pay with wallet, and enjoy promotions."
+        },
+        "restaurants": {
+          "title": "For restaurants",
+          "description": "Web dashboard for orders, floor plans, table QR codes, payments, ads, and day-to-day operations."
+        },
+        "business": {
+          "title": "For companies",
+          "description": "Corporate accounts with employee wallets, invoicing, and controlled spending at partner restaurants."
+        }
+      }
+    },
+    "highlights": {
+      "title": "Everything in one platform",
+      "subtitle": "Core capabilities at a glance — explore each area in detail below.",
+      "items": {
+        "mobileApp": {
+          "title": "Guest mobile app",
+          "description": "iOS & Android app for scanning, browsing restaurants, wallet top-up, and account management."
+        },
+        "qrMenu": {
+          "title": "QR & digital menu",
+          "description": "Contactless menus via table or venue QR codes — no app install required for menu viewing."
+        },
+        "dashboard": {
+          "title": "Restaurant dashboard",
+          "description": "Manage orders, floor layout, table codes, staff workflows, and venue settings from the web."
+        },
+        "wallet": {
+          "title": "Wallet & payments",
+          "description": "Secure wallet balance, Stripe top-ups, in-venue payments, and transaction history."
+        },
+        "analytics": {
+          "title": "Insights & reporting",
+          "description": "Track performance, customer activity, and revenue with clear operational visibility."
+        },
+        "multilingual": {
+          "title": "Multi-language",
+          "description": "Arabic, English, German, Turkish and more — for teams and guests across regions."
+        }
+      }
+    },
+    "sections": {
+      "guestApp": {
+        "title": "Guest mobile experience",
+        "subtitle": "Your customers’ companion at every visit",
+        "description": "The NUX app puts discovery, scanning, and payments in guests’ pockets. They choose a restaurant, scan venue or menu codes, and manage balance and rewards in one place.",
+        "visualLabel": "NUX mobile app",
+        "bullets": [
+          "Browse and favorite restaurants on a map",
+          "Scan loyalty, gift, and receive codes at the table",
+          "Open digital menus via menu QR or deep links",
+          "Wallet balance, stars, and beverage credits in one view",
+          "Promotions, notifications, and account settings"
+        ]
+      },
+      "digitalMenu": {
+        "title": "Digital menu & QR codes",
+        "subtitle": "Menus that work on any phone",
+        "description": "Publish your menu online and link it to table or venue QR codes. Guests view categories and items instantly — ideal for dine-in, terraces, and events.",
+        "visualLabel": "Menu via QR",
+        "bullets": [
+          "Table-specific and venue-wide QR codes",
+          "Rich menu with images, options, and availability",
+          "Web menu route — works without installing the app",
+          "Deep links from nuxapp.de for marketing campaigns",
+          "Integrated with dashboard menu management"
+        ]
+      },
+      "restaurantOps": {
+        "title": "Restaurant operations dashboard",
+        "subtitle": "Run the floor from the browser",
+        "description": "Restaurant owners and staff use the web dashboard to handle live operations: orders, seating, codes on tables, and payment flows tied to your venue.",
+        "visualLabel": "Operations dashboard",
+        "bullets": [
+          "Order list and status tracking",
+          "Interactive floor plan for tables and zones",
+          "Generate and assign table QR codes",
+          "Wallet payment overview for the venue",
+          "Role-based access for owners and staff"
+        ]
+      },
+      "walletPayments": {
+        "title": "Wallet & payments",
+        "subtitle": "Fast, traceable transactions",
+        "description": "Guests top up via Stripe; restaurants see wallet activity and payments in context. Corporate programs can fund employee wallets with rules you control.",
+        "visualLabel": "Wallet & Stripe",
+        "bullets": [
+          "In-app wallet top-up with Stripe Payment Sheet",
+          "Pay at restaurant using wallet balance",
+          "Transaction history for guests and admins",
+          "Corporate wallet funding and employee limits",
+          "Invoice and billing views for company accounts"
+        ]
+      },
+      "loyaltyPromotions": {
+        "title": "Loyalty & promotions",
+        "subtitle": "Rewards without complexity",
+        "description": "Points, stars, drinks packages, and targeted ads stay part of the platform — but as one module among many, not the whole story.",
+        "visualLabel": "Rewards & ads",
+        "bullets": [
+          "Points and stars per restaurant",
+          "Promotional campaigns and featured ads",
+          "Gift and receive scan flows",
+          "Purchase history and redemption tracking",
+          "Retention tools alongside operations data"
+        ]
+      },
+      "companyAccounts": {
+        "title": "Corporate & company accounts",
+        "subtitle": "B2B spending made simple",
+        "description": "Companies register teams, assign wallets to employees, and monitor usage at partner restaurants — with invoicing aligned to your finance process.",
+        "visualLabel": "Company portal",
+        "bullets": [
+          "Company profile and employee management",
+          "Per-employee wallet allocation",
+          "Spending at enrolled restaurants",
+          "Invoices and payment records",
+          "Separate company login and dashboard"
+        ]
+      },
+      "discover": {
+        "title": "Discover restaurants",
+        "subtitle": "Find the right place, nearby",
+        "description": "Public restaurant listings with search, location sorting, and menu preview help guests choose where to go before they even arrive.",
+        "visualLabel": "Restaurant discovery",
+        "bullets": [
+          "Search by name and location",
+          "Sort by distance when location is enabled",
+          "View menu and venue details on the web",
+          "Links into the mobile app for full experience",
+          "Map-based exploration on supported devices"
+        ]
+      }
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "Get started in three straightforward steps",
+      "steps": {
+        "register": {
+          "title": "Create your account",
+          "description": "Sign up as a guest, restaurant, or company. Verify your email and complete your profile."
+        },
+        "connect": {
+          "title": "Connect your venue or team",
+          "description": "Restaurants configure menus, tables, and QR codes. Companies add employees and wallet rules."
+        },
+        "grow": {
+          "title": "Serve and grow",
+          "description": "Guests scan, order, and pay. You run operations and promotions from one connected platform."
+        }
+      }
     },
     "features": {
       "title": "Earn. Collect. Enjoy.",
@@ -582,19 +747,31 @@
       }
     },
     "cta": {
-      "title": "Ready to Transform Your Restaurant Business?",
-      "description": "Join hundreds of restaurants already using nux to build customer loyalty and streamline their operations. Start your free trial today.",
-      "startFreeTrial": "Start Free Trial",
-      "contactSales": "Contact Sales"
+      "title": "Ready to run your restaurant on NUX?",
+      "description": "Join venues using NUX for menus, operations, wallets, and guest engagement. Create an account and explore the full platform.",
+      "startFreeTrial": "Get started",
+      "contactSales": "Contact us"
     },
     "footer": {
-      "description": "The complete subscription management platform for modern restaurants.",
+      "description": "NUX — hospitality platform for guests, restaurants, and corporate teams.",
       "product": "Product",
       "features": "Features",
+      "capabilities": "All capabilities",
       "pricing": "Pricing",
       "getStarted": "Get Started",
       "company": "Company",
       "account": "Account",
+      "impressum": {
+        "title": "Legal notice (Impressum)",
+        "company": "Genix Tech GmbH",
+        "register": "Amtsgericht Charlottenburg — Commercial Register Division B",
+        "hrb": "HRB 279128 B",
+        "taxNumber": "Tax no. (St.-Nr.) 27/304/00089",
+        "vatId": "VAT ID DE459049439",
+        "director": "Managing director: Mouhanad Dawood",
+        "seat": "Registered office: Berlin",
+        "address": "Bundesallee 38, 10717 Berlin, Germany"
+      },
       "copyright": "© 2024 nux. All rights reserved."
     },
     "restaurants": {
@@ -629,12 +806,38 @@
       "restaurants": "Restaurants"
     },
     "about": {
-      "title": "About nux",
-      "subtitle": "Empowering restaurants with intelligent loyalty solutions",
+      "title": "About NUX",
+      "subtitle": "One hospitality platform for guests, restaurants, and corporate teams",
       "story": {
-        "p1": "nux was founded with a clear mission: to transform how restaurants engage with their customers through innovative loyalty programs.",
-        "p2": "Our platform provides restaurants with automated loyalty management, QR code solutions, customer analytics, and comprehensive tools.",
-        "p3": "We are dedicated to helping restaurants succeed by providing technology that is powerful and easy to use."
+        "p1": "NUX was built to simplify the full dining journey — not only loyalty points. We connect what guests do on their phones with what restaurants run on the web, in one coherent system.",
+        "p2": "Restaurants use NUX for digital menus, table QR codes, orders, floor plans, wallet payments, promotions, and day-to-day operations. Guests discover venues, scan codes, pay from their wallet, and enjoy offers without friction.",
+        "p3": "Companies use NUX to offer meal benefits to employees at partner restaurants — digitally, without paper vouchers or manual reconciliation. HR and finance get the invoices and records they need, while staff simply pay with their company wallet in the app.",
+        "p4": "Whether you run a single café, a multi-site brand, or a business that feeds its team, NUX gives you tools that are powerful yet straightforward."
+      },
+      "audience": {
+        "title": "Who we serve",
+        "subtitle": "Three sides of the same connected platform",
+        "guests": {
+          "title": "Guests",
+          "description": "Mobile app for restaurants, menus, wallet, scanning, and promotions."
+        },
+        "restaurants": {
+          "title": "Restaurants",
+          "description": "Web dashboard for menus, operations, tables, payments, and analytics."
+        },
+        "companies": {
+          "title": "Companies",
+          "description": "Corporate accounts to fund employee meals and receive proper invoices."
+        }
+      },
+      "companySpotlight": {
+        "title": "Corporate meal benefits — simple for everyone",
+        "description": "Give your team the freedom to eat at enrolled restaurants using a company wallet in the NUX app. No paper meal tickets, no expense forms for every lunch, and no chasing receipts.",
+        "benefit1": "Allocate wallet balance per employee or team",
+        "benefit2": "Employees pay in-app at partner restaurants",
+        "benefit3": "Automatic invoices and spending records for accounting",
+        "benefit4": "Clear limits and visibility for HR and finance",
+        "cta": "Register your company"
       },
       "values": {
         "title": "Our Values",
@@ -642,79 +845,112 @@
       },
       "mission": {
         "title": "Our Mission",
-        "description": "To revolutionize restaurant loyalty programs by providing innovative, automated solutions."
+        "description": "To make hospitality technology practical for every stakeholder — from the guest at the table to the company paying for team meals."
       },
       "vision": {
         "title": "Our Vision",
-        "description": "To become the leading platform for restaurant loyalty management."
+        "description": "A single platform where dining, operations, payments, and corporate benefits work together seamlessly."
       },
       "excellence": {
         "title": "Excellence",
-        "description": "We are committed to delivering top-quality solutions."
+        "description": "Reliable tools, clear UX, and support that respects your time."
       },
       "innovation": {
         "title": "Innovation",
-        "description": "Continuously improving with cutting-edge technology."
+        "description": "Continuous improvement across mobile, web, payments, and corporate workflows."
       }
     },
     "services": {
       "title": "Our Services",
-      "subtitle": "Comprehensive solutions for your restaurant",
-      "qrCodes": {
-        "title": "QR Code Management",
-        "description": "Generate and manage QR codes for drinks, meals, and menu viewing.",
-        "benefit1": "Easy customer engagement",
-        "benefit2": "Contactless menu viewing",
-        "benefit3": "Automated reward collection"
+      "subtitle": "End-to-end tools for restaurants, guests, and companies",
+      "companyIntro": {
+        "title": "For companies: meal benefits without paperwork",
+        "description": "Offer food allowances to employees at partner restaurants through NUX. Staff use their company wallet in the app; you receive the invoices and reports required for accounting and compliance — no vouchers, no manual claims."
       },
-      "analytics": {
-        "title": "Customer Analytics",
-        "description": "Track customer behavior and make data-driven decisions.",
-        "benefit1": "Real-time statistics",
-        "benefit2": "Customer insights",
-        "benefit3": "Performance tracking"
+      "companyAccounts": {
+        "title": "Company accounts & employee wallets",
+        "description": "Register your organisation, add employees, and fund wallets they use at enrolled restaurants.",
+        "benefit1": "Digital meal benefits instead of paper vouchers",
+        "benefit2": "No expense forms for every meal — pay in-app",
+        "benefit3": "Invoices and payment history ready for finance",
+        "benefit4": "Control spending limits per employee"
+      },
+      "guestApp": {
+        "title": "Guest mobile app",
+        "description": "iOS and Android app for guests to discover, scan, order context, and pay.",
+        "benefit1": "Restaurant discovery and favorites",
+        "benefit2": "QR scan for loyalty, gifts, and menus",
+        "benefit3": "Personal wallet and transaction history"
+      },
+      "qrCodes": {
+        "title": "Digital menus & QR codes",
+        "description": "Publish menus and link them to table or venue QR codes.",
+        "benefit1": "Contactless menu on any smartphone",
+        "benefit2": "Table-specific and venue-wide codes",
+        "benefit3": "Works on web without installing the app"
+      },
+      "restaurantOps": {
+        "title": "Restaurant operations dashboard",
+        "description": "Run orders, floor layout, and table codes from the browser.",
+        "benefit1": "Live order tracking",
+        "benefit2": "Interactive floor plan",
+        "benefit3": "Table QR management"
+      },
+      "walletPayments": {
+        "title": "Wallet & payments",
+        "description": "Stripe top-ups, in-venue wallet pay, and full transaction trails.",
+        "benefit1": "Secure wallet top-up",
+        "benefit2": "Pay at restaurant from balance",
+        "benefit3": "Records for guests, venues, and companies"
       },
       "loyalty": {
-        "title": "Loyalty Programs",
-        "description": "Create automated loyalty programs with points and rewards.",
-        "benefit1": "Automated tracking",
-        "benefit2": "Custom rewards",
-        "benefit3": "Retention tools"
+        "title": "Loyalty & promotions",
+        "description": "Points, stars, campaigns, and ads as part of the wider platform.",
+        "benefit1": "Per-restaurant rewards",
+        "benefit2": "Promotional campaigns",
+        "benefit3": "Retention alongside operations data"
+      },
+      "analytics": {
+        "title": "Analytics & insights",
+        "description": "Understand performance, customers, and revenue with clear reports.",
+        "benefit1": "Real-time statistics",
+        "benefit2": "Customer and spend insights",
+        "benefit3": "Operational visibility"
       },
       "packages": {
-        "title": "Package Management",
-        "description": "Create packages and promotions to attract customers.",
-        "benefit1": "Flexible pricing",
-        "benefit2": "Campaigns",
-        "benefit3": "Revenue optimization"
+        "title": "Promotions & packages",
+        "description": "Create offers and packages that attract and retain guests.",
+        "benefit1": "Flexible campaigns",
+        "benefit2": "Featured ads and deals",
+        "benefit3": "Revenue-focused tools"
       },
       "payments": {
-        "title": "Payment Tracking",
-        "description": "Monitor payments and manage revenue streams.",
+        "title": "Payment tracking",
+        "description": "Monitor wallet and payment flows across your venue.",
         "benefit1": "Multiple payment types",
-        "benefit2": "Payment history",
+        "benefit2": "Complete payment history",
         "benefit3": "Financial reporting"
       },
       "security": {
-        "title": "Secure Platform",
-        "description": "Enterprise-grade security for your data.",
+        "title": "Secure platform",
+        "description": "Enterprise-grade security for accounts and transactions.",
         "benefit1": "Data encryption",
-        "benefit2": "Secure transactions",
-        "benefit3": "99.9% uptime"
+        "benefit2": "Secure payments",
+        "benefit3": "Reliable infrastructure"
       },
       "mobile": {
-        "title": "Mobile-Friendly",
-        "description": "Manage your restaurant from any device.",
-        "benefit1": "Responsive design",
-        "benefit2": "Mobile app support",
-        "benefit3": "Real-time updates"
+        "title": "Works everywhere",
+        "description": "Responsive web and native mobile for teams and guests.",
+        "benefit1": "Multi-language interface",
+        "benefit2": "Mobile app + web dashboard",
+        "benefit3": "Real-time sync"
       },
       "support": {
-        "title": "24/7 Support",
-        "description": "Get assistance whenever you need it.",
-        "benefit1": "24/7 support",
-        "benefit2": "Training resources",
-        "benefit3": "Regular updates"
+        "title": "Support & onboarding",
+        "description": "Help when you need it — for restaurants and companies.",
+        "benefit1": "Dedicated support channels",
+        "benefit2": "Onboarding guidance",
+        "benefit3": "Regular platform updates"
       }
     },
     "contact": {
@@ -862,7 +1098,10 @@
       "mapGetMyLocation": "Use my location",
       "mapLocationNotFound": "Location not found. Try a different search.",
       "mapSearchError": "Search failed. Please try again.",
-      "registerFailedCheckInfo": "Check your information and make sure to use an email that is not already registered."
+      "registerFailedCheckInfo": "Check your information and make sure to use an email that is not already registered.",
+      "legalConsentPrefix": "I agree to the",
+      "legalAnd": "and",
+      "mustAgreeToTerms": "You must agree to the Privacy Policy and Terms of Use to continue."
     }
   },
   "dashboard": {
@@ -918,7 +1157,11 @@
       "printerNamePlaceholder": "e.g. Kitchen Printer A",
       "completedOrdersCount": "Completed orders",
       "completedRevenue": "Revenue (completed)",
-      "last3Orders": "Last 3 orders"
+      "last3Orders": "Last 3 orders",
+      "delete": "Delete",
+      "deleting": "Deleting...",
+      "deleteConfirm": "Delete order #{{id}}? This cannot be undone.",
+      "deleteError": "Failed to delete order"
     },
     "waiterRequests": {
       "title": "Waiter requests",
@@ -1524,6 +1767,16 @@
       "loading": "Loading...",
       "descriptionOptional": "Description (optional)",
       "image": "Image",
+      "menuBanner": {
+        "title": "Message at top of menu",
+        "description": "Shown to guests at the top of your public menu (welcome note, hours, specials, allergy info, etc.).",
+        "placeholder": "Welcome! Today’s special: grilled salmon with seasonal vegetables.",
+        "save": "Save message",
+        "saved": "Menu message saved",
+        "saveError": "Failed to save menu message",
+        "clear": "Clear",
+        "cleared": "Menu message removed"
+      },
       "expandToManage": "Expand a category to manage its items",
       "noCategoriesDesc": "Add your first category to get started",
       "noItemsDesc": "Add your first item to this category",

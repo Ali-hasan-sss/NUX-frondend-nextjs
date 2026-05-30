@@ -196,10 +196,15 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
 
             {/* Terms of Use */}
             <button
+              type="button"
               className={cn(
                 "flex items-center gap-3 hover:opacity-80 transition-opacity",
               )}
               style={{ color: colors.text }}
+              onClick={() => {
+                onOpenChange?.(false);
+                router.push("/legal/terms");
+              }}
             >
               <FileText className="h-5 w-5" style={{ color: colors.primary }} />
               <span>{t("drawer.termsOfUse")}</span>
@@ -207,10 +212,15 @@ export function DrawerMenu({ open, onOpenChange }: DrawerMenuProps) {
 
             {/* Privacy Policy */}
             <button
+              type="button"
               className={cn(
                 "flex items-center gap-3 hover:opacity-80 transition-opacity",
               )}
               style={{ color: colors.text }}
+              onClick={() => {
+                onOpenChange?.(false);
+                router.push("/legal/privacy");
+              }}
             >
               <Shield className="h-5 w-5" style={{ color: colors.primary }} />
               <span>{t("drawer.privacyPolicy")}</span>

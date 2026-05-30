@@ -30,6 +30,7 @@ import Image from "next/image";
 import { I18nProvider } from "@/components/client/i18n-provider";
 import { AnimatedBackground } from "@/components/client/animated-background";
 import { MenuHeader } from "@/components/menu/menu-header";
+import { MenuBanner } from "@/components/menu/menu-banner";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import {
   MenuCartProvider,
@@ -81,7 +82,7 @@ function PublicMenuPageContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [allItems, setAllItems] = useState<any[]>([]);
 
-  const { categories, items, selectedCategory, loading, error, restaurant, currency } =
+  const { categories, items, selectedCategory, loading, error, restaurant, menuBanner, currency } =
     useAppSelector((state) => state.clientMenu);
 
   useEffect(() => {
@@ -321,6 +322,11 @@ function PublicMenuPageContent() {
               restaurantLogo={restaurant?.logo}
               restaurantName={restaurant?.name}
             />
+            {menuBanner && (
+              <div className="shrink-0 px-4 pt-3 md:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+                <MenuBanner message={menuBanner} className="mb-0" />
+              </div>
+            )}
             <div
               className="flex-1 min-h-0 overflow-y-auto px-4 py-5 md:px-6 lg:px-8 max-w-7xl mx-auto w-full md:!pb-0"
               style={{
@@ -1115,8 +1121,13 @@ function PublicMenuPageContent() {
             restaurantLogo={restaurant?.logo}
             restaurantName={restaurant?.name}
           />
-<div
-          className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 max-w-7xl mx-auto w-full md:!pb-0"
+          {menuBanner && (
+            <div className="shrink-0 px-3 sm:px-4 md:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-3 sm:pt-4">
+              <MenuBanner message={menuBanner} className="mb-0" />
+            </div>
+          )}
+          <div
+            className="flex-1 min-h-0 overflow-y-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-5 max-w-7xl mx-auto w-full md:!pb-0"
             style={{
               paddingBottom:
                 tableNumberParam && totalItems > 0

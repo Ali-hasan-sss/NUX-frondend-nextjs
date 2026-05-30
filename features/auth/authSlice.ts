@@ -6,7 +6,9 @@ import {
   registerRestaurant,
   registerUser,
   loginWithGoogle,
+  initializeAuth,
 } from "./authThunks";
+import { clearStoredTokens } from "@/lib/encryptedTokenStorage";
 
 const initialState: AuthState = {
   user: null,
@@ -25,10 +27,8 @@ const authSlice = createSlice({
       state.tokens = null;
       state.isAuthenticated = false;
       state.error = null;
-      // Clear localStorage
       if (typeof window !== "undefined") {
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        clearStoredTokens();
         localStorage.removeItem("user");
       }
     },
@@ -55,34 +55,33 @@ const authSlice = createSlice({
     },
     setTokens: (state, action: PayloadAction<AuthTokens>) => {
       state.tokens = action.payload;
-      // Save to localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("accessToken", action.payload.accessToken);
-        localStorage.setItem("refreshToken", action.payload.refreshToken);
-      }
-    },
-    initializeAuth: (state) => {
-      // Initialize from localStorage
-      if (typeof window !== "undefined") {
-        const accessToken = localStorage.getItem("accessToken");
-        const refreshToken = localStorage.getItem("refreshToken");
-        const storedUser = localStorage.getItem("user");
-        if (accessToken && refreshToken) {
-          state.tokens = { accessToken, refreshToken };
-          state.isAuthenticated = true;
-          if (storedUser) {
-            try {
-              state.user = JSON.parse(storedUser);
-            } catch {
-              state.user = null;
-            }
-          }
-        }
-        state.isLoading = false;
-      }
+      state.isAuthenticated = true;
     },
   },
   extraReducers: (builder) => {
+    builder
+      .addCase(initializeAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const { tokens, user } = action.payload;
+        if (tokens) {
+          state.tokens = tokens;
+          state.isAuthenticated = true;
+          state.user = user;
+        } else {
+          state.tokens = null;
+          state.isAuthenticated = false;
+          state.user = null;
+        }
+      })
+      .addCase(initializeAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.tokens = null;
+        state.isAuthenticated = false;
+      });
+
     // Login User
     builder
       .addCase(loginUser.pending, (state) => {
@@ -96,14 +95,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "accessToken",
-            action.payload.tokens.accessToken
-          );
-          localStorage.setItem(
-            "refreshToken",
-            action.payload.tokens.refreshToken
-          );
           localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       })
@@ -127,14 +118,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "accessToken",
-            action.payload.tokens.accessToken
-          );
-          localStorage.setItem(
-            "refreshToken",
-            action.payload.tokens.refreshToken
-          );
           localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       })
@@ -158,14 +141,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "accessToken",
-            action.payload.tokens.accessToken
-          );
-          localStorage.setItem(
-            "refreshToken",
-            action.payload.tokens.refreshToken
-          );
           localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       })
@@ -221,14 +196,6 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.error = null;
         if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "accessToken",
-            action.payload.tokens.accessToken
-          );
-          localStorage.setItem(
-            "refreshToken",
-            action.payload.tokens.refreshToken
-          );
           localStorage.setItem("user", JSON.stringify(action.payload.user));
         }
       })
@@ -241,6 +208,7 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setError, setTokens, setEmailVerified, initializeAuth } =
+export const { logout, clearError, setError, setTokens, setEmailVerified } =
   authSlice.actions;
+export { initializeAuth } from "./authThunks";
 export default authSlice.reducer;

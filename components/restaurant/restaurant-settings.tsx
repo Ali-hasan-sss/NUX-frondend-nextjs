@@ -1007,77 +1007,84 @@ export function RestaurantSettings() {
 
       {/* Edit Restaurant Information Dialog */}
       <Dialog open={isEditFormOpen} onOpenChange={setIsEditFormOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md flex max-h-[min(90dvh,90vh)] flex-col gap-0 overflow-hidden p-0">
+          <DialogHeader className="shrink-0 space-y-1.5 px-6 pt-6 pb-2">
             <DialogTitle>Edit Restaurant Information</DialogTitle>
             <DialogDescription>
               Update your restaurant's basic information
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="editName">Restaurant Name</Label>
-              <Input
-                id="editName"
-                value={restaurantForm.name}
-                onChange={(e) =>
-                  handleRestaurantFormChange("name", e.target.value)
-                }
-                placeholder="Enter restaurant name"
-              />
-            </div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-2">
+            <div className="space-y-4 pb-2">
+              <div className="space-y-2">
+                <Label htmlFor="editName">Restaurant Name</Label>
+                <Input
+                  id="editName"
+                  value={restaurantForm.name}
+                  onChange={(e) =>
+                    handleRestaurantFormChange("name", e.target.value)
+                  }
+                  placeholder="Enter restaurant name"
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="editAddress">Address</Label>
-              <Textarea
-                id="editAddress"
-                value={restaurantForm.address}
-                onChange={(e) =>
-                  handleRestaurantFormChange("address", e.target.value)
-                }
-                placeholder="Enter restaurant address"
-                rows={3}
-              />
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="editAddress">Address</Label>
+                <Textarea
+                  id="editAddress"
+                  value={restaurantForm.address}
+                  onChange={(e) =>
+                    handleRestaurantFormChange("address", e.target.value)
+                  }
+                  placeholder="Enter restaurant address"
+                  rows={3}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="editCurrency">{t("dashboard.settings.currency")}</Label>
-              <select
-                id="editCurrency"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                value={restaurantForm.currency || "EUR"}
-                onChange={(e) =>
-                  handleRestaurantFormChange("currency", e.target.value)
-                }
-              >
-                {CURRENCY_OPTIONS.map((opt) => (
-                  <option key={opt.code} value={opt.code}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="editCurrency">{t("dashboard.settings.currency")}</Label>
+                <select
+                  id="editCurrency"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={restaurantForm.currency || "EUR"}
+                  onChange={(e) =>
+                    handleRestaurantFormChange("currency", e.target.value)
+                  }
+                >
+                  {CURRENCY_OPTIONS.map((opt) => (
+                    <option key={opt.code} value={opt.code}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <div className="space-y-2">
-              <FileUploader
-                label="Restaurant Logo"
-                value={restaurantForm.logo}
-                onChange={(url) =>
-                  handleRestaurantFormChange("logo", url || "")
-                }
-                onUploadingChange={setIsUploadingLogo}
-                accept="image/*"
-                maxSizeMb={5}
-                meta={{
-                  folder: "restaurant-logos",
-                  entityType: "restaurant",
-                  entityId: restaurant?.id,
-                }}
-                rounded="md"
-              />
+              <div className="space-y-2">
+                <FileUploader
+                  label="Restaurant Logo"
+                  value={restaurantForm.logo}
+                  onChange={(url) =>
+                    handleRestaurantFormChange("logo", url || "")
+                  }
+                  onUploadingChange={setIsUploadingLogo}
+                  accept="image/*"
+                  maxSizeMb={5}
+                  meta={{
+                    folder: "restaurant-logos",
+                    entityType: "restaurant",
+                    entityId: restaurant?.id,
+                  }}
+                  rounded="md"
+                />
+              </div>
             </div>
           </div>
-          <div className={cn("flex justify-end gap-2", isRTL ? "flex-row-reverse" : "")}>
+          <div
+            className={cn(
+              "shrink-0 flex justify-end gap-2 border-t bg-background px-6 py-4",
+              isRTL ? "flex-row-reverse" : ""
+            )}
+          >
             <Button variant="outline" onClick={() => setIsEditFormOpen(false)}>
               {t("dashboard.settings.cancel")}
             </Button>

@@ -6,18 +6,28 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
+  const isDark = mounted && resolvedTheme === "dark";
 
-  const isDark = theme === "dark" || theme === "system";
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-9 w-9 text-foreground"
+        aria-hidden
+        tabIndex={-1}
+      >
+        <Sun className="h-[1.2rem] w-[1.2rem] opacity-0" />
+      </Button>
+    );
+  }
 
   return (
     <Button
@@ -25,10 +35,8 @@ export function ThemeToggle() {
       size="icon"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "h-9 w-9 transition-colors relative",
-        isDark
-          ? "text-white hover:bg-purple-500/20 hover:text-cyan-400"
-          : "text-gray-900 hover:bg-gray-100 hover:text-cyan-600"
+        "h-9 w-9 transition-colors relative text-foreground",
+        "hover:bg-accent hover:text-accent-foreground"
       )}
     >
       <Sun

@@ -28,6 +28,7 @@ import {
   clientWalletReducer,
 } from "@/features/client";
 import { attachStoreToAxios } from "@/utils/axiosInstance";
+import { authTokenPersistenceMiddleware } from "@/features/auth/authTokenPersistenceMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -63,7 +64,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
-    }),
+    }).concat(authTokenPersistenceMiddleware),
 });
 
 // Attach store to axios to avoid import cycles

@@ -26,6 +26,8 @@ export interface MenuState {
   selectedCategory: MenuCategory | null;
   currentRestaurantId: string | null;
   restaurant: MenuRestaurantInfo | null;
+  /** Message shown at top of public menu (from restaurant floorPlan JSON). */
+  menuBanner: string | null;
   /** Restaurant currency code from API (e.g. TRY, USD, EUR). */
   currency: string | null;
   loading: {
@@ -49,6 +51,7 @@ export interface MenuCategoriesApiResponse {
   data: MenuCategory[];
   restaurant?: MenuRestaurantInfo;
   currency?: string;
+  menuBanner?: string | null;
 }
 
 export interface MenuItemsApiResponse {

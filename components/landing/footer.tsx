@@ -37,7 +37,7 @@ export function Footer() {
       )}
     >
       <div className="container w-full max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2">
               <Image
@@ -124,7 +124,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/#pricing"
+                  href="/#platform-features"
                   className={cn(
                     "transition-colors",
                     isDark
@@ -132,7 +132,7 @@ export function Footer() {
                       : "text-gray-600 hover:text-cyan-600"
                   )}
                 >
-                  {t("landing.footer.pricing")}
+                  {t("landing.footer.capabilities")}
                 </Link>
               </li>
               <li>
@@ -212,7 +212,66 @@ export function Footer() {
                   {t("landing.nav.contact") || "Contact Us"}
                 </Link>
               </li>
+              <li>
+                <Link
+                  href="/legal/privacy"
+                  className={cn(
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    isDark
+                      ? "text-white/70 hover:text-cyan-400"
+                      : "text-gray-600 hover:text-cyan-600"
+                  )}
+                >
+                  {t("drawer.privacyPolicy") || "Privacy Policy"}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/legal/terms"
+                  className={cn(
+                    "transition-colors inline-block px-2 py-1 rounded-md",
+                    isDark
+                      ? "text-white/70 hover:text-cyan-400"
+                      : "text-gray-600 hover:text-cyan-600"
+                  )}
+                >
+                  {t("drawer.termsOfUse") || "Terms of Use"}
+                </Link>
+              </li>
             </ul>
+          </div>
+
+          <div className="sm:col-span-2 lg:col-span-1">
+            <h3
+              className={cn(
+                "font-semibold mb-4",
+                isDark ? "text-white" : "text-gray-900"
+              )}
+            >
+              {t("landing.footer.impressum.title")}
+            </h3>
+            <address
+              className={cn(
+                "not-italic text-sm leading-relaxed space-y-1.5",
+                isDark ? "text-white/70" : "text-gray-600"
+              )}
+            >
+              <p
+                className={cn(
+                  "font-medium",
+                  isDark ? "text-white/90" : "text-gray-900"
+                )}
+              >
+                {t("landing.footer.impressum.company")}
+              </p>
+              <p>{t("landing.footer.impressum.register")}</p>
+              <p>{t("landing.footer.impressum.hrb")}</p>
+              <p>{t("landing.footer.impressum.taxNumber")}</p>
+              <p>{t("landing.footer.impressum.vatId")}</p>
+              <p>{t("landing.footer.impressum.director")}</p>
+              <p>{t("landing.footer.impressum.seat")}</p>
+              <p>{t("landing.footer.impressum.address")}</p>
+            </address>
           </div>
 
           <div>

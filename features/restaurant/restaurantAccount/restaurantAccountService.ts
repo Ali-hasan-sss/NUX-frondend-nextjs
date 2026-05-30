@@ -46,6 +46,20 @@ export const restaurantAccountService = {
     );
     return response.data?.data?.floorPlan ?? floorPlan;
   },
+
+  async getMenuBanner(): Promise<string | null> {
+    const response = await axiosInstance.get("/restaurants/account/menu-banner");
+    const msg = response.data?.data?.message;
+    return typeof msg === "string" && msg.trim() ? msg.trim() : null;
+  },
+
+  async updateMenuBanner(message: string | null): Promise<string | null> {
+    const response = await axiosInstance.put("/restaurants/account/menu-banner", {
+      message: message?.trim() ? message.trim() : null,
+    });
+    const msg = response.data?.data?.message;
+    return typeof msg === "string" && msg.trim() ? msg.trim() : null;
+  },
 };
 
 export interface FloorPlanWall {

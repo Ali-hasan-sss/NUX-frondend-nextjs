@@ -16,9 +16,11 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import { getDashboardPathForRole } from "@/lib/roleDashboard";
+import { LegalConsentCheckbox } from "@/components/auth/legal-consent-checkbox";
 
 export function LoginForm() {
   const { t, i18n } = useTranslation();
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -32,6 +34,7 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!agreedToTerms) return;
     dispatch(clearError());
 
     try {
@@ -117,10 +120,16 @@ export function LoginForm() {
         </div>
       </div>
 
+      <LegalConsentCheckbox
+        id="login-legal-consent"
+        checked={agreedToTerms}
+        onCheckedChange={setAgreedToTerms}
+      />
+
       <Button
         type="submit"
         className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-base"
-        disabled={submitting}
+        disabled={submitting || !agreedToTerms}
       >
         {submitting && <Loader2 className="me-2 h-4 w-4 animate-spin" />}
         {t("landing.auth.signIn")}
@@ -137,7 +146,11 @@ export function LoginForm() {
         </div>
       </div>
 
-      <GoogleSignInButton mode="signin" className="w-full" />
+      <GoogleSignInButton
+        mode="signin"
+        className="w-full"
+        disabled={!agreedToTerms}
+      />
 
       <div className="space-y-3 pt-2">
         {error && (error.includes("verify") || error.includes("verif")) && (

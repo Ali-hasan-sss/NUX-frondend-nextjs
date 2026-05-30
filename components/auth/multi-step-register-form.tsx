@@ -24,6 +24,7 @@ import {
 import { InlineMapPicker } from "@/components/common/InlineMapPicker";
 import FileUploader from "@/components/upload/file-uploader";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { LegalConsentCheckbox } from "@/components/auth/legal-consent-checkbox";
 import { useTranslation } from "react-i18next";
 
 type AccountType = "user" | "restaurant";
@@ -78,6 +79,7 @@ export function MultiStepRegisterForm() {
     });
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -103,6 +105,7 @@ export function MultiStepRegisterForm() {
     setAccountType(type);
     setCurrentStep(2);
     setFieldErrors({});
+    setAgreedToTerms(false);
     dispatch(clearError());
   };
 
@@ -209,6 +212,7 @@ export function MultiStepRegisterForm() {
   };
 
   const handleSubmit = async () => {
+    if (!agreedToTerms) return;
     dispatch(clearError());
 
     try {
@@ -417,7 +421,18 @@ export function MultiStepRegisterForm() {
                   </span>
                 </div>
               </div>
-              <GoogleSignInButton mode="signup" className="flex justify-center mb-4" />
+
+              <LegalConsentCheckbox
+                id="register-user-legal-consent"
+                checked={agreedToTerms}
+                onCheckedChange={setAgreedToTerms}
+              />
+
+              <GoogleSignInButton
+                mode="signup"
+                className="flex justify-center mb-4"
+                disabled={!agreedToTerms}
+              />
 
               <h3 className="text-lg font-semibold mb-4">
                 {t("landing.auth.personalInformation")}
@@ -465,6 +480,7 @@ export function MultiStepRegisterForm() {
                   onClick={() => {
                     if (validateUserStep2()) setCurrentStep(3);
                   }}
+                  disabled={!agreedToTerms}
                 >
                   {t("landing.auth.next")}
                   <NextArrow className="h-4 w-4 ml-2 rtl:mr-2 rtl:ml-0" />
@@ -569,6 +585,13 @@ export function MultiStepRegisterForm() {
                   )}
                 </div>
               </div>
+
+              <LegalConsentCheckbox
+                id="register-user-password-legal-consent"
+                checked={agreedToTerms}
+                onCheckedChange={setAgreedToTerms}
+              />
+
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => { setCurrentStep(2); setFieldErrors({}); }}>
                   <BackArrow className="h-4 w-4 mr-2 rtl:ml-2 rtl:mr-0" />
@@ -578,7 +601,7 @@ export function MultiStepRegisterForm() {
                   onClick={() => {
                     if (validateUserStep3()) handleSubmit();
                   }}
-                  disabled={isLoading}
+                  disabled={isLoading || !agreedToTerms}
                 >
                   {isLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -879,6 +902,13 @@ export function MultiStepRegisterForm() {
                   )}
                 </div>
               </div>
+
+              <LegalConsentCheckbox
+                id="register-restaurant-legal-consent"
+                checked={agreedToTerms}
+                onCheckedChange={setAgreedToTerms}
+              />
+
               <div className="flex justify-between pt-4">
                 <Button variant="outline" onClick={() => { setCurrentStep(4); setFieldErrors({}); }}>
                   <BackArrow className="h-4 w-4 mr-2 rtl:ml-2 rtl:mr-0" />
@@ -888,7 +918,7 @@ export function MultiStepRegisterForm() {
                   onClick={() => {
                     if (validateRestaurantStep5()) handleSubmit();
                   }}
-                  disabled={isLoading}
+                  disabled={isLoading || !agreedToTerms}
                 >
                   {isLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

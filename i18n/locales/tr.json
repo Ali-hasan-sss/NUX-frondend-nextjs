@@ -374,8 +374,8 @@
   },
   "landing": {
     "hero": {
-      "title": "Akıllı Sadakat Deneyimine Katılın",
-      "description": "Otomasyonu güçlendirin, ödülleri sorunsuz toplayın ve takip edin. Yenilikçi sadakat platformumuzla müşteri deneyiminizi dönüştürün.",
+      "title": "Restoranlar ve Misafirler için Komple Platform",
+      "description": "NUX; mobil uygulama, dijital menüler, operasyon paneli, cüzdan ve kampanyaları tek yerde birleştirir — sadece sadakat değil.",
       "downloadAppStore": "App Store'dan İndir",
       "downloadGooglePlay": "Google Play'den İndir",
       "welcomeToNux": "nux'e Hoş Geldiniz",
@@ -450,19 +450,31 @@
       }
     },
     "cta": {
-      "title": "Restoran İşinizi Dönüştürmeye Hazır mısınız?",
-      "description": "Müşteri sadakati oluşturmak ve operasyonlarını kolaylaştırmak için nux kullanan yüzlerce restorana katılın. Ücretsiz denemenizi bugün başlatın.",
-      "startFreeTrial": "Ücretsiz Denemeyi Başlat",
-      "contactSales": "Satış ile İletişim"
+      "title": "Restoranınızı NUX ile yönetmeye hazır mısınız?",
+      "description": "Menüler, operasyon, cüzdan ve misafir deneyimi için NUX kullanan mekanlara katılın. Hesap oluşturun ve platformu keşfedin.",
+      "startFreeTrial": "Hemen başlayın",
+      "contactSales": "Bize ulaşın"
     },
     "footer": {
-      "description": "Modern restoranlar için eksiksiz abonelik yönetim platformu.",
+      "description": "NUX — misafirler, restoranlar ve şirketler için konaklama platformu.",
       "product": "Ürün",
       "features": "Özellikler",
+      "capabilities": "Tüm özellikler",
       "pricing": "Fiyatlandırma",
       "getStarted": "Başlayın",
       "company": "Şirket",
       "account": "Hesap",
+      "impressum": {
+        "title": "Yasal bilgiler (Impressum)",
+        "company": "Genix Tech GmbH",
+        "register": "Amtsgericht Charlottenburg — Ticaret Sicili B Bölümü",
+        "hrb": "HRB 279128 B",
+        "taxNumber": "Vergi no (St.-Nr.) 27/304/00089",
+        "vatId": "USt-ID DE459049439",
+        "director": "Genel müdür: Mouhanad Dawood",
+        "seat": "Kayıtlı merkez: Berlin",
+        "address": "Bundesallee 38, 10717 Berlin, Almanya"
+      },
       "copyright": "© 2024 nux. Tüm hakları saklıdır."
     },
     "restaurants": {

@@ -8,6 +8,7 @@ const initialState: MenuState = {
   selectedCategory: null,
   currentRestaurantId: null,
   restaurant: null,
+  menuBanner: null,
   currency: null,
   loading: {
     categories: false,
@@ -35,6 +36,7 @@ const menuSlice = createSlice({
       state.selectedCategory = null;
       state.currentRestaurantId = null;
       state.restaurant = null;
+      state.menuBanner = null;
       state.currency = null;
     },
     setSelectedCategory: (
@@ -59,6 +61,10 @@ const menuSlice = createSlice({
         const payload = action.payload;
         state.categories = payload.data ?? [];
         state.restaurant = payload.restaurant ?? null;
+        state.menuBanner =
+          typeof payload.menuBanner === "string" && payload.menuBanner.trim()
+            ? payload.menuBanner.trim()
+            : null;
         state.currency = payload.currency ?? state.currency ?? null;
         state.error.categories = null;
       })

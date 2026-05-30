@@ -70,6 +70,11 @@
     "cameraPreviewHint": "Kamera starten zum Scannen oder Zahlungscode unten einfügen.",
     "cameraStartFailed": "Kamera konnte nicht gestartet werden. Berechtigungen prüfen oder Code einfügen."
   },
+  "legal": {
+    "loadError": "Dokument konnte nicht geladen werden",
+    "empty": "Inhalt ist noch nicht verfügbar.",
+    "backHome": "Startseite"
+  },
   "drawer": {
     "menu": "Menü",
     "restaurants": "Restaurants",
@@ -506,8 +511,8 @@
   },
   "landing": {
     "hero": {
-      "title": "Treten Sie der Smart Loyalty Experience bei",
-      "description": "Leistungsstarke Automatisierung, nahtloses Sammeln und Verfolgen von Belohnungen. Transformieren Sie das Kundenerlebnis mit unserer innovativen Treueplattform.",
+      "title": "Die Komplettplattform für Restaurants & Gäste",
+      "description": "NUX verbindet Mobile App, digitale Menüs, Betriebs-Dashboard, Wallet und Aktionen — für moderne Gastronomie, nicht nur Treuepunkte.",
       "downloadAppStore": "Im App Store herunterladen",
       "downloadGooglePlay": "Bei Google Play herunterladen",
       "welcomeToNux": "Willkommen bei nux",
@@ -582,19 +587,31 @@
       }
     },
     "cta": {
-      "title": "Bereit, Ihr Restaurantgeschäft zu transformieren?",
-      "description": "Schließen Sie sich Hunderten von Restaurants an, die bereits nux nutzen, um Kundenbindung aufzubauen und ihre Abläufe zu optimieren. Starten Sie noch heute Ihre kostenlose Testversion.",
-      "startFreeTrial": "Kostenlose Testversion starten",
-      "contactSales": "Vertrieb kontaktieren"
+      "title": "Bereit, Ihr Restaurant mit NUX zu betreiben?",
+      "description": "Nutzen Sie NUX für Menüs, Betrieb, Wallet und Gästeerlebnis. Konto erstellen und die Plattform entdecken.",
+      "startFreeTrial": "Jetzt starten",
+      "contactSales": "Kontakt"
     },
     "footer": {
-      "description": "Die vollständige Abonnementverwaltungsplattform für moderne Restaurants.",
+      "description": "NUX — Gastronomieplattform für Gäste, Restaurants und Unternehmen.",
       "product": "Produkt",
       "features": "Funktionen",
+      "capabilities": "Alle Funktionen",
       "pricing": "Preise",
       "getStarted": "Loslegen",
       "company": "Unternehmen",
       "account": "Konto",
+      "impressum": {
+        "title": "Impressum",
+        "company": "Genix Tech GmbH",
+        "register": "Amtsgericht Charlottenburg — Handelsregister Abteilung B",
+        "hrb": "HRB 279128 B",
+        "taxNumber": "St.-Nr. 27/304/00089",
+        "vatId": "USt-ID DE459049439",
+        "director": "Geschäftsführer: Mouhanad Dawood",
+        "seat": "Sitz der Gesellschaft: Berlin",
+        "address": "Bundesallee 38, 10717 Berlin"
+      },
       "copyright": "© 2024 nux. Alle Rechte vorbehalten."
     },
     "restaurants": {
@@ -733,7 +750,10 @@
       "mapGetMyLocation": "Meinen Standort verwenden",
       "mapLocationNotFound": "Standort nicht gefunden. Bitte anders suchen.",
       "mapSearchError": "Suche fehlgeschlagen. Bitte erneut versuchen.",
-      "registerFailedCheckInfo": "Überprüfen Sie Ihre Angaben und verwenden Sie eine E-Mail-Adresse, die noch nicht registriert ist."
+      "registerFailedCheckInfo": "Überprüfen Sie Ihre Angaben und verwenden Sie eine E-Mail-Adresse, die noch nicht registriert ist.",
+      "legalConsentPrefix": "Ich stimme der",
+      "legalAnd": "und den",
+      "mustAgreeToTerms": "Sie müssen der Datenschutzerklärung und den Nutzungsbedingungen zustimmen."
     }
   },
   "dashboard": {
@@ -901,7 +921,7 @@
       "year": "Jahr",
       "days": "Tage",
       "duration": "Dauer",
-      "priceIncludesTax": "Preis inklusive Steuern",
+      "priceIncludesTax": "Preis inklusive MwSt",
       "availablePlans": "Verfügbare Pläne",
       "billingInformation": "Rechnungsinformationen",
       "billingInformationDesc": "Verwalten Sie Ihre Rechnungsdetails und Zahlungsmethoden",

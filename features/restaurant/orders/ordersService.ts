@@ -80,4 +80,9 @@ export const ordersService = {
     const res = await axiosInstance.put(`/restaurants/orders/${orderId}/status`, { status });
     return res.data as { success: boolean; data: Order };
   },
+
+  async deleteOrder(orderId: number): Promise<{ success: boolean; data: { id: number } }> {
+    const res = await axiosInstance.delete(`/restaurants/orders/${orderId}`);
+    return res.data as { success: boolean; data: { id: number } };
+  },
 };

@@ -38,6 +38,7 @@ import {
   ChefHat,
   Utensils,
   Lock,
+  Trash2,
 } from "lucide-react";
 import { cn, getImageUrl } from "@/lib/utils";
 import Image from "next/image";
@@ -94,6 +95,7 @@ export default function OrdersPage() {
   );
   const [availablePrinters, setAvailablePrinters] = useState<string[]>([]);
   const [printerLoading, setPrinterLoading] = useState(false);
+  const [deletingOrderId, setDeletingOrderId] = useState<number | null>(null);
 
   const sectionNames = useMemo(() => {
     const set = new Set<string>();
@@ -272,11 +274,25 @@ export default function OrdersPage() {
         setSelectedOrder(order);
       }
     };
+    const onOrderDeleted = (payload: { id: number }) => {
+      setOrders((prev) => prev.filter((o) => o.id !== payload.id));
+      setNewOrderIds((prev) => {
+        const next = new Set(prev);
+        next.delete(payload.id);
+        return next;
+      });
+      if (selectedOrder?.id === payload.id) {
+        setSelectedOrder(null);
+        setIsDialogOpen(false);
+      }
+    };
     socket.on("order:new", onOrderNew);
     socket.on("order:status", onOrderStatus);
+    socket.on("order:deleted", onOrderDeleted);
     return () => {
       socket.off("order:new", onOrderNew);
       socket.off("order:status", onOrderStatus);
+      socket.off("order:deleted", onOrderDeleted);
     };
   }, [socket, selectedOrder?.id]);
 
@@ -307,6 +323,50 @@ export default function OrdersPage() {
       } else {
         alert(msg);
       }
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: number) => {
+    const confirmMsg =
+      t("dashboard.orders.deleteConfirm", { id: orderId }) ||
+      `Delete order #${orderId}? This cannot be undone.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setDeletingOrderId(orderId);
+    try {
+      await ordersService.deleteOrder(orderId);
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      setNewOrderIds((prev) => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
+      if (selectedOrder?.id === orderId) {
+        setSelectedOrder(null);
+        setIsDialogOpen(false);
+      }
+    } catch (err: any) {
+      console.error("Error deleting order:", err);
+      const data = err?.response?.data;
+      const msg =
+        data?.message ||
+        t("dashboard.orders.deleteError") ||
+        "Failed to delete order";
+      if (
+        data?.code === "PLAN_PERMISSION_REQUIRED" ||
+        data?.code === "NO_ACTIVE_SUBSCRIPTION"
+      ) {
+        alert(
+          msg +
+            "\n\n" +
+            (t("dashboard.orders.upgradePlanHint") ||
+              "Upgrade your plan to use Orders.")
+        );
+      } else {
+        alert(msg);
+      }
+    } finally {
+      setDeletingOrderId(null);
     }
   };
 
@@ -1003,6 +1063,27 @@ export default function OrdersPage() {
                             Complete
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs sm:text-sm px-2 sm:px-3 text-destructive hover:text-destructive"
+                          disabled={deletingOrderId === order.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteOrder(order.id);
+                          }}
+                        >
+                          {deletingOrderId === order.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                          <span className="sr-only sm:not-sr-only sm:ms-1">
+                            {deletingOrderId === order.id
+                              ? t("dashboard.orders.deleting") || "Deleting..."
+                              : t("dashboard.orders.delete") || "Delete"}
+                          </span>
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -1174,6 +1255,24 @@ export default function OrdersPage() {
                           </div>
                         </div>
                       ))}
+                      <div className="flex justify-end pt-2 border-t">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-destructive hover:text-destructive"
+                          disabled={deletingOrderId === order.id}
+                          onClick={() => handleDeleteOrder(order.id)}
+                        >
+                          {deletingOrderId === order.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin me-1" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 me-1" />
+                          )}
+                          {deletingOrderId === order.id
+                            ? t("dashboard.orders.deleting") || "Deleting..."
+                            : t("dashboard.orders.delete") || "Delete"}
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))
@@ -1279,6 +1378,23 @@ export default function OrdersPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="flex justify-end pt-4 border-t">
+                <Button
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                  disabled={deletingOrderId === selectedOrder.id}
+                  onClick={() => handleDeleteOrder(selectedOrder.id)}
+                >
+                  {deletingOrderId === selectedOrder.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin me-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 me-2" />
+                  )}
+                  {deletingOrderId === selectedOrder.id
+                    ? t("dashboard.orders.deleting") || "Deleting..."
+                    : t("dashboard.orders.delete") || "Delete"}
+                </Button>
               </div>
             </div>
           )}

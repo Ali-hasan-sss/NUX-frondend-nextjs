@@ -26,6 +26,7 @@ type GoogleSignInButtonProps = {
 export function GoogleSignInButton({
   mode,
   className,
+  disabled = false,
 }: GoogleSignInButtonProps) {
   const dispatch = useAppDispatch();
   const router = useRouter();
@@ -35,7 +36,7 @@ export function GoogleSignInButton({
   const buttonTheme = isDark ? "filled_black" : "outline";
 
   const handleSuccess = async (credential: string | undefined) => {
-    if (!credential) return;
+    if (disabled || !credential) return;
     dispatch(clearError());
     const result = await dispatch(loginWithGoogle(credential));
     if (loginWithGoogle.fulfilled.match(result)) {
@@ -54,8 +55,10 @@ export function GoogleSignInButton({
       dir="ltr"
       className={cn(
         "flex w-full justify-center items-center rounded-xl border border-input bg-background min-h-[3rem] py-1 overflow-hidden",
+        disabled && "pointer-events-none opacity-50",
         className
       )}
+      aria-disabled={disabled}
     >
       <GoogleLogin
         onSuccess={(res) => handleSuccess(res?.credential)}

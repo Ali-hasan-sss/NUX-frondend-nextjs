@@ -56,6 +56,7 @@ import {
   X,
   Loader2,
   Percent,
+  Megaphone,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import FileUploader from "@/components/upload/file-uploader";
@@ -69,6 +70,7 @@ import {
   updateRestaurantAccount,
   fetchRestaurantAccount,
 } from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
+import { restaurantAccountService } from "@/features/restaurant/restaurantAccount/restaurantAccountService";
 
 /** Same as restaurant settings: popular and European currencies */
 const CURRENCY_OPTIONS = [
@@ -190,6 +192,9 @@ export function MenuManagement() {
   const restaurantCurrency = useAppSelector((s) => s.restaurantAccount.data?.currency);
   const currencyCode = restaurantCurrency ?? "EUR";
   const [currencyUpdating, setCurrencyUpdating] = useState(false);
+  const [menuBannerMessage, setMenuBannerMessage] = useState("");
+  const [menuBannerLoading, setMenuBannerLoading] = useState(true);
+  const [menuBannerSaving, setMenuBannerSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [kitchenSections, setKitchenSections] = useState<any[]>([]);
 
@@ -203,6 +208,25 @@ export function MenuManagement() {
     discountValue: "",
   });
   const [isApplyingDiscount, setIsApplyingDiscount] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setMenuBannerLoading(true);
+    restaurantAccountService
+      .getMenuBanner()
+      .then((msg) => {
+        if (!cancelled) setMenuBannerMessage(msg ?? "");
+      })
+      .catch(() => {
+        if (!cancelled) setMenuBannerMessage("");
+      })
+      .finally(() => {
+        if (!cancelled) setMenuBannerLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     dispatch(fetchMenuCategories());
@@ -227,6 +251,29 @@ export function MenuManagement() {
       activeCategoryId != null ? itemsByCategory[activeCategoryId] ?? [] : [],
     [itemsByCategory, activeCategoryId]
   );
+
+  const handleSaveMenuBanner = async () => {
+    setMenuBannerSaving(true);
+    try {
+      const saved = await restaurantAccountService.updateMenuBanner(
+        menuBannerMessage.trim() || null
+      );
+      setMenuBannerMessage(saved ?? "");
+      toast.success(
+        saved
+          ? t("dashboard.menu.menuBanner.saved") || "Menu message saved"
+          : t("dashboard.menu.menuBanner.cleared") || "Menu message cleared"
+      );
+    } catch (e: any) {
+      toast.error(
+        e?.response?.data?.message ||
+          t("dashboard.menu.menuBanner.saveError") ||
+          "Failed to save menu message"
+      );
+    } finally {
+      setMenuBannerSaving(false);
+    }
+  };
 
   const getErrorMessage = (res: any, fallbackKey: string) => {
     const msg = res?.payload?.message ?? res?.error?.message ?? (typeof res?.error === "string" ? res.error : null);
@@ -640,6 +687,68 @@ export function MenuManagement() {
           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         )}
       </div>
+
+      <Card className="w-full min-w-0 overflow-hidden border-primary/15">
+        <CardHeader className="p-3 sm:p-4 md:p-6 pb-2 sm:pb-3">
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <Megaphone className="h-5 w-5 text-primary shrink-0" />
+            {t("dashboard.menu.menuBanner.title") || "Message at top of menu"}
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
+            {t("dashboard.menu.menuBanner.description") ||
+              "Shown to guests at the top of your public menu (welcome note, hours, specials, etc.)."}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-3 sm:p-4 md:p-6 pt-0 space-y-3">
+          {menuBannerLoading ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t("dashboard.menu.loading") || "Loading..."}
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={menuBannerMessage}
+                onChange={(e) => setMenuBannerMessage(e.target.value)}
+                placeholder={
+                  t("dashboard.menu.menuBanner.placeholder") ||
+                  "Welcome! Today’s special: ..."
+                }
+                maxLength={500}
+                rows={4}
+                className="resize-y min-h-[100px]"
+              />
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">
+                  {menuBannerMessage.length}/500
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={menuBannerSaving || !menuBannerMessage.trim()}
+                    onClick={() => setMenuBannerMessage("")}
+                  >
+                    {t("dashboard.menu.menuBanner.clear") || "Clear"}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    disabled={menuBannerSaving}
+                    onClick={handleSaveMenuBanner}
+                  >
+                    {menuBannerSaving && (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    )}
+                    {t("dashboard.menu.menuBanner.save") || "Save message"}
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Categories Accordion */}
       <Card className="w-full min-w-0 overflow-hidden">

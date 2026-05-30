@@ -1,11 +1,32 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "./authService";
+import { loadStoredTokens } from "@/lib/encryptedTokenStorage";
 import type {
   LoginRequest,
   RegisterRestaurantRequest,
   RegisterUserRequest,
   AuthResponse,
+  User,
 } from "./authTypes";
+
+export const initializeAuth = createAsyncThunk<
+  { tokens: { accessToken: string; refreshToken: string } | null; user: User | null },
+  void
+>("auth/initializeAuth", async () => {
+  const tokens = await loadStoredTokens();
+  let user: User | null = null;
+  if (typeof window !== "undefined") {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      try {
+        user = JSON.parse(storedUser) as User;
+      } catch {
+        user = null;
+      }
+    }
+  }
+  return { tokens, user };
+});
 
 export const loginUser = createAsyncThunk<
   AuthResponse,
