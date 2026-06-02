@@ -524,6 +524,166 @@
       "selectRestaurant": "Restaurant auswählen",
       "payWithWallet": "Mit Geldbörse bezahlen"
     },
+    "platform": {
+      "badge": "All-in-One-Gastronomieplattform",
+      "title": "Mehr als Treue — die gesamte Gästereise",
+      "description": "Von QR-Menüs und Tischservice bis zu Unternehmens-Wallets und Analysen: NUX vereint alle Werkzeuge für Restaurants und Gäste in einem Ökosystem.",
+      "pillars": {
+        "guests": {
+          "title": "Für Gäste",
+          "description": "Mobile App zum Entdecken von Lokalen, Scannen von Codes, Menüansicht, Wallet-Zahlung und Aktionen."
+        },
+        "restaurants": {
+          "title": "Für Restaurants",
+          "description": "Web-Dashboard für Bestellungen, Grundrisse, Tisch-QR-Codes, Zahlungen, Werbung und den täglichen Betrieb."
+        },
+        "business": {
+          "title": "Für Unternehmen",
+          "description": "Firmenkonten mit Mitarbeiter-Wallets, Rechnungen und kontrollierten Ausgaben bei Partnerrestaurants."
+        }
+      }
+    },
+    "highlights": {
+      "title": "Alles auf einer Plattform",
+      "subtitle": "Kernfunktionen auf einen Blick — Details zu jedem Bereich unten.",
+      "items": {
+        "mobileApp": {
+          "title": "Gäste-App",
+          "description": "iOS- und Android-App zum Scannen, Restaurants finden, Wallet aufladen und Kontoverwaltung."
+        },
+        "qrMenu": {
+          "title": "QR & digitales Menü",
+          "description": "Kontaktlose Menüs per Tisch- oder Lokal-QR — Menüansicht ohne App-Installation."
+        },
+        "dashboard": {
+          "title": "Restaurant-Dashboard",
+          "description": "Bestellungen, Grundriss, Tischcodes, Personal-Workflows und Einstellungen im Web verwalten."
+        },
+        "wallet": {
+          "title": "Wallet & Zahlungen",
+          "description": "Sicheres Wallet-Guthaben, Stripe-Aufladung, Zahlungen vor Ort und Transaktionshistorie."
+        },
+        "analytics": {
+          "title": "Einblicke & Berichte",
+          "description": "Leistung, Kundenaktivität und Umsatz mit klarer operativer Übersicht verfolgen."
+        },
+        "multilingual": {
+          "title": "Mehrsprachig",
+          "description": "Arabisch, Englisch, Deutsch, Türkisch und mehr — für Teams und Gäste in allen Regionen."
+        }
+      }
+    },
+    "sections": {
+      "guestApp": {
+        "title": "Mobile Gästeerfahrung",
+        "subtitle": "Der Begleiter Ihrer Gäste bei jedem Besuch",
+        "description": "Die NUX-App bringt Entdecken, Scannen und Bezahlen in die Tasche. Gäste wählen ein Restaurant, scannen Lokal- oder Menücodes und verwalten Guthaben und Prämien an einem Ort.",
+        "visualLabel": "NUX Mobile App",
+        "bullets": [
+          "Restaurants auf der Karte durchsuchen und favorisieren",
+          "Treue-, Geschenk- und Empfangscodes am Tisch scannen",
+          "Digitale Menüs per Menü-QR oder Deep Links öffnen",
+          "Wallet, Sterne und Getränkeguthaben in einer Ansicht",
+          "Aktionen, Benachrichtigungen und Kontoeinstellungen"
+        ]
+      },
+      "digitalMenu": {
+        "title": "Digitales Menü & QR-Codes",
+        "subtitle": "Menüs für jedes Smartphone",
+        "description": "Veröffentlichen Sie Ihr Menü online und verknüpfen Sie es mit Tisch- oder Lokal-QR-Codes. Gäste sehen Kategorien und Artikel sofort — ideal für Innenbereich, Terrasse und Events.",
+        "visualLabel": "Menü per QR",
+        "bullets": [
+          "Tischspezifische und lokalweite QR-Codes",
+          "Umfangreiches Menü mit Bildern, Optionen und Verfügbarkeit",
+          "Web-Menüroute — funktioniert ohne App-Installation",
+          "Deep Links von nuxapp.de für Marketingkampagnen",
+          "Integriert mit Menüverwaltung im Dashboard"
+        ]
+      },
+      "restaurantOps": {
+        "title": "Betriebs-Dashboard",
+        "subtitle": "Den Service vom Browser aus steuern",
+        "description": "Inhaber und Personal nutzen das Web-Dashboard für Live-Betrieb: Bestellungen, Sitzplätze, Tischcodes und Zahlungsflüsse für Ihr Lokal.",
+        "visualLabel": "Betriebs-Dashboard",
+        "bullets": [
+          "Bestellliste und Statusverfolgung",
+          "Interaktiver Grundriss für Tische und Zonen",
+          "Tisch-QR-Codes erstellen und zuweisen",
+          "Wallet-Zahlungsübersicht für das Lokal",
+          "Rollenbasierter Zugang für Inhaber und Personal"
+        ]
+      },
+      "walletPayments": {
+        "title": "Wallet & Zahlungen",
+        "subtitle": "Schnelle, nachvollziehbare Transaktionen",
+        "description": "Gäste laden per Stripe auf; Restaurants sehen Wallet-Aktivität und Zahlungen im Kontext. Unternehmensprogramme können Mitarbeiter-Wallets mit eigenen Regeln finanzieren.",
+        "visualLabel": "Wallet & Stripe",
+        "bullets": [
+          "In-App-Wallet-Aufladung mit Stripe Payment Sheet",
+          "Im Restaurant mit Wallet-Guthaben bezahlen",
+          "Transaktionshistorie für Gäste und Admins",
+          "Unternehmens-Wallet-Finanzierung und Mitarbeiterlimits",
+          "Rechnungs- und Abrechnungsansichten für Firmenkonten"
+        ]
+      },
+      "loyaltyPromotions": {
+        "title": "Treue & Aktionen",
+        "subtitle": "Belohnungen ohne Komplexität",
+        "description": "Punkte, Sterne, Getränkepakete und gezielte Werbung sind Teil der Plattform — als Modul unter vielen, nicht als einziger Fokus.",
+        "visualLabel": "Prämien & Werbung",
+        "bullets": [
+          "Punkte und Sterne pro Restaurant",
+          "Werbekampagnen und hervorgehobene Anzeigen",
+          "Geschenk- und Empfangs-Scan-Flows",
+          "Kaufhistorie und Einlösungsverfolgung",
+          "Bindungstools neben Betriebsdaten"
+        ]
+      },
+      "companyAccounts": {
+        "title": "Firmen- & Unternehmenskonten",
+        "subtitle": "B2B-Ausgaben leicht gemacht",
+        "description": "Unternehmen registrieren Teams, weisen Mitarbeitern Wallets zu und überwachen Nutzung bei Partnerrestaurants — mit Rechnungen passend zu Ihren Finanzprozessen.",
+        "visualLabel": "Unternehmensportal",
+        "bullets": [
+          "Firmenprofil und Mitarbeiterverwaltung",
+          "Wallet-Zuteilung pro Mitarbeiter",
+          "Ausgaben bei angeschlossenen Restaurants",
+          "Rechnungen und Zahlungsbelege",
+          "Separates Firmen-Login und Dashboard"
+        ]
+      },
+      "discover": {
+        "title": "Restaurants entdecken",
+        "subtitle": "Den richtigen Ort in der Nähe finden",
+        "description": "Öffentliche Restaurantlisten mit Suche, Standortsortierung und Menüvorschau helfen Gästen, schon vor dem Besuch die Wahl zu treffen.",
+        "visualLabel": "Restaurant-Entdeckung",
+        "bullets": [
+          "Suche nach Name und Standort",
+          "Sortierung nach Entfernung bei aktivem Standort",
+          "Menü- und Lokaldetails im Web ansehen",
+          "Links in die Mobile App für das volle Erlebnis",
+          "Kartenbasierte Erkundung auf unterstützten Geräten"
+        ]
+      }
+    },
+    "howItWorks": {
+      "title": "So funktioniert es",
+      "subtitle": "In drei einfachen Schritten starten",
+      "steps": {
+        "register": {
+          "title": "Konto erstellen",
+          "description": "Registrieren Sie sich als Gast, Restaurant oder Unternehmen. E-Mail bestätigen und Profil vervollständigen."
+        },
+        "connect": {
+          "title": "Lokal oder Team verbinden",
+          "description": "Restaurants richten Menüs, Tische und QR-Codes ein. Unternehmen fügen Mitarbeiter und Wallet-Regeln hinzu."
+        },
+        "grow": {
+          "title": "Bedienen und wachsen",
+          "description": "Gäste scannen, bestellen und zahlen. Sie steuern Betrieb und Aktionen auf einer verbundenen Plattform."
+        }
+      }
+    },
     "features": {
       "title": "Verdienen. Sammeln. Genießen.",
       "purchase": {
@@ -540,14 +700,41 @@
       }
     },
     "pricing": {
-      "title": "Einfache, transparente Preise",
-      "subtitle": "Wählen Sie den perfekten Plan für Ihr Restaurant. Alle Pläne beinhalten eine 14-tägige kostenlose Testversion.",
+      "title": "Abonnementpreise für Restaurants",
+      "subtitle": "Vergleichen Sie die Pläne und wechseln Sie pro Plan zwischen monatlicher und jährlicher Abrechnung.",
+      "monthly": "Monatlich",
+      "annual": "Jährlich",
+      "free": "Kostenlos",
+      "perMonth": "/Monat",
+      "perYear": "/Jahr",
+      "unlimited": "Unbegrenzt",
+      "permissionWithValue": "{{label}}: {{value}}",
       "mostPopular": "Beliebteste",
       "startFreeTrial": "Kostenlose Testversion starten",
       "startFree": "Kostenlos starten",
       "startNow": "Jetzt starten",
       "retry": "Erneut versuchen",
       "noPlans": "Derzeit sind keine Pläne verfügbar.",
+      "permissions": {
+        "MANAGE_MENU": "Menü verwalten",
+        "MANAGE_QR_CODES": "QR-Codes verwalten",
+        "MANAGE_GROUPS": "Gruppen verwalten",
+        "MANAGE_ADS": "Werbung verwalten",
+        "MANAGE_PACKAGES": "Pakete verwalten",
+        "MANAGE_ORDERS": "Bestellungen verwalten",
+        "CUSTOMER_LOYALTY": "Kundentreue",
+        "CUSTOMER_NOTIFICATIONS": "Kundenbenachrichtigungen",
+        "CUSTOMER_GIFTS": "Kundengeschenke",
+        "VIEW_ANALYTICS": "Analysen anzeigen",
+        "EXPORT_DATA": "Daten exportieren",
+        "CUSTOM_BRANDING": "Eigenes Branding",
+        "API_ACCESS": "API-Zugang",
+        "MULTI_LOCATION": "Mehrere Standorte",
+        "MAX_MENU_ITEMS": "Max. Menüpunkte",
+        "MAX_ADS": "Max. Anzeigen",
+        "MAX_PACKAGES": "Max. Pakete",
+        "MAX_GROUP_MEMBERS": "Max. Gruppenmitglieder"
+      },
       "plans": {
         "starter": {
           "name": "Starter",
@@ -754,6 +941,194 @@
       "legalConsentPrefix": "Ich stimme der",
       "legalAnd": "und den",
       "mustAgreeToTerms": "Sie müssen der Datenschutzerklärung und den Nutzungsbedingungen zustimmen."
+    },
+    "about": {
+      "title": "Über NUX",
+      "subtitle": "Eine Gastronomieplattform für Gäste, Restaurants und Unternehmen",
+      "story": {
+        "p1": "NUX wurde entwickelt, um die gesamte Gastronomie-Reise zu vereinfachen — nicht nur Treuepunkte. Wir verbinden, was Gäste auf dem Smartphone tun, mit dem, was Restaurants im Web betreiben, in einem zusammenhängenden System.",
+        "p2": "Restaurants nutzen NUX für digitale Menüs, Tisch-QR-Codes, Bestellungen, Grundrisse, Wallet-Zahlungen, Aktionen und den täglichen Betrieb. Gäste entdecken Lokale, scannen Codes, zahlen mit der Wallet und nutzen Angebote ohne Reibung.",
+        "p3": "Unternehmen bieten Mitarbeitern Essenszuschüsse bei Partnerrestaurants — digital, ohne Papiergutscheine oder manuelle Abrechnung. HR und Finanzen erhalten die benötigten Rechnungen und Belege, während Mitarbeitende einfach mit der Firmen-Wallet in der App bezahlen.",
+        "p4": "Ob einzelnes Café, eine Marke mit mehreren Standorten oder ein Unternehmen, das sein Team verpflegt — NUX liefert leistungsstarke und dennoch übersichtliche Werkzeuge."
+      },
+      "audience": {
+        "title": "Für wen wir da sind",
+        "subtitle": "Drei Seiten einer verbundenen Plattform",
+        "guests": {
+          "title": "Gäste",
+          "description": "Mobile App für Restaurants, Menüs, Wallet, Scannen und Aktionen."
+        },
+        "restaurants": {
+          "title": "Restaurants",
+          "description": "Web-Dashboard für Menüs, Betrieb, Tische, Zahlungen und Analysen."
+        },
+        "companies": {
+          "title": "Unternehmen",
+          "description": "Firmenkonten zur Finanzierung von Mitarbeiteressen mit ordentlichen Rechnungen."
+        }
+      },
+      "companySpotlight": {
+        "title": "Firmen-Essenszuschüsse — einfach für alle",
+        "description": "Geben Sie Ihrem Team die Freiheit, in angeschlossenen Restaurants mit der Firmen-Wallet in der NUX-App zu essen. Keine Papier-Essensmarken, keine Spesenformulare pro Mittagessen und keine Belegsuche.",
+        "benefit1": "Wallet-Guthaben pro Mitarbeiter oder Team zuweisen",
+        "benefit2": "Mitarbeitende zahlen in der App bei Partnerrestaurants",
+        "benefit3": "Automatische Rechnungen und Ausgabenbelege für die Buchhaltung",
+        "benefit4": "Klare Limits und Transparenz für HR und Finanzen",
+        "cta": "Unternehmen registrieren"
+      },
+      "values": {
+        "title": "Unsere Werte",
+        "subtitle": "Die Prinzipien, die alles leiten, was wir tun"
+      },
+      "mission": {
+        "title": "Unsere Mission",
+        "description": "Gastronomietechnologie praktisch für alle Beteiligten machen — vom Gast am Tisch bis zum Unternehmen, das Teamessen bezahlt."
+      },
+      "vision": {
+        "title": "Unsere Vision",
+        "description": "Eine Plattform, auf der Gastronomie, Betrieb, Zahlungen und Firmenleistungen nahtlos zusammenwirken."
+      },
+      "excellence": {
+        "title": "Exzellenz",
+        "description": "Zuverlässige Tools, klare UX und Support, der Ihre Zeit respektiert."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "Kontinuierliche Verbesserung in Mobile, Web, Zahlungen und Unternehmensprozessen."
+      }
+    },
+    "services": {
+      "title": "Unsere Leistungen",
+      "subtitle": "End-to-End-Tools für Restaurants, Gäste und Unternehmen",
+      "companyIntro": {
+        "title": "Für Unternehmen: Essensleistungen ohne Papierkram",
+        "description": "Bieten Sie Essenszuschüsse bei Partnerrestaurants über NUX an. Mitarbeitende nutzen die Firmen-Wallet in der App; Sie erhalten Rechnungen und Berichte für Buchhaltung und Compliance — ohne Gutscheine, ohne manuelle Spesen."
+      },
+      "companyAccounts": {
+        "title": "Firmenkonten & Mitarbeiter-Wallets",
+        "description": "Organisation registrieren, Mitarbeitende hinzufügen und Wallets finanzieren, die sie bei angeschlossenen Restaurants nutzen.",
+        "benefit1": "Digitale Essensleistungen statt Papiergutscheine",
+        "benefit2": "Keine Spesenformulare pro Mahlzeit — Zahlung in der App",
+        "benefit3": "Rechnungen und Zahlungshistorie für die Finanzabteilung",
+        "benefit4": "Ausgabenlimits pro Mitarbeiter steuern"
+      },
+      "guestApp": {
+        "title": "Gäste-App",
+        "description": "iOS- und Android-App: entdecken, scannen, Bestellkontext und Bezahlen.",
+        "benefit1": "Restaurants entdecken und favorisieren",
+        "benefit2": "QR-Scan für Treue, Geschenke und Menüs",
+        "benefit3": "Persönliche Wallet und Transaktionshistorie"
+      },
+      "restaurantOps": {
+        "title": "Restaurant-Betriebs-Dashboard",
+        "description": "Bestellungen, Grundriss und Tischcodes im Browser verwalten.",
+        "benefit1": "Live-Bestellverfolgung",
+        "benefit2": "Interaktiver Grundriss",
+        "benefit3": "Tisch-QR-Verwaltung"
+      },
+      "walletPayments": {
+        "title": "Wallet & Zahlungen",
+        "description": "Stripe-Aufladung, Wallet-Zahlung vor Ort und vollständige Transaktionshistorie.",
+        "benefit1": "Sichere Wallet-Aufladung",
+        "benefit2": "Im Restaurant vom Guthaben bezahlen",
+        "benefit3": "Belege für Gäste, Lokale und Unternehmen"
+      },
+      "loyalty": {
+        "title": "Treue & Aktionen",
+        "description": "Punkte, Sterne, Kampagnen und Werbung als Teil der Plattform.",
+        "benefit1": "Belohnungen pro Restaurant",
+        "benefit2": "Werbekampagnen",
+        "benefit3": "Bindung neben Betriebsdaten"
+      },
+      "analytics": {
+        "title": "Analysen & Einblicke",
+        "description": "Leistung, Kunden und Umsatz mit klaren Berichten verstehen.",
+        "benefit1": "Echtzeit-Statistiken",
+        "benefit2": "Kunden- und Ausgaben-Einblicke",
+        "benefit3": "Operative Übersicht"
+      },
+      "packages": {
+        "title": "Aktionen & Pakete",
+        "description": "Angebote und Pakete, die Gäste anziehen und binden.",
+        "benefit1": "Flexible Kampagnen",
+        "benefit2": "Hervorgehobene Anzeigen und Deals",
+        "benefit3": "Umsatzorientierte Tools"
+      },
+      "payments": {
+        "title": "Zahlungsübersicht",
+        "description": "Wallet- und Zahlungsflüsse in Ihrem Lokal überwachen.",
+        "benefit1": "Mehrere Zahlungsarten",
+        "benefit2": "Vollständige Zahlungshistorie",
+        "benefit3": "Finanzberichte"
+      },
+      "security": {
+        "title": "Sichere Plattform",
+        "description": "Sicherheit auf Unternehmensniveau für Konten und Transaktionen.",
+        "benefit1": "Datenverschlüsselung",
+        "benefit2": "Sichere Zahlungen",
+        "benefit3": "Zuverlässige Infrastruktur"
+      },
+      "mobile": {
+        "title": "Überall einsetzbar",
+        "description": "Responsives Web und native Mobile für Teams und Gäste.",
+        "benefit1": "Mehrsprachige Oberfläche",
+        "benefit2": "Mobile App + Web-Dashboard",
+        "benefit3": "Echtzeit-Synchronisation"
+      },
+      "support": {
+        "title": "Support & Onboarding",
+        "description": "Hilfe, wenn Sie sie brauchen — für Restaurants und Unternehmen.",
+        "benefit1": "Dedizierte Support-Kanäle",
+        "benefit2": "Onboarding-Begleitung",
+        "benefit3": "Regelmäßige Plattform-Updates"
+      },
+      "qrCodes": {
+        "title": "Digitale Menüs & QR-Codes",
+        "description": "Menüs veröffentlichen und mit Tisch- oder Lokations-QR-Codes verknüpfen.",
+        "benefit1": "Kontaktloses Menü auf jedem Smartphone",
+        "benefit2": "Tisch- und lokalweite Codes",
+        "benefit3": "Funktioniert im Web ohne App-Installation"
+      }
+    },
+    "contact": {
+      "title": "Kontakt",
+      "subtitle": "Nehmen Sie Kontakt mit unserem Team auf",
+      "info": {
+        "email": {
+          "title": "E-Mail",
+          "description": "Schreiben Sie uns jederzeit!",
+          "value": "support@nux.com"
+        },
+        "phone": {
+          "title": "Telefon",
+          "description": "Mo–Fr von 9 bis 18 Uhr",
+          "value": "+1 (555) 123-4567"
+        },
+        "address": {
+          "title": "Adresse",
+          "description": "Besuchen Sie unser Büro",
+          "value": "123 Business St, Stadt, Land"
+        },
+        "hours": {
+          "title": "Geschäftszeiten",
+          "description": "Wir helfen gerne",
+          "value": "Mo–Fr: 9:00–18:00 Uhr"
+        }
+      },
+      "form": {
+        "title": "Nachricht senden",
+        "description": "Füllen Sie das Formular aus — wir melden uns bei Ihnen.",
+        "name": "Name",
+        "namePlaceholder": "Ihr Name",
+        "email": "E-Mail",
+        "emailPlaceholder": "ihre.email@beispiel.de",
+        "subject": "Betreff",
+        "subjectPlaceholder": "Wie können wir helfen?",
+        "message": "Nachricht",
+        "messagePlaceholder": "Beschreiben Sie Ihre Anfrage...",
+        "submit": "Nachricht senden",
+        "submitMessage": "Vielen Dank! Wir melden uns in Kürze."
+      }
     }
   },
   "dashboard": {
@@ -1066,11 +1441,9 @@
       "type": "Typ",
       "timestamp": "Zeitstempel",
       "noScansFound": "Keine Scans gefunden",
-      "differentCustomers": "Verschiedene Kunden",
       "todaysScans": "Heutige Scans",
       "thisWeeksScans": "Diese Woche",
       "thisMonthsScans": "Scans dieses Monats",
-      "last30Days": "Letzte 30 Tage",
       "drinks": "Getränke",
       "meals": "Mahlzeiten",
       "allTime": "Alle Zeit",
@@ -1128,7 +1501,6 @@
       "allTime": "Alle Zeit",
       "last24Hours": "Letzte 24 Stunden",
       "last7Days": "Letzte 7 Tage",
-      "last30Days": "Letzte 30 Tage",
       "filterData": "Daten filtern",
       "clearFilters": "Filter löschen",
       "paymentRecords": "Punkteaufzeichnungen",
@@ -1208,7 +1580,7 @@
       "active": "Aktiv",
       "restaurantActive": "Restaurant ist aktiv",
       "update": "Aktualisieren",
-      "saving": "Wird gespeichert",
+      "saving": "Wird gespeichert...",
       "restaurantSettingsUpdated": "Restaurant-Einstellungen erfolgreich aktualisiert",
       "failedToUpdateSettings": "Fehler beim Aktualisieren der Restaurant-Einstellungen",
       "failedToUpdateStatus": "Fehler beim Aktualisieren des Restaurant-Status",
@@ -1238,7 +1610,6 @@
       "restaurantStatus": "Restaurant-Status",
       "restaurantStatusActive": "Restaurant ist derzeit aktiv und für Kunden sichtbar",
       "restaurantStatusClosed": "Restaurant ist vorübergehend geschlossen und vor Kunden verborgen",
-      "active": "Aktiv",
       "closed": "Geschlossen",
       "subscription": "Abonnement",
       "subscriptionActive": "Aktiv",
@@ -1260,7 +1631,6 @@
       "restaurantNamePlaceholder": "Restaurantname eingeben",
       "addressPlaceholder": "Restaurantadresse eingeben",
       "restaurantLogoLabel": "Restaurant-Logo",
-      "saving": "Wird gespeichert...",
       "uploading": "Wird hochgeladen...",
       "saveChanges": "Änderungen speichern",
       "editLocationTitle": "Restaurant-Standort bearbeiten",
@@ -1324,7 +1694,7 @@
     },
     "groups": {
       "title": "Gruppenverwaltung",
-      "description": "Verwalten Sie Ihre Restaurantgruppe und Einladungen",
+      "description": "Beschreibung",
       "myGroup": "Meine Gruppe",
       "pendingInvites": "Ausstehende Einladungen",
       "totalMembers": "Gesamtmitglieder",
@@ -1360,17 +1730,14 @@
       "status": "Status",
       "noDescription": "Keine Beschreibung",
       "createNewGroup": "Neue Gruppe erstellen",
-      "editGroup": "Gruppe bearbeiten",
       "updateGroupInfo": "Aktualisieren Sie Ihre Gruppinformationen und laden Sie neue Mitglieder ein",
       "createGroupAndInvite": "Erstellen Sie eine neue Restaurantgruppe und laden Sie Mitglieder ein",
       "groupNameRequired": "Gruppenname *",
       "groupNamePlaceholder": "z.B. Downtown Food District",
-      "description": "Beschreibung",
       "optionalDescription": "Optionale Beschreibung",
       "updating": "Wird aktualisiert...",
       "creating": "Wird erstellt...",
-      "updateGroup": "Gruppe aktualisieren",
-      "createGroup": "Gruppe erstellen"
+      "updateGroup": "Gruppe aktualisieren"
     },
     "menu": {
       "title": "Menüverwaltung",

@@ -137,6 +137,19 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/#pricing"
+                  className={cn(
+                    "transition-colors",
+                    isDark
+                      ? "text-white/70 hover:text-cyan-400"
+                      : "text-gray-600 hover:text-cyan-600"
+                  )}
+                >
+                  {t("landing.footer.pricing")}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/auth/register"
                   className={cn(
                     "transition-colors",

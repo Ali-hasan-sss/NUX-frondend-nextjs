@@ -6,6 +6,7 @@ import { PlatformIntro } from "@/components/landing/platform-intro";
 import { Features } from "@/components/landing/features";
 import { FeatureSections } from "@/components/landing/feature-sections";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { Pricing } from "@/components/landing/pricing";
 import { CTA } from "@/components/landing/cta";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
@@ -54,6 +55,7 @@ export default function LandingPage() {
           <Features />
           <FeatureSections />
           <HowItWorks />
+          <Pricing />
           <CTA />
         </main>
         <Footer />

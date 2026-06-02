@@ -387,6 +387,166 @@
       "selectRestaurant": "Restoran seçin",
       "payWithWallet": "Cüzdan ile Öde"
     },
+    "platform": {
+      "badge": "Hepsi bir arada konaklama platformu",
+      "title": "Sadakatten fazlası — tüm misafir yolculuğu",
+      "description": "QR menüler ve masa servisinden kurumsal cüzdanlara ve analitiğe kadar NUX, restoranlar ve misafirler için gereken araçları tek ekosistemde sunar.",
+      "pillars": {
+        "guests": {
+          "title": "Misafirler için",
+          "description": "Mekân keşfi, kod tarama, menü görüntüleme, cüzdanla ödeme ve kampanyalar için mobil uygulama."
+        },
+        "restaurants": {
+          "title": "Restoranlar için",
+          "description": "Siparişler, salon planı, masa QR kodları, ödemeler, reklamlar ve günlük operasyon için web paneli."
+        },
+        "business": {
+          "title": "Şirketler için",
+          "description": "Çalışan cüzdanları, faturalama ve iş ortağı restoranlarda kontrollü harcama ile kurumsal hesaplar."
+        }
+      }
+    },
+    "highlights": {
+      "title": "Her şey tek platformda",
+      "subtitle": "Temel yeteneklere genel bakış — her alanın ayrıntıları aşağıda.",
+      "items": {
+        "mobileApp": {
+          "title": "Misafir mobil uygulaması",
+          "description": "Tarama, restoran gezintisi, cüzdan yükleme ve hesap yönetimi için iOS ve Android uygulaması."
+        },
+        "qrMenu": {
+          "title": "QR ve dijital menü",
+          "description": "Masa veya mekân QR kodlarıyla temasız menüler — menü için uygulama gerekmez."
+        },
+        "dashboard": {
+          "title": "Restoran paneli",
+          "description": "Siparişler, salon düzeni, masa kodları, personel iş akışları ve mekân ayarlarını webden yönetin."
+        },
+        "wallet": {
+          "title": "Cüzdan ve ödemeler",
+          "description": "Güvenli cüzdan bakiyesi, Stripe ile yükleme, mekânda ödeme ve işlem geçmişi."
+        },
+        "analytics": {
+          "title": "İçgörüler ve raporlama",
+          "description": "Performans, müşteri aktivitesi ve geliri net operasyonel görünürlükle takip edin."
+        },
+        "multilingual": {
+          "title": "Çok dilli",
+          "description": "Arapça, İngilizce, Almanca, Türkçe ve daha fazlası — bölgeler arası ekipler ve misafirler için."
+        }
+      }
+    },
+    "sections": {
+      "guestApp": {
+        "title": "Misafir mobil deneyimi",
+        "subtitle": "Her ziyarette müşterilerinizin yanında",
+        "description": "NUX uygulaması keşif, tarama ve ödemeyi misafirlerin cebine taşır. Restoran seçer, mekân veya menü kodlarını tarar, bakiye ve ödülleri tek yerden yönetir.",
+        "visualLabel": "NUX mobil uygulama",
+        "bullets": [
+          "Haritada restoranları gezin ve favorilere ekleyin",
+          "Masada sadakat, hediye ve alma kodlarını tarayın",
+          "Menü QR veya derin bağlantılarla dijital menü açın",
+          "Cüzdan, yıldızlar ve içecek kredileri tek görünümde",
+          "Kampanyalar, bildirimler ve hesap ayarları"
+        ]
+      },
+      "digitalMenu": {
+        "title": "Dijital menü ve QR kodlar",
+        "subtitle": "Her telefonda çalışan menüler",
+        "description": "Menünüzü çevrimiçi yayınlayın ve masa veya mekân QR kodlarına bağlayın. Misafirler kategorileri ve ürünleri anında görür — salon, teras ve etkinlikler için ideal.",
+        "visualLabel": "QR ile menü",
+        "bullets": [
+          "Masaya özel ve mekân geneli QR kodlar",
+          "Görseller, seçenekler ve stokla zengin menü",
+          "Web menü rotası — uygulama kurmadan çalışır",
+          "Pazarlama kampanyaları için nuxapp.de derin bağlantıları",
+          "Panel menü yönetimiyle entegre"
+        ]
+      },
+      "restaurantOps": {
+        "title": "Restoran operasyon paneli",
+        "subtitle": "Salonu tarayıcıdan yönetin",
+        "description": "Restoran sahipleri ve personel canlı operasyon için web panelini kullanır: siparişler, oturma, masa kodları ve mekânınıza bağlı ödeme akışları.",
+        "visualLabel": "Operasyon paneli",
+        "bullets": [
+          "Sipariş listesi ve durum takibi",
+          "Masalar ve bölgeler için etkileşimli salon planı",
+          "Masa QR kodları oluşturma ve atama",
+          "Mekân için cüzdan ödeme özeti",
+          "Sahip ve personel için rol tabanlı erişim"
+        ]
+      },
+      "walletPayments": {
+        "title": "Cüzdan ve ödemeler",
+        "subtitle": "Hızlı, izlenebilir işlemler",
+        "description": "Misafirler Stripe ile yükler; restoranlar cüzdan aktivitesini ve ödemeleri bağlamında görür. Kurumsal programlar çalışan cüzdanlarını kurallarınızla finanse edebilir.",
+        "visualLabel": "Cüzdan ve Stripe",
+        "bullets": [
+          "Stripe Payment Sheet ile uygulama içi cüzdan yükleme",
+          "Restoranda cüzdan bakiyesiyle ödeme",
+          "Misafirler ve yöneticiler için işlem geçmişi",
+          "Kurumsal cüzdan finansmanı ve çalışan limitleri",
+          "Şirket hesapları için fatura ve faturalama görünümleri"
+        ]
+      },
+      "loyaltyPromotions": {
+        "title": "Sadakat ve kampanyalar",
+        "subtitle": "Karmaşık olmayan ödüller",
+        "description": "Puanlar, yıldızlar, içecek paketleri ve hedefli reklamlar platformun parçasıdır — tek modül olarak değil, birçok yetenek arasında.",
+        "visualLabel": "Ödüller ve reklamlar",
+        "bullets": [
+          "Restoran başına puan ve yıldızlar",
+          "Promosyon kampanyaları ve öne çıkan reklamlar",
+          "Hediye ve alma tarama akışları",
+          "Satın alma geçmişi ve kullanım takibi",
+          "Operasyon verileriyle birlikte elde tutma araçları"
+        ]
+      },
+      "companyAccounts": {
+        "title": "Kurumsal ve şirket hesapları",
+        "subtitle": "B2B harcamayı basitleştirin",
+        "description": "Şirketler ekipleri kaydeder, çalışanlara cüzdan atar ve iş ortağı restoranlarda kullanımı izler — finans sürecinize uygun faturalama ile.",
+        "visualLabel": "Şirket portalı",
+        "bullets": [
+          "Şirket profili ve çalışan yönetimi",
+          "Çalışan başına cüzdan tahsisi",
+          "Kayıtlı restoranlarda harcama",
+          "Faturalar ve ödeme kayıtları",
+          "Ayrı şirket girişi ve paneli"
+        ]
+      },
+      "discover": {
+        "title": "Restoran keşfet",
+        "subtitle": "Yakında doğru yeri bulun",
+        "description": "Arama, konum sıralaması ve menü önizlemeli herkese açık listeler, misafirlerin gelmeden önce seçim yapmasına yardımcı olur.",
+        "visualLabel": "Restoran keşfi",
+        "bullets": [
+          "Ada ve konuma göre arama",
+          "Konum açıkken mesafeye göre sıralama",
+          "Webde menü ve mekân ayrıntıları",
+          "Tam deneyim için mobil uygulamaya bağlantılar",
+          "Desteklenen cihazlarda harita tabanlı keşif"
+        ]
+      }
+    },
+    "howItWorks": {
+      "title": "Nasıl çalışır",
+      "subtitle": "Üç basit adımda başlayın",
+      "steps": {
+        "register": {
+          "title": "Hesabınızı oluşturun",
+          "description": "Misafir, restoran veya şirket olarak kaydolun. E-postanızı doğrulayın ve profilinizi tamamlayın."
+        },
+        "connect": {
+          "title": "Mekânınızı veya ekibinizi bağlayın",
+          "description": "Restoranlar menü, masa ve QR kodlarını yapılandırır. Şirketler çalışan ve cüzdan kurallarını ekler."
+        },
+        "grow": {
+          "title": "Hizmet verin ve büyüyün",
+          "description": "Misafirler tarar, sipariş verir ve öder. Siz operasyonu ve kampanyaları tek bağlı platformdan yönetirsiniz."
+        }
+      }
+    },
     "features": {
       "title": "Kazan. Topla. Keyfini Çıkar.",
       "purchase": {
@@ -403,14 +563,41 @@
       }
     },
     "pricing": {
-      "title": "Basit, Şeffaf Fiyatlandırma",
-      "subtitle": "Restoranınız için mükemmel planı seçin. Tüm planlar 14 günlük ücretsiz deneme içerir.",
+      "title": "Restoranlar için abonelik fiyatları",
+      "subtitle": "Planları karşılaştırın; her plan için aylık veya yıllık fiyatlandırmayı seçin.",
+      "monthly": "Aylık",
+      "annual": "Yıllık",
+      "free": "Ücretsiz",
+      "perMonth": "/ay",
+      "perYear": "/yıl",
+      "unlimited": "Sınırsız",
+      "permissionWithValue": "{{label}}: {{value}}",
       "mostPopular": "En Popüler",
       "startFreeTrial": "Ücretsiz Denemeyi Başlat",
       "startFree": "Ücretsiz başla",
       "startNow": "Şimdi başla",
       "retry": "Tekrar dene",
       "noPlans": "Şu an plan bulunmuyor.",
+      "permissions": {
+        "MANAGE_MENU": "Menü yönetimi",
+        "MANAGE_QR_CODES": "QR kod yönetimi",
+        "MANAGE_GROUPS": "Grup yönetimi",
+        "MANAGE_ADS": "Reklam yönetimi",
+        "MANAGE_PACKAGES": "Paket yönetimi",
+        "MANAGE_ORDERS": "Sipariş yönetimi",
+        "CUSTOMER_LOYALTY": "Müşteri sadakati",
+        "CUSTOMER_NOTIFICATIONS": "Müşteri bildirimleri",
+        "CUSTOMER_GIFTS": "Müşteri hediyeleri",
+        "VIEW_ANALYTICS": "Analitik görüntüleme",
+        "EXPORT_DATA": "Veri dışa aktarma",
+        "CUSTOM_BRANDING": "Özel marka",
+        "API_ACCESS": "API erişimi",
+        "MULTI_LOCATION": "Çoklu lokasyon",
+        "MAX_MENU_ITEMS": "Maks. menü öğesi",
+        "MAX_ADS": "Maks. reklam",
+        "MAX_PACKAGES": "Maks. paket",
+        "MAX_GROUP_MEMBERS": "Maks. grup üyesi"
+      },
       "plans": {
         "starter": {
           "name": "Başlangıç",
@@ -509,12 +696,38 @@
       "restaurants": "Restoranlar"
     },
     "about": {
-      "title": "nux Hakkında",
-      "subtitle": "Restoranları akıllı sadakat çözümleriyle güçlendiriyoruz",
+      "title": "NUX Hakkında",
+      "subtitle": "Misafirler, restoranlar ve şirketler için tek bir konaklama platformu",
       "story": {
-        "p1": "nux, net bir misyonla kuruldu: yenilikçi sadakat programları aracılığıyla restoranların müşterileriyle nasıl etkileşim kurduğunu dönüştürmek.",
-        "p2": "Platformumuz restoranlara otomatik sadakat yönetimi, QR kod çözümleri, müşteri analitiği ve kapsamlı araçlar sunar.",
-        "p3": "Güçlü ve kullanımı kolay teknoloji sağlayarak restoranların başarılı olmasına yardımcı olmaya kendimizi adadık."
+        "p1": "NUX, yalnızca sadakat puanları değil, tüm yemek deneyimini sadeleştirmek için kuruldu. Misafirlerin telefonda yaptıkları ile restoranların webde yönettiklerini tek bir tutarlı sistemde birleştiriyoruz.",
+        "p2": "Restoranlar NUX ile dijital menüler, masa QR kodları, siparişler, salon planı, cüzdan ödemeleri, kampanyalar ve günlük operasyonu yönetir. Misafirler mekân keşfeder, kod tarar, cüzdanla öder ve tekliflerden sorunsuz yararlanır.",
+        "p3": "Şirketler, iş ortağı restoranlarda çalışanlara dijital yemek yan hakları sunar — kağıt kupon veya manuel mutabakat olmadan. İK ve finans gerekli faturaları ve kayıtları alır; çalışanlar uygulamadaki şirket cüzdanıyla öder.",
+        "p4": "Tek bir kafe, çok şubeli bir marka veya ekibini besleyen bir işletme olsun — NUX güçlü ve yine de anlaşılır araçlar sunar."
+      },
+      "audience": {
+        "title": "Kime hizmet veriyoruz",
+        "subtitle": "Aynı bağlı platformun üç yüzü",
+        "guests": {
+          "title": "Misafirler",
+          "description": "Restoranlar, menüler, cüzdan, tarama ve kampanyalar için mobil uygulama."
+        },
+        "restaurants": {
+          "title": "Restoranlar",
+          "description": "Menüler, operasyon, masalar, ödemeler ve analitik için web paneli."
+        },
+        "companies": {
+          "title": "Şirketler",
+          "description": "Çalışan yemeklerini finanse eden kurumsal hesaplar ve düzenli faturalar."
+        }
+      },
+      "companySpotlight": {
+        "title": "Kurumsal yemek yan hakları — herkes için kolay",
+        "description": "Ekibinize NUX uygulamasındaki şirket cüzdanıyla kayıtlı restoranlarda yemek özgürlüğü verin. Kağıt yemek fişi yok, her öğle için masraf formu yok, fiş peşinde koşma yok.",
+        "benefit1": "Çalışan veya ekip başına cüzdan bakiyesi tahsis edin",
+        "benefit2": "Çalışanlar iş ortağı restoranlarda uygulama içi öder",
+        "benefit3": "Muhasebe için otomatik faturalar ve harcama kayıtları",
+        "benefit4": "İK ve finans için net limitler ve görünürlük",
+        "cta": "Şirketinizi kaydedin"
       },
       "values": {
         "title": "Değerlerimiz",
@@ -522,76 +735,109 @@
       },
       "mission": {
         "title": "Misyonumuz",
-        "description": "Yenilikçi, otomatik çözümler sunarak restoran sadakat programlarında devrim yapmak."
+        "description": "Gastronomi teknolojisini masadaki misafirden ekip yemeğini ödeyen şirkete kadar herkes için pratik hale getirmek."
       },
       "vision": {
         "title": "Vizyonumuz",
-        "description": "Restoran sadakat yönetiminde lider platform olmak."
+        "description": "Yemek, operasyon, ödemeler ve kurumsal yan hakların sorunsuz bir arada çalıştığı tek bir platform."
       },
       "excellence": {
         "title": "Mükemmellik",
-        "description": "En kaliteli çözümleri sunmaya kararlıyız."
+        "description": "Güvenilir araçlar, net deneyim ve zamanınıza saygılı destek."
       },
       "innovation": {
         "title": "Yenilik",
-        "description": "En son teknolojiyle sürekli gelişiyoruz."
+        "description": "Mobil, web, ödemeler ve kurumsal süreçlerde sürekli gelişim."
       }
     },
     "services": {
       "title": "Hizmetlerimiz",
-      "subtitle": "Restoranınız için kapsamlı çözümler",
+      "subtitle": "Restoranlar, misafirler ve şirketler için uçtan uca çözümler",
       "qrCodes": {
-        "title": "QR Kod Yönetimi",
-        "description": "İçecekler, yemekler ve menü görüntüleme için QR kodları oluşturun ve yönetin.",
-        "benefit1": "Kolay müşteri etkileşimi",
-        "benefit2": "Temasız menü görüntüleme",
-        "benefit3": "Otomatik ödül toplama"
+        "title": "Dijital menüler ve QR kodlar",
+        "description": "Menüleri yayınlayın ve masa veya mekân QR kodlarına bağlayın.",
+        "benefit1": "Her akıllı telefonda temasız menü",
+        "benefit2": "Masa özel ve mekân geneli kodlar",
+        "benefit3": "Uygulama kurmadan webde çalışır"
       },
-      "analytics": {
-        "title": "Müşteri Analitiği",
-        "description": "Müşteri davranışını takip edin ve veri odaklı kararlar alın.",
-        "benefit1": "Gerçek zamanlı istatistikler",
-        "benefit2": "Müşteri içgörüleri",
-        "benefit3": "Performans takibi"
+      "companyIntro": {
+        "title": "Şirketler için: evrak işi olmadan yemek yan hakları",
+        "description": "İş ortağı restoranlarda çalışanlara NUX üzerinden yemek yan hakları sunun. Personel uygulamadaki şirket cüzdanını kullanır; muhasebe ve uyum için faturalar ve raporlar alırsınız — kupon yok, manuel masraf talebi yok."
+      },
+      "companyAccounts": {
+        "title": "Şirket hesapları ve çalışan cüzdanları",
+        "description": "Kuruluşunuzu kaydedin, çalışan ekleyin ve kayıtlı restoranlarda kullanacakları cüzdanları finanse edin.",
+        "benefit1": "Kağıt kupon yerine dijital yemek yan hakları",
+        "benefit2": "Her öğün için masraf formu yok — uygulama içi ödeme",
+        "benefit3": "Finans için faturalar ve ödeme geçmişi",
+        "benefit4": "Çalışan başına harcama limiti kontrolü"
+      },
+      "guestApp": {
+        "title": "Misafir mobil uygulaması",
+        "description": "Misafirlerin keşfetmesi, taraması, sipariş bağlamı ve ödemesi için iOS ve Android uygulaması.",
+        "benefit1": "Restoran keşfi ve favoriler",
+        "benefit2": "Sadakat, hediye ve menüler için QR tarama",
+        "benefit3": "Kişisel cüzdan ve işlem geçmişi"
+      },
+      "restaurantOps": {
+        "title": "Restoran operasyon paneli",
+        "description": "Siparişleri, salon düzenini ve masa kodlarını tarayıcıdan yönetin.",
+        "benefit1": "Canlı sipariş takibi",
+        "benefit2": "Etkileşimli salon planı",
+        "benefit3": "Masa QR yönetimi"
+      },
+      "walletPayments": {
+        "title": "Cüzdan ve ödemeler",
+        "description": "Stripe ile yükleme, mekânda cüzdan ödemesi ve tam işlem kaydı.",
+        "benefit1": "Güvenli cüzdan yükleme",
+        "benefit2": "Restoranda bakiyeden ödeme",
+        "benefit3": "Misafirler, mekânlar ve şirketler için kayıtlar"
       },
       "loyalty": {
-        "title": "Sadakat Programları",
-        "description": "Puan ve ödüllerle otomatik sadakat programları oluşturun.",
-        "benefit1": "Otomatik takip",
-        "benefit2": "Özel ödüller",
-        "benefit3": "Sadakat araçları"
+        "title": "Sadakat ve kampanyalar",
+        "description": "Puanlar, yıldızlar, kampanyalar ve reklamlar platformun parçasıdır.",
+        "benefit1": "Restoran başına ödüller",
+        "benefit2": "Promosyon kampanyaları",
+        "benefit3": "Operasyon verileriyle birlikte elde tutma"
+      },
+      "analytics": {
+        "title": "Analitik ve içgörüler",
+        "description": "Performans, müşteriler ve geliri net raporlarla anlayın.",
+        "benefit1": "Gerçek zamanlı istatistikler",
+        "benefit2": "Müşteri ve harcama içgörüleri",
+        "benefit3": "Operasyonel görünürlük"
       },
       "packages": {
-        "title": "Paket Yönetimi",
-        "description": "Müşteri çekmek için paketler ve kampanyalar oluşturun.",
-        "benefit1": "Esnek fiyatlandırma",
-        "benefit2": "Kampanyalar",
-        "benefit3": "Gelir optimizasyonu"
+        "title": "Kampanyalar ve paketler",
+        "description": "Misafir çeken ve bağlayan teklifler ve paketler oluşturun.",
+        "benefit1": "Esnek kampanyalar",
+        "benefit2": "Öne çıkan reklamlar ve fırsatlar",
+        "benefit3": "Gelir odaklı araçlar"
       },
       "payments": {
-        "title": "Ödeme Takibi",
-        "description": "Ödemeleri izleyin ve gelir akışlarını yönetin.",
+        "title": "Ödeme takibi",
+        "description": "Mekânınızdaki cüzdan ve ödeme akışlarını izleyin.",
         "benefit1": "Birden fazla ödeme türü",
-        "benefit2": "Ödeme geçmişi",
+        "benefit2": "Tam ödeme geçmişi",
         "benefit3": "Mali raporlama"
       },
       "security": {
-        "title": "Güvenli Platform",
-        "description": "Verileriniz için kurumsal düzeyde güvenlik.",
+        "title": "Güvenli platform",
+        "description": "Hesaplar ve işlemler için kurumsal düzeyde güvenlik.",
         "benefit1": "Veri şifreleme",
         "benefit2": "Güvenli işlemler",
-        "benefit3": "%99,9 çalışma süresi"
+        "benefit3": "Güvenilir altyapı"
       },
       "mobile": {
-        "title": "Mobil Uyumlu",
-        "description": "Restoranınızı her cihazdan yönetin.",
-        "benefit1": "Duyarlı tasarım",
-        "benefit2": "Mobil uygulama desteği",
-        "benefit3": "Gerçek zamanlı güncellemeler"
+        "title": "Her yerde çalışır",
+        "description": "Ekipler ve misafirler için duyarlı web ve yerel mobil.",
+        "benefit1": "Çok dilli arayüz",
+        "benefit2": "Mobil uygulama + web paneli",
+        "benefit3": "Gerçek zamanlı senkronizasyon"
       },
       "support": {
-        "title": "7/24 Destek",
-        "description": "İhtiyacınız olduğunda yardım alın.",
+        "title": "7/24 destek",
+        "description": "İhtiyacınız olduğunda yardım.",
         "benefit1": "7/24 destek",
         "benefit2": "Eğitim kaynakları",
         "benefit3": "Düzenli güncellemeler"
@@ -1163,7 +1409,7 @@
       "active": "Aktif",
       "restaurantActive": "Restoran aktif",
       "update": "Güncelle",
-      "saving": "Kaydediliyor",
+      "saving": "Kaydediliyor...",
       "restaurantSettingsUpdated": "Restoran ayarları başarıyla güncellendi",
       "failedToUpdateSettings": "Restoran ayarları güncellenemedi",
       "failedToUpdateStatus": "Restoran durumu güncellenemedi",
@@ -1214,7 +1460,6 @@
       "restaurantNamePlaceholder": "Restoran adını girin",
       "addressPlaceholder": "Restoran adresini girin",
       "restaurantLogoLabel": "Restoran Logosu",
-      "saving": "Kaydediliyor...",
       "uploading": "Yükleniyor...",
       "saveChanges": "Değişiklikleri Kaydet",
       "editLocationTitle": "Restoran Konumunu Düzenle",

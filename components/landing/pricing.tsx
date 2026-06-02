@@ -8,38 +8,32 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
-import type { PublicPlan } from "@/features/public/plans/publicPlansTypes";
-import { PERMISSION_LABELS } from "@/features/admin/plans/permissionsConstants";
+import type { PublicPlan, PublicPlanPermission } from "@/features/public/plans/publicPlansTypes";
 
-function formatPrice(
-  price: number | null | undefined,
-  currency: string | null | undefined
-): string {
-  if (!price || price <= 0) return "Free";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: (currency || "EUR").toUpperCase(),
-  }).format(price);
+type BillingCycle = "monthly" | "annual";
+
+function localeForLanguage(language: string): string {
+  if (language === "de") return "de-DE";
+  if (language === "tr") return "tr-TR";
+  if (language === "ar") return "ar-SA";
+  return "en-US";
 }
 
-function formatDuration(duration: number | null | undefined): string {
-  if (!duration || duration <= 0) return "";
-  if (duration === 1) return "/day";
-  if (duration < 30) return `/${duration} days`;
-  if (duration < 365) {
-    const months = Math.round(duration / 30);
-    return `/${months} month${months > 1 ? "s" : ""}`;
+function getPlanPrice(plan: PublicPlan, cycle: BillingCycle): number {
+  if (cycle === "annual") {
+    return plan.annualPrice ?? (plan.monthlyPrice ?? plan.price) * 12;
   }
-  const years = Math.floor(duration / 365);
-  return `/${years} year${years > 1 ? "s" : ""}`;
+  return plan.monthlyPrice ?? plan.price;
 }
 
 function stripHtml(html: string | null | undefined): string {
@@ -47,32 +41,8 @@ function stripHtml(html: string | null | undefined): string {
   return html.replace(/<[^>]*>/g, "").trim();
 }
 
-function planToDisplay(plan: PublicPlan, index: number, totalCount: number) {
-  const title = plan.title || "";
-  // "الأكثر شعبية" لخطة واحدة فقط: الخطة الثانية (index 1) إن وُجدت
-  const popular = totalCount > 2 && index === 2;
-  const isFree = !plan.price || plan.price <= 0;
-  const features = (plan.permissions || []).map((p) => {
-    const label = (PERMISSION_LABELS as Record<string, string>)[p.type];
-    if (label) return label;
-    if (p.isUnlimited) return `${p.type.replace(/_/g, " ")} (Unlimited)`;
-    if (p.value != null) return `${p.type.replace(/_/g, " ")}: ${p.value}`;
-    return p.type.replace(/_/g, " ");
-  });
-  return {
-    id: plan.id,
-    name: title,
-    price: formatPrice(plan.price, plan.currency),
-    period: formatDuration(plan.duration),
-    description: stripHtml(plan.description) || undefined,
-    features: features.length > 0 ? features : [title],
-    popular,
-    isFree,
-  };
-}
-
 export function Pricing() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const dispatch = useAppDispatch();
   const {
@@ -85,6 +55,9 @@ export function Pricing() {
     error: state.publicPlans.error.plans,
   }));
   const [mounted, setMounted] = useState(false);
+  const [billingCycles, setBillingCycles] = useState<Record<number, BillingCycle>>(
+    {}
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -96,15 +69,54 @@ export function Pricing() {
     }
   }, [mounted, dispatch]);
 
+  const formatPrice = useCallback(
+    (price: number | null | undefined, currency: string | null | undefined) => {
+      if (!price || price <= 0) return t("landing.pricing.free");
+      return new Intl.NumberFormat(localeForLanguage(i18n.language), {
+        style: "currency",
+        currency: (currency || "EUR").toUpperCase(),
+      }).format(price);
+    },
+    [i18n.language, t]
+  );
+
+  const getBillingCycle = (planId: number): BillingCycle =>
+    billingCycles[planId] ?? "monthly";
+
+  const setBillingCycle = (planId: number, cycle: BillingCycle) => {
+    setBillingCycles((prev) => ({ ...prev, [planId]: cycle }));
+  };
+
+  const getPermissionLabel = (permission: PublicPlanPermission): string => {
+    const { type, value, isUnlimited } = permission;
+    const label = t(`landing.pricing.permissions.${type}`, {
+      defaultValue: type.replace(/_/g, " "),
+    });
+    if (isUnlimited) {
+      return `${label} (${t("landing.pricing.unlimited")})`;
+    }
+    if (value != null) {
+      return t("landing.pricing.permissionWithValue", {
+        label,
+        value,
+      });
+    }
+    return label;
+  };
+
+  const activePlans = useMemo(
+    () =>
+      (apiPlans || [])
+        .filter((p) => p.isActive)
+        .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)),
+    [apiPlans]
+  );
+
   if (!mounted) {
     return null;
   }
 
   const isDark = theme === "dark" || theme === "system";
-  const activePlans = (apiPlans || []).filter((p) => p.isActive);
-  const plans = activePlans.map((p, i) =>
-    planToDisplay(p, i, activePlans.length)
-  );
 
   return (
     <section
@@ -142,7 +154,7 @@ export function Pricing() {
               <Card
                 key={i}
                 className={cn(
-                  "min-h-[380px] flex flex-col",
+                  "min-h-[420px] flex flex-col",
                   isDark
                     ? "bg-gradient-to-br from-[#1A1F3A]/80 to-[#2D1B4E]/80 border-purple-500/20"
                     : "bg-white border-gray-200"
@@ -182,10 +194,10 @@ export function Pricing() {
               onClick={() => dispatch(fetchPublicPlans())}
               className={isDark ? "border-purple-500/30 text-white" : ""}
             >
-              {t("landing.pricing.retry") || "Try again"}
+              {t("landing.pricing.retry")}
             </Button>
           </div>
-        ) : plans.length === 0 ? (
+        ) : activePlans.length === 0 ? (
           <p
             className={cn(
               "text-center text-lg",
@@ -198,121 +210,184 @@ export function Pricing() {
           <div
             className={cn(
               "grid gap-6 max-w-7xl mx-auto px-4",
-              plans.length === 1
+              activePlans.length === 1
                 ? "grid-cols-1 max-w-sm"
-                : plans.length === 2
-                ? "grid-cols-1 sm:grid-cols-2"
-                : plans.length === 3
-                ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                : activePlans.length === 2
+                  ? "grid-cols-1 sm:grid-cols-2"
+                  : activePlans.length === 3
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
             )}
           >
-            {plans.map((plan) => (
-              <div
-                key={plan.id}
-                className={cn(
-                  "relative",
-                  plan.popular
-                    ? "border-primary shadow-lg lg:scale-[1.02]"
-                    : "border-border"
-                )}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                    <span className="bg-gradient-to-r from-cyan-400 to-cyan-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                      {t("landing.pricing.mostPopular")}
-                    </span>
-                  </div>
-                )}
-                <Card
+            {activePlans.map((plan, index) => {
+              const cycle = getBillingCycle(plan.id);
+              const priceValue = getPlanPrice(plan, cycle);
+              const isFree = !priceValue || priceValue <= 0;
+              const popular =
+                activePlans.length > 2 && index === 1;
+              const description = stripHtml(plan.description);
+              const features =
+                (plan.permissions || []).length > 0
+                  ? (plan.permissions || []).map(getPermissionLabel)
+                  : [plan.title];
+
+              return (
+                <div
+                  key={plan.id}
                   className={cn(
-                    "flex flex-col min-h-[380px]",
-                    isDark
-                      ? "bg-gradient-to-br from-[#1A1F3A]/80 to-[#2D1B4E]/80 border-purple-500/20 backdrop-blur-sm"
-                      : "bg-white border-gray-200"
+                    "relative",
+                    popular ? "border-primary shadow-lg lg:scale-[1.02]" : "border-border"
                   )}
                 >
-                  <CardHeader className="text-center pb-6">
-                    <CardTitle
-                      className={cn(
-                        "text-xl lg:text-2xl",
-                        isDark ? "text-white" : "text-gray-900"
-                      )}
-                    >
-                      {plan.name}
-                    </CardTitle>
-                    {plan.description && (
-                      <CardDescription
-                        className={cn(
-                          "text-sm",
-                          isDark ? "text-white/70" : "text-gray-600"
-                        )}
-                      >
-                        {plan.description}
-                      </CardDescription>
+                  {popular && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                      <span className="bg-gradient-to-r from-cyan-400 to-cyan-600 text-white px-4 py-1 rounded-full text-sm font-medium">
+                        {t("landing.pricing.mostPopular")}
+                      </span>
+                    </div>
+                  )}
+                  <Card
+                    className={cn(
+                      "flex flex-col min-h-[420px]",
+                      isDark
+                        ? "bg-gradient-to-br from-[#1A1F3A]/80 to-[#2D1B4E]/80 border-purple-500/20 backdrop-blur-sm"
+                        : "bg-white border-gray-200"
                     )}
-                    <div className="mt-3">
-                      <span
+                  >
+                    <CardHeader className="text-center pb-4">
+                      <CardTitle
                         className={cn(
-                          "text-3xl font-bold",
+                          "text-xl lg:text-2xl",
                           isDark ? "text-white" : "text-gray-900"
                         )}
                       >
-                        {plan.price}
-                      </span>
-                      <span
+                        {plan.title}
+                      </CardTitle>
+                      {description && (
+                        <CardDescription
+                          className={cn(
+                            "text-sm",
+                            isDark ? "text-white/70" : "text-gray-600"
+                          )}
+                        >
+                          {description}
+                        </CardDescription>
+                      )}
+
+                      <div
                         className={cn(
-                          "text-sm",
-                          isDark ? "text-white/70" : "text-gray-600"
+                          "mt-4 flex items-center justify-center gap-2 rounded-lg border px-3 py-2",
+                          isDark
+                            ? "border-purple-500/20 bg-white/5"
+                            : "border-gray-200 bg-gray-50"
                         )}
                       >
-                        {plan.period}
-                      </span>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4 flex-1 flex flex-col pt-0">
-                    <ul className="space-y-2 flex-1">
-                      {plan.features.map((feature, featureIndex) => (
-                        <li
-                          key={featureIndex}
-                          className="flex items-center gap-2"
+                        <Label
+                          htmlFor={`billing-${plan.id}`}
+                          className={cn(
+                            "text-xs font-medium cursor-pointer",
+                            cycle === "monthly"
+                              ? isDark
+                                ? "text-cyan-400"
+                                : "text-cyan-600"
+                              : isDark
+                                ? "text-white/60"
+                                : "text-gray-500"
+                          )}
                         >
-                          <Check className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                          {t("landing.pricing.monthly")}
+                        </Label>
+                        <Switch
+                          id={`billing-${plan.id}`}
+                          checked={cycle === "annual"}
+                          onCheckedChange={(checked) =>
+                            setBillingCycle(plan.id, checked ? "annual" : "monthly")
+                          }
+                        />
+                        <Label
+                          htmlFor={`billing-${plan.id}`}
+                          className={cn(
+                            "text-xs font-medium cursor-pointer",
+                            cycle === "annual"
+                              ? isDark
+                                ? "text-cyan-400"
+                                : "text-cyan-600"
+                              : isDark
+                                ? "text-white/60"
+                                : "text-gray-500"
+                          )}
+                        >
+                          {t("landing.pricing.annual")}
+                        </Label>
+                      </div>
+
+                      <div className="mt-3">
+                        <span
+                          className={cn(
+                            "text-3xl font-bold",
+                            isDark ? "text-white" : "text-gray-900"
+                          )}
+                        >
+                          {formatPrice(priceValue, plan.currency)}
+                        </span>
+                        {!isFree && (
                           <span
                             className={cn(
                               "text-sm",
-                              isDark ? "text-white/80" : "text-gray-700"
+                              isDark ? "text-white/70" : "text-gray-600"
                             )}
                           >
-                            {feature}
+                            {cycle === "annual"
+                              ? t("landing.pricing.perYear")
+                              : t("landing.pricing.perMonth")}
                           </span>
-                        </li>
-                      ))}
-                    </ul>
+                        )}
+                      </div>
+                    </CardHeader>
 
-                    <div className="mt-auto pt-4">
-                      <Link href="/auth/register" className="block">
-                        <Button
-                          className={cn(
-                            "w-full",
-                            plan.popular
-                              ? "bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white border-0"
-                              : isDark
-                              ? "bg-transparent border-purple-500/30 text-white hover:bg-purple-500/20"
-                              : "bg-transparent border-gray-300 text-gray-900 hover:bg-gray-100"
-                          )}
-                        >
-                          {plan.isFree
-                            ? t("landing.pricing.startFree")
-                            : t("landing.pricing.startNow")}
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            ))}
+                    <CardContent className="space-y-4 flex-1 flex flex-col pt-0">
+                      <ul className="space-y-2 flex-1">
+                        {features.map((feature, featureIndex) => (
+                          <li
+                            key={featureIndex}
+                            className="flex items-center gap-2"
+                          >
+                            <Check className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                            <span
+                              className={cn(
+                                "text-sm",
+                                isDark ? "text-white/80" : "text-gray-700"
+                              )}
+                            >
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="mt-auto pt-4">
+                        <Link href="/auth/register" className="block">
+                          <Button
+                            className={cn(
+                              "w-full",
+                              popular
+                                ? "bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white border-0"
+                                : isDark
+                                  ? "bg-transparent border-purple-500/30 text-white hover:bg-purple-500/20"
+                                  : "bg-transparent border-gray-300 text-gray-900 hover:bg-gray-100"
+                            )}
+                          >
+                            {isFree
+                              ? t("landing.pricing.startFree")
+                              : t("landing.pricing.startNow")}
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
