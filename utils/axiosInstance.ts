@@ -1,5 +1,6 @@
 import axios from "axios";
 import { setTokens, logout } from "@/features/auth/authSlice";
+import { getOrCreateWebClientDeviceId } from "@/utils/clientDeviceId";
 
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://localhost:5000/api",
@@ -36,6 +37,7 @@ axiosInstance.interceptors.request.use(
     }
     config.headers = config.headers || {};
     config.headers["ngrok-skip-browser-warning"] = "true";
+    config.headers["X-Device-Id"] = getOrCreateWebClientDeviceId();
     return config;
   },
   (error) => Promise.reject(error)
@@ -69,7 +71,13 @@ axiosInstance.interceptors.response.use(
             `${
               process.env.NEXT_PUBLIC_API_URL || "https://localhost:5000/api"
             }/auth/refresh`,
-            { refreshToken }
+            { refreshToken },
+            {
+              headers: {
+                "X-Client-Channel": "web",
+                "X-Device-Id": getOrCreateWebClientDeviceId(),
+              },
+            }
           );
 
           const { accessToken, refreshToken: newRefreshToken } =

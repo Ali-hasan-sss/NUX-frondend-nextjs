@@ -8,7 +8,7 @@ import {
   loginWithGoogle,
   initializeAuth,
 } from "./authThunks";
-import { clearStoredTokens } from "@/lib/encryptedTokenStorage";
+import { clearStoredAuth } from "@/lib/encryptedTokenStorage";
 
 const initialState: AuthState = {
   user: null,
@@ -28,8 +28,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
       if (typeof window !== "undefined") {
-        clearStoredTokens();
-        localStorage.removeItem("user");
+        clearStoredAuth();
       }
     },
     clearError: (state) => {
@@ -41,16 +40,6 @@ const authSlice = createSlice({
     setEmailVerified: (state) => {
       if (state.user) {
         state.user.emailVerified = true;
-        if (typeof window !== "undefined") {
-          const stored = localStorage.getItem("user");
-          if (stored) {
-            try {
-              const u = JSON.parse(stored);
-              u.emailVerified = true;
-              localStorage.setItem("user", JSON.stringify(u));
-            } catch {}
-          }
-        }
       }
     },
     setTokens: (state, action: PayloadAction<AuthTokens>) => {
@@ -94,9 +83,6 @@ const authSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.isAuthenticated = true;
         state.error = null;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-        }
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -117,9 +103,6 @@ const authSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.isAuthenticated = true;
         state.error = null;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-        }
       })
       .addCase(loginAdmin.rejected, (state, action) => {
         state.isLoading = false;
@@ -140,9 +123,6 @@ const authSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.isAuthenticated = true;
         state.error = null;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-        }
       })
       .addCase(registerRestaurant.rejected, (state, action) => {
         state.isLoading = false;
@@ -163,18 +143,6 @@ const authSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.isAuthenticated = true;
         state.error = null;
-        // Save to localStorage
-        if (typeof window !== "undefined") {
-          localStorage.setItem(
-            "accessToken",
-            action.payload.tokens.accessToken
-          );
-          localStorage.setItem(
-            "refreshToken",
-            action.payload.tokens.refreshToken
-          );
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-        }
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -195,9 +163,6 @@ const authSlice = createSlice({
         state.tokens = action.payload.tokens;
         state.isAuthenticated = true;
         state.error = null;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("user", JSON.stringify(action.payload.user));
-        }
       })
       .addCase(loginWithGoogle.rejected, (state, action) => {
         state.isLoading = false;

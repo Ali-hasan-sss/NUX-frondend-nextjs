@@ -1,6 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { authService } from "./authService";
-import { loadStoredTokens } from "@/lib/encryptedTokenStorage";
+import {
+  loadStoredTokens,
+  loadStoredUser,
+} from "@/lib/encryptedTokenStorage";
 import type {
   LoginRequest,
   RegisterRestaurantRequest,
@@ -13,18 +16,10 @@ export const initializeAuth = createAsyncThunk<
   { tokens: { accessToken: string; refreshToken: string } | null; user: User | null },
   void
 >("auth/initializeAuth", async () => {
-  const tokens = await loadStoredTokens();
-  let user: User | null = null;
-  if (typeof window !== "undefined") {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        user = JSON.parse(storedUser) as User;
-      } catch {
-        user = null;
-      }
-    }
-  }
+  const [tokens, user] = await Promise.all([
+    loadStoredTokens(),
+    loadStoredUser<User>(),
+  ]);
   return { tokens, user };
 });
 

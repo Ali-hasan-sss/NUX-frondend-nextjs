@@ -1,11 +1,12 @@
 /**
- * Encrypt JWT tokens before localStorage (AES-GCM).
+ * Encrypt auth tokens and user profile before localStorage (AES-GCM).
  * Key from NEXT_PUBLIC_TOKEN_STORAGE_KEY (min 16 chars recommended).
- * Legacy plaintext tokens (eyJ…) are read once and re-saved encrypted.
+ * Legacy plaintext values are read once and re-saved encrypted.
  */
 
 const ACCESS_KEY = "accessToken";
 const REFRESH_KEY = "refreshToken";
+const USER_KEY = "user";
 const ENC_PREFIX = "enc:v1:";
 const IV_LENGTH = 12;
 const KEY_LENGTH = 32;
@@ -73,8 +74,8 @@ function base64ToUint8(b64: string): Uint8Array {
   return bytes;
 }
 
-function looksLikePlainJwt(value: string): boolean {
-  return value.startsWith("eyJ") && !value.startsWith(ENC_PREFIX);
+function isEncrypted(value: string): boolean {
+  return value.startsWith(ENC_PREFIX);
 }
 
 async function encryptValue(plain: string): Promise<string> {
@@ -92,7 +93,7 @@ async function encryptValue(plain: string): Promise<string> {
 
 async function decryptValue(stored: string): Promise<string | null> {
   if (!stored) return null;
-  if (looksLikePlainJwt(stored) || !stored.startsWith(ENC_PREFIX)) {
+  if (!isEncrypted(stored)) {
     return stored;
   }
   try {
@@ -142,7 +143,7 @@ export async function loadStoredTokens(): Promise<{
   if (!accessToken || !refreshToken) return null;
 
   const needsMigration =
-    looksLikePlainJwt(rawAccess) || looksLikePlainJwt(rawRefresh);
+    !isEncrypted(rawAccess) || !isEncrypted(rawRefresh);
   if (needsMigration) {
     await saveStoredTokens(accessToken, refreshToken);
   }
@@ -150,8 +151,40 @@ export async function loadStoredTokens(): Promise<{
   return { accessToken, refreshToken };
 }
 
+export async function saveStoredUser(user: unknown): Promise<void> {
+  if (typeof window === "undefined") return;
+  const encrypted = await encryptValue(JSON.stringify(user));
+  localStorage.setItem(USER_KEY, encrypted);
+}
+
+export async function loadStoredUser<T = unknown>(): Promise<T | null> {
+  if (typeof window === "undefined") return null;
+  const raw = localStorage.getItem(USER_KEY);
+  if (!raw) return null;
+
+  const plain = await decryptValue(raw);
+  if (!plain) return null;
+
+  try {
+    const user = JSON.parse(plain) as T;
+    if (!isEncrypted(raw)) {
+      await saveStoredUser(user);
+    }
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export function clearStoredTokens(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(ACCESS_KEY);
   localStorage.removeItem(REFRESH_KEY);
+}
+
+/** Remove encrypted tokens and user profile from localStorage. */
+export function clearStoredAuth(): void {
+  clearStoredTokens();
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(USER_KEY);
 }

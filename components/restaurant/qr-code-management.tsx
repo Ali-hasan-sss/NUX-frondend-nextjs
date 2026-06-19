@@ -43,7 +43,12 @@ import {
 } from "@/features/restaurant/tables/tablesService";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/confirmMessage";
+import { cn } from "@/lib/utils";
 import { PlanPermissionErrorCard } from "@/components/restaurant/plan-permission-error-card";
+import {
+  canShowLoyaltyQrCodes,
+  canShowMenuQrCode,
+} from "@/lib/restaurantPlanPermissions";
 import { toast } from "sonner";
 
 /** Print-only CSS: 5cm×5cm QR + label (title/subtitle) below. Stickers stacked on same page, no blank pages. */
@@ -415,6 +420,9 @@ export function QRCodeManagement() {
     return buildPaymentQrPayload(data.id, data.name ?? "Restaurant");
   }, [data?.id, data?.name]);
 
+  const canLoyaltyQr = canShowLoyaltyQrCodes(data?.permissions);
+  const canMenuQr = canShowMenuQrCode(data?.permissions);
+
   const handlePrint = () => {
     const stickers: {
       imgSrc: string;
@@ -424,7 +432,7 @@ export function QRCodeManagement() {
     }[] = [];
     const name = data?.name ?? "Restaurant";
     const menuLogoResolved = resolveMediaUrl(data?.logo);
-    if (data?.qrCode_drink) {
+    if (canLoyaltyQr && data?.qrCode_drink) {
       stickers.push({
         imgSrc: qrServerUrl(data.qrCode_drink, 300),
         title: name,
@@ -432,7 +440,7 @@ export function QRCodeManagement() {
         overlay: { kind: "icon", which: "drink" },
       });
     }
-    if (data?.qrCode_meal) {
+    if (canLoyaltyQr && data?.qrCode_meal) {
       stickers.push({
         imgSrc: qrServerUrl(data.qrCode_meal, 300),
         title: name,
@@ -440,7 +448,7 @@ export function QRCodeManagement() {
         overlay: { kind: "icon", which: "meal" },
       });
     }
-    if (menuUrl) {
+    if (canMenuQr && menuUrl) {
       stickers.push({
         imgSrc: qrServerUrl(menuUrl, 300),
         title: name,
@@ -466,10 +474,15 @@ export function QRCodeManagement() {
     printLabelStickers(stickers, LABEL_PRINT_STYLES);
   };
 
-  const needDrink = !!data?.qrCode_drink;
-  const needMeal = !!data?.qrCode_meal;
-  const needMenu = !!menuUrl;
+  const needDrink = canLoyaltyQr && !!data?.qrCode_drink;
+  const needMeal = canLoyaltyQr && !!data?.qrCode_meal;
+  const needMenu = canMenuQr && !!menuUrl;
   const needPayment = !!paymentQrValue;
+  const visibleCodeCount =
+    (needDrink ? 1 : 0) +
+    (needMeal ? 1 : 0) +
+    (needMenu ? 1 : 0) +
+    (needPayment ? 1 : 0);
   const mainPrintReady =
     (!needDrink || drinkImgLoaded) &&
     (!needMeal || mealImgLoaded) &&
@@ -503,15 +516,15 @@ export function QRCodeManagement() {
     let imgSrc = "";
     let subtitle = "";
     let overlay: PrintStickerOverlay | null = null;
-    if (type === "drink" && data?.qrCode_drink) {
+    if (type === "drink" && canLoyaltyQr && data?.qrCode_drink) {
       imgSrc = qrServerUrl(data.qrCode_drink, 300);
       subtitle = t("dashboard.qrCodes.drinkQR");
       overlay = { kind: "icon", which: "drink" };
-    } else if (type === "meal" && data?.qrCode_meal) {
+    } else if (type === "meal" && canLoyaltyQr && data?.qrCode_meal) {
       imgSrc = qrServerUrl(data.qrCode_meal, 300);
       subtitle = t("dashboard.qrCodes.mealQR");
       overlay = { kind: "icon", which: "meal" };
-    } else if (type === "menu" && menuUrl) {
+    } else if (type === "menu" && canMenuQr && menuUrl) {
       imgSrc = qrServerUrl(menuUrl, 300);
       subtitle = t("dashboard.qrCodes.menuQR");
       const r = resolveMediaUrl(data?.logo);
@@ -555,7 +568,9 @@ export function QRCodeManagement() {
       </div>
 
       <div className="w-full min-w-0 space-y-4 sm:space-y-6 mt-4">
+          {(canLoyaltyQr || visibleCodeCount > 0) && (
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end w-full min-w-0">
+            {canLoyaltyQr && (
             <div className="flex items-center gap-2 order-first sm:order-none">
               <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
                 {t("dashboard.qrCodes.autoRefresh")}
@@ -568,7 +583,9 @@ export function QRCodeManagement() {
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground shrink-0" />
               )}
             </div>
+            )}
             <div className="flex flex-wrap gap-2">
+              {canLoyaltyQr && (
               <Button
                 variant="outline"
                 onClick={handleRegenerate}
@@ -585,19 +602,22 @@ export function QRCodeManagement() {
                   t("dashboard.qrCodes.regenerateDrinkMeal")
                 )}
               </Button>
+              )}
               <Button
                 onClick={handlePrint}
                 size="sm"
                 className="flex-1 sm:flex-none min-w-0 text-xs sm:text-sm"
-                disabled={!mainPrintReady}
+                disabled={!mainPrintReady || visibleCodeCount === 0}
                 title={!mainPrintReady ? t("dashboard.qrCodes.waitForQrLoad") || "Waiting for QR images to load" : undefined}
               >
                 {t("dashboard.qrCodes.printAll")}
               </Button>
             </div>
           </div>
+          )}
 
           <div className="flex flex-col gap-4 w-full min-w-0" ref={printRef}>
+            {canLoyaltyQr && (
             <Card className="w-full min-w-0 overflow-hidden">
               <CardHeader className="p-3 sm:p-4 md:p-6">
                 <CardTitle className="text-base sm:text-lg">
@@ -777,6 +797,7 @@ export function QRCodeManagement() {
                 </div>
               </CardContent>
             </Card>
+            )}
 
             <Card className="w-full min-w-0 overflow-hidden">
               <CardHeader className="p-3 sm:p-4 md:p-6">
@@ -788,7 +809,12 @@ export function QRCodeManagement() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-3 sm:p-4 md:p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8 w-full min-w-0">
+                <div
+                  className={cn(
+                    "grid grid-cols-1 gap-6 md:gap-8 w-full min-w-0",
+                    canMenuQr && "sm:grid-cols-2"
+                  )}
+                >
                   <div className="flex flex-col items-center min-w-0">
                     <p className="text-sm font-semibold text-foreground text-center">
                       {t("dashboard.qrCodes.paymentQR")}
@@ -858,6 +884,7 @@ export function QRCodeManagement() {
                     </div>
                   </div>
 
+                  {canMenuQr && (
                   <div className="flex flex-col items-center min-w-0">
                     <p className="text-sm font-semibold text-foreground text-center">
                       {t("dashboard.qrCodes.menuQR")}
@@ -930,7 +957,8 @@ export function QRCodeManagement() {
                         </DialogContent>
                       </Dialog>
                     </div>
-                  </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -943,7 +971,7 @@ export function QRCodeManagement() {
                   <QrCode className="h-5 w-5 text-primary" />
                   <div>
                     <p className="text-sm font-medium">Total Codes</p>
-                    <p className="text-2xl font-bold">4</p>
+                    <p className="text-2xl font-bold">{visibleCodeCount}</p>
                   </div>
                 </div>
               </CardContent>

@@ -1,9 +1,10 @@
 import type { Middleware } from "@reduxjs/toolkit";
 import {
-  clearStoredTokens,
+  clearStoredAuth,
   saveStoredTokens,
+  saveStoredUser,
 } from "@/lib/encryptedTokenStorage";
-import { logout, setTokens } from "./authSlice";
+import { logout, setEmailVerified, setTokens } from "./authSlice";
 import {
   loginAdmin,
   loginUser,
@@ -11,15 +12,20 @@ import {
   registerRestaurant,
   registerUser,
 } from "./authThunks";
-import type { AuthTokens } from "./authTypes";
+import type { AuthTokens, User } from "./authTypes";
 
 function persistTokens(tokens: AuthTokens | undefined) {
   if (!tokens?.accessToken || !tokens?.refreshToken) return;
   void saveStoredTokens(tokens.accessToken, tokens.refreshToken);
 }
 
+function persistUser(user: User | null | undefined) {
+  if (!user) return;
+  void saveStoredUser(user);
+}
+
 export const authTokenPersistenceMiddleware: Middleware =
-  () => (next) => (action) => {
+  (api) => (next) => (action) => {
     const result = next(action);
 
     if (typeof window === "undefined") {
@@ -27,12 +33,17 @@ export const authTokenPersistenceMiddleware: Middleware =
     }
 
     if (logout.match(action)) {
-      clearStoredTokens();
+      clearStoredAuth();
       return result;
     }
 
     if (setTokens.match(action)) {
       persistTokens(action.payload);
+      return result;
+    }
+
+    if (setEmailVerified.match(action)) {
+      persistUser(api.getState().auth.user);
       return result;
     }
 
@@ -44,6 +55,7 @@ export const authTokenPersistenceMiddleware: Middleware =
       loginWithGoogle.fulfilled.match(action)
     ) {
       persistTokens(action.payload.tokens);
+      persistUser(action.payload.user);
     }
 
     return result;

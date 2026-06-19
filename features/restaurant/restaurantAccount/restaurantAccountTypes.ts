@@ -20,6 +20,12 @@ export interface RestaurantSubscription {
   paymentStatus: string | null;
 }
 
+export interface RestaurantPlanPermission {
+  type: string;
+  value: number | null;
+  isUnlimited: boolean;
+}
+
 export interface RestaurantAccountInfo {
   id: string;
   userId: string;
@@ -42,6 +48,8 @@ export interface RestaurantAccountInfo {
   drinkPointsPerVoucher: number | null;
   /** Primary currency code (e.g. EUR, USD) */
   currency: string | null;
+  /** Permissions from the restaurant's current effective subscription plan */
+  permissions?: RestaurantPlanPermission[];
 }
 
 export interface UpdateRestaurantAccountRequest {

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn, getImageUrl } from "@/lib/utils";
+import { canAccessDashboardRoute } from "@/lib/restaurantPlanPermissions";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { useSocket } from "@/contexts/SocketContext";
 import { logout } from "@/features/auth/authSlice";
@@ -172,6 +173,7 @@ export function RestaurantSidebar({
   const { data: restaurant } = useAppSelector(
     (state) => state.restaurantAccount,
   );
+  const planPermissions = restaurant?.permissions;
   const { newOrdersCount } = useSocket();
   const router = useRouter();
 
@@ -184,6 +186,19 @@ export function RestaurantSidebar({
   useEffect(() => {
     dispatch(fetchUnreadCount());
   }, [dispatch]);
+
+  const filteredSingleNavigation = singleNavigation.filter((item) =>
+    canAccessDashboardRoute(item.href, planPermissions)
+  );
+
+  const filteredGroupedNavigation = groupedNavigation
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) =>
+        canAccessDashboardRoute(item.href, planPermissions)
+      ),
+    }))
+    .filter((group) => group.items.length > 0);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -277,7 +292,7 @@ export function RestaurantSidebar({
           {/* Navigation */}
           <nav className="flex-1 px-3 py-5 space-y-1">
             {/* Single navigation items */}
-            {singleNavigation.map((item) => {
+            {filteredSingleNavigation.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <Link
@@ -311,7 +326,7 @@ export function RestaurantSidebar({
             })}
 
             {/* Grouped navigation items - one border wraps header + items when open */}
-            {groupedNavigation.map((group) => {
+            {filteredGroupedNavigation.map((group) => {
               const isGroupActiveState = isGroupActive(group.items);
               const isOpen = openGroups[group.groupName];
 

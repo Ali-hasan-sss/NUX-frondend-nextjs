@@ -40,7 +40,8 @@ import {
   Lock,
   Trash2,
 } from "lucide-react";
-import { cn, getImageUrl } from "@/lib/utils";
+import { cn, getImageUrl, formatPrice } from "@/lib/utils";
+import { useAppSelector } from "@/app/hooks";
 import Image from "next/image";
 import {
   Dialog,
@@ -63,6 +64,8 @@ export default function OrdersPage() {
   const { t, i18n } = useTranslation();
   const { socket, isConnected, clearNewOrders } = useSocket();
   const isRTL = i18n.language === "ar";
+  const currencyCode =
+    useAppSelector((s) => s.restaurantAccount.data?.currency) ?? "EUR";
 
   // Reset new-orders badge when user visits this page
   useEffect(() => {
@@ -410,7 +413,10 @@ export default function OrdersPage() {
       const rows = items
         .map((item) => {
           const extras = (item.selectedExtras ?? [])
-            .map((e) => `+ ${e.name} (${e.price.toFixed(2)})`)
+            .map(
+              (e) =>
+                `+ ${e.name} (+${formatPrice(e.price ?? 0, currencyCode)})`
+            )
             .join("<br/>");
           return `
             <div style="padding:6px 0;border-bottom:1px dashed #bbb;">
@@ -474,7 +480,7 @@ export default function OrdersPage() {
       printWin.focus();
       printWin.print();
     },
-    [printerMap, t]
+    [printerMap, t, currencyCode]
   );
 
   const printViaQz = useCallback(
@@ -496,12 +502,14 @@ export default function OrdersPage() {
           title: item.itemTitle,
           qty: item.quantity,
           notes: item.notes ?? undefined,
-          extras: (item.selectedExtras ?? []).map((e) => `${e.name} (${e.price.toFixed(2)})`),
+          extras: (item.selectedExtras ?? []).map((e) =>
+            `${e.name} (${formatPrice(e.price ?? 0, currencyCode)})`
+          ),
         })),
       });
       await printRawToQz({ printerName, content: ticket });
     },
-    [printerMap, t]
+    [printerMap, t, currencyCode]
   );
 
   const handlePrintOrder = useCallback(
@@ -707,7 +715,7 @@ export default function OrdersPage() {
               {t("dashboard.orders.completedRevenue") || "Revenue (completed)"}
             </p>
             <p className="text-2xl sm:text-3xl font-bold text-primary mt-1">
-              ${completedStats.revenue.toFixed(2)}
+              {formatPrice(completedStats.revenue, currencyCode)}
             </p>
           </CardContent>
         </Card>
@@ -884,7 +892,7 @@ export default function OrdersPage() {
                       </div>
                       <div className="text-left sm:text-right shrink-0">
                         <p className="text-xl sm:text-2xl font-bold text-primary">
-                          ${order.totalPrice.toFixed(2)}
+                          {formatPrice(order.totalPrice, currencyCode)}
                         </p>
                       </div>
                     </div>
@@ -930,7 +938,7 @@ export default function OrdersPage() {
                               </div>
                               <div className="text-left sm:text-right shrink-0">
                                 <p className="font-semibold text-sm sm:text-base">
-                                  ${item.totalPrice.toFixed(2)}
+                                  {formatPrice(item.totalPrice, currencyCode)}
                                 </p>
                                 <p className="text-xs sm:text-sm text-muted-foreground">
                                   × {item.quantity}
@@ -946,8 +954,8 @@ export default function OrdersPage() {
                                         key={extraIdx}
                                         className="text-xs text-muted-foreground"
                                       >
-                                        + {extra.name} (+$
-                                        {extra.price.toFixed(2)})
+                                        + {extra.name} (+
+                                        {formatPrice(extra.price, currencyCode)})
                                       </p>
                                     )
                                   )}
@@ -1185,7 +1193,7 @@ export default function OrdersPage() {
                         </CardTitle>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-lg font-bold text-primary">
-                            ${order.totalPrice.toFixed(2)}
+                            {formatPrice(order.totalPrice, currencyCode)}
                           </span>
                           <span className="text-xs sm:text-sm text-muted-foreground">
                             {new Date(order.createdAt).toLocaleString()}
@@ -1197,7 +1205,7 @@ export default function OrdersPage() {
                       <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg bg-muted/50">
                         <span className="font-semibold text-sm">Total:</span>
                         <span className="font-bold text-primary">
-                          ${order.totalPrice.toFixed(2)}
+                          {formatPrice(order.totalPrice, currencyCode)}
                         </span>
                       </div>
                       {order.items.map((item, idx) => (
@@ -1225,7 +1233,7 @@ export default function OrdersPage() {
                                   )}
                                 </div>
                                 <div className="text-left sm:text-right shrink-0 text-sm">
-                                  <p className="font-semibold">${item.totalPrice.toFixed(2)}</p>
+                                  <p className="font-semibold">{formatPrice(item.totalPrice, currencyCode)}</p>
                                   <p className="text-xs text-muted-foreground">× {item.quantity}</p>
                                 </div>
                               </div>
@@ -1240,7 +1248,7 @@ export default function OrdersPage() {
                                   <p className="text-xs font-medium">Extras:</p>
                                   {item.selectedExtras.map((extra, extraIdx) => (
                                     <p key={extraIdx} className="text-xs text-muted-foreground">
-                                      + {extra.name} (+${extra.price.toFixed(2)})
+                                      + {extra.name} (+{formatPrice(extra.price, currencyCode)})
                                     </p>
                                   ))}
                                 </div>
@@ -1309,7 +1317,7 @@ export default function OrdersPage() {
               <div className="flex items-center justify-between p-3 sm:p-4 rounded-lg bg-muted gap-2">
                 <span className="font-semibold text-sm sm:text-base">Total:</span>
                 <span className="text-xl sm:text-2xl font-bold text-primary shrink-0">
-                  ${selectedOrder.totalPrice.toFixed(2)}
+                  {formatPrice(selectedOrder.totalPrice, currencyCode)}
                 </span>
               </div>
               <div className="space-y-3">
@@ -1339,7 +1347,7 @@ export default function OrdersPage() {
                           </div>
                           <div className="text-left sm:text-right shrink-0">
                             <p className="font-semibold text-sm sm:text-base">
-                              ${item.totalPrice.toFixed(2)}
+                              {formatPrice(item.totalPrice, currencyCode)}
                             </p>
                             <p className="text-xs sm:text-sm text-muted-foreground">
                               × {item.quantity}
@@ -1361,7 +1369,7 @@ export default function OrdersPage() {
                                   key={extraIdx}
                                   className="text-xs text-muted-foreground"
                                 >
-                                  + {extra.name} (+${extra.price.toFixed(2)})
+                                  + {extra.name} (+{formatPrice(extra.price, currencyCode)})
                                 </p>
                               ))}
                             </div>
