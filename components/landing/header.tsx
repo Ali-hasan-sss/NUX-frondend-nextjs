@@ -21,9 +21,11 @@ import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { logout } from "@/features/auth/authSlice";
 import { getDashboardPathForRole } from "@/lib/roleDashboard";
+import { isPublicHeaderOverlayPath } from "@/lib/public-page-layout";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const { t, i18n } = useTranslation();
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -36,20 +38,37 @@ export function Header() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 12);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   if (!mounted) {
     return null;
   }
 
   const isDark = theme === "dark" || theme === "system";
   const isRTL = i18n.language === "ar";
+  const isOverlayPage = isPublicHeaderOverlayPath(pathname);
 
   return (
+    <>
     <header
       className={cn(
-        "sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter] animate-in fade-in slide-in-from-top-2 duration-300 transition-colors",
-        isDark
-          ? "border-purple-500/20 bg-gradient-to-b from-[#1A1F3A] to-[#2D1B4E]/95 bg-[#1A1F3A]/60"
-          : "border-gray-200 bg-white/95 bg-white/60"
+        "fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ease-out",
+        isScrolled
+          ? cn(
+              "border-b backdrop-blur-xl supports-[backdrop-filter]:backdrop-blur-xl shadow-sm",
+              isDark
+                ? "border-purple-500/25 bg-[#1A1F3A]/80"
+                : "border-gray-200/80 bg-white/80"
+            )
+          : "border-b border-transparent bg-transparent shadow-none"
       )}
     >
       <div className="mx-auto max-w-7xl w-full px-4 sm:px-5 md:px-6 lg:px-8 flex h-16 sm:h-[4.5rem] lg:h-20 items-center relative gap-2">
@@ -271,10 +290,10 @@ export function Header() {
       {isMenuOpen && (
         <div
           className={cn(
-            "lg:hidden border-t transition-colors",
+            "lg:hidden border-t transition-colors backdrop-blur-xl",
             isDark
-              ? "border-purple-500/20 bg-[#1A1F3A]"
-              : "border-gray-200 bg-white"
+              ? "border-purple-500/20 bg-[#1A1F3A]/90"
+              : "border-gray-200/80 bg-white/90"
           )}
         >
           <nav className="container py-4 px-4 sm:px-5 md:px-6 space-y-4 max-h-[calc(100vh-5rem)] overflow-y-auto">
@@ -423,5 +442,9 @@ export function Header() {
         </div>
       )}
     </header>
+    {!isOverlayPage && (
+      <div className="h-16 sm:h-[4.5rem] lg:h-20 shrink-0" aria-hidden />
+    )}
+    </>
   );
 }

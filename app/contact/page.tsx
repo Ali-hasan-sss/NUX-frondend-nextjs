@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { I18nProvider } from "@/components/client/i18n-provider";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +19,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  PageHero,
+  PageSection,
+  SectionRevealItem,
+  type SectionEntrance,
+} from "@/components/landing/section-motion";
 
 export default function ContactPage() {
   const { theme } = useTheme();
@@ -116,124 +121,42 @@ function ContactContent() {
     },
   ];
 
+  const cardEntrances: SectionEntrance[] = ["slide-left", "fade-up", "slide-right", "zoom-in"];
+
   return (
-    <main className=" pb-16">
-      {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 overflow-hidden">
-        {/* Dynamic gradient background */}
-        <div
+    <main className="pb-16">
+      <PageHero isDark={isDark} entrance="slide-up">
+        <h1
           className={cn(
-            "absolute inset-0 transition-colors duration-300",
-            isDark
-              ? "bg-gradient-to-br from-[#0A0E27] via-[#1A1F3A] to-[#2D1B4E]"
-              : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+            "text-4xl md:text-5xl lg:text-6xl font-bold mb-6",
+            isDark ? "text-white" : "text-gray-900"
           )}
-        />
+        >
+          {t("landing.contact.title") || "Contact Us"}
+        </h1>
+        <p
+          className={cn(
+            "text-lg md:text-xl max-w-2xl mx-auto",
+            isDark ? "text-gray-300" : "text-gray-600"
+          )}
+        >
+          {t("landing.contact.subtitle") ||
+            "Get in touch with our team. We're here to help your restaurant succeed."}
+        </p>
+      </PageHero>
 
-        {/* Animated glowing particles and lines */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{
-              x: [0, 100, 0],
-              y: [0, 50, 0],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, -80, 0],
-              y: [0, -40, 0],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: 25,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 rounded-full blur-3xl"
-          />
-          {/* Glowing lines effect */}
-          <div className="absolute top-0 left-0 w-full h-full">
-            <motion.div
-              animate={{
-                rotate: [0, 360],
-                scale: [1, 1.2, 1],
-              }}
-              transition={{
-                duration: 30,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
-              className="absolute top-1/2 left-1/2 w-[600px] h-[600px] border border-cyan-500/20 rounded-full -translate-x-1/2 -translate-y-1/2"
-            />
-            <motion.div
-              animate={{
-                rotate: [360, 0],
-                scale: [1.2, 1, 1.2],
-              }}
-              transition={{
-                duration: 25,
-                repeat: Number.POSITIVE_INFINITY,
-                ease: "linear",
-              }}
-              className="absolute top-1/2 left-1/2 w-[400px] h-[400px] border border-pink-500/20 rounded-full -translate-x-1/2 -translate-y-1/2"
-            />
-          </div>
-        </div>
-
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <h1
-              className={cn(
-                "text-4xl md:text-5xl lg:text-6xl font-bold mb-6",
-                isDark ? "text-white" : "text-gray-900"
-              )}
-            >
-              {t("landing.contact.title") || "Contact Us"}
-            </h1>
-            <p
-              className={cn(
-                "text-lg md:text-xl mb-8 max-w-2xl mx-auto",
-                isDark ? "text-gray-300" : "text-gray-600"
-              )}
-            >
-              {t("landing.contact.subtitle") ||
-                "Get in touch with our team. We're here to help your restaurant succeed."}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Contact Info Cards */}
-      <section className="py-8">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {contactInfo.map((info, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+      <PageSection isDark={isDark} sectionIndex={1} bg="pulse-dots" className="py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {contactInfo.map((info, index) => (
+            <SectionRevealItem key={index} entrance={cardEntrances[index]} index={index}>
+              <Card
+                className={cn(
+                  "h-full transition-all duration-300 hover:shadow-xl text-center",
+                  isDark
+                    ? "bg-[#1A1F3A] border-purple-500/20 hover:border-purple-500/40"
+                    : "bg-white border-gray-200 hover:border-cyan-300 hover:shadow-cyan-100"
+                )}
               >
-                <Card
-                  className={cn(
-                    "h-full transition-all duration-300 hover:shadow-xl text-center",
-                    isDark
-                      ? "bg-[#1A1F3A] border-purple-500/20 hover:border-purple-500/40"
-                      : "bg-white border-gray-200 hover:border-cyan-300 hover:shadow-cyan-100"
-                  )}
-                >
                   <CardHeader>
                     <div
                       className={cn(
@@ -278,21 +201,13 @@ function ContactContent() {
                     </p>
                   </CardContent>
                 </Card>
-              </motion.div>
-            ))}
-          </div>
+            </SectionRevealItem>
+          ))}
         </div>
-      </section>
+      </PageSection>
 
-      {/* Contact Form Section */}
-      <section className="py-12">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-          >
-            <Card
+      <PageSection isDark={isDark} sectionIndex={2} bg="waves" entrance="blur-in" containerClassName="max-w-4xl">
+          <Card
               className={cn(
                 "transition-all duration-300",
                 isDark
@@ -445,9 +360,7 @@ function ContactContent() {
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
-        </div>
-      </section>
+      </PageSection>
     </main>
   );
 }

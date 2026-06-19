@@ -5,6 +5,11 @@ import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import {
+  SectionReveal,
+  SectionRevealItem,
+  SectionShell,
+} from "@/components/landing/section-motion";
 
 export function PlatformIntro() {
   const { t } = useTranslation();
@@ -21,8 +26,10 @@ export function PlatformIntro() {
   const pillars = ["guests", "restaurants", "business"] as const;
 
   return (
-    <section
+    <SectionShell
       id="platform"
+      bg="aurora"
+      isDark={isDark}
       className={cn(
         "py-16 lg:py-24 transition-colors",
         isDark
@@ -31,12 +38,7 @@ export function PlatformIntro() {
       )}
     >
       <div className="container max-w-5xl mx-auto px-4 sm:px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
+        <SectionReveal entrance="fade-scale">
           <p
             className={cn(
               "text-sm font-semibold uppercase tracking-wider mb-3",
@@ -61,43 +63,46 @@ export function PlatformIntro() {
           >
             {t("landing.platform.description")}
           </p>
-        </motion.div>
+        </SectionReveal>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-start">
           {pillars.map((key, index) => (
-            <motion.div
+            <SectionRevealItem
               key={key}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className={cn(
-                "rounded-2xl p-6 border backdrop-blur-sm",
-                isDark
-                  ? "bg-white/5 border-purple-500/25"
-                  : "bg-white border-gray-200 shadow-sm"
-              )}
+              entrance={index === 0 ? "slide-left" : index === 1 ? "zoom-in" : "slide-right"}
+              index={index}
             >
-              <h3
+              <motion.div
+                whileHover={{ y: -6, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={cn(
-                  "text-lg font-semibold mb-2",
-                  isDark ? "text-white" : "text-gray-900"
+                  "rounded-2xl p-6 border backdrop-blur-sm h-full",
+                  isDark
+                    ? "bg-white/5 border-purple-500/25"
+                    : "bg-white border-gray-200 shadow-sm"
                 )}
               >
-                {t(`landing.platform.pillars.${key}.title`)}
-              </h3>
-              <p
-                className={cn(
-                  "text-sm leading-relaxed",
-                  isDark ? "text-white/70" : "text-gray-600"
-                )}
-              >
-                {t(`landing.platform.pillars.${key}.description`)}
-              </p>
-            </motion.div>
+                <h3
+                  className={cn(
+                    "text-lg font-semibold mb-2",
+                    isDark ? "text-white" : "text-gray-900"
+                  )}
+                >
+                  {t(`landing.platform.pillars.${key}.title`)}
+                </h3>
+                <p
+                  className={cn(
+                    "text-sm leading-relaxed",
+                    isDark ? "text-white/70" : "text-gray-600"
+                  )}
+                >
+                  {t(`landing.platform.pillars.${key}.description`)}
+                </p>
+              </motion.div>
+            </SectionRevealItem>
           ))}
         </div>
       </div>
-    </section>
+    </SectionShell>
   );
 }

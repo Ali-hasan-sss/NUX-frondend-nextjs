@@ -522,7 +522,8 @@
       "scanMenuCodeDesc": "Restaurantmenü anzeigen",
       "restaurantName": "Restaurantname",
       "selectRestaurant": "Restaurant auswählen",
-      "payWithWallet": "Mit Geldbörse bezahlen"
+      "payWithWallet": "Mit Geldbörse bezahlen",
+      "ordersBadge": "Bestellungen"
     },
     "platform": {
       "badge": "All-in-One-Gastronomieplattform",

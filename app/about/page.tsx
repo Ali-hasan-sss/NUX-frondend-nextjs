@@ -28,6 +28,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  PageHero,
+  PageSection,
+  SectionRevealItem,
+  type SectionEntrance,
+} from "@/components/landing/section-motion";
 
 export default function AboutPage() {
   const { theme } = useTheme();
@@ -76,79 +82,69 @@ function AboutContent({ isDark }: { isDark: boolean }) {
   ] as const;
 
   const companyBenefits = ["benefit1", "benefit2", "benefit3", "benefit4"] as const;
+  const valueEntrances: SectionEntrance[] = ["fade-up", "rotate-in", "blur-in", "skew-in"];
 
   return (
     <main className="pb-16">
-      <section className="relative py-16 lg:py-24 overflow-hidden">
-        <div
+      <PageHero isDark={isDark} entrance="blur-in">
+        <h1
           className={cn(
-            "absolute inset-0",
-            isDark
-              ? "bg-gradient-to-br from-[#0A0E27] via-[#1A1F3A] to-[#2D1B4E]"
-              : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+            "text-4xl md:text-5xl lg:text-6xl font-bold mb-6",
+            isDark ? "text-white" : "text-gray-900"
           )}
-        />
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl relative z-10 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1
-              className={cn(
-                "text-4xl md:text-5xl lg:text-6xl font-bold mb-6",
-                isDark ? "text-white" : "text-gray-900"
-              )}
-            >
-              {t("landing.about.title")}
-            </h1>
-            <p
-              className={cn(
-                "text-lg md:text-xl max-w-2xl mx-auto",
-                isDark ? "text-gray-300" : "text-gray-600"
-              )}
-            >
-              {t("landing.about.subtitle")}
-            </p>
-          </motion.div>
-        </div>
-      </section>
+        >
+          {t("landing.about.title")}
+        </h1>
+        <p
+          className={cn(
+            "text-lg md:text-xl max-w-2xl mx-auto",
+            isDark ? "text-gray-300" : "text-gray-600"
+          )}
+        >
+          {t("landing.about.subtitle")}
+        </p>
+      </PageHero>
 
-      <section className="py-12">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl space-y-6">
-          {(["p1", "p2", "p3", "p4"] as const).map((key, i) => (
-            <motion.p
+      <PageSection isDark={isDark} sectionIndex={0} containerClassName="max-w-4xl space-y-6">
+        {(["p1", "p2", "p3", "p4"] as const).map((key, i) => (
+          <motion.p
+            key={key}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.08, duration: 0.5 }}
+            className={cn(
+              "text-lg leading-relaxed",
+              isDark ? "text-gray-300" : "text-gray-700"
+            )}
+          >
+            {t(`landing.about.story.${key}`)}
+          </motion.p>
+        ))}
+      </PageSection>
+
+      <PageSection isDark={isDark} sectionIndex={1} entrance="fade-scale">
+        <div className="text-center mb-10">
+          <h2
+            className={cn(
+              "text-3xl font-bold mb-3",
+              isDark ? "text-white" : "text-gray-900"
+            )}
+          >
+            {t("landing.about.audience.title")}
+          </h2>
+          <p className={cn(isDark ? "text-gray-300" : "text-gray-600")}>
+            {t("landing.about.audience.subtitle")}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {audience.map(({ icon: Icon, key }, index) => (
+            <SectionRevealItem
               key={key}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className={cn(
-                "text-lg leading-relaxed",
-                isDark ? "text-gray-300" : "text-gray-700"
-              )}
+              entrance={index === 0 ? "slide-left" : index === 1 ? "zoom-in" : "slide-right"}
+              index={index}
             >
-              {t(`landing.about.story.${key}`)}
-            </motion.p>
-          ))}
-        </div>
-      </section>
-
-      <section className="py-12">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-6xl">
-          <div className="text-center mb-10">
-            <h2
-              className={cn(
-                "text-3xl font-bold mb-3",
-                isDark ? "text-white" : "text-gray-900"
-              )}
-            >
-              {t("landing.about.audience.title")}
-            </h2>
-            <p className={cn(isDark ? "text-gray-300" : "text-gray-600")}>
-              {t("landing.about.audience.subtitle")}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {audience.map(({ icon: Icon, key }, index) => (
               <Card
-                key={key}
                 className={cn(
                   "h-full",
                   isDark
@@ -185,97 +181,94 @@ function AboutContent({ isDark }: { isDark: boolean }) {
                   </CardDescription>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            </SectionRevealItem>
+          ))}
         </div>
-      </section>
+      </PageSection>
 
-      <section className="py-12">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-4xl">
-          <Card
-            className={cn(
-              "border-2 overflow-hidden",
-              isDark
-                ? "bg-gradient-to-br from-[#2D1B4E]/80 to-[#1A1F3A] border-cyan-500/30"
-                : "bg-gradient-to-br from-cyan-50 to-purple-50 border-cyan-200"
-            )}
-          >
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <Building2
-                  className={cn(
-                    "h-8 w-8",
-                    isDark ? "text-cyan-400" : "text-cyan-600"
-                  )}
-                />
-                <CardTitle
-                  className={cn(
-                    "text-2xl",
-                    isDark ? "text-white" : "text-gray-900"
-                  )}
-                >
-                  {t("landing.about.companySpotlight.title")}
-                </CardTitle>
-              </div>
-              <CardDescription
+      <PageSection isDark={isDark} sectionIndex={2} bg="radial" entrance="flip-up" containerClassName="max-w-4xl">
+        <Card
+          className={cn(
+            "border-2 overflow-hidden",
+            isDark
+              ? "bg-gradient-to-br from-[#2D1B4E]/80 to-[#1A1F3A] border-cyan-500/30"
+              : "bg-gradient-to-br from-cyan-50 to-purple-50 border-cyan-200"
+          )}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <Building2
                 className={cn(
-                  "text-base leading-relaxed",
-                  isDark ? "text-gray-300" : "text-gray-700"
+                  "h-8 w-8",
+                  isDark ? "text-cyan-400" : "text-cyan-600"
+                )}
+              />
+              <CardTitle
+                className={cn(
+                  "text-2xl",
+                  isDark ? "text-white" : "text-gray-900"
                 )}
               >
-                {t("landing.about.companySpotlight.description")}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <ul className="space-y-3">
-                {companyBenefits.map((b) => (
-                  <li key={b} className="flex items-start gap-3">
-                    <Check
-                      className={cn(
-                        "h-5 w-5 flex-shrink-0 mt-0.5",
-                        isDark ? "text-cyan-400" : "text-cyan-600"
-                      )}
-                    />
-                    <span
-                      className={cn(
-                        isDark ? "text-white/90" : "text-gray-800"
-                      )}
-                    >
-                      {t(`landing.about.companySpotlight.${b}`)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/auth/register">
-                <Button className="mt-4 bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white border-0">
-                  {t("landing.about.companySpotlight.cta")}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-6xl">
-          <div className="text-center mb-12">
-            <h2
+                {t("landing.about.companySpotlight.title")}
+              </CardTitle>
+            </div>
+            <CardDescription
               className={cn(
-                "text-3xl md:text-4xl font-bold mb-4",
-                isDark ? "text-white" : "text-gray-900"
+                "text-base leading-relaxed",
+                isDark ? "text-gray-300" : "text-gray-700"
               )}
             >
-              {t("landing.about.values.title")}
-            </h2>
-            <p className={cn(isDark ? "text-gray-300" : "text-gray-600")}>
-              {t("landing.about.values.subtitle")}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {values.map(({ icon: Icon, titleKey }, index) => (
+              {t("landing.about.companySpotlight.description")}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <ul className="space-y-3">
+              {companyBenefits.map((b) => (
+                <li key={b} className="flex items-start gap-3">
+                  <Check
+                    className={cn(
+                      "h-5 w-5 flex-shrink-0 mt-0.5",
+                      isDark ? "text-cyan-400" : "text-cyan-600"
+                    )}
+                  />
+                  <span className={cn(isDark ? "text-white/90" : "text-gray-800")}>
+                    {t(`landing.about.companySpotlight.${b}`)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/auth/register">
+              <Button className="mt-4 bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white border-0">
+                {t("landing.about.companySpotlight.cta")}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </PageSection>
+
+      <PageSection isDark={isDark} sectionIndex={3} bg="grid" entrance="slide-up">
+        <div className="text-center mb-12">
+          <h2
+            className={cn(
+              "text-3xl md:text-4xl font-bold mb-4",
+              isDark ? "text-white" : "text-gray-900"
+            )}
+          >
+            {t("landing.about.values.title")}
+          </h2>
+          <p className={cn(isDark ? "text-gray-300" : "text-gray-600")}>
+            {t("landing.about.values.subtitle")}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {values.map(({ icon: Icon, titleKey }, index) => (
+            <SectionRevealItem
+              key={titleKey}
+              entrance={valueEntrances[index]}
+              index={index}
+            >
               <Card
-                key={titleKey}
                 className={cn(
                   "h-full",
                   isDark
@@ -312,10 +305,10 @@ function AboutContent({ isDark }: { isDark: boolean }) {
                   </CardDescription>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            </SectionRevealItem>
+          ))}
         </div>
-      </section>
+      </PageSection>
     </main>
   );
 }

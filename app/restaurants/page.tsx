@@ -7,7 +7,6 @@ import { Footer } from "@/components/landing/footer";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { cn, getImageUrl } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { Search, Store, MapPin, Loader2, AlertCircle, Navigation, ArrowUpDown, RefreshCw, CheckCircle2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,6 +14,11 @@ import Image from "next/image";
 import { axiosInstance } from "@/utils/axiosInstance";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  PageHero,
+  PageSection,
+  SectionRevealItem,
+} from "@/components/landing/section-motion";
 
 interface Restaurant {
   id: string;
@@ -311,102 +315,55 @@ function RestaurantsContent({
   }
 
   return (
-    <main >
-      {/* Hero Section */}
-      <section className="relative py-16 lg:py-24 overflow-hidden">
-        {/* Animated Background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            animate={{
-              x: [0, 100, 0],
-              y: [0, 50, 0],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/30 via-pink-500/30 to-cyan-500/30 rounded-full blur-3xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, -80, 0],
-              y: [0, -40, 0],
-              opacity: [0.2, 0.5, 0.2],
-            }}
-            transition={{
-              duration: 25,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
-            }}
-            className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 rounded-full blur-3xl"
-          />
+    <main>
+      <PageHero
+        isDark={isDark}
+        align="top"
+        entrance="blur-in"
+        containerClassName="max-w-7xl"
+      >
+        <h1
+          className={cn(
+            "text-4xl lg:text-5xl xl:text-6xl font-bold mb-4",
+            isDark ? "text-white" : "text-gray-900"
+          )}
+        >
+          {t("landing.restaurants.title") || "Browse Restaurants"}
+        </h1>
+        <p
+          className={cn(
+            "text-xl text-balance max-w-2xl mx-auto mb-10",
+            isDark ? "text-white/70" : "text-gray-600"
+          )}
+        >
+          {t("landing.restaurants.subtitle") || "Discover amazing restaurants and explore their menus"}
+        </p>
+
+        <div className="max-w-2xl mx-auto mb-6">
+          <div className="relative">
+            <Search
+              className={cn(
+                "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5",
+                isDark ? "text-white/50" : "text-gray-400"
+              )}
+            />
+            <Input
+              type="text"
+              placeholder={t("landing.restaurants.searchPlaceholder") || "Search restaurants by name or location..."}
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className={cn(
+                "pl-12 h-14 text-lg",
+                isDark
+                  ? "bg-[#1A1F3A]/80 border-purple-500/20 text-white placeholder:text-white/50 backdrop-blur-sm"
+                  : "bg-white/90 border-gray-200 text-gray-900 backdrop-blur-sm"
+              )}
+            />
+          </div>
         </div>
 
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl relative z-10">
-          <div className="text-center mb-12">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className={cn(
-                "text-4xl lg:text-5xl xl:text-6xl font-bold mb-4",
-                isDark ? "text-white" : "text-gray-900"
-              )}
-            >
-              {t("landing.restaurants.title") || "Browse Restaurants"}
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className={cn(
-                "text-xl text-balance max-w-2xl mx-auto",
-                isDark ? "text-white/70" : "text-gray-600"
-              )}
-            >
-              {t("landing.restaurants.subtitle") || "Discover amazing restaurants and explore their menus"}
-            </motion.p>
-          </div>
-
-          {/* Search Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="max-w-2xl mx-auto mb-6"
-          >
-            <div className="relative">
-              <Search
-                className={cn(
-                  "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5",
-                  isDark ? "text-white/50" : "text-gray-400"
-                )}
-              />
-              <Input
-                type="text"
-                placeholder={t("landing.restaurants.searchPlaceholder") || "Search restaurants by name or location..."}
-                value={searchQuery}
-                onChange={(e) => onSearchChange(e.target.value)}
-                className={cn(
-                  "pl-12 h-14 text-lg",
-                  isDark
-                    ? "bg-[#1A1F3A]/80 border-purple-500/20 text-white placeholder:text-white/50"
-                    : "bg-white border-gray-200 text-gray-900"
-                )}
-              />
-            </div>
-          </motion.div>
-
-          {/* Filters */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="max-w-2xl mx-auto mb-12"
-          >
-            <div className={cn("flex flex-col sm:flex-row gap-3 items-center", isRTL ? "sm:flex-row-reverse" : "")}>
+        <div className="max-w-2xl mx-auto">
+          <div className={cn("flex flex-col sm:flex-row gap-3 items-center", isRTL ? "sm:flex-row-reverse" : "")}>
               {/* Sort By Buttons */}
               <div className={cn("flex items-center gap-2 flex-wrap", isRTL ? "flex-row-reverse" : "")}>
                 <ArrowUpDown
@@ -514,13 +471,10 @@ function RestaurantsContent({
                 </div>
               )}
             </div>
-          </motion.div>
-        </div>
-      </section>
+          </div>
+      </PageHero>
 
-      {/* Restaurants Grid */}
-      <section className="py-12">
-        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
+      <PageSection isDark={isDark} sectionIndex={2} bg="mesh" className="py-12" containerClassName="max-w-7xl">
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2
@@ -608,11 +562,10 @@ function RestaurantsContent({
             <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {restaurants.map((restaurant, index) => (
-                <motion.div
+                <SectionRevealItem
                   key={restaurant.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  entrance={index % 4 === 0 ? "slide-up" : index % 4 === 1 ? "zoom-in" : index % 4 === 2 ? "slide-left" : "fade-up"}
+                  index={index % 6}
                 >
                   <Card
                     className={cn(
@@ -719,7 +672,7 @@ function RestaurantsContent({
                       </div>
                     </CardContent>
                   </Card>
-                </motion.div>
+                </SectionRevealItem>
               ))}
             </div>
             {loadingMore && (
@@ -737,8 +690,7 @@ function RestaurantsContent({
             )}
             </>
           )}
-        </div>
-      </section>
+      </PageSection>
     </main>
   );
 }

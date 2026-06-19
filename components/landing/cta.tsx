@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { SectionReveal, SectionShell } from "@/components/landing/section-motion";
 
 export function CTA() {
   const { t } = useTranslation();
@@ -24,33 +26,45 @@ export function CTA() {
   const isDark = theme === "dark" || theme === "system";
 
   return (
-    <section
+    <SectionShell
+      bg="glow"
+      isDark={isDark}
       className={cn(
-        "py-20 flex items-center justify-center animate-in fade-in-50 slide-in-from-bottom-2 duration-500 transition-colors",
+        "py-20 flex items-center justify-center transition-colors",
         isDark
           ? "bg-gradient-to-b from-[#1A1F3A] to-[#2D1B4E]"
           : "bg-gradient-to-b from-gray-100 to-white"
       )}
     >
       <div className="container">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2
+        <SectionReveal entrance="expand" className="max-w-3xl mx-auto text-center">
+          <motion.h2
             className={cn(
               "text-3xl lg:text-4xl font-bold text-balance mb-6",
               isDark ? "text-white" : "text-gray-900"
             )}
           >
             {t("landing.cta.title")}
-          </h2>
-          <p
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.15, duration: 0.6 }}
             className={cn(
               "text-xl text-balance mb-8",
               isDark ? "text-white/80" : "text-gray-700"
             )}
           >
             {t("landing.cta.description")}
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+          >
             <Link href="/auth/register">
               <Button
                 size="lg"
@@ -68,15 +82,15 @@ export function CTA() {
                   "text-lg px-8",
                   isDark
                     ? "border-purple-500/30 text-white hover:bg-purple-500/20 bg-transparent"
-                    : "border-gray-300 text-gray-200 hover:bg-gray-100"
+                    : "border-gray-300 text-gray-700 hover:bg-gray-100"
                 )}
               >
                 {t("landing.cta.contactSales")}
               </Button>
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </SectionReveal>
       </div>
-    </section>
+    </SectionShell>
   );
 }

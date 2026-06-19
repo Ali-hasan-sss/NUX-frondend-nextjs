@@ -3,11 +3,20 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import { useTheme } from "next-themes";
 import { legalService } from "@/features/legal/legalService";
 import type { LegalLocale, LegalPublicType } from "@/features/legal/legalTypes";
 import { Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { Header } from "@/components/landing/header";
+import { Footer } from "@/components/landing/footer";
+import { I18nProvider } from "@/components/client/i18n-provider";
+import {
+  PageHero,
+  PageSection,
+  SectionReveal,
+} from "@/components/landing/section-motion";
 
 const LOCALES: LegalLocale[] = ["en", "ar", "de"];
 
@@ -27,11 +36,13 @@ type LegalDocumentViewProps = {
   type: LegalPublicType;
 };
 
-export function LegalDocumentView({ type }: LegalDocumentViewProps) {
+function LegalDocumentBody({ type }: LegalDocumentViewProps) {
   const { t, i18n } = useTranslation();
+  const { theme } = useTheme();
   const searchParams = useSearchParams();
   const embed = searchParams?.get("embed") === "1";
   const langParam = searchParams?.get("lang") ?? searchParams?.get("locale");
+  const [mounted, setMounted] = useState(false);
 
   const [locale, setLocale] = useState<LegalLocale>(() =>
     resolveLocale(i18n.language, langParam)
@@ -39,6 +50,10 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
   const [html, setHtml] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     setLocale(resolveLocale(i18n.language, langParam));
@@ -53,7 +68,7 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
       .then((doc) => {
         if (!cancelled) setHtml(doc.content || "");
       })
-      .catch((e: any) => {
+      .catch((e: { response?: { data?: { message?: string } } }) => {
         if (!cancelled) {
           setError(
             e?.response?.data?.message ||
@@ -71,22 +86,22 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
     };
   }, [type, locale, t]);
 
+  if (!mounted) return null;
+
+  const isDark = theme === "dark" || theme === "system";
   const title =
     type === "privacy"
       ? t("drawer.privacyPolicy") || "Privacy Policy"
       : t("drawer.termsOfUse") || "Terms of Use";
 
-  return (
+  const content = (
     <div
-      className={cn(
-        "min-h-screen bg-background text-foreground",
-        embed ? "p-4 pt-6" : "px-4 py-8"
-      )}
+      className={cn(embed ? "p-4 pt-6" : "")}
       dir={locale === "ar" ? "rtl" : "ltr"}
     >
       <div className={cn("mx-auto w-full", embed ? "max-w-3xl" : "max-w-4xl")}>
         {!embed && (
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <SectionReveal entrance="slide-right" className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <Link
                 href="/"
@@ -94,7 +109,6 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
               >
                 ← {t("legal.backHome") || "Home"}
               </Link>
-              <h1 className="mt-2 text-2xl sm:text-3xl font-bold">{title}</h1>
             </div>
             <div className="flex gap-2">
               {LOCALES.map((loc) => (
@@ -113,12 +127,10 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
                 </button>
               ))}
             </div>
-          </div>
+          </SectionReveal>
         )}
 
-        {embed && (
-          <h1 className="mb-4 text-xl font-bold">{title}</h1>
-        )}
+        {embed && <h1 className="mb-4 text-xl font-bold">{title}</h1>}
 
         {loading ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground">
@@ -130,13 +142,15 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
             <p>{error}</p>
           </div>
         ) : html.trim() ? (
-          <article
-            className={cn(
-              "legal-document-prose prose prose-neutral dark:prose-invert max-w-none",
-              "prose-headings:font-semibold prose-a:text-primary"
-            )}
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <SectionReveal entrance="blur-in">
+            <article
+              className={cn(
+                "legal-document-prose prose prose-neutral dark:prose-invert max-w-none",
+                "prose-headings:font-semibold prose-a:text-primary"
+              )}
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </SectionReveal>
         ) : (
           <p className="text-muted-foreground py-8 text-center">
             {t("legal.empty") || "Content is not available yet."}
@@ -144,5 +158,54 @@ export function LegalDocumentView({ type }: LegalDocumentViewProps) {
         )}
       </div>
     </div>
+  );
+
+  if (embed) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">{content}</div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "min-h-screen transition-colors duration-300",
+        isDark
+          ? "bg-gradient-to-b from-[#0A0E27] via-[#1A1F3A] to-[#2D1B4E]"
+          : "bg-gradient-to-b from-gray-50 via-white to-gray-100"
+      )}
+    >
+      <Header />
+      <main className="pb-16">
+        <PageHero isDark={isDark} entrance="fade-up">
+          <h1
+            className={cn(
+              "text-3xl md:text-4xl lg:text-5xl font-bold",
+              isDark ? "text-white" : "text-gray-900"
+            )}
+          >
+            {title}
+          </h1>
+        </PageHero>
+        <PageSection
+          isDark={isDark}
+          sectionIndex={type === "privacy" ? 3 : 4}
+          bg="stripes"
+          entrance="slide-up"
+          className="py-8"
+        >
+          {content}
+        </PageSection>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+export function LegalDocumentView({ type }: LegalDocumentViewProps) {
+  return (
+    <I18nProvider>
+      <LegalDocumentBody type={type} />
+    </I18nProvider>
   );
 }

@@ -522,7 +522,8 @@
       "scanMenuCodeDesc": "View restaurant menu",
       "restaurantName": "Restaurant Name",
       "selectRestaurant": "Select a restaurant",
-      "payWithWallet": "Pay with Wallet"
+      "payWithWallet": "Pay with Wallet",
+      "ordersBadge": "Orders"
     },
     "platform": {
       "badge": "All-in-one hospitality platform",

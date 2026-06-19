@@ -522,7 +522,8 @@
       "scanMenuCodeDesc": "عرض قائمة المطعم",
       "restaurantName": "اسم المطعم",
       "selectRestaurant": "اختر مطعماً",
-      "payWithWallet": "ادفع من المحفظة"
+      "payWithWallet": "ادفع من المحفظة",
+      "ordersBadge": "طلبات"
     },
     "platform": {
       "badge": "منصة ضيافة شاملة",

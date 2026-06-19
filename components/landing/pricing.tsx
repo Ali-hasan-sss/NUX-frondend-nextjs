@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -19,6 +20,11 @@ import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
 import type { PublicPlan, PublicPlanPermission } from "@/features/public/plans/publicPlansTypes";
+import {
+  SectionReveal,
+  SectionRevealItem,
+  SectionShell,
+} from "@/components/landing/section-motion";
 
 type BillingCycle = "monthly" | "annual";
 
@@ -119,17 +125,19 @@ export function Pricing() {
   const isDark = theme === "dark" || theme === "system";
 
   return (
-    <section
+    <SectionShell
       id="pricing"
+      bg="radial"
+      isDark={isDark}
       className={cn(
-        "py-20 flex items-center justify-center animate-in fade-in-50 slide-in-from-bottom-2 duration-500 transition-colors",
+        "py-20 flex items-center justify-center transition-colors",
         isDark
           ? "bg-gradient-to-b from-[#0A0E27] to-[#1A1F3A]"
           : "bg-gradient-to-b from-white to-gray-50"
       )}
     >
       <div className="container">
-        <div className="text-center mb-16">
+        <SectionReveal entrance="fade-scale" className="text-center mb-16">
           <h2
             className={cn(
               "text-3xl lg:text-4xl font-bold text-balance mb-4",
@@ -146,7 +154,7 @@ export function Pricing() {
           >
             {t("landing.pricing.subtitle")}
           </p>
-        </div>
+        </SectionReveal>
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
@@ -232,8 +240,10 @@ export function Pricing() {
                   : [plan.title];
 
               return (
-                <div
+                <SectionRevealItem
                   key={plan.id}
+                  entrance={index % 3 === 0 ? "slide-up" : index % 3 === 1 ? "zoom-in" : "fade-up"}
+                  index={index}
                   className={cn(
                     "relative",
                     popular ? "border-primary shadow-lg lg:scale-[1.02]" : "border-border"
@@ -385,12 +395,12 @@ export function Pricing() {
                       </div>
                     </CardContent>
                   </Card>
-                </div>
+                </SectionRevealItem>
               );
             })}
           </div>
         )}
       </div>
-    </section>
+    </SectionShell>
   );
 }
