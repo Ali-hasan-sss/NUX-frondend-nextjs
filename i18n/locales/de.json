@@ -525,6 +525,10 @@
       "payWithWallet": "Mit Geldbörse bezahlen",
       "ordersBadge": "Bestellungen"
     },
+    "appPurpose": {
+      "title": "Über die NUX-Anwendung",
+      "description": "NUX ist eine Hospitality-Plattform mit einer Gäste-Mobile-App (Android und iOS) und einem Restaurant-Web-Dashboard auf nuxapp.de. Gäste nutzen die NUX-App, um Partnerrestaurants zu entdecken, QR-Codes vor Ort zu scannen, digitale Speisekarten anzusehen, das Wallet aufzuladen und sicher zu bezahlen sowie Aktionen zu erhalten. Restaurantinhaber und Mitarbeiter nutzen die NUX-Website zur Verwaltung von Speisekarten, Bestellungen, Tisch-QR-Codes, Zahlungen vor Ort, Anzeigen und dem täglichen Betrieb. Unternehmen können Mitarbeitenden Essensvorteile über Firmen-Wallets bei Partnerrestaurants bieten. Die Anmeldung mit Google dient nur zur Erstellung und zum Zugriff auf Ihr persönliches NUX-Gast- oder Geschäftskonto."
+    },
     "platform": {
       "badge": "All-in-One-Gastronomieplattform",
       "title": "Mehr als Treue — die gesamte Gästereise",

@@ -21,11 +21,20 @@ const poppins = Poppins({
   display: "swap",
 });
 
+const siteDescription =
+  "NUX is a hospitality platform with a guest mobile app and restaurant web dashboard. Guests scan QR codes, view digital menus, pay with a wallet, and get promotions. Restaurants manage menus, orders, and payments on nuxapp.de.";
+
 export const metadata: Metadata = {
-  title: "nux - Subscription Management Platform",
-  description:
-    "Modern platform for restaurant subscription management with admin and owner dashboards",
-  generator: "v0.app",
+  title: "NUX — Guest App & Restaurant Platform",
+  description: siteDescription,
+  openGraph: {
+    title: "NUX — Guest App & Restaurant Platform",
+    description: siteDescription,
+    url: "https://nuxapp.de",
+    siteName: "NUX",
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
