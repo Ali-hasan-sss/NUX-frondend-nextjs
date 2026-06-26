@@ -18,9 +18,9 @@ export default function GlobalError({
     <html>
       <body>
         <div style={{ padding: 24, fontFamily: 'sans-serif' }}>
-          <h2>حدث خطأ مؤقت</h2>
-          <p>يرجى إعادة تحميل الصفحة أو تسجيل الدخول من جديد.</p>
-          <button onClick={() => reset()}>إعادة المحاولة</button>
+          <h2>Temporary error</h2>
+          <p>Please reload the page or sign in again.</p>
+          <button onClick={() => reset()}>Try again</button>
         </div>
       </body>
     </html>
