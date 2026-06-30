@@ -39,4 +39,11 @@ export const subscriptionService = {
     );
     return res.data?.data ?? {};
   },
+
+  async setAutoRenew(enabled: boolean): Promise<{ autoRenew: boolean; endDate: string }> {
+    const res = await axiosInstance.put("/restaurants/subscription/auto-renew", {
+      enabled,
+    });
+    return res.data?.data;
+  },
 };

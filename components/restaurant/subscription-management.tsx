@@ -61,6 +61,7 @@ export function SubscriptionManagement() {
   const [paymentMethodDialogOpen, setPaymentMethodDialogOpen] = useState(false);
   const [paymentMethodPlanId, setPaymentMethodPlanId] = useState<number | null>(null);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
+  const [autoRenewLoading, setAutoRenewLoading] = useState(false);
   const { user } = useAppSelector((state) => state.auth);
   const {
     plans,
@@ -218,6 +219,33 @@ export function SubscriptionManagement() {
     console.log("Cancel subscription");
   };
 
+  const handleAutoRenewChange = async (enabled: boolean) => {
+    setAutoRenewLoading(true);
+    try {
+      await subscriptionService.setAutoRenew(enabled);
+      toast.success(
+        enabled
+          ? t("dashboard.subscription.autoRenewEnabled") ||
+              "Auto-renewal enabled — Stripe will renew on the billing date."
+          : t("dashboard.subscription.autoRenewDisabled") ||
+              "Auto-renewal disabled — no further charges after the current period."
+      );
+      dispatch(fetchRestaurantAccount());
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || t("dashboard.subscription.autoRenewError");
+      toast.error(message);
+    } finally {
+      setAutoRenewLoading(false);
+    }
+  };
+
+  const subscriptionEndDate = (sub: { endDate?: string; stripeCurrentPeriodEnd?: string | null }) => {
+    const raw = sub.stripeCurrentPeriodEnd || sub.endDate;
+    return raw ? new Date(raw) : null;
+  };
+
   // Current subscription = active only (ignore CANCELLED/expired); among active, pick highest price plan
   const activeSubscriptions =
     restaurantAccount?.subscriptions?.filter((s) => s.status === "ACTIVE") ??
@@ -305,14 +333,20 @@ export function SubscriptionManagement() {
 
   // Check if current subscription is in last month (30 days)
   const isInLastMonth = () => {
-    if (!currentSubscription?.endDate) return false;
-    const endDate = new Date(currentSubscription.endDate);
+    const end = currentSubscription ? subscriptionEndDate(currentSubscription) : null;
+    if (!end) return false;
     const now = new Date();
     const daysUntilExpiry = Math.ceil(
-      (endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+      (end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
     );
     return daysUntilExpiry <= 30;
   };
+
+  const hasStripeAutoRenew =
+    Boolean(
+      (currentSubscription as { stripeSubscriptionId?: string | null })?.stripeSubscriptionId
+    ) &&
+    (currentSubscription as { autoRenew?: boolean })?.autoRenew !== false;
 
   // Check if plan is already subscribed
   const isPlanSubscribed = (planId: number) => {
@@ -380,10 +414,9 @@ export function SubscriptionManagement() {
                     Next Billing
                   </p>
                   <p className="text-lg font-bold">
-                    {currentSubscription.endDate
-                      ? new Date(
-                          currentSubscription.endDate
-                        ).toLocaleDateString()
+                    {currentSubscription
+                      ? subscriptionEndDate(currentSubscription)?.toLocaleDateString() ??
+                        "N/A"
                       : "N/A"}
                   </p>
                 </div>
@@ -408,7 +441,7 @@ export function SubscriptionManagement() {
               </div>
             </div>
 
-            <div className="mt-6 pt-6 border-t">
+            <div className="mt-6 pt-6 border-t space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{t("dashboard.subscription.paymentMethodLabel")}</p>
@@ -417,6 +450,29 @@ export function SubscriptionManagement() {
                   </p>
                 </div>
               </div>
+              {(currentSubscription as { stripeSubscriptionId?: string | null })
+                .stripeSubscriptionId && (
+                <div className="flex items-center justify-between rounded-lg border bg-muted/30 p-4">
+                  <div>
+                    <p className="font-medium">
+                      {t("dashboard.subscription.autoRenew") || "Auto-renewal"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {t("dashboard.subscription.autoRenewDesc") ||
+                        "When enabled, Stripe renews your plan automatically on the billing date (synced with your card statement)."}
+                    </p>
+                  </div>
+                  <Switch
+                    id="auto-renew"
+                    checked={
+                      (currentSubscription as { autoRenew?: boolean }).autoRenew !==
+                      false
+                    }
+                    disabled={autoRenewLoading}
+                    onCheckedChange={handleAutoRenewChange}
+                  />
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -680,7 +736,12 @@ export function SubscriptionManagement() {
                           Free Plan - Not Available
                         </Button>
                       ) : isPlanSubscribed(plan.id) ? (
-                        isInLastMonth() ? (
+                        hasStripeAutoRenew ? (
+                          <Button className="w-full" variant="outline" disabled>
+                            {t("dashboard.subscription.autoRenewActive") ||
+                              "Auto-renewal active"}
+                          </Button>
+                        ) : isInLastMonth() ? (
                           <Button
                             className="w-full"
                             variant={isSelected ? "default" : "outline"}

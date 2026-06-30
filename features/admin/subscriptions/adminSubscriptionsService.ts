@@ -93,4 +93,23 @@ export const adminSubscriptionsService = {
     );
     return mapSubscription(response.data.data);
   },
+
+  async refund(
+    id: number | string,
+    body?: { amount?: number; reason?: string; apologyMessage?: string }
+  ): Promise<{
+    refundId: string;
+    amount: number;
+    currency: string;
+    status: string;
+    notificationSent?: boolean;
+    emailSent?: boolean;
+    apologyIncluded?: boolean;
+  }> {
+    const response = await axiosInstance.post(
+      `/admin/subscriptions/refund/${id}`,
+      body ?? {}
+    );
+    return response.data.data;
+  },
 };

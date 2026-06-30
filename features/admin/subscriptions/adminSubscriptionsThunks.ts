@@ -45,3 +45,32 @@ export const adminActivateSubscription = createAsyncThunk<
     );
   }
 });
+
+export const refundAdminSubscription = createAsyncThunk<
+  {
+    refundId: string;
+    amount: number;
+    apologyIncluded?: boolean;
+    notificationSent?: boolean;
+    emailSent?: boolean;
+  },
+  { id: number | string; reason?: string; apologyMessage?: string; amount?: number },
+  { rejectValue: string }
+>("adminSubscriptions/refund", async ({ id, reason, apologyMessage, amount }, { rejectWithValue }) => {
+  try {
+    const result = await adminSubscriptionsService.refund(id, {
+      reason,
+      apologyMessage,
+      amount,
+    });
+    return {
+      refundId: result.refundId,
+      amount: result.amount,
+      apologyIncluded: result.apologyIncluded,
+      notificationSent: result.notificationSent,
+      emailSent: result.emailSent,
+    };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message ?? "Refund failed");
+  }
+});

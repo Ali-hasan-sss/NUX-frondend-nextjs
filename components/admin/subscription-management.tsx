@@ -39,6 +39,7 @@ import {
   adminActivateSubscription,
   cancelAdminSubscription,
   fetchAdminSubscriptions,
+  refundAdminSubscription,
 } from "@/features/admin/subscriptions/adminSubscriptionsThunks";
 import type { AdminSubscription } from "@/features/admin/subscriptions/adminSubscriptionsTypes";
 import { fetchAdminPlans } from "@/features/admin/plans/adminPlansThunks";
@@ -50,16 +51,18 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../ui/pagination";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
 import {
   SubscriptionForm,
   SubscriptionFormInput,
 } from "./forms/subscriptionForm";
 import { formatDate } from "@/lib/utils";
+import { toast } from "sonner";
 import { FilterBar } from "@/components/filters/FilterBar";
 import { LabeledInput } from "@/components/filters/LabeledInput";
 import { LabeledSelect } from "@/components/filters/LabeledSelect";
 import { PageSizeSelect } from "@/components/filters/PageSizeSelect";
+import { Label } from "@/components/ui/label";
 
 export function SubscriptionManagement() {
   const { t } = useLanguage();
@@ -80,6 +83,11 @@ export function SubscriptionManagement() {
   const [restaurantId, setRestaurantId] = useState("");
   const [planId, setPlanId] = useState<number | null>(null);
   const [openSubscriptionModal, setOpenSubscriptionModal] = useState(false);
+  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
+  const [refundTarget, setRefundTarget] = useState<AdminSubscription | null>(null);
+  const [refundReason, setRefundReason] = useState("Duplicate charge / billing error");
+  const [refundApology, setRefundApology] = useState("");
+  const [refundLoading, setRefundLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
 
@@ -136,6 +144,43 @@ export function SubscriptionManagement() {
         body: { reason: "Cancelled by admin" },
       })
     );
+  };
+
+  const openRefundDialog = (subscription: AdminSubscription) => {
+    setRefundTarget(subscription);
+    setRefundReason("Duplicate charge / billing error");
+    setRefundApology("");
+    setRefundDialogOpen(true);
+  };
+
+  const handleRefundSubmit = async () => {
+    if (!refundTarget) return;
+    setRefundLoading(true);
+    try {
+      const result = await dispatch(
+        refundAdminSubscription({
+          id: refundTarget.id,
+          reason: refundReason.trim() || undefined,
+          apologyMessage: refundApology.trim() || undefined,
+        })
+      ).unwrap();
+      const apologyNote = result.apologyIncluded
+        ? ` ${t("refundApologySent") || "Apology message included."}`
+        : "";
+      const contactNote =
+        result.emailSent || result.notificationSent
+          ? ` ${t("refundCustomerNotified") || "Customer notified by app and email."}`
+          : "";
+      toast.success(
+        `${t("refundIssued") || "Refund issued"}: ${result.amount} EUR (${result.refundId}).${contactNote}${apologyNote}`
+      );
+      setRefundDialogOpen(false);
+      setRefundTarget(null);
+    } catch (err: unknown) {
+      toast.error(String(err));
+    } finally {
+      setRefundLoading(false);
+    }
   };
 
   const handleSubmit = async (data: SubscriptionFormInput) => {
@@ -375,6 +420,11 @@ export function SubscriptionManagement() {
                           >
                             {t("extendSubscription")}
                           </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => openRefundDialog(subscription)}
+                          >
+                            {t("refundPayment") || "Refund last Stripe payment"}
+                          </DropdownMenuItem>
                           {subscription.status !== "CANCELLED" && (
                             <DropdownMenuItem
                               className="text-destructive"
@@ -459,6 +509,74 @@ export function SubscriptionManagement() {
             onClose={() => setOpenSubscriptionModal(false)}
             submitLabel={restaurantId ? t("save") : t("create")}
           />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={refundDialogOpen} onOpenChange={setRefundDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {t("refundPayment") || "Refund last Stripe payment"}
+            </DialogTitle>
+            <DialogDescription>
+              {refundTarget
+                ? `${refundTarget.restaurant.name} — ${refundTarget.plan.title}`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="refund-reason">
+                {t("refundReason") || "Internal reason (Stripe metadata)"}
+              </Label>
+              <input
+                id="refund-reason"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                value={refundReason}
+                onChange={(e) => setRefundReason(e.target.value)}
+                placeholder="Duplicate charge / billing error"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="refund-apology">
+                {t("refundApologyMessage") ||
+                  "Apology message to customer (optional)"}
+              </Label>
+              <textarea
+                id="refund-apology"
+                className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-y"
+                value={refundApology}
+                onChange={(e) => setRefundApology(e.target.value)}
+                maxLength={2000}
+                placeholder={
+                  t("refundApologyPlaceholder") ||
+                  "We sincerely apologize for the duplicate charge. We have issued a full refund and corrected your subscription settings."
+                }
+              />
+              <p className="text-xs text-muted-foreground">
+                {t("refundApologyHint") ||
+                  "Optional. Write in English — sent to the customer by in-app notification and email with refund details."}
+              </p>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setRefundDialogOpen(false)}
+                disabled={refundLoading}
+              >
+                {t("cancel") || "Cancel"}
+              </Button>
+              <Button
+                type="button"
+                onClick={handleRefundSubmit}
+                disabled={refundLoading}
+              >
+                {refundLoading
+                  ? t("processing") || "Processing..."
+                  : t("confirmRefund") || "Confirm refund"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
