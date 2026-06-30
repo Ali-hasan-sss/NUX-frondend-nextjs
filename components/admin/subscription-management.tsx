@@ -43,6 +43,7 @@ import {
 } from "@/features/admin/subscriptions/adminSubscriptionsThunks";
 import type { AdminSubscription } from "@/features/admin/subscriptions/adminSubscriptionsTypes";
 import { fetchAdminPlans } from "@/features/admin/plans/adminPlansThunks";
+import { adminSubscriptionsService } from "@/features/admin/subscriptions/adminSubscriptionsService";
 import {
   Pagination,
   PaginationContent,
@@ -87,6 +88,18 @@ export function SubscriptionManagement() {
   const [refundTarget, setRefundTarget] = useState<AdminSubscription | null>(null);
   const [refundReason, setRefundReason] = useState("Duplicate charge / billing error");
   const [refundApology, setRefundApology] = useState("");
+  const [refundStripeInvoiceId, setRefundStripeInvoiceId] = useState("");
+  const [refundOptions, setRefundOptions] = useState<
+    Array<{
+      stripeInvoiceId: string;
+      amountPaid: number;
+      currency: string;
+      created: number;
+      recordedLocally: boolean;
+      alreadyRefunded: boolean;
+    }>
+  >([]);
+  const [refundOptionsLoading, setRefundOptionsLoading] = useState(false);
   const [refundLoading, setRefundLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(10);
@@ -146,15 +159,39 @@ export function SubscriptionManagement() {
     );
   };
 
-  const openRefundDialog = (subscription: AdminSubscription) => {
+  const openRefundDialog = async (subscription: AdminSubscription) => {
     setRefundTarget(subscription);
     setRefundReason("Duplicate charge / billing error");
     setRefundApology("");
+    setRefundStripeInvoiceId("");
+    setRefundOptions([]);
     setRefundDialogOpen(true);
+    setRefundOptionsLoading(true);
+    try {
+      const data = await adminSubscriptionsService.getRefundablePayments(
+        subscription.id
+      );
+      const available = data.items.filter((i) => !i.alreadyRefunded);
+      setRefundOptions(available);
+      const suggested =
+        data.suggestedStripeInvoiceId &&
+        available.some((i) => i.stripeInvoiceId === data.suggestedStripeInvoiceId)
+          ? data.suggestedStripeInvoiceId
+          : available[0]?.stripeInvoiceId ?? "";
+      setRefundStripeInvoiceId(suggested);
+    } catch {
+      toast.error(t("refundLoadFailed") || "Could not load Stripe payments for refund.");
+    } finally {
+      setRefundOptionsLoading(false);
+    }
   };
 
   const handleRefundSubmit = async () => {
     if (!refundTarget) return;
+    if (!refundStripeInvoiceId) {
+      toast.error(t("refundSelectPayment") || "Select a payment to refund.");
+      return;
+    }
     setRefundLoading(true);
     try {
       const result = await dispatch(
@@ -162,6 +199,7 @@ export function SubscriptionManagement() {
           id: refundTarget.id,
           reason: refundReason.trim() || undefined,
           apologyMessage: refundApology.trim() || undefined,
+          stripeInvoiceId: refundStripeInvoiceId,
         })
       ).unwrap();
       const apologyNote = result.apologyIncluded
@@ -524,6 +562,40 @@ export function SubscriptionManagement() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {refundOptionsLoading ? (
+              <p className="text-sm text-muted-foreground">
+                {t("loadingRefundablePayments") || "Loading Stripe payments…"}
+              </p>
+            ) : refundOptions.length === 0 ? (
+              <p className="text-sm text-destructive">
+                {t("noRefundablePayments") ||
+                  "No refundable Stripe payments found for this subscription."}
+              </p>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="refund-invoice">
+                  {t("refundSelectPayment") || "Payment to refund"}
+                </Label>
+                <select
+                  id="refund-invoice"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={refundStripeInvoiceId}
+                  onChange={(e) => setRefundStripeInvoiceId(e.target.value)}
+                >
+                  {refundOptions.map((opt) => (
+                    <option key={opt.stripeInvoiceId} value={opt.stripeInvoiceId}>
+                      {opt.amountPaid.toFixed(2)} {opt.currency} —{" "}
+                      {new Date(opt.created * 1000).toLocaleDateString()}
+                      {opt.recordedLocally ? " (in system)" : " (Stripe only)"}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  {t("refundStripeOnlyHint") ||
+                    "Duplicate auto-charges from Stripe usually appear as “Stripe only”."}
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="refund-reason">
                 {t("refundReason") || "Internal reason (Stripe metadata)"}
@@ -569,7 +641,7 @@ export function SubscriptionManagement() {
               <Button
                 type="button"
                 onClick={handleRefundSubmit}
-                disabled={refundLoading}
+                disabled={refundLoading || refundOptionsLoading || !refundStripeInvoiceId}
               >
                 {refundLoading
                   ? t("processing") || "Processing..."

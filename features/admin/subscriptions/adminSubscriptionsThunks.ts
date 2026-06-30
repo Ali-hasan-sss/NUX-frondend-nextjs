@@ -54,14 +54,15 @@ export const refundAdminSubscription = createAsyncThunk<
     notificationSent?: boolean;
     emailSent?: boolean;
   },
-  { id: number | string; reason?: string; apologyMessage?: string; amount?: number },
+  { id: number | string; reason?: string; apologyMessage?: string; amount?: number; stripeInvoiceId?: string },
   { rejectValue: string }
->("adminSubscriptions/refund", async ({ id, reason, apologyMessage, amount }, { rejectWithValue }) => {
+>("adminSubscriptions/refund", async ({ id, reason, apologyMessage, amount, stripeInvoiceId }, { rejectWithValue }) => {
   try {
     const result = await adminSubscriptionsService.refund(id, {
       reason,
       apologyMessage,
       amount,
+      stripeInvoiceId,
     });
     return {
       refundId: result.refundId,

@@ -96,12 +96,19 @@ export const adminSubscriptionsService = {
 
   async refund(
     id: number | string,
-    body?: { amount?: number; reason?: string; apologyMessage?: string }
+    body?: {
+      amount?: number;
+      reason?: string;
+      apologyMessage?: string;
+      stripeInvoiceId?: string;
+    }
   ): Promise<{
     refundId: string;
     amount: number;
     currency: string;
     status: string;
+    stripeInvoiceId?: string;
+    wasUnrecordedLocally?: boolean;
     notificationSent?: boolean;
     emailSent?: boolean;
     apologyIncluded?: boolean;
@@ -109,6 +116,23 @@ export const adminSubscriptionsService = {
     const response = await axiosInstance.post(
       `/admin/subscriptions/refund/${id}`,
       body ?? {}
+    );
+    return response.data.data;
+  },
+
+  async getRefundablePayments(id: number | string): Promise<{
+    items: Array<{
+      stripeInvoiceId: string;
+      amountPaid: number;
+      currency: string;
+      created: number;
+      recordedLocally: boolean;
+      alreadyRefunded: boolean;
+    }>;
+    suggestedStripeInvoiceId: string | null;
+  }> {
+    const response = await axiosInstance.get(
+      `/admin/subscriptions/refundable/${id}`
     );
     return response.data.data;
   },
