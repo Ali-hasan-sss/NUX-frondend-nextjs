@@ -179,6 +179,9 @@
     "errorInvalidQrCode": "Geçersiz QR kodu. Lütfen geçerli bir restoran QR kodu tarayın.",
     "errorMustBeAtRestaurant": "Bu QR kodunu taramak için restoran konumunda olmalısınız.",
     "errorGeneric": "Tarama başarısız. Lütfen tekrar deneyin.",
+    "errorLocationDenied": "Sadakat puanı toplamak için konum izni gerekir. Konumu açıp tekrar deneyin.",
+    "errorGuestOnly": "Sadakat puanları yalnızca misafir hesabıyla toplanabilir. Misafir olarak giriş yapın.",
+    "checkingLocation": "Konumunuz kontrol ediliyor…",
     "processing": "Tarama işleniyor...",
     "startingCamera": "Kamera başlatılıyor...",
     "positionFrame": "QR kodunu çerçeve içine yerleştirin",
@@ -591,12 +594,13 @@
         "VIEW_ANALYTICS": "Analitik görüntüleme",
         "EXPORT_DATA": "Veri dışa aktarma",
         "CUSTOM_BRANDING": "Özel marka",
-        "API_ACCESS": "API erişimi",
-        "MULTI_LOCATION": "Çoklu lokasyon",
+        "API_ACCESS": "API Access",
+        "MULTI_LOCATION": "Multiple Restaurants & Locations",
         "MAX_MENU_ITEMS": "Maks. menü öğesi",
         "MAX_ADS": "Maks. reklam",
         "MAX_PACKAGES": "Maks. paket",
-        "MAX_GROUP_MEMBERS": "Maks. grup üyesi"
+        "MAX_GROUP_MEMBERS": "Custom Group Member Limit",
+        "TABLE_FLOOR_PLAN": "Masa ve Salon Planı Yönetimi"
       },
       "plans": {
         "starter": {
@@ -634,6 +638,18 @@
             "Gelişmiş güvenlik özellikleri"
           ]
         }
+      },
+      "contactUs": "Bize ulaşın",
+      "priceOnRequest": "Fiyat için iletişime geçin",
+      "featureExtras": {
+        "staffApprovedOrdering": "Personel onayından sonra masadan güvenli sipariş",
+        "kitchenDisplay": "Her tablette mutfak ekranı",
+        "orderReceiptConfirm": "Sipariş teslim alma onayı",
+        "orderStatusFlow": "Sipariş durumu: alındı, hazırlanıyor, servise hazır",
+        "floorStaffLiveTracking": "Salon personeli sipariş durumunu anlık takip eder",
+        "callWaiter": "Masadan garson çağırma",
+        "useWithoutDownload": "NUX’i uygulama veya web üzerinden kullanın — indirme gerekmez",
+        "restaurantVisibility": "Restoran ve kampanyalar tüm uygulama ve site kullanıcılarına görünür"
       }
     },
     "cta": {
@@ -970,6 +986,48 @@
       "resetCodeInvalid": "Geçersiz veya süresi dolmuş sıfırlama kodu",
       "passwordResetSuccess": "Şifre sıfırlandı. Girişe yönlendiriliyorsunuz...",
       "resetPassword": "Şifreyi sıfırla"
+    },
+    "orderJourney": {
+      "badge": "Sipariş döngüsü",
+      "title": "Masadan mutfağa tek döngüde",
+      "subtitle": "NUX yalnızca sadakat veya QR menü değil; restoran ve misafir deneyimini birlikte yöneten tam bir sistemdir.",
+      "steps": {
+        "scanQr": "QR Tara",
+        "staffApproval": "Personel Onayı",
+        "placeOrder": "Sipariş Ver",
+        "kitchenPrep": "Mutfak Hazırlığı",
+        "readyToServe": "Servise Hazır"
+      }
+    },
+    "serviceCards": {
+      "title": "Restoranların NUX ile yönettiği hizmetler",
+      "subtitle": "Salon, mutfak ve misafir deneyimi için net araçlar.",
+      "items": {
+        "secureOrdering": {
+          "title": "Güvenli Masa Siparişi",
+          "description": "Misafirler, personel oturumu onayladıktan sonra masadan sipariş verir."
+        },
+        "kitchenDisplay": {
+          "title": "Mutfak Ekranı",
+          "description": "Gelen siparişleri mutfaktaki herhangi bir tablette gösterin — ekstra donanım gerekmez."
+        },
+        "liveTracking": {
+          "title": "Canlı Sipariş Takibi",
+          "description": "Her siparişi izleyin: alındı, hazırlanıyor ve servise hazır."
+        },
+        "floorTable": {
+          "title": "Masa ve Salon Planı Yönetimi",
+          "description": "Masaları, salon planını ve masa QR kodlarını tek panelden yönetin."
+        },
+        "callWaiter": {
+          "title": "Garson Çağır",
+          "description": "Misafirler yerlerinden kalkmadan masadan garson çağırabilir."
+        },
+        "loyaltyVisibility": {
+          "title": "Sadakat, Kampanyalar ve Görünürlük",
+          "description": "Sadakat, fırsatlar ve restoranınız tüm uygulama ve site kullanıcılarına görünür."
+        }
+      }
     }
   },
   "dashboard": {

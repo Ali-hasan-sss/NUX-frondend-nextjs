@@ -316,6 +316,9 @@
     "errorInvalidQrCode": "Invalid QR code. Please scan a valid restaurant QR code.",
     "errorMustBeAtRestaurant": "You must be at the restaurant location to scan this QR code.",
     "errorGeneric": "Scan failed. Please try again.",
+    "errorLocationDenied": "Location access is required to collect loyalty points. Enable location and try again.",
+    "errorGuestOnly": "Loyalty points can only be collected with a guest account. Sign in as a guest to continue.",
+    "checkingLocation": "Checking your location…",
     "processing": "Processing scan...",
     "startingCamera": "Starting camera...",
     "positionFrame": "Position the QR code within the frame",
@@ -733,12 +736,13 @@
         "VIEW_ANALYTICS": "View analytics",
         "EXPORT_DATA": "Export data",
         "CUSTOM_BRANDING": "Custom branding",
-        "API_ACCESS": "API access",
-        "MULTI_LOCATION": "Multi-location",
+        "API_ACCESS": "API Access",
+        "MULTI_LOCATION": "Multiple Restaurants & Locations",
         "MAX_MENU_ITEMS": "Max menu items",
         "MAX_ADS": "Max ads",
         "MAX_PACKAGES": "Max packages",
-        "MAX_GROUP_MEMBERS": "Max group members"
+        "MAX_GROUP_MEMBERS": "Custom Group Member Limit",
+        "TABLE_FLOOR_PLAN": "Table & Floor-Plan Management"
       },
       "plans": {
         "starter": {
@@ -776,6 +780,18 @@
             "Advanced security features"
           ]
         }
+      },
+      "contactUs": "Contact Us",
+      "priceOnRequest": "Price on Request",
+      "featureExtras": {
+        "staffApprovedOrdering": "Secure table ordering after staff approval",
+        "kitchenDisplay": "Kitchen display on any tablet",
+        "orderReceiptConfirm": "Order receipt confirmation",
+        "orderStatusFlow": "Order status: received, in preparation, ready to serve",
+        "floorStaffLiveTracking": "Floor staff follow order status in real time",
+        "callWaiter": "Call a waiter from the table",
+        "useWithoutDownload": "Use NUX via the app or the web — no download required",
+        "restaurantVisibility": "Restaurant and promotions visible to all app and website users"
       }
     },
     "cta": {
@@ -1036,6 +1052,8 @@
       "signInWithGoogle": "Sign in with Google",
       "signUpWithGoogle": "Sign up with Google",
       "pleaseSignInWithGoogle": "This account uses Google. Please sign in with Google.",
+      "googleSignInFailed": "Google sign-in failed. Please try again.",
+      "googleSigningIn": "Signing in with Google…",
       "enterCredentials": "Enter your credentials to access your account",
       "email": "Email",
       "password": "Password",
@@ -1134,6 +1152,48 @@
       "legalConsentPrefix": "I agree to the",
       "legalAnd": "and",
       "mustAgreeToTerms": "You must agree to the Privacy Policy and Terms of Use to continue."
+    },
+    "orderJourney": {
+      "badge": "The guest order flow",
+      "title": "From table to kitchen in one loop",
+      "subtitle": "NUX is a complete restaurant system — not only loyalty or a QR menu.",
+      "steps": {
+        "scanQr": "Scan QR",
+        "staffApproval": "Staff Approval",
+        "placeOrder": "Place Order",
+        "kitchenPrep": "Kitchen Preparation",
+        "readyToServe": "Ready to Serve"
+      }
+    },
+    "serviceCards": {
+      "title": "What restaurants run with NUX",
+      "subtitle": "The tools that matter on the floor, in the kitchen, and for every guest.",
+      "items": {
+        "secureOrdering": {
+          "title": "Secure Table Ordering",
+          "description": "Guests order from the table only after a staff member approves the session."
+        },
+        "kitchenDisplay": {
+          "title": "Kitchen Display",
+          "description": "Show incoming tickets on any tablet in the kitchen — no extra hardware required."
+        },
+        "liveTracking": {
+          "title": "Live Order Tracking",
+          "description": "Follow every order: received, in preparation, and ready to serve."
+        },
+        "floorTable": {
+          "title": "Floor & Table Management",
+          "description": "Manage tables, floor layout, and table QR codes from one dashboard."
+        },
+        "callWaiter": {
+          "title": "Call a Waiter",
+          "description": "Guests can call a waiter from the table without leaving their seat."
+        },
+        "loyaltyVisibility": {
+          "title": "Loyalty, Promotions & Restaurant Visibility",
+          "description": "Loyalty, offers, and your restaurant appear to every app and website user."
+        }
+      }
     }
   },
   "dashboard": {

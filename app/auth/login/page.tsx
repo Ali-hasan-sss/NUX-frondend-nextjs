@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Home } from "lucide-react";
 import { useAppSelector } from "@/app/hooks";
 import { getDashboardPathForRole } from "@/lib/roleDashboard";
+import { peekAuthRedirect, rememberAuthRedirect, resolvePostLoginPath } from "@/lib/authRedirect";
 
 function getRedirectPath(role: string | undefined, emailVerified?: boolean): string {
   if (emailVerified === false || emailVerified === undefined) {
@@ -28,14 +29,23 @@ function LoginPageContent() {
 
   useEffect(() => {
     setMounted(true);
+    const next = peekAuthRedirect();
+    if (next) rememberAuthRedirect(next);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     if (isAuthenticated && user) {
-      const path = getRedirectPath(user.role, user.emailVerified);
-      if (path === "/auth/verify-email") {
-        router.replace(`/auth/verify-email?email=${encodeURIComponent(user.email)}`);
+      const path = resolvePostLoginPath({
+        role: user.role,
+        emailVerified: user.emailVerified,
+        email: user.email,
+        fallback: getRedirectPath(user.role, user.emailVerified),
+      });
+      if (path.startsWith("/auth/verify-email")) {
+        router.replace(
+          `/auth/verify-email?email=${encodeURIComponent(user.email)}`,
+        );
       } else {
         router.replace(path);
       }

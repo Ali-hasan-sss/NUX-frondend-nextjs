@@ -1,5 +1,5 @@
 import type React from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Providers } from "@/components/providers";
@@ -23,6 +23,12 @@ const poppins = Poppins({
 
 const siteDescription =
   "NUX is a hospitality platform with a guest mobile app and restaurant web dashboard. Guests scan QR codes, view digital menus, pay with a wallet, and get promotions. Restaurants manage menus, orders, and payments on nuxapp.de.";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "NUX — Guest App & Restaurant Platform",

@@ -10,6 +10,10 @@ export interface PublicPlan {
   id: number;
   title: string;
   description: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionDe?: string | null;
+  descriptionTr?: string | null;
   price: number;
   monthlyPrice?: number | null;
   annualPrice?: number | null;
@@ -17,6 +21,7 @@ export interface PublicPlan {
   duration: number;
   displayOrder: number;
   isActive: boolean;
+  priceOnRequest?: boolean;
   permissions: PublicPlanPermission[];
 }
 

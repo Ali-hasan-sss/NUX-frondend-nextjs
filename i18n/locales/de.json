@@ -316,6 +316,9 @@
     "errorInvalidQrCode": "Ungültiger QR-Code. Bitte scannen Sie einen gültigen Restaurant-QR-Code.",
     "errorMustBeAtRestaurant": "Sie müssen sich am Restaurant-Standort befinden, um diesen QR-Code zu scannen.",
     "errorGeneric": "Scan fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "errorLocationDenied": "Standortzugriff ist erforderlich, um Treuepunkte zu sammeln. Aktivieren Sie den Standort und versuchen Sie es erneut.",
+    "errorGuestOnly": "Treuepunkte können nur mit einem Gastkonto gesammelt werden. Melden Sie sich als Gast an.",
+    "checkingLocation": "Standort wird geprüft…",
     "processing": "Scan wird verarbeitet...",
     "startingCamera": "Kamera wird gestartet...",
     "positionFrame": "Positionieren Sie den QR-Code im Rahmen",
@@ -733,12 +736,13 @@
         "VIEW_ANALYTICS": "Analysen anzeigen",
         "EXPORT_DATA": "Daten exportieren",
         "CUSTOM_BRANDING": "Eigenes Branding",
-        "API_ACCESS": "API-Zugang",
-        "MULTI_LOCATION": "Mehrere Standorte",
+        "API_ACCESS": "API Access",
+        "MULTI_LOCATION": "Multiple Restaurants & Locations",
         "MAX_MENU_ITEMS": "Max. Menüpunkte",
         "MAX_ADS": "Max. Anzeigen",
         "MAX_PACKAGES": "Max. Pakete",
-        "MAX_GROUP_MEMBERS": "Max. Gruppenmitglieder"
+        "MAX_GROUP_MEMBERS": "Custom Group Member Limit",
+        "TABLE_FLOOR_PLAN": "Tisch- und Raumplanverwaltung"
       },
       "plans": {
         "starter": {
@@ -776,6 +780,18 @@
             "Erweiterte Sicherheitsfunktionen"
           ]
         }
+      },
+      "contactUs": "Kontakt",
+      "priceOnRequest": "Preis auf Anfrage",
+      "featureExtras": {
+        "staffApprovedOrdering": "Sichere Tischbestellung nach Mitarbeiterfreigabe",
+        "kitchenDisplay": "Küchenanzeige auf jedem Tablet",
+        "orderReceiptConfirm": "Bestätigung des Bestellungseingangs",
+        "orderStatusFlow": "Bestellstatus: eingegangen, in Zubereitung, servierbereit",
+        "floorStaffLiveTracking": "Servicepersonal verfolgt den Bestellstatus in Echtzeit",
+        "callWaiter": "Kellner vom Tisch rufen",
+        "useWithoutDownload": "NUX per App oder Web nutzen — ohne Download",
+        "restaurantVisibility": "Restaurant und Angebote sichtbar für alle App- und Website-Nutzer"
       }
     },
     "cta": {
@@ -848,6 +864,8 @@
       "signInWithGoogle": "Mit Google anmelden",
       "signUpWithGoogle": "Mit Google registrieren",
       "pleaseSignInWithGoogle": "Dieses Konto nutzt Google. Bitte melden Sie sich mit Google an.",
+      "googleSignInFailed": "Google-Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
+      "googleSigningIn": "Anmeldung mit Google…",
       "enterCredentials": "Geben Sie Ihre Anmeldedaten ein, um auf Ihr Konto zuzugreifen",
       "email": "E-Mail",
       "password": "Passwort",
@@ -1133,6 +1151,48 @@
         "messagePlaceholder": "Beschreiben Sie Ihre Anfrage...",
         "submit": "Nachricht senden",
         "submitMessage": "Vielen Dank! Wir melden uns in Kürze."
+      }
+    },
+    "orderJourney": {
+      "badge": "Der Bestellablauf",
+      "title": "Vom Tisch in die Küche in einer Schleife",
+      "subtitle": "NUX ist ein komplettes Restaurant-System — nicht nur Loyalty oder ein QR-Menü.",
+      "steps": {
+        "scanQr": "QR scannen",
+        "staffApproval": "Mitarbeiterfreigabe",
+        "placeOrder": "Bestellen",
+        "kitchenPrep": "Küchenvorbereitung",
+        "readyToServe": "Servierbereit"
+      }
+    },
+    "serviceCards": {
+      "title": "Was Restaurants mit NUX steuern",
+      "subtitle": "Die wichtigsten Werkzeuge für Saal, Küche und Gästeerlebnis.",
+      "items": {
+        "secureOrdering": {
+          "title": "Sichere Tischbestellung",
+          "description": "Gäste bestellen vom Tisch erst nach Freigabe durch einen Mitarbeiter."
+        },
+        "kitchenDisplay": {
+          "title": "Küchenanzeige",
+          "description": "Eingehende Bestellungen auf jedem Küchen-Tablet anzeigen — ohne Extra-Hardware."
+        },
+        "liveTracking": {
+          "title": "Live-Bestellverfolgung",
+          "description": "Jede Bestellung verfolgen: eingegangen, in Zubereitung, servierbereit."
+        },
+        "floorTable": {
+          "title": "Tisch- und Raumplanverwaltung",
+          "description": "Tische, Raumplan und Tisch-QR-Codes in einem Dashboard verwalten."
+        },
+        "callWaiter": {
+          "title": "Kellner rufen",
+          "description": "Gäste können einen Kellner vom Tisch rufen, ohne aufzustehen."
+        },
+        "loyaltyVisibility": {
+          "title": "Treue, Aktionen und Sichtbarkeit",
+          "description": "Treueprogramm, Angebote und Ihr Restaurant sind für alle App- und Website-Nutzer sichtbar."
+        }
       }
     }
   },

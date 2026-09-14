@@ -11,6 +11,7 @@ import Link from "next/link";
 import { Home } from "lucide-react";
 import { useAppSelector } from "@/app/hooks";
 import { getAuthenticatedAppHome } from "@/lib/roleDashboard";
+import { peekAuthRedirect, rememberAuthRedirect, resolvePostLoginPath } from "@/lib/authRedirect";
 
 function RegisterPageContent() {
   const { t } = useTranslation();
@@ -21,12 +22,21 @@ function RegisterPageContent() {
 
   useEffect(() => {
     setMounted(true);
+    const next = peekAuthRedirect();
+    if (next) rememberAuthRedirect(next);
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
     if (isAuthenticated && user) {
-      router.replace(getAuthenticatedAppHome(user.role));
+      router.replace(
+        resolvePostLoginPath({
+          role: user.role,
+          emailVerified: user.emailVerified,
+          email: user.email,
+          fallback: getAuthenticatedAppHome(user.role),
+        }),
+      );
     }
   }, [mounted, isAuthenticated, user, router]);
 

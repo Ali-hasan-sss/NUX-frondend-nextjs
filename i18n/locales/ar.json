@@ -316,6 +316,9 @@
     "errorInvalidQrCode": "رمز QR غير صالح. يرجى مسح رمز QR صالح للمطعم.",
     "errorMustBeAtRestaurant": "يجب أن تكون داخل المطعم لمسح هذا الرمز.",
     "errorGeneric": "فشل المسح. يرجى المحاولة مرة أخرى.",
+    "errorLocationDenied": "يجب السماح بالوصول إلى الموقع لكسب نقاط الولاء. فعّل الموقع ثم حاول مرة أخرى.",
+    "errorGuestOnly": "يمكن كسب نقاط الولاء عبر حساب الضيف فقط. سجّل الدخول كضيف للمتابعة.",
+    "checkingLocation": "جاري التحقق من موقعك…",
     "processing": "جاري معالجة المسح...",
     "startingCamera": "جاري تشغيل الكاميرا...",
     "positionFrame": "ضع رمز QR داخل الإطار",
@@ -749,6 +752,46 @@
             "ميزات أمان متقدمة"
           ]
         }
+      },
+      "contactUs": "تواصل معنا",
+      "priceOnRequest": "السعر حسب الطلب",
+      "monthly": "شهري",
+      "annual": "سنوي",
+      "free": "مجاني",
+      "perMonth": "/شهر",
+      "perYear": "/سنة",
+      "unlimited": "غير محدود",
+      "permissionWithValue": "{{label}}: {{value}}",
+      "permissions": {
+        "MANAGE_MENU": "إدارة القائمة",
+        "MANAGE_QR_CODES": "إدارة أكواد QR",
+        "MANAGE_GROUPS": "إدارة المجموعات",
+        "MANAGE_ADS": "إدارة الإعلانات",
+        "MANAGE_PACKAGES": "إدارة الباقات",
+        "MANAGE_ORDERS": "إدارة الطلبات",
+        "CUSTOMER_LOYALTY": "ولاء العملاء",
+        "CUSTOMER_NOTIFICATIONS": "إشعارات العملاء",
+        "CUSTOMER_GIFTS": "هدايا العملاء",
+        "VIEW_ANALYTICS": "عرض التحليلات",
+        "EXPORT_DATA": "تصدير البيانات",
+        "CUSTOM_BRANDING": "علامة تجارية مخصصة",
+        "API_ACCESS": "الوصول إلى واجهة API",
+        "MULTI_LOCATION": "عدة مطاعم وفروع",
+        "MAX_MENU_ITEMS": "الحد الأقصى لعناصر القائمة",
+        "MAX_ADS": "الحد الأقصى للإعلانات",
+        "MAX_PACKAGES": "الحد الأقصى للباقات",
+        "MAX_GROUP_MEMBERS": "حد مخصص لأعضاء المجموعة",
+        "TABLE_FLOOR_PLAN": "إدارة الطاولات ومخطط الصالة"
+      },
+      "featureExtras": {
+        "staffApprovedOrdering": "الطلب الآمن من الطاولة بعد موافقة الموظف",
+        "kitchenDisplay": "شاشة المطبخ على أي تابلت",
+        "orderReceiptConfirm": "تأكيد استلام الطلب",
+        "orderStatusFlow": "حالة الطلب: تم الاستلام، قيد التحضير، جاهز للتقديم",
+        "floorStaffLiveTracking": "متابعة موظفي الصالة لحالة الطلب لحظياً",
+        "callWaiter": "استدعاء النادل من الطاولة",
+        "useWithoutDownload": "استخدام NUX عبر التطبيق أو الويب بدون تنزيل",
+        "restaurantVisibility": "ظهور المطعم والعروض لجميع مستخدمي التطبيق والموقع"
       }
     },
     "cta": {
@@ -1009,6 +1052,8 @@
       "signInWithGoogle": "تسجيل الدخول بواسطة Google",
       "signUpWithGoogle": "إنشاء حساب بواسطة Google",
       "pleaseSignInWithGoogle": "هذا الحساب مرتبط بـ Google. يرجى تسجيل الدخول بواسطة Google.",
+      "googleSignInFailed": "فشل تسجيل الدخول عبر Google. حاول مرة أخرى.",
+      "googleSigningIn": "جاري تسجيل الدخول عبر Google…",
       "enterCredentials": "أدخل بيانات اعتمادك للوصول إلى حسابك",
       "email": "البريد الإلكتروني",
       "password": "كلمة المرور",
@@ -1107,6 +1152,48 @@
       "legalConsentPrefix": "أوافق على",
       "legalAnd": "و",
       "mustAgreeToTerms": "يجب الموافقة على سياسة الخصوصية وشروط الاستخدام للمتابعة."
+    },
+    "orderJourney": {
+      "badge": "دورة الطلب",
+      "title": "من الطاولة إلى المطبخ في حلقة واحدة",
+      "subtitle": "NUX نظام متكامل لإدارة المطعم وتجربة الزبون — وليس مجرد ولاء أو قائمة QR.",
+      "steps": {
+        "scanQr": "مسح رمز QR",
+        "staffApproval": "موافقة الموظف",
+        "placeOrder": "تقديم الطلب",
+        "kitchenPrep": "تحضير المطبخ",
+        "readyToServe": "جاهز للتقديم"
+      }
+    },
+    "serviceCards": {
+      "title": "أهم ما يديره المطعم مع NUX",
+      "subtitle": "أدوات واضحة للصالة والمطبخ وتجربة الضيف.",
+      "items": {
+        "secureOrdering": {
+          "title": "الطلب الآمن من الطاولة",
+          "description": "يطلب الضيف من الطاولة بعد موافقة الموظف على الجلسة."
+        },
+        "kitchenDisplay": {
+          "title": "شاشة المطبخ",
+          "description": "عرض الطلبات الواردة على أي تابلت في المطبخ دون أجهزة إضافية."
+        },
+        "liveTracking": {
+          "title": "متابعة الطلب لحظياً",
+          "description": "تتبع كل طلب: تم الاستلام، قيد التحضير، وجاهز للتقديم."
+        },
+        "floorTable": {
+          "title": "إدارة الطاولات ومخطط الصالة",
+          "description": "إدارة الطاولات ومخطط الصالة وأكواد QR من لوحة واحدة."
+        },
+        "callWaiter": {
+          "title": "استدعاء النادل",
+          "description": "يمكن للضيف استدعاء النادل من الطاولة دون مغادرة مقعده."
+        },
+        "loyaltyVisibility": {
+          "title": "الولاء والعروض وظهور المطعم",
+          "description": "الولاء والعروض ومطعمك يظهران لجميع مستخدمي التطبيق والموقع."
+        }
+      }
     }
   },
   "dashboard": {
@@ -1439,11 +1526,9 @@
       "type": "النوع",
       "timestamp": "الطابع الزمني",
       "noScansFound": "لم يتم العثور على عمليات مسح",
-      "differentCustomers": "عملاء مختلفون",
       "todaysScans": "مسح اليوم",
       "thisWeeksScans": "هذا الأسبوع",
       "thisMonthsScans": "مسح هذا الشهر",
-      "last30Days": "آخر 30 يوم",
       "drinks": "مشروبات",
       "meals": "وجبات",
       "allTime": "كل الوقت",
@@ -1501,7 +1586,6 @@
       "allTime": "كل الوقت",
       "last24Hours": "آخر 24 ساعة",
       "last7Days": "آخر 7 أيام",
-      "last30Days": "آخر 30 يوم",
       "filterData": "تصفية البيانات",
       "clearFilters": "مسح الفلاتر",
       "paymentRecords": "سجلات النقاط",
@@ -1581,7 +1665,7 @@
       "active": "نشط",
       "restaurantActive": "المطعم نشط",
       "update": "تحديث",
-      "saving": "جاري الحفظ",
+      "saving": "جاري الحفظ...",
       "restaurantSettingsUpdated": "تم تحديث إعدادات المطعم بنجاح",
       "failedToUpdateSettings": "فشل تحديث إعدادات المطعم",
       "failedToUpdateStatus": "فشل تحديث حالة المطعم",
@@ -1611,7 +1695,6 @@
       "restaurantStatus": "حالة المطعم",
       "restaurantStatusActive": "المطعم نشط حاليًا ومرئي للعملاء",
       "restaurantStatusClosed": "المطعم مغلق مؤقتًا ومخفي عن العملاء",
-      "active": "نشط",
       "closed": "مغلق",
       "subscription": "الاشتراك",
       "subscriptionActive": "نشط",
@@ -1633,7 +1716,6 @@
       "restaurantNamePlaceholder": "أدخل اسم المطعم",
       "addressPlaceholder": "أدخل عنوان المطعم",
       "restaurantLogoLabel": "شعار المطعم",
-      "saving": "جاري الحفظ...",
       "uploading": "جاري الرفع...",
       "saveChanges": "حفظ التغييرات",
       "editLocationTitle": "تعديل موقع المطعم",
@@ -1697,11 +1779,11 @@
     },
     "groups": {
       "title": "إدارة المجموعات",
-      "description": "إدارة مجموعة مطعمك والدعوات",
+      "description": "الوصف",
       "myGroup": "مجموعتي",
       "pendingInvites": "الدعوات المعلقة",
       "totalMembers": "إجمالي الأعضاء",
-      "createGroup": "إنشاء مجموعة",
+      "createGroup": "إنشاء المجموعة",
       "createGroupDesc": "إنشاء مجموعة مطاعم جديدة للتعاون مع مطاعم أخرى",
       "editGroup": "تعديل المجموعة",
       "noGroup": "لا توجد مجموعة",
@@ -1733,17 +1815,14 @@
       "status": "الحالة",
       "noDescription": "لا يوجد وصف",
       "createNewGroup": "إنشاء مجموعة جديدة",
-      "editGroup": "تعديل المجموعة",
       "updateGroupInfo": "تحديث معلومات مجموعتك ودعوة أعضاء جدد",
       "createGroupAndInvite": "إنشاء مجموعة مطاعم جديدة ودعوة الأعضاء",
       "groupNameRequired": "اسم المجموعة *",
       "groupNamePlaceholder": "مثال: منطقة الطعام في وسط المدينة",
-      "description": "الوصف",
       "optionalDescription": "وصف اختياري",
       "updating": "جاري التحديث...",
       "creating": "جاري الإنشاء...",
-      "updateGroup": "تحديث المجموعة",
-      "createGroup": "إنشاء المجموعة"
+      "updateGroup": "تحديث المجموعة"
     },
     "menu": {
       "title": "إدارة القائمة",

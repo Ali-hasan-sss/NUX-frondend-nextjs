@@ -9,6 +9,10 @@ export interface AdminPlan {
   id: number | string;
   title: string;
   description?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionDe?: string | null;
+  descriptionTr?: string | null;
   currency?: string | null;
   subscriberCount: number;
   price: number;
@@ -17,6 +21,7 @@ export interface AdminPlan {
   duration: number; // days
   displayOrder: number;
   isActive: boolean;
+  priceOnRequest?: boolean;
   permissions: PlanPermission[];
   stripeProductId?: string | null;
   stripePriceId?: string | null;
@@ -36,6 +41,10 @@ export interface AdminPlansState {
 export interface CreateAdminPlanRequest {
   title: string;
   description?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionDe?: string | null;
+  descriptionTr?: string | null;
   currency?: string | null;
   price: number;
   monthlyPrice?: number;
@@ -43,12 +52,17 @@ export interface CreateAdminPlanRequest {
   duration: number;
   displayOrder?: number;
   isActive?: boolean;
+  priceOnRequest?: boolean;
   permissions?: PlanPermission[];
 }
 
 export interface UpdateAdminPlanRequest {
   title?: string;
   description?: string | null;
+  descriptionEn?: string | null;
+  descriptionAr?: string | null;
+  descriptionDe?: string | null;
+  descriptionTr?: string | null;
   currency?: string | null;
   price?: number;
   monthlyPrice?: number;
@@ -56,5 +70,6 @@ export interface UpdateAdminPlanRequest {
   duration?: number;
   displayOrder?: number;
   isActive?: boolean;
+  priceOnRequest?: boolean;
   permissions?: PlanPermission[];
 }

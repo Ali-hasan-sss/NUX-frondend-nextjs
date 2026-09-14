@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GoogleSignInButton } from "./GoogleSignInButton";
 import { getDashboardPathForRole } from "@/lib/roleDashboard";
+import { peekAuthRedirect, rememberAuthRedirect, resolvePostLoginPath } from "@/lib/authRedirect";
 import { LegalConsentCheckbox } from "@/components/auth/legal-consent-checkbox";
 
 export function LoginForm() {
@@ -31,6 +32,18 @@ export function LoginForm() {
   const router = useRouter();
   const { error } = useAppSelector((state) => state.auth);
   const [submitting, setSubmitting] = useState(false);
+  const [googleRedirectError, setGoogleRedirectError] = useState(false);
+  const [nextPath, setNextPath] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setGoogleRedirectError(params.get("google_error") === "1");
+    const next = peekAuthRedirect();
+    if (next) {
+      rememberAuthRedirect(next);
+      setNextPath(next);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +54,15 @@ export function LoginForm() {
       setSubmitting(true);
       const result = await dispatch(loginUser(formData));
       if (loginUser.fulfilled.match(result)) {
-        router.push(getDashboardPathForRole(result.payload.user.role));
+        const user = result.payload.user;
+        router.push(
+          resolvePostLoginPath({
+            role: user.role,
+            emailVerified: user.emailVerified,
+            email: user.email,
+            fallback: getDashboardPathForRole(user.role),
+          }),
+        );
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -59,12 +80,14 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {error && (
+      {(error || googleRedirectError) && (
         <Alert variant="destructive" className="rounded-xl">
           <AlertDescription>
-            {error.includes("sign in with Google") || error.includes("USE_GOOGLE")
-              ? t("landing.auth.pleaseSignInWithGoogle")
-              : error}
+            {googleRedirectError && !error
+              ? t("landing.auth.googleSignInFailed")
+              : error?.includes("sign in with Google") || error?.includes("USE_GOOGLE")
+                ? t("landing.auth.pleaseSignInWithGoogle")
+                : error}
           </AlertDescription>
         </Alert>
       )}
@@ -180,7 +203,11 @@ export function LoginForm() {
         <p className="text-sm text-muted-foreground">
           {t("landing.auth.dontHaveAccount")}{" "}
           <Link
-            href="/auth/register"
+            href={
+              nextPath
+                ? `/auth/register?next=${encodeURIComponent(nextPath)}`
+                : "/auth/register"
+            }
             className="text-primary font-medium hover:underline"
           >
             {t("landing.auth.signUpLink")}

@@ -11,6 +11,10 @@ function mapPlan(api: any): AdminPlan {
     id: api.id,
     title: api.title,
     description: api.description ?? null,
+    descriptionEn: api.descriptionEn ?? api.description ?? null,
+    descriptionAr: api.descriptionAr ?? null,
+    descriptionDe: api.descriptionDe ?? null,
+    descriptionTr: api.descriptionTr ?? null,
     currency: api.currency ?? null,
     price: api.price,
     monthlyPrice: api.monthlyPrice ?? api.price,
@@ -18,6 +22,7 @@ function mapPlan(api: any): AdminPlan {
     duration: api.duration,
     displayOrder: Number(api.displayOrder ?? 0),
     isActive: Boolean(api.isActive),
+    priceOnRequest: Boolean(api.priceOnRequest),
     permissions:
       api.permissions?.map((perm: any) => ({
         id: perm.id,

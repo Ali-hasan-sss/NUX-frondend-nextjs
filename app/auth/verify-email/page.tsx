@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { getDashboardPathForRole } from "@/lib/roleDashboard";
 import { AuthBrandPanel, AuthFormPanel } from "@/components/auth/auth-brand-panel";
+import { resolvePostLoginPath } from "@/lib/authRedirect";
 
 function VerifyEmailContent() {
   const { t } = useTranslation();
@@ -58,7 +59,12 @@ function VerifyEmailContent() {
       await authService.verifyEmail(email, code.trim());
       setSuccess(true);
       dispatch(setEmailVerified());
-      const redirectPath = getDashboardPathForRole(user?.role);
+      const redirectPath = resolvePostLoginPath({
+        role: user?.role,
+        emailVerified: true,
+        email: email,
+        fallback: getDashboardPathForRole(user?.role),
+      });
       setTimeout(() => router.push(redirectPath), 1500);
     } catch (err: any) {
       setError(

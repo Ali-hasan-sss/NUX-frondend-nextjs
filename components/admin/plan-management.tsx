@@ -145,11 +145,16 @@ export function PlanManagement() {
                 <div>
                   <CardTitle className="text-2xl">{plan.title}</CardTitle>
                   <CardDescription className="mt-2">
-                    {/* Description as HTML from Quill */}
                     <div
                       className="prose prose-sm dark:prose-invert max-w-none"
                       dangerouslySetInnerHTML={{
-                        __html: plan.description ?? "",
+                        __html:
+                          plan.descriptionEn ||
+                          plan.description ||
+                          plan.descriptionAr ||
+                          plan.descriptionDe ||
+                          plan.descriptionTr ||
+                          "",
                       }}
                     />
                   </CardDescription>
@@ -157,19 +162,32 @@ export function PlanManagement() {
                 <Badge variant={plan.isActive ? "default" : "secondary"}>
                   {plan.isActive ? t("active") : t("inactive")}
                 </Badge>
-              </div>
-              <div className="mt-4 flex items-center space-x-2">
-                <span className="text-4xl font-bold">${plan.monthlyPrice ?? plan.price}</span>
-                {plan.currency && (
-                  <span className="text-muted-foreground">
-                    / {plan.currency} monthly
-                  </span>
+                {plan.priceOnRequest && (
+                  <Badge variant="outline" className="mt-1">
+                    Price on request
+                  </Badge>
                 )}
               </div>
+              <div className="mt-4 flex items-center space-x-2">
+                {plan.priceOnRequest ? (
+                  <span className="text-2xl font-bold">Price on request</span>
+                ) : (
+                  <>
+                    <span className="text-4xl font-bold">${plan.monthlyPrice ?? plan.price}</span>
+                    {plan.currency && (
+                      <span className="text-muted-foreground">
+                        / {plan.currency} monthly
+                      </span>
+                    )}
+                  </>
+                )}
+              </div>
+              {!plan.priceOnRequest && (
               <div className="text-sm text-muted-foreground mt-1">
                 Annual: ${plan.annualPrice ?? (plan.monthlyPrice ?? plan.price) * 12}{" "}
                 {plan.currency}
               </div>
+              )}
               <div className="text-sm text-muted-foreground mt-1">
                 {t("durationDays").replace("{days}", String(plan.duration))}
               </div>

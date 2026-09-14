@@ -28,6 +28,24 @@ import {
 
 type BillingCycle = "monthly" | "annual";
 
+const LIMIT_PERMISSION_TYPES = new Set([
+  "MAX_MENU_ITEMS",
+  "MAX_ADS",
+  "MAX_PACKAGES",
+  "MAX_GROUP_MEMBERS",
+]);
+
+const ORDER_FEATURE_EXTRAS = [
+  "staffApprovedOrdering",
+  "kitchenDisplay",
+  "orderReceiptConfirm",
+  "orderStatusFlow",
+  "floorStaffLiveTracking",
+  "callWaiter",
+  "useWithoutDownload",
+  "restaurantVisibility",
+] as const;
+
 function localeForLanguage(language: string): string {
   if (language === "de") return "de-DE";
   if (language === "tr") return "tr-TR";
@@ -45,6 +63,53 @@ function getPlanPrice(plan: PublicPlan, cycle: BillingCycle): number {
 function stripHtml(html: string | null | undefined): string {
   if (!html) return "";
   return html.replace(/<[^>]*>/g, "").trim();
+}
+
+function isMeaningfulDescription(text: string): boolean {
+  return Boolean(text) && !/^[.\u2022\-\s]+$/.test(text);
+}
+
+function localizedPlanDescription(plan: PublicPlan, language: string): string {
+  const lang = language.split("-")[0];
+  const byLang: Record<string, string | null | undefined> = {
+    en: plan.descriptionEn,
+    ar: plan.descriptionAr,
+    de: plan.descriptionDe,
+    tr: plan.descriptionTr,
+  };
+  const candidates = [
+    byLang[lang],
+    plan.descriptionEn,
+    plan.description,
+    plan.descriptionDe,
+    plan.descriptionAr,
+    plan.descriptionTr,
+  ];
+  for (const candidate of candidates) {
+    const text = stripHtml(candidate);
+    if (isMeaningfulDescription(text)) return text;
+  }
+  return "";
+}
+
+function isStarterPlusPlan(plan: PublicPlan): boolean {
+  return /starter\s*plus/i.test(plan.title);
+}
+
+function isPriceOnRequestPlan(plan: PublicPlan): boolean {
+  return Boolean(plan.priceOnRequest) || /enterprise/i.test(plan.title);
+}
+
+function hasPermission(plan: PublicPlan, type: string): boolean {
+  return (plan.permissions || []).some((p) => p.type === type);
+}
+
+function plansGridClass(count: number): string {
+  if (count === 1) return "grid-cols-1 max-w-sm";
+  if (count === 2) return "grid-cols-1 sm:grid-cols-2";
+  if (count === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  if (count === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5";
 }
 
 export function Pricing() {
@@ -98,6 +163,9 @@ export function Pricing() {
     const label = t(`landing.pricing.permissions.${type}`, {
       defaultValue: type.replace(/_/g, " "),
     });
+    if (!LIMIT_PERMISSION_TYPES.has(type)) {
+      return label;
+    }
     if (isUnlimited) {
       return `${label} (${t("landing.pricing.unlimited")})`;
     }
@@ -108,6 +176,23 @@ export function Pricing() {
       });
     }
     return label;
+  };
+
+  const getPlanFeatures = (plan: PublicPlan): string[] => {
+    const features: string[] = [];
+    for (const permission of plan.permissions || []) {
+      features.push(getPermissionLabel(permission));
+      if (permission.type === "MANAGE_QR_CODES") {
+        features.push(t("landing.pricing.permissions.TABLE_FLOOR_PLAN"));
+      }
+    }
+    if (hasPermission(plan, "MANAGE_ORDERS")) {
+      for (const extra of ORDER_FEATURE_EXTRAS) {
+        features.push(t(`landing.pricing.featureExtras.${extra}`));
+      }
+    }
+    const unique = Array.from(new Set(features.filter(Boolean)));
+    return unique.length > 0 ? unique : [plan.title];
   };
 
   const activePlans = useMemo(
@@ -157,8 +242,8 @@ export function Pricing() {
         </SectionReveal>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto px-4">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-[1400px] mx-auto px-4">
+            {[1, 2, 3, 4, 5].map((i) => (
               <Card
                 key={i}
                 className={cn(
@@ -217,27 +302,19 @@ export function Pricing() {
         ) : (
           <div
             className={cn(
-              "grid gap-6 max-w-7xl mx-auto px-4",
-              activePlans.length === 1
-                ? "grid-cols-1 max-w-sm"
-                : activePlans.length === 2
-                  ? "grid-cols-1 sm:grid-cols-2"
-                  : activePlans.length === 3
-                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+              "grid gap-6 mx-auto px-4",
+              activePlans.length >= 5 ? "max-w-[1400px]" : "max-w-7xl",
+              plansGridClass(activePlans.length)
             )}
           >
             {activePlans.map((plan, index) => {
               const cycle = getBillingCycle(plan.id);
+              const priceOnRequest = isPriceOnRequestPlan(plan);
               const priceValue = getPlanPrice(plan, cycle);
-              const isFree = !priceValue || priceValue <= 0;
-              const popular =
-                activePlans.length > 2 && index === 1;
-              const description = stripHtml(plan.description);
-              const features =
-                (plan.permissions || []).length > 0
-                  ? (plan.permissions || []).map(getPermissionLabel)
-                  : [plan.title];
+              const isFree = !priceOnRequest && (!priceValue || priceValue <= 0);
+              const popular = isStarterPlusPlan(plan);
+              const description = localizedPlanDescription(plan, i18n.language);
+              const features = getPlanFeatures(plan);
 
               return (
                 <SectionRevealItem
@@ -259,6 +336,7 @@ export function Pricing() {
                   <Card
                     className={cn(
                       "flex flex-col min-h-[420px]",
+                      popular && "ring-2 ring-cyan-400/80 shadow-lg",
                       isDark
                         ? "bg-gradient-to-br from-[#1A1F3A]/80 to-[#2D1B4E]/80 border-purple-500/20 backdrop-blur-sm"
                         : "bg-white border-gray-200"
@@ -273,7 +351,7 @@ export function Pricing() {
                       >
                         {plan.title}
                       </CardTitle>
-                      {description && (
+                      {isMeaningfulDescription(description) && (
                         <CardDescription
                           className={cn(
                             "text-sm",
@@ -284,6 +362,7 @@ export function Pricing() {
                         </CardDescription>
                       )}
 
+                      {!priceOnRequest && (
                       <div
                         className={cn(
                           "mt-4 flex items-center justify-center gap-2 rounded-lg border px-3 py-2",
@@ -330,27 +409,41 @@ export function Pricing() {
                           {t("landing.pricing.annual")}
                         </Label>
                       </div>
+                      )}
 
                       <div className="mt-3">
-                        <span
-                          className={cn(
-                            "text-3xl font-bold",
-                            isDark ? "text-white" : "text-gray-900"
-                          )}
-                        >
-                          {formatPrice(priceValue, plan.currency)}
-                        </span>
-                        {!isFree && (
+                        {priceOnRequest ? (
                           <span
                             className={cn(
-                              "text-sm",
-                              isDark ? "text-white/70" : "text-gray-600"
+                              "text-xl font-bold",
+                              isDark ? "text-white" : "text-gray-900"
                             )}
                           >
-                            {cycle === "annual"
-                              ? t("landing.pricing.perYear")
-                              : t("landing.pricing.perMonth")}
+                            {t("landing.pricing.priceOnRequest")}
                           </span>
+                        ) : (
+                          <>
+                            <span
+                              className={cn(
+                                "text-3xl font-bold",
+                                isDark ? "text-white" : "text-gray-900"
+                              )}
+                            >
+                              {formatPrice(priceValue, plan.currency)}
+                            </span>
+                            {!isFree && (
+                              <span
+                                className={cn(
+                                  "text-sm",
+                                  isDark ? "text-white/70" : "text-gray-600"
+                                )}
+                              >
+                                {cycle === "annual"
+                                  ? t("landing.pricing.perYear")
+                                  : t("landing.pricing.perMonth")}
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                     </CardHeader>
@@ -360,9 +453,9 @@ export function Pricing() {
                         {features.map((feature, featureIndex) => (
                           <li
                             key={featureIndex}
-                            className="flex items-center gap-2"
+                            className="flex items-start gap-2"
                           >
-                            <Check className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                            <Check className="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" />
                             <span
                               className={cn(
                                 "text-sm",
@@ -376,7 +469,10 @@ export function Pricing() {
                       </ul>
 
                       <div className="mt-auto pt-4">
-                        <Link href="/auth/register" className="block">
+                        <Link
+                          href={priceOnRequest ? "/contact" : "/auth/register"}
+                          className="block"
+                        >
                           <Button
                             className={cn(
                               "w-full",
@@ -387,9 +483,11 @@ export function Pricing() {
                                   : "bg-transparent border-gray-300 text-gray-900 hover:bg-gray-100"
                             )}
                           >
-                            {isFree
-                              ? t("landing.pricing.startFree")
-                              : t("landing.pricing.startNow")}
+                            {priceOnRequest
+                              ? t("landing.pricing.contactUs")
+                              : isFree
+                                ? t("landing.pricing.startFree")
+                                : t("landing.pricing.startNow")}
                           </Button>
                         </Link>
                       </div>

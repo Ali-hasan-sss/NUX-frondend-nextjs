@@ -3,6 +3,7 @@
 import { motion, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { MarketingHeroBackground } from "@/components/landing/marketing-hero-background";
+import { publicOverlayHeroTopClass } from "@/lib/public-page-layout";
 import type { ReactNode } from "react";
 
 export type SectionBgVariant =
@@ -426,7 +427,7 @@ export function PageHero({
     <section
       className={cn(
         "relative overflow-hidden min-h-[100dvh] max-h-none flex flex-col",
-        align === "center" ? "justify-center" : "justify-start",
+        align === "center" ? "justify-start xl:justify-center" : "justify-start",
         className
       )}
     >
@@ -434,7 +435,8 @@ export function PageHero({
       <div
         className={cn(
           "relative z-10 w-full mx-auto px-4 md:px-6 lg:px-8",
-          "pt-20 sm:pt-[4.5rem] lg:pt-24 pb-12 lg:pb-16",
+          publicOverlayHeroTopClass,
+          "xl:pt-24 pb-12 lg:pb-16",
           containerClassName ?? "max-w-4xl text-center"
         )}
       >

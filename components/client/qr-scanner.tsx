@@ -16,6 +16,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Camera, X, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { BrowserQRCodeReader } from "@zxing/browser";
+import { extractLoyaltyQrCode } from "@/lib/loyaltyQr";
 import "@/styles/qr-scanner.css";
 
 const UUID_REGEX = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
@@ -177,6 +178,8 @@ export const QRScanner = React.memo(function QRScanner({
       return;
     }
 
+    const loyaltyCode = extractLoyaltyQrCode(qrCodeMessage);
+
     try {
       // Get location with high accuracy settings
       console.log("Getting location for QR scan...");
@@ -238,7 +241,7 @@ export const QRScanner = React.memo(function QRScanner({
           console.log("✅ Using IP location instead of GPS");
           const result = await dispatch(
             scanQrCode({
-              qrCode: qrCodeMessage,
+              qrCode: loyaltyCode,
               latitude: ipLoc.lat,
               longitude: ipLoc.lng,
             })
@@ -267,7 +270,7 @@ export const QRScanner = React.memo(function QRScanner({
         console.log("🔧 Using real location override");
         const result = await dispatch(
           scanQrCode({
-            qrCode: qrCodeMessage,
+            qrCode: loyaltyCode,
             latitude: 36.020214,
             longitude: 35.0134549,
           })
@@ -285,7 +288,7 @@ export const QRScanner = React.memo(function QRScanner({
 
       const result = await dispatch(
         scanQrCode({
-          qrCode: qrCodeMessage,
+          qrCode: loyaltyCode,
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
         })

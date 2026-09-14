@@ -24,13 +24,27 @@ import {
   PERMISSION_CATEGORIES,
 } from "@/features/admin/plans/permissionsConstants";
 import { PlanPermission } from "@/features/admin/plans/adminPlansTypes";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+
+const DESCRIPTION_LANGS = [
+  { key: "descriptionEn", label: "English" },
+  { key: "descriptionAr", label: "العربية" },
+  { key: "descriptionDe", label: "Deutsch" },
+  { key: "descriptionTr", label: "Türkçe" },
+] as const;
+
+type DescriptionLangKey = (typeof DESCRIPTION_LANGS)[number]["key"];
 
 export interface PlanFormInput {
   id?: string;
   title: string;
   description: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  descriptionDe?: string;
+  descriptionTr?: string;
   price: number;
   monthlyPrice: number;
   annualPrice: number;
@@ -38,6 +52,7 @@ export interface PlanFormInput {
   duration: number;
   displayOrder: number;
   isActive: boolean;
+  priceOnRequest?: boolean;
   permissions: PlanPermission[];
 }
 
@@ -57,26 +72,39 @@ export function PlanForm({
   const initialMonthlyPrice = initialData?.monthlyPrice ?? initialData?.price ?? 0;
   const initialAnnualPrice =
     initialData?.annualPrice ?? (initialData?.price ?? 0) * 12;
+  const initialEn =
+    initialData?.descriptionEn || initialData?.description || "";
   const [formData, setFormData] = useState<PlanFormInput>(
     initialData
       ? {
           ...initialData,
           monthlyPrice: initialMonthlyPrice,
           annualPrice: initialAnnualPrice,
+          descriptionEn: initialEn,
+          descriptionAr: initialData.descriptionAr || "",
+          descriptionDe: initialData.descriptionDe || "",
+          descriptionTr: initialData.descriptionTr || "",
+          priceOnRequest: Boolean(initialData.priceOnRequest),
         }
       : {
           title: "",
           description: "",
+          descriptionEn: "",
+          descriptionAr: "",
+          descriptionDe: "",
+          descriptionTr: "",
           price: 0,
           monthlyPrice: 0,
           annualPrice: 0,
-          currency: "USD",
+          currency: "EUR",
           duration: 30,
           displayOrder: 0,
           isActive: true,
+          priceOnRequest: false,
           permissions: [],
         }
   );
+  const [descLang, setDescLang] = useState<DescriptionLangKey>("descriptionEn");
   const [monthlyPriceInput, setMonthlyPriceInput] = useState(
     String(initialMonthlyPrice)
   );
@@ -113,9 +141,16 @@ export function PlanForm({
     try {
       await onSubmit({
         ...formData,
-        monthlyPrice: parseDecimalInput(monthlyPriceInput),
-        annualPrice: parseDecimalInput(annualPriceInput),
-        price: parseDecimalInput(monthlyPriceInput),
+        description: formData.descriptionEn || formData.description,
+        monthlyPrice: formData.priceOnRequest
+          ? 0
+          : parseDecimalInput(monthlyPriceInput),
+        annualPrice: formData.priceOnRequest
+          ? 0
+          : parseDecimalInput(annualPriceInput),
+        price: formData.priceOnRequest
+          ? 0
+          : parseDecimalInput(monthlyPriceInput),
         duration: 30,
       });
       onClose();
@@ -211,17 +246,43 @@ export function PlanForm({
         />
       </div>
 
-      {/* Description with Quill */}
+      {/* Descriptions per language */}
       <div className="space-y-2">
         <Label>Description</Label>
-        <ReactQuill
-          value={formData.description}
-          onChange={(val) => handleChange("description", val)}
-          theme="snow"
+        <Tabs
+          value={descLang}
+          onValueChange={(value) => setDescLang(value as DescriptionLangKey)}
+        >
+          <TabsList className="grid w-full grid-cols-4">
+            {DESCRIPTION_LANGS.map((lang) => (
+              <TabsTrigger key={lang.key} value={lang.key}>
+                {lang.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {DESCRIPTION_LANGS.map((lang) => (
+            <TabsContent key={lang.key} value={lang.key} className="mt-2">
+              <ReactQuill
+                value={formData[lang.key] || ""}
+                onChange={(val) => handleChange(lang.key, val)}
+                theme="snow"
+              />
+            </TabsContent>
+          ))}
+        </Tabs>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="priceOnRequest"
+          checked={Boolean(formData.priceOnRequest)}
+          onCheckedChange={(val) => handleChange("priceOnRequest", val)}
         />
+        <Label htmlFor="priceOnRequest">Price on request (Enterprise)</Label>
       </div>
 
       {/* Price & Currency */}
+      {!formData.priceOnRequest && (
       <div className="flex space-x-2">
         <div className="flex-1">
           <Label htmlFor="monthlyPrice">Monthly price</Label>
@@ -279,6 +340,7 @@ export function PlanForm({
           </Select>
         </div>
       </div>
+      )}
 
       {/* Ordering & Active */}
       <div className="flex items-center space-x-4">

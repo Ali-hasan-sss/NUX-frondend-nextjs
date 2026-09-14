@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { scanQrCode, fetchUserBalances } from "@/features/client";
+import { extractLoyaltyQrCode } from "@/lib/loyaltyQr";
 
 const SCAN_AREA_SIZE = 250;
 const UUID_REGEX =
@@ -138,7 +139,7 @@ export function ScanModal({ open, onOpenChange }: ScanModalProps) {
           getCurrentPosition()
             .then(({ latitude, longitude }) => {
               return dispatch(
-                scanQrCode({ qrCode: decodedText, latitude, longitude })
+                scanQrCode({ qrCode: extractLoyaltyQrCode(decodedText), latitude, longitude })
               ).unwrap();
             })
             .then(() => {

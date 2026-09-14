@@ -49,6 +49,7 @@ import {
   canShowLoyaltyQrCodes,
   canShowMenuQrCode,
 } from "@/lib/restaurantPlanPermissions";
+import { loyaltyScanUrl } from "@/lib/loyaltyQr";
 import { toast } from "sonner";
 
 /** Print-only CSS: 5cm×5cm QR + label (title/subtitle) below. Stickers stacked on same page, no blank pages. */
@@ -415,6 +416,16 @@ export function QRCodeManagement() {
     // Public menu URL generated from restaurant id
     return `${appBaseUrl}/menu/${data.id}`;
   }, [appBaseUrl, data?.id]);
+  const drinkScanUrl = useMemo(
+    () =>
+      data?.qrCode_drink ? loyaltyScanUrl(appBaseUrl, data.qrCode_drink) : "",
+    [appBaseUrl, data?.qrCode_drink],
+  );
+  const mealScanUrl = useMemo(
+    () =>
+      data?.qrCode_meal ? loyaltyScanUrl(appBaseUrl, data.qrCode_meal) : "",
+    [appBaseUrl, data?.qrCode_meal],
+  );
   const paymentQrValue = useMemo(() => {
     if (!data?.id) return "";
     return buildPaymentQrPayload(data.id, data.name ?? "Restaurant");
@@ -434,7 +445,7 @@ export function QRCodeManagement() {
     const menuLogoResolved = resolveMediaUrl(data?.logo);
     if (canLoyaltyQr && data?.qrCode_drink) {
       stickers.push({
-        imgSrc: qrServerUrl(data.qrCode_drink, 300),
+        imgSrc: qrServerUrl(drinkScanUrl, 300),
         title: name,
         subtitle: t("dashboard.qrCodes.drinkQR"),
         overlay: { kind: "icon", which: "drink" },
@@ -442,7 +453,7 @@ export function QRCodeManagement() {
     }
     if (canLoyaltyQr && data?.qrCode_meal) {
       stickers.push({
-        imgSrc: qrServerUrl(data.qrCode_meal, 300),
+        imgSrc: qrServerUrl(mealScanUrl, 300),
         title: name,
         subtitle: t("dashboard.qrCodes.mealQR"),
         overlay: { kind: "icon", which: "meal" },
@@ -517,11 +528,11 @@ export function QRCodeManagement() {
     let subtitle = "";
     let overlay: PrintStickerOverlay | null = null;
     if (type === "drink" && canLoyaltyQr && data?.qrCode_drink) {
-      imgSrc = qrServerUrl(data.qrCode_drink, 300);
+      imgSrc = qrServerUrl(drinkScanUrl, 300);
       subtitle = t("dashboard.qrCodes.drinkQR");
       overlay = { kind: "icon", which: "drink" };
     } else if (type === "meal" && canLoyaltyQr && data?.qrCode_meal) {
-      imgSrc = qrServerUrl(data.qrCode_meal, 300);
+      imgSrc = qrServerUrl(mealScanUrl, 300);
       subtitle = t("dashboard.qrCodes.mealQR");
       overlay = { kind: "icon", which: "meal" };
     } else if (type === "menu" && canMenuQr && menuUrl) {
@@ -644,7 +655,7 @@ export function QRCodeManagement() {
                       >
                         {data?.qrCode_drink ? (
                           <QrCodeWithCenterMark
-                            qrData={data.qrCode_drink}
+                            qrData={drinkScanUrl}
                             size={240}
                             alt={t("dashboard.qrCodes.drinkQR")}
                             onLoad={() => setDrinkImgLoaded(true)}
@@ -692,7 +703,7 @@ export function QRCodeManagement() {
                           <div className="flex justify-center">
                             {data?.qrCode_drink ? (
                               <QrCodeWithCenterMark
-                                qrData={data.qrCode_drink}
+                                qrData={drinkScanUrl}
                                 size={512}
                                 alt={t("dashboard.qrCodes.drinkQR")}
                                 centerKind="icon"
@@ -726,7 +737,7 @@ export function QRCodeManagement() {
                       >
                         {data?.qrCode_meal ? (
                           <QrCodeWithCenterMark
-                            qrData={data.qrCode_meal}
+                            qrData={mealScanUrl}
                             size={240}
                             alt={t("dashboard.qrCodes.mealQR")}
                             onLoad={() => setMealImgLoaded(true)}
@@ -776,7 +787,7 @@ export function QRCodeManagement() {
                           <div className="flex justify-center">
                             {data?.qrCode_meal ? (
                               <QrCodeWithCenterMark
-                                qrData={data.qrCode_meal}
+                                qrData={mealScanUrl}
                                 size={512}
                                 alt={t("dashboard.qrCodes.mealQR")}
                                 centerKind="icon"
