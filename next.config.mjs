@@ -1,5 +1,19 @@
 import { readFileSync } from "fs";
 import { join } from "path";
+import os from "os";
+
+function lanDevOrigins() {
+  const hosts = ["localhost", "127.0.0.1"];
+  for (const list of Object.values(os.networkInterfaces())) {
+    for (const addr of list || []) {
+      const family = String(addr.family);
+      if ((family === "IPv4" || family === "4") && !addr.internal) {
+        hosts.push(addr.address);
+      }
+    }
+  }
+  return hosts;
+}
 
 /** @type {import('next').NextConfig} */
 // Allow next/image to load from API origin (e.g. uploads at localhost:5000 or production API)
@@ -8,6 +22,15 @@ function getImageRemotePatterns() {
     { protocol: "http", hostname: "localhost", port: "5000", pathname: "/uploads/**" },
     { protocol: "http", hostname: "127.0.0.1", port: "5000", pathname: "/uploads/**" },
   ];
+  for (const host of lanDevOrigins()) {
+    if (host === "localhost" || host === "127.0.0.1") continue;
+    patterns.push({
+      protocol: "http",
+      hostname: host,
+      port: "5000",
+      pathname: "/uploads/**",
+    });
+  }
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (apiUrl) {
     try {
@@ -30,6 +53,15 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  allowedDevOrigins: lanDevOrigins(),
+  async rewrites() {
+    return [
+      {
+        source: "/nux-api/:path*",
+        destination: "http://127.0.0.1:5000/api/:path*",
+      },
+    ];
   },
   images: {
     unoptimized: true,

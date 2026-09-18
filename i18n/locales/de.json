@@ -317,6 +317,12 @@
     "errorMustBeAtRestaurant": "Sie müssen sich am Restaurant-Standort befinden, um diesen QR-Code zu scannen.",
     "errorGeneric": "Scan fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "errorLocationDenied": "Standortzugriff ist erforderlich, um Treuepunkte zu sammeln. Aktivieren Sie den Standort und versuchen Sie es erneut.",
+    "errorLocationUnavailable": "Ihr Standort konnte nicht ermittelt werden. Aktivieren Sie GPS und versuchen Sie es erneut.",
+    "needLocationTitle": "Standortzugriff erlauben",
+    "needLocationMessage": "Der Browser benötigt Ihren Standort, um zu bestätigen, dass Sie sich im Restaurant befinden, bevor Punkte gutgeschrieben werden.",
+    "allowLocation": "Standort erlauben",
+    "locationBlockedTitle": "Standort ist blockiert",
+    "locationBlockedMessage": "Öffnen Sie die Website-Einstellungen im Browser, erlauben Sie den Standort und tippen Sie danach erneut auf Standort erlauben.",
     "errorGuestOnly": "Treuepunkte können nur mit einem Gastkonto gesammelt werden. Melden Sie sich als Gast an.",
     "checkingLocation": "Standort wird geprüft…",
     "processing": "Scan wird verarbeitet...",
@@ -327,7 +333,19 @@
     "done": "Fertig",
     "cancel": "Abbrechen",
     "successTitle": "Scan erfolgreich!",
-    "successMessage": "Sie haben Treuepunkte erhalten."
+    "successMessage": "Sie haben Treuepunkte erhalten.",
+    "successMealTitle": "Sie haben einen Essenspunkt erhalten!",
+    "successDrinkTitle": "Sie haben einen Getränkepunkt erhalten!",
+    "successMealMessage": "Ein Treuepunkt für Essen wurde gutgeschrieben.",
+    "successDrinkMessage": "Ein Treuepunkt für Getränke wurde gutgeschrieben.",
+    "successMealAt": "Sie haben 1 Essenspunkt bei {{restaurant}} erhalten.",
+    "successDrinkAt": "Sie haben 1 Getränkepunkt bei {{restaurant}} erhalten.",
+    "pendingTitle": "Warten auf Kassierer-Bestätigung",
+    "pendingMessage": "Punkte werden gutgeschrieben, sobald das Restaurant-Dashboard diesen Scan bestätigt.",
+    "rejectedTitle": "Scan abgelehnt",
+    "rejectedMessage": "Der Kassierer hat diesen Scan nicht bestätigt. Es wurden keine Punkte gutgeschrieben.",
+    "expiredTitle": "Anfrage abgelaufen",
+    "expiredMessage": "Der Kassierer hat nicht rechtzeitig reagiert. Scannen Sie erneut und bitten Sie um Bestätigung."
   },
   "gift": {
     "scanQRCode": "QR-Code scannen",
@@ -1243,6 +1261,20 @@
       "clearAll": "Alle löschen",
       "dismiss": "Schließen"
     },
+    "loyaltyScans": {
+      "title": "Treue-Scan bestätigen",
+      "description": "{{name}} hat einen {{kind}}-Code gescannt. Bestätigen Sie, um Punkte gutzuschreiben.",
+      "meal": "Essen",
+      "drink": "Getränk",
+      "approve": "Bestätigen",
+      "reject": "Ablehnen",
+      "approving": "Wird bestätigt…",
+      "rejecting": "Wird abgelehnt…",
+      "secondsLeft": "Noch {{count}}s",
+      "expired": "Die Anfrage ist abgelaufen. Es wurden keine Punkte gutgeschrieben.",
+      "noRequests": "Keine ausstehenden Treue-Scans",
+      "actionFailed": "Diese Scan-Anfrage konnte nicht aktualisiert werden."
+    },
     "overview": {
       "welcomeBack": "Willkommen zurück",
       "whatsHappeningToday": "Hier ist, was heute mit",
@@ -1305,7 +1337,9 @@
         "systemMaintenance": "Systemwartung",
         "groupInvitationAccepted": "Gruppeneinladung akzeptiert",
         "newGroupInvitation": "Neue Gruppeneinladung",
-        "newQrScan": "Neuer QR-Scan"
+        "newQrScan": "Neuer QR-Scan",
+        "loyaltyScanApprovalNeeded": "Treue-Scan muss bestätigt werden",
+        "loyaltyScanDeclined": "Treue-Scan abgelehnt"
       },
       "translatedBodies": {
         "voucherSent": "Sie haben {{amount}} EUR an {{recipient}} gesendet",
@@ -1316,7 +1350,9 @@
         "receivedFromUser": "{{amount}} EUR von {{sender}} erhalten",
         "subscriptionWillEndInDays": "Ihr Abonnement endet in {{days}} Tagen. Bitte verlaengern Sie es, um alle Funktionen weiter zu nutzen.",
         "starsReceived": "Sie haben {{meal}} Essenspunkte und {{drink}} Getraenkepunkte von {{restaurant}} erhalten",
-        "customerScannedQr": "Kunde {{customer}} hat einen {{kind}}-QR-Code gescannt"
+        "customerScannedQr": "Kunde {{customer}} hat einen {{kind}}-QR-Code gescannt",
+        "loyaltyScanApprovalNeeded": "{{customer}} hat {{kind}}-Punkte angefordert. Bestätigen Sie, um gutzuschreiben.",
+        "loyaltyScanDeclined": "Der Kassierer hat Ihren {{kind}}-Scan bei {{restaurant}} nicht bestätigt. Es wurden keine Punkte gutgeschrieben."
       }
     },
     "subscription": {

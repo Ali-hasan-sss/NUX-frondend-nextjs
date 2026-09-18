@@ -15,9 +15,10 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Menu, UtensilsCrossed, X } from "lucide-react";
+import { Menu, QrCode, UtensilsCrossed, X } from "lucide-react";
 import type { WaiterRequestItem } from "@/contexts/SocketContext";
 import { NotificationBellDropdown } from "@/components/notifications/NotificationBellDropdown";
+import { LoyaltyScanApprovalDialog } from "@/components/restaurant/LoyaltyScanApprovalDialog";
 
 function formatWaiterRequestTime(timestamp: string): string {
   try {
@@ -45,7 +46,7 @@ type DashboardHeaderProps = {
 export function DashboardHeader({ onOpenSidebar }: DashboardHeaderProps) {
   const { t, i18n } = useTranslation();
   const isRTL = i18n.language === "ar";
-  const { waiterRequests, clearWaiterRequest, clearAllWaiterRequests } =
+  const { waiterRequests, clearWaiterRequest, clearAllWaiterRequests, loyaltyScanRequests, removeLoyaltyScanRequest } =
     useSocket();
 
   return (
@@ -82,6 +83,56 @@ export function DashboardHeader({ onOpenSidebar }: DashboardHeaderProps) {
             viewAllHref="/dashboard/notifications"
             align={isRTL ? "start" : "end"}
           />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                aria-label={t("dashboard.loyaltyScans.title")}
+              >
+                <QrCode className="h-5 w-5" />
+                {loyaltyScanRequests.length > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-600 text-[10px] font-bold text-white flex items-center justify-center">
+                    {loyaltyScanRequests.length > 99
+                      ? "99+"
+                      : loyaltyScanRequests.length}
+                  </span>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align={isRTL ? "start" : "end"}
+              className="w-80 max-h-[min(70vh,320px)] overflow-y-auto"
+            >
+              <DropdownMenuLabel>
+                {t("dashboard.loyaltyScans.title")}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {loyaltyScanRequests.length === 0 ? (
+                <div className="py-4 text-center text-sm text-muted-foreground">
+                  {t("dashboard.loyaltyScans.noRequests")}
+                </div>
+              ) : (
+                loyaltyScanRequests.map((req) => (
+                  <DropdownMenuItem
+                    key={req.id}
+                    className="flex flex-col items-start gap-0.5 py-2 cursor-default"
+                    onSelect={(e) => e.preventDefault()}
+                  >
+                    <span className="text-sm font-medium">
+                      {req.user.fullName?.trim() || req.user.email}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {req.type === "drink"
+                        ? t("dashboard.loyaltyScans.drink")
+                        : t("dashboard.loyaltyScans.meal")}
+                    </span>
+                  </DropdownMenuItem>
+                ))
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -156,6 +207,10 @@ export function DashboardHeader({ onOpenSidebar }: DashboardHeaderProps) {
           <ThemeToggle />
         </div>
       </div>
+      <LoyaltyScanApprovalDialog
+        request={loyaltyScanRequests[0] ?? null}
+        onResolved={removeLoyaltyScanRequest}
+      />
     </div>
   );
 }

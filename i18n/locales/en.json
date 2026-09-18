@@ -317,6 +317,12 @@
     "errorMustBeAtRestaurant": "You must be at the restaurant location to scan this QR code.",
     "errorGeneric": "Scan failed. Please try again.",
     "errorLocationDenied": "Location access is required to collect loyalty points. Enable location and try again.",
+    "errorLocationUnavailable": "Could not read your location. Turn on GPS and try again.",
+    "needLocationTitle": "Allow location access",
+    "needLocationMessage": "The browser needs your location to confirm you are at the restaurant before points can be added.",
+    "allowLocation": "Allow location",
+    "locationBlockedTitle": "Location is blocked",
+    "locationBlockedMessage": "Open the site settings in your browser, allow Location, then tap Allow location again.",
     "errorGuestOnly": "Loyalty points can only be collected with a guest account. Sign in as a guest to continue.",
     "checkingLocation": "Checking your location…",
     "processing": "Processing scan...",
@@ -327,7 +333,19 @@
     "done": "Done",
     "cancel": "Cancel",
     "successTitle": "Scan successful!",
-    "successMessage": "You've earned loyalty points."
+    "successMessage": "You've earned loyalty points.",
+    "successMealTitle": "You earned a meal point!",
+    "successDrinkTitle": "You earned a drink point!",
+    "successMealMessage": "One meal loyalty point has been added.",
+    "successDrinkMessage": "One drink loyalty point has been added.",
+    "successMealAt": "You earned 1 meal point at {{restaurant}}.",
+    "successDrinkAt": "You earned 1 drink point at {{restaurant}}.",
+    "pendingTitle": "Waiting for cashier approval",
+    "pendingMessage": "Points will be added after the restaurant dashboard approves this scan.",
+    "rejectedTitle": "Scan declined",
+    "rejectedMessage": "The cashier did not approve this scan. Points were not added.",
+    "expiredTitle": "Request expired",
+    "expiredMessage": "The cashier did not respond in time. Scan again and ask them to approve."
   },
   "gift": {
     "scanQRCode": "Scan QR Code",
@@ -1262,6 +1280,20 @@
       "clearAll": "Clear all",
       "dismiss": "Dismiss"
     },
+    "loyaltyScans": {
+      "title": "Loyalty scan approval",
+      "description": "{{name}} scanned a {{kind}} code. Approve to award points.",
+      "meal": "meal",
+      "drink": "drink",
+      "approve": "Approve",
+      "reject": "Decline",
+      "approving": "Approving…",
+      "rejecting": "Declining…",
+      "secondsLeft": "{{count}}s left",
+      "expired": "This request expired. Points were not added.",
+      "noRequests": "No pending loyalty scans",
+      "actionFailed": "Could not update this scan request."
+    },
     "overview": {
       "welcomeBack": "Welcome back",
       "whatsHappeningToday": "Here's what's happening with",
@@ -1324,7 +1356,9 @@
         "systemMaintenance": "System maintenance",
         "groupInvitationAccepted": "Group invitation accepted",
         "newGroupInvitation": "New group invitation",
-        "newQrScan": "New QR code scan"
+        "newQrScan": "New QR code scan",
+        "loyaltyScanApprovalNeeded": "Loyalty scan approval needed",
+        "loyaltyScanDeclined": "Loyalty scan declined"
       },
       "translatedBodies": {
         "voucherSent": "You sent {{amount}} EUR to {{recipient}}",
@@ -1335,7 +1369,9 @@
         "receivedFromUser": "Received {{amount}} EUR from {{sender}}",
         "subscriptionWillEndInDays": "Your subscription will end in {{days}} days. Please renew to continue using all features.",
         "starsReceived": "You received {{meal}} meal stars and {{drink}} drink stars from {{restaurant}}",
-        "customerScannedQr": "Customer {{customer}} scanned a {{kind}} QR code"
+        "customerScannedQr": "Customer {{customer}} scanned a {{kind}} QR code",
+        "loyaltyScanApprovalNeeded": "{{customer}} requested {{kind}} points. Approve to award.",
+        "loyaltyScanDeclined": "The cashier did not approve your {{kind}} scan at {{restaurant}}. Points were not added."
       }
     },
     "subscription": {

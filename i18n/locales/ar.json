@@ -317,6 +317,12 @@
     "errorMustBeAtRestaurant": "يجب أن تكون داخل المطعم لمسح هذا الرمز.",
     "errorGeneric": "فشل المسح. يرجى المحاولة مرة أخرى.",
     "errorLocationDenied": "يجب السماح بالوصول إلى الموقع لكسب نقاط الولاء. فعّل الموقع ثم حاول مرة أخرى.",
+    "errorLocationUnavailable": "تعذر تحديد موقعك. فعّل GPS ثم حاول مرة أخرى.",
+    "needLocationTitle": "اسمح بالوصول إلى الموقع",
+    "needLocationMessage": "يحتاج المتصفح إلى موقعك للتأكد أنك داخل المطعم قبل إضافة النقاط.",
+    "allowLocation": "السماح بالموقع",
+    "locationBlockedTitle": "صلاحية الموقع محظورة",
+    "locationBlockedMessage": "افتح إعدادات الموقع في المتصفح، اسمح بالوصول، ثم اضغط السماح بالموقع مرة أخرى.",
     "errorGuestOnly": "يمكن كسب نقاط الولاء عبر حساب الضيف فقط. سجّل الدخول كضيف للمتابعة.",
     "checkingLocation": "جاري التحقق من موقعك…",
     "processing": "جاري معالجة المسح...",
@@ -327,7 +333,19 @@
     "done": "تم",
     "cancel": "إلغاء",
     "successTitle": "تم المسح بنجاح!",
-    "successMessage": "لقد حصلت على نقاط ولاء."
+    "successMessage": "لقد حصلت على نقاط ولاء.",
+    "successMealTitle": "لقد كسبت نقطة طعام!",
+    "successDrinkTitle": "لقد كسبت نقطة مشروب!",
+    "successMealMessage": "تمت إضافة نقطة ولاء للطعام.",
+    "successDrinkMessage": "تمت إضافة نقطة ولاء للمشروب.",
+    "successMealAt": "كسبت نقطة طعام واحدة في {{restaurant}}.",
+    "successDrinkAt": "كسبت نقطة مشروب واحدة في {{restaurant}}.",
+    "pendingTitle": "بانتظار موافقة الكاشير",
+    "pendingMessage": "ستُضاف النقاط بعد موافقة داشبورد المطعم على هذا المسح.",
+    "rejectedTitle": "تم رفض المسح",
+    "rejectedMessage": "لم يوافق الكاشير على هذا المسح. لم تُضف النقاط.",
+    "expiredTitle": "انتهت صلاحية الطلب",
+    "expiredMessage": "لم يرد الكاشير في الوقت المحدد. امسح مرة أخرى واطلب الموافقة."
   },
   "gift": {
     "scanQRCode": "مسح رمز QR",
@@ -1262,6 +1280,20 @@
       "clearAll": "مسح الكل",
       "dismiss": "تجاهل"
     },
+    "loyaltyScans": {
+      "title": "موافقة مسح الولاء",
+      "description": "{{name}} مسح كود {{kind}}. وافق لمنح النقاط.",
+      "meal": "وجبة",
+      "drink": "مشروب",
+      "approve": "موافقة",
+      "reject": "رفض",
+      "approving": "جاري الموافقة…",
+      "rejecting": "جاري الرفض…",
+      "secondsLeft": "متبقٍ {{count}} ثانية",
+      "expired": "انتهت صلاحية الطلب. لم تُضف النقاط.",
+      "noRequests": "لا توجد عمليات مسح بانتظار الموافقة",
+      "actionFailed": "تعذر تحديث طلب المسح."
+    },
     "overview": {
       "welcomeBack": "مرحباً بعودتك",
       "whatsHappeningToday": "إليك ما يحدث مع",
@@ -1324,7 +1356,9 @@
         "systemMaintenance": "صيانة النظام",
         "groupInvitationAccepted": "تم قبول دعوة المجموعة",
         "newGroupInvitation": "دعوة مجموعة جديدة",
-        "newQrScan": "عملية مسح QR جديدة"
+        "newQrScan": "عملية مسح QR جديدة",
+        "loyaltyScanApprovalNeeded": "مطلوب الموافقة على مسح الولاء",
+        "loyaltyScanDeclined": "تم رفض مسح الولاء"
       },
       "translatedBodies": {
         "voucherSent": "أرسلت {{amount}} يورو إلى {{recipient}}",
@@ -1335,7 +1369,9 @@
         "receivedFromUser": "تم استلام {{amount}} يورو من {{sender}}",
         "subscriptionWillEndInDays": "سينتهي اشتراكك خلال {{days}} يومًا. يرجى التجديد للاستمرار في استخدام جميع الميزات.",
         "starsReceived": "استلمت {{meal}} نقاط وجبات و{{drink}} نقاط مشروبات من {{restaurant}}",
-        "customerScannedQr": "قام العميل {{customer}} بمسح كود QR من نوع {{kind}}"
+        "customerScannedQr": "قام العميل {{customer}} بمسح كود QR من نوع {{kind}}",
+        "loyaltyScanApprovalNeeded": "{{customer}} طلب نقاط {{kind}}. وافق لمنح النقاط.",
+        "loyaltyScanDeclined": "لم يوافق الكاشير على مسح {{kind}} في {{restaurant}}. لم تُضف النقاط."
       }
     },
     "subscription": {

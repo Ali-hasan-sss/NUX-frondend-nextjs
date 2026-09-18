@@ -56,6 +56,12 @@ function translateTitle(title: string, t: TFunction): string {
   if (key === "new qr code scan") {
     return t("dashboard.notifications.translatedTitles.newQrScan");
   }
+  if (key === "loyalty scan approval needed") {
+    return t("dashboard.notifications.translatedTitles.loyaltyScanApprovalNeeded");
+  }
+  if (key === "loyalty scan declined") {
+    return t("dashboard.notifications.translatedTitles.loyaltyScanDeclined");
+  }
 
   return title;
 }
@@ -121,6 +127,22 @@ function translateBody(body: string, t: TFunction): string {
     return t("dashboard.notifications.translatedBodies.customerScannedQr", {
       customer: m[1],
       kind: m[2],
+    });
+  }
+
+  m = rawNoDot.match(/^(.+) requested (meal|drink) points\. Approve to award\.?$/i);
+  if (m) {
+    return t("dashboard.notifications.translatedBodies.loyaltyScanApprovalNeeded", {
+      customer: m[1],
+      kind: m[2],
+    });
+  }
+
+  m = rawNoDot.match(/^The cashier did not approve your (meal|drink) scan at (.+)\. Points were not added\.?$/i);
+  if (m) {
+    return t("dashboard.notifications.translatedBodies.loyaltyScanDeclined", {
+      kind: m[1],
+      restaurant: m[2],
     });
   }
 

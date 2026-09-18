@@ -11,13 +11,7 @@ import { io, Socket } from "socket.io-client";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { toast } from "sonner";
 import { prependNotificationFromSocket } from "@/features/notifications/notificationsSlice";
-
-function getSocketUrl(): string {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-  const base = apiUrl.replace(/\/api\/?$/, "");
-  if (base.startsWith("https")) return base.replace(/^https/, "wss");
-  return base.replace(/^http/, "ws");
-}
+import { getSocketUrl } from "@/lib/apiBaseUrl";
 
 /** Play a short beep (for new order alert) using Web Audio API */
 function playNewOrderSound() {
@@ -99,6 +93,35 @@ function playPaymentNotificationSound() {
   } catch (_) {}
 }
 
+/** Play a distinct triple beep for loyalty scan approval. */
+function playLoyaltyScanSound() {
+  if (
+    typeof window === "undefined" ||
+    (!window.AudioContext && !(window as any).webkitAudioContext)
+  )
+    return;
+  try {
+    const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+    const ctx = new Ctx();
+    const playBeep = (freq: number, start: number, duration: number) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = "square";
+      gain.gain.setValueAtTime(0.16, start);
+      gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+      osc.start(start);
+      osc.stop(start + duration);
+    };
+    const t = ctx.currentTime;
+    playBeep(520, t, 0.1);
+    playBeep(780, t + 0.14, 0.1);
+    playBeep(1040, t + 0.28, 0.16);
+  } catch (_) {}
+}
+
 function isRestaurantDashboard(): boolean {
   if (typeof window === "undefined") return false;
   return window.location.pathname.startsWith("/dashboard");
@@ -129,6 +152,21 @@ export interface WaiterRequestItem {
   id: string;
 }
 
+export interface LoyaltyScanRequestItem {
+  id: string;
+  status?: string;
+  type: "drink" | "meal";
+  restaurantId: string;
+  restaurantName?: string;
+  user: {
+    id: string;
+    fullName: string | null;
+    email: string;
+  };
+  createdAt: string;
+  expiresAt: string;
+}
+
 interface SocketContextValue {
   socket: Socket | null;
   isConnected: boolean;
@@ -137,6 +175,8 @@ interface SocketContextValue {
   waiterRequests: WaiterRequestItem[];
   clearWaiterRequest: (id: string) => void;
   clearAllWaiterRequests: () => void;
+  loyaltyScanRequests: LoyaltyScanRequestItem[];
+  removeLoyaltyScanRequest: (id: string) => void;
 }
 
 const SocketContext = createContext<SocketContextValue>({
@@ -147,6 +187,8 @@ const SocketContext = createContext<SocketContextValue>({
   waiterRequests: [],
   clearWaiterRequest: () => {},
   clearAllWaiterRequests: () => {},
+  loyaltyScanRequests: [],
+  removeLoyaltyScanRequest: () => {},
 });
 
 export function SocketProvider({ children }: { children: React.ReactNode }) {
@@ -156,18 +198,25 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [newOrdersCount, setNewOrdersCount] = useState(0);
   const [waiterRequests, setWaiterRequests] = useState<WaiterRequestItem[]>([]);
+  const [loyaltyScanRequests, setLoyaltyScanRequests] = useState<
+    LoyaltyScanRequestItem[]
+  >([]);
 
   const clearNewOrders = useCallback(() => setNewOrdersCount(0), []);
   const clearWaiterRequest = useCallback((id: string) => {
     setWaiterRequests((prev) => prev.filter((r) => r.id !== id));
   }, []);
   const clearAllWaiterRequests = useCallback(() => setWaiterRequests([]), []);
+  const removeLoyaltyScanRequest = useCallback((id: string) => {
+    setLoyaltyScanRequests((prev) => prev.filter((r) => r.id !== id));
+  }, []);
 
   useEffect(() => {
     if (!token) {
       setSocket(null);
       setIsConnected(false);
       setNewOrdersCount(0);
+      setLoyaltyScanRequests([]);
       return;
     }
 
@@ -186,7 +235,10 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       (payload: { title?: string; body?: string; type?: string }) => {
         const title = payload?.title ?? "Notification";
         const description = payload?.body ?? "";
-        toast(title, { description: description || undefined });
+        const isLoyaltyScan = (payload?.type ?? "").toUpperCase() === "LOYALTY_SCAN";
+        if (!(isRestaurantDashboard() && isLoyaltyScan)) {
+          toast(title, { description: description || undefined });
+        }
         dispatch(prependNotificationFromSocket(payload));
         if (isRestaurantDashboard() && isPaymentNotification(payload)) {
           playPaymentNotificationSound();
@@ -216,16 +268,61 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
+    newSocket.on("loyalty:scan-request", (payload: LoyaltyScanRequestItem) => {
+      if (!payload?.id) return;
+      setLoyaltyScanRequests((prev) => {
+        if (prev.some((item) => item.id === payload.id)) return prev;
+        return [...prev, payload];
+      });
+      if (isRestaurantDashboard()) {
+        playLoyaltyScanSound();
+      }
+    });
+
+    newSocket.on(
+      "loyalty:scan-resolved",
+      (payload: { id?: string }) => {
+        if (!payload?.id) return;
+        setLoyaltyScanRequests((prev) => prev.filter((item) => item.id !== payload.id));
+      }
+    );
+
     setSocket(newSocket);
     return () => {
       newSocket.off("notification");
       newSocket.off("order:new");
       newSocket.off("waiter:request");
+      newSocket.off("loyalty:scan-request");
+      newSocket.off("loyalty:scan-resolved");
       newSocket.disconnect();
       setSocket(null);
       setIsConnected(false);
     };
   }, [token]);
+
+  useEffect(() => {
+    if (!token || !isRestaurantDashboard()) return;
+    let cancelled = false;
+    void import("@/features/restaurant/qrScans/qrScansService")
+      .then(({ qrScansService }) => qrScansService.getPendingApprovals())
+      .then((pending) => {
+        if (cancelled || !Array.isArray(pending)) return;
+        setLoyaltyScanRequests((prev) => {
+          const byId = new Map(prev.map((item) => [item.id, item]));
+          for (const item of pending) {
+            byId.set(item.id, item);
+          }
+          return Array.from(byId.values()).sort(
+            (a, b) =>
+              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [token, isConnected]);
 
   return (
     <SocketContext.Provider
@@ -237,6 +334,8 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
         waiterRequests,
         clearWaiterRequest,
         clearAllWaiterRequests,
+        loyaltyScanRequests,
+        removeLoyaltyScanRequest,
       }}
     >
       {children}

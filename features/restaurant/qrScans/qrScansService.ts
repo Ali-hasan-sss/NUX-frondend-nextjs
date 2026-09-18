@@ -4,6 +4,7 @@ import {
   QRScanStats,
   FetchQRScansParams,
   FetchQRScanStatsParams,
+  LoyaltyScanApproval,
 } from "./qrScansTypes";
 
 const API_URL = "/restaurants/qr-scans";
@@ -37,6 +38,21 @@ export const qrScansService = {
     const response = await axiosInstance.get(
       `${API_URL}/stats?${queryParams.toString()}`
     );
+    return response.data.data;
+  },
+
+  async getPendingApprovals(): Promise<LoyaltyScanApproval[]> {
+    const response = await axiosInstance.get(`${API_URL}/pending-approvals`);
+    return response.data.data ?? [];
+  },
+
+  async approveScan(id: string): Promise<LoyaltyScanApproval> {
+    const response = await axiosInstance.post(`${API_URL}/approvals/${id}/approve`);
+    return response.data.data;
+  },
+
+  async rejectScan(id: string): Promise<LoyaltyScanApproval> {
+    const response = await axiosInstance.post(`${API_URL}/approvals/${id}/reject`);
     return response.data.data;
   },
 };

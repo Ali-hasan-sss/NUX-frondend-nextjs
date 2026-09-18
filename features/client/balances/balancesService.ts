@@ -29,6 +29,11 @@ export const balancesService = {
     return response.data;
   },
 
+  getScanApproval: async (id: string): Promise<QrScanApiResponse> => {
+    const response = await axiosInstance.get(`${API_URL}/scan-approval/${id}`);
+    return response.data;
+  },
+
   // Get public packages for restaurant
   getPublicPackages: async (
     restaurantId: string

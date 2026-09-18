@@ -54,6 +54,23 @@ export interface FetchQRScanStatsParams {
   endDate?: string;
 }
 
+export interface LoyaltyScanApprovalUser {
+  id: string;
+  fullName: string | null;
+  email: string;
+}
+
+export interface LoyaltyScanApproval {
+  id: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | "EXPIRED" | string;
+  type: "drink" | "meal";
+  restaurantId: string;
+  restaurantName: string;
+  user: LoyaltyScanApprovalUser;
+  createdAt: string;
+  expiresAt: string;
+}
+
 export interface QRScansState {
   scans: QRScan[];
   pagination: QRScanPagination | null;

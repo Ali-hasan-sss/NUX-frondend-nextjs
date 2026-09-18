@@ -1,9 +1,10 @@
 import axios from "axios";
 import { setTokens, logout } from "@/features/auth/authSlice";
 import { getOrCreateWebClientDeviceId } from "@/utils/clientDeviceId";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://localhost:5000/api",
+  baseURL: getApiBaseUrl(),
   timeout: 60000, // Increased to 60 seconds
   withCredentials: false, // Important for CORS
   headers: {
@@ -28,6 +29,7 @@ export const attachStoreToAxios = (store: {
 // Request interceptor to add auth token
 axiosInstance.interceptors.request.use(
   (config) => {
+    config.baseURL = getApiBaseUrl();
     const state = reduxStore?.getState();
     const token = state?.auth?.tokens?.accessToken;
 
@@ -68,9 +70,7 @@ axiosInstance.interceptors.response.use(
       if (refreshToken) {
         try {
           const response = await axios.post(
-            `${
-              process.env.NEXT_PUBLIC_API_URL || "https://localhost:5000/api"
-            }/auth/refresh`,
+            `${getApiBaseUrl()}/auth/refresh`,
             { refreshToken },
             {
               headers: {
