@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -36,12 +37,22 @@ import type { BillingCycle } from "@/features/restaurant/subscription/subscripti
 import { toast } from "sonner";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
+import {
+  pickLocalizedPlanDescriptionHtml,
+  stripPlanHtml,
+} from "@/features/public/plans/planDescription";
+import {
+  extraDisplayPermissionsFor,
+  isStarterPlusPlan,
+  ORDER_FEATURE_EXTRAS,
+  shouldShowOrderFeatureExtras,
+} from "@/lib/planDisplayExtras";
 import { subscriptionService } from "@/features/restaurant/subscription/subscriptionService";
 import { fetchRestaurantAccount } from "@/features/restaurant/restaurantAccount/restaurantAccountThunks";
 import { useTranslation } from "react-i18next";
 
 export function SubscriptionManagement() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
@@ -74,9 +85,9 @@ export function SubscriptionManagement() {
 
   // Load plans and restaurant account on component mount
   useEffect(() => {
-    dispatch(fetchPublicPlans());
+    dispatch(fetchPublicPlans(i18n.language));
     dispatch(fetchRestaurantAccount());
-  }, [dispatch]);
+  }, [dispatch, i18n.language]);
 
   // Check for successful payment and confirm subscription (Stripe or PayPal)
   useEffect(() => {
@@ -108,7 +119,7 @@ export function SubscriptionManagement() {
         );
         setConfirmationIsSuccess(true);
         dispatch(fetchRestaurantAccount());
-        dispatch(fetchPublicPlans());
+        dispatch(fetchPublicPlans(i18n.language));
         const url = new URL(window.location.href);
         url.searchParams.delete("session_id");
         url.searchParams.delete("status");
@@ -142,7 +153,7 @@ export function SubscriptionManagement() {
         );
         setConfirmationIsSuccess(true);
         dispatch(fetchRestaurantAccount());
-        dispatch(fetchPublicPlans());
+        dispatch(fetchPublicPlans(i18n.language));
         const url = new URL(window.location.href);
         url.searchParams.delete("session_id");
         url.searchParams.delete("status");
@@ -320,6 +331,11 @@ export function SubscriptionManagement() {
   // Check if plan is free
   const isFreePlan = (planPrice: number | null | undefined) =>
     !planPrice || planPrice <= 0;
+
+  const isPriceOnRequestPlan = (plan: {
+    priceOnRequest?: boolean;
+    title?: string;
+  }) => Boolean(plan.priceOnRequest) || /enterprise/i.test(plan.title || "");
 
   const getPlanPrice = (plan: { price: number; monthlyPrice?: number | null; annualPrice?: number | null }) =>
     billingCycle === "annual"
@@ -570,7 +586,7 @@ export function SubscriptionManagement() {
               </AlertDescription>
             </Alert>
             <Button
-              onClick={() => dispatch(fetchPublicPlans())}
+              onClick={() => dispatch(fetchPublicPlans(i18n.language))}
               className="mt-4"
             >
               Try Again
@@ -581,21 +597,24 @@ export function SubscriptionManagement() {
             {plans.map((plan) => {
               const isCurrent = currentPlan?.id === plan.id;
               const isSelected = selectedPlan === plan.id;
+              const popular = isStarterPlusPlan(plan.title);
               const isExpanded = expandedDescriptions[plan.id] || false;
-              const descriptionText =
-                plan.description?.replace(/<[^>]*>/g, "") || "";
+              const descriptionHtml = pickLocalizedPlanDescriptionHtml(
+                plan,
+                i18n.language
+              );
+              const descriptionText = stripPlanHtml(descriptionHtml);
               const shouldShowReadMore = descriptionText.length > 150;
               const displayDescription =
                 isExpanded || !shouldShowReadMore
-                  ? plan.description || "No description available"
-                  : descriptionText.substring(0, 150) + "...";
+                  ? descriptionHtml
+                  : `${descriptionText.substring(0, 150)}...`;
 
               return (
                 <Card
                   key={plan.id}
                   className={`relative flex flex-col h-full overflow-visible ${
-                    plan.title.toLowerCase().includes("premium") ||
-                    plan.title.toLowerCase().includes("pro")
+                    popular
                       ? "border-primary shadow-lg"
                       : isCurrent
                       ? "border-green-500 bg-green-50/50 dark:bg-green-950/20 dark:border-green-400"
@@ -604,8 +623,7 @@ export function SubscriptionManagement() {
                       : "border-border"
                   }`}
                 >
-                  {(plan.title.toLowerCase().includes("premium") ||
-                    plan.title.toLowerCase().includes("pro")) && (
+                  {popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
                       <span className="inline-block bg-primary text-primary-foreground px-4 py-1 rounded-full text-sm font-medium whitespace-nowrap">
                         {t("dashboard.subscription.mostPopular")}
@@ -628,6 +646,7 @@ export function SubscriptionManagement() {
                         <div>
                           <CardDescription
                             className="text-base"
+                            dir={i18n.language.startsWith("ar") ? "rtl" : "ltr"}
                             dangerouslySetInnerHTML={{
                               __html:
                                 displayDescription ||
@@ -653,13 +672,15 @@ export function SubscriptionManagement() {
                       ) : (
                         <CardDescription
                           className="text-base"
+                          dir={i18n.language.startsWith("ar") ? "rtl" : "ltr"}
                           dangerouslySetInnerHTML={{
                             __html:
-                              plan.description || "No description available",
+                              descriptionHtml || "No description available",
                           }}
                         />
                       )}
                     </div>
+                    {!isPriceOnRequestPlan(plan) && (
                     <div className="mt-4 flex items-center justify-center gap-3 rounded-lg border bg-muted/30 p-2">
                       <Label
                         htmlFor={`billing-cycle-${plan.id}`}
@@ -681,22 +702,35 @@ export function SubscriptionManagement() {
                         {t("dashboard.subscription.annual")}
                       </Label>
                     </div>
+                    )}
                     <div className="mt-4">
-                      <span className="text-4xl font-bold">
-                        {formatPrice(getPlanPrice(plan), plan.currency || "EUR")}
-                      </span>
-                      <span className="text-muted-foreground">
-                        /
-                        {billingCycle === "annual"
-                          ? t("dashboard.subscription.year")
-                          : t("dashboard.subscription.month")}
-                      </span>
-                      <p className="mt-2 text-xs text-muted-foreground">
-                        {t("dashboard.subscription.priceIncludesTax")}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {t("dashboard.subscription.duration")}: {selectedDurationLabel}
-                      </p>
+                      {isPriceOnRequestPlan(plan) ? (
+                        <span className="text-2xl font-bold">
+                          {t("landing.pricing.priceOnRequest")}
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-4xl font-bold">
+                            {formatPrice(
+                              getPlanPrice(plan),
+                              plan.currency || "EUR"
+                            )}
+                          </span>
+                          <span className="text-muted-foreground">
+                            /
+                            {billingCycle === "annual"
+                              ? t("dashboard.subscription.year")
+                              : t("dashboard.subscription.month")}
+                          </span>
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {t("dashboard.subscription.priceIncludesTax")}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            {t("dashboard.subscription.duration")}:{" "}
+                            {selectedDurationLabel}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </CardHeader>
 
@@ -707,20 +741,61 @@ export function SubscriptionManagement() {
                         Features & Limits
                       </h4>
                       <ul className="space-y-2">
-                        {plan.permissions.map((permission) => (
+                        {plan.permissions.flatMap((permission) => {
+                          const label = t(
+                            `landing.pricing.permissions.${permission.type}`,
+                            {
+                              defaultValue: permission.type.replace(/_/g, " "),
+                            }
+                          );
+                          const extras = extraDisplayPermissionsFor(
+                            permission.type
+                          ).map((extra) => ({
+                            key: `${permission.id}-${extra}`,
+                            label: t(`landing.pricing.permissions.${extra}`, {
+                              defaultValue: extra.replace(/_/g, " "),
+                            }),
+                            showLimit: false,
+                            isUnlimited: false,
+                            value: null as number | null,
+                          }));
+                          return [
+                            {
+                              key: String(permission.id),
+                              label,
+                              showLimit: true,
+                              isUnlimited: permission.isUnlimited,
+                              value: permission.value,
+                            },
+                            ...extras,
+                          ];
+                        }).concat(
+                          shouldShowOrderFeatureExtras(plan)
+                            ? ORDER_FEATURE_EXTRAS.map((extra) => ({
+                                key: `order-extra-${extra}`,
+                                label: t(
+                                  `landing.pricing.featureExtras.${extra}`
+                                ),
+                                showLimit: false,
+                                isUnlimited: false,
+                                value: null as number | null,
+                              }))
+                            : []
+                        ).map((item) => (
                           <li
-                            key={permission.id}
+                            key={item.key}
                             className="flex items-center space-x-2 text-sm"
                           >
                             <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
-                            <span className="flex-1">
-                              {permission.type.replace(/_/g, " ").toLowerCase()}
-                            </span>
-                            <Badge variant="outline" className="text-xs">
-                              {permission.isUnlimited
-                                ? "Unlimited"
-                                : permission.value || "N/A"}
-                            </Badge>
+                            <span className="flex-1">{item.label}</span>
+                            {item.showLimit &&
+                            (item.isUnlimited || item.value != null) ? (
+                              <Badge variant="outline" className="text-xs">
+                                {item.isUnlimited
+                                  ? t("landing.pricing.unlimited")
+                                  : item.value}
+                              </Badge>
+                            ) : null}
                           </li>
                         ))}
                       </ul>
@@ -730,6 +805,10 @@ export function SubscriptionManagement() {
                       {isCurrent ? (
                         <Button className="w-full" disabled>
                           {t("dashboard.subscription.currentPlan")}
+                        </Button>
+                      ) : isPriceOnRequestPlan(plan) ? (
+                        <Button asChild className="w-full">
+                          <Link href="/contact">{t("landing.pricing.contactUs")}</Link>
                         </Button>
                       ) : isFreePlan(getPlanPrice(plan)) ? (
                         <Button className="w-full" disabled>

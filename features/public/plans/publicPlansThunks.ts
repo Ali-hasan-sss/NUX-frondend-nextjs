@@ -5,11 +5,11 @@ import type { PublicPlan } from "./publicPlansTypes";
 // Thunk for getting all plans
 export const fetchPublicPlans = createAsyncThunk<
   PublicPlan[],
-  void,
+  string | void,
   { rejectValue: string }
->("publicPlans/fetchPlans", async (_, { rejectWithValue }) => {
+>("publicPlans/fetchPlans", async (lang, { rejectWithValue }) => {
   try {
-    const response = await getPublicPlans();
+    const response = await getPublicPlans(lang || undefined);
     return response;
   } catch (error: any) {
     return rejectWithValue(error.message || "Failed to fetch plans");
@@ -19,11 +19,13 @@ export const fetchPublicPlans = createAsyncThunk<
 // Thunk for getting a specific plan by ID
 export const fetchPublicPlanById = createAsyncThunk<
   PublicPlan,
-  number,
+  { id: number; lang?: string } | number,
   { rejectValue: string }
->("publicPlans/fetchPlanById", async (id, { rejectWithValue }) => {
+>("publicPlans/fetchPlanById", async (arg, { rejectWithValue }) => {
   try {
-    const response = await getPublicPlanById(id);
+    const id = typeof arg === "number" ? arg : arg.id;
+    const lang = typeof arg === "number" ? undefined : arg.lang;
+    const response = await getPublicPlanById(id, lang);
     return response;
   } catch (error: any) {
     return rejectWithValue(error.message || "Plan not found");

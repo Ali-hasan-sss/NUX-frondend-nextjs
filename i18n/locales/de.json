@@ -799,7 +799,7 @@
           ]
         }
       },
-      "contactUs": "Kontakt",
+      "contactUs": "Kontaktieren Sie uns",
       "priceOnRequest": "Preis auf Anfrage",
       "featureExtras": {
         "staffApprovedOrdering": "Sichere Tischbestellung nach Mitarbeiterfreigabe",
@@ -1062,10 +1062,10 @@
       },
       "restaurantOps": {
         "title": "Restaurant-Betriebs-Dashboard",
-        "description": "Bestellungen, Grundriss und Tischcodes im Browser verwalten.",
+        "description": "Live-Bestellungen und den Tagesbetrieb im Browser steuern.",
         "benefit1": "Live-Bestellverfolgung",
-        "benefit2": "Interaktiver Grundriss",
-        "benefit3": "Tisch-QR-Verwaltung"
+        "benefit2": "Mitarbeiter-Workflows",
+        "benefit3": "Lokaleinstellungen"
       },
       "walletPayments": {
         "title": "Wallet & Zahlungen",
@@ -1125,10 +1125,17 @@
       },
       "qrCodes": {
         "title": "Digitale Menüs & QR-Codes",
-        "description": "Menüs veröffentlichen und mit Tisch- oder Lokations-QR-Codes verknüpfen.",
+        "description": "Menüs und QR-Codes für Gäste veröffentlichen.",
         "benefit1": "Kontaktloses Menü auf jedem Smartphone",
-        "benefit2": "Tisch- und lokalweite Codes",
+        "benefit2": "Treue-, Zahlungs- und Menü-QR-Codes",
         "benefit3": "Funktioniert im Web ohne App-Installation"
+      },
+      "tableFloorPlan": {
+        "title": "Tisch- und Raumplanverwaltung",
+        "description": "Tische und den Raumplan als eigenen Service verwalten — getrennt von QR-Codes.",
+        "benefit1": "Tische anlegen und verwalten",
+        "benefit2": "Interaktiver Tisch- und Raumplan",
+        "benefit3": "Tischsitzungen für Bestellungen öffnen und schließen"
       }
     },
     "contact": {
@@ -1178,7 +1185,7 @@
       "steps": {
         "scanQr": "QR scannen",
         "staffApproval": "Mitarbeiterfreigabe",
-        "placeOrder": "Bestellen",
+        "placeOrder": "Bestellung aufgeben",
         "kitchenPrep": "Küchenvorbereitung",
         "readyToServe": "Servierbereit"
       }
@@ -1186,6 +1193,7 @@
     "serviceCards": {
       "title": "Was Restaurants mit NUX steuern",
       "subtitle": "Die wichtigsten Werkzeuge für Saal, Küche und Gästeerlebnis.",
+      "gastroPro": "Gastro Pro",
       "items": {
         "secureOrdering": {
           "title": "Sichere Tischbestellung",
@@ -1201,7 +1209,7 @@
         },
         "floorTable": {
           "title": "Tisch- und Raumplanverwaltung",
-          "description": "Tische, Raumplan und Tisch-QR-Codes in einem Dashboard verwalten."
+          "description": "Tische und den Raumplan im Restaurant-Dashboard verwalten."
         },
         "callWaiter": {
           "title": "Kellner rufen",
@@ -1210,6 +1218,24 @@
         "loyaltyVisibility": {
           "title": "Treue, Aktionen und Sichtbarkeit",
           "description": "Treueprogramm, Angebote und Ihr Restaurant sind für alle App- und Website-Nutzer sichtbar."
+        },
+        "staffApprovedOrdering": {
+          "description": "Gäste bestellen vom Tisch erst nach Freigabe durch einen Mitarbeiter."
+        },
+        "orderReceiptConfirm": {
+          "description": "Mitarbeitende bestätigen den Eingang jeder Bestellung."
+        },
+        "orderStatusFlow": {
+          "description": "Jede Bestellung verfolgen: eingegangen, in Zubereitung, servierbereit."
+        },
+        "floorStaffLiveTracking": {
+          "description": "Servicepersonal verfolgt den Bestellstatus live."
+        },
+        "useWithoutDownload": {
+          "description": "NUX in der App oder im Browser nutzen — ohne zusätzlichen Download."
+        },
+        "restaurantVisibility": {
+          "description": "Ihr Restaurant und Ihre Angebote sind für alle App- und Website-Nutzer sichtbar."
         }
       }
     }
@@ -1224,6 +1250,7 @@
       "settings": "Einstellungen",
       "qrAndPayments": "QR & Zahlungen",
       "qrCodes": "QR-Codes",
+      "tableFloorPlan": "Tisch- und Raumplanverwaltung",
       "tableCodes": "Tisch-Codes",
       "floorPlan": "Grundriss",
       "qrScans": "QR-Scans",

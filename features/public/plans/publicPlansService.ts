@@ -1,21 +1,26 @@
 import axios from "axios";
-import { PublicPlan, PublicPlansApiResponse } from "./publicPlansTypes";
+import { getApiBaseUrl } from "@/lib/apiBaseUrl";
+import { planLangCode } from "./planDescription";
+import { PublicPlan } from "./publicPlansTypes";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+function plansUrl(path = ""): string {
+  return `${getApiBaseUrl()}/plans${path}`;
+}
 
-// API endpoints
-const ENDPOINTS = {
-  PLANS: `${API_BASE_URL}/plans`,
-  PLAN_BY_ID: (id: number) => `${API_BASE_URL}/plans/${id}`,
-} as const;
+function langParams(lang?: string) {
+  const code = planLangCode(lang);
+  return {
+    params: { lang: code },
+    headers: { "Accept-Language": code },
+  };
+}
 
 /**
  * Get all available plans
  */
-export const getPublicPlans = async (): Promise<PublicPlan[]> => {
+export const getPublicPlans = async (lang?: string): Promise<PublicPlan[]> => {
   try {
-    const response = await axios.get(ENDPOINTS.PLANS);
+    const response = await axios.get(plansUrl(), langParams(lang));
 
     if (response.data.success) {
       return response.data.data as PublicPlan[];
@@ -31,9 +36,12 @@ export const getPublicPlans = async (): Promise<PublicPlan[]> => {
 /**
  * Get a specific plan by ID
  */
-export const getPublicPlanById = async (id: number): Promise<PublicPlan> => {
+export const getPublicPlanById = async (
+  id: number,
+  lang?: string,
+): Promise<PublicPlan> => {
   try {
-    const response = await axios.get(ENDPOINTS.PLAN_BY_ID(id));
+    const response = await axios.get(plansUrl(`/${id}`), langParams(lang));
 
     if (response.data.success) {
       return response.data.data as PublicPlan;

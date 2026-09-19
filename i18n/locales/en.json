@@ -950,17 +950,24 @@
       },
       "qrCodes": {
         "title": "Digital menus & QR codes",
-        "description": "Publish menus and link them to table or venue QR codes.",
+        "description": "Publish menus and venue QR codes for guests to scan.",
         "benefit1": "Contactless menu on any smartphone",
-        "benefit2": "Table-specific and venue-wide codes",
+        "benefit2": "Loyalty, payment, and menu QR codes",
         "benefit3": "Works on web without installing the app"
+      },
+      "tableFloorPlan": {
+        "title": "Table & Floor-Plan Management",
+        "description": "Manage tables and the room layout as its own service — separate from QR codes.",
+        "benefit1": "Create and manage restaurant tables",
+        "benefit2": "Interactive floor and room plan",
+        "benefit3": "Open and close table sessions for ordering"
       },
       "restaurantOps": {
         "title": "Restaurant operations dashboard",
-        "description": "Run orders, floor layout, and table codes from the browser.",
+        "description": "Run live orders and day-to-day operations from the browser.",
         "benefit1": "Live order tracking",
-        "benefit2": "Interactive floor plan",
-        "benefit3": "Table QR management"
+        "benefit2": "Staff workflows",
+        "benefit3": "Venue settings"
       },
       "walletPayments": {
         "title": "Wallet & payments",
@@ -1186,6 +1193,7 @@
     "serviceCards": {
       "title": "What restaurants run with NUX",
       "subtitle": "The tools that matter on the floor, in the kitchen, and for every guest.",
+      "gastroPro": "Gastro Pro",
       "items": {
         "secureOrdering": {
           "title": "Secure Table Ordering",
@@ -1201,7 +1209,7 @@
         },
         "floorTable": {
           "title": "Floor & Table Management",
-          "description": "Manage tables, floor layout, and table QR codes from one dashboard."
+          "description": "Manage tables and the floor layout from the restaurant dashboard."
         },
         "callWaiter": {
           "title": "Call a Waiter",
@@ -1210,6 +1218,24 @@
         "loyaltyVisibility": {
           "title": "Loyalty, Promotions & Restaurant Visibility",
           "description": "Loyalty, offers, and your restaurant appear to every app and website user."
+        },
+        "staffApprovedOrdering": {
+          "description": "Guests order from the table only after a staff member approves the session."
+        },
+        "orderReceiptConfirm": {
+          "description": "Staff confirm that each order has been received."
+        },
+        "orderStatusFlow": {
+          "description": "Follow every order: received, in preparation, and ready to serve."
+        },
+        "floorStaffLiveTracking": {
+          "description": "Floor staff follow order status live, as it changes."
+        },
+        "useWithoutDownload": {
+          "description": "Use NUX in the mobile app or in the browser — no extra download required."
+        },
+        "restaurantVisibility": {
+          "description": "Your restaurant and promotions appear to every app and website user."
         }
       }
     }
@@ -1224,6 +1250,7 @@
       "settings": "Settings",
       "qrAndPayments": "QR & Payments",
       "qrCodes": "QR Codes",
+      "tableFloorPlan": "Table & Floor-Plan Management",
       "tableCodes": "Table Codes",
       "floorPlan": "Floor Plan",
       "qrScans": "QR Scans",

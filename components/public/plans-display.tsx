@@ -13,17 +13,20 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Check, Star } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
+import { pickLocalizedPlanDescriptionHtml } from "@/features/public/plans/planDescription";
 import { clearAllData } from "@/features/public/plans/publicPlansSlice";
+import { useTranslation } from "react-i18next";
 
 export function PlansDisplay() {
   const dispatch = useAppDispatch();
+  const { i18n } = useTranslation();
   const { plans, loading, error } = useAppSelector((s) => s.publicPlans);
 
   useEffect(() => {
     // Clear any existing data and fetch fresh plans
     dispatch(clearAllData());
-    dispatch(fetchPublicPlans());
-  }, [dispatch]);
+    dispatch(fetchPublicPlans(i18n.language));
+  }, [dispatch, i18n.language]);
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat("en-US", {
@@ -56,7 +59,7 @@ export function PlansDisplay() {
     return (
       <div className="text-center p-8">
         <p className="text-red-600">Error loading plans: {error.plans}</p>
-        <Button onClick={() => dispatch(fetchPublicPlans())} className="mt-4">
+        <Button onClick={() => dispatch(fetchPublicPlans(i18n.language))} className="mt-4">
           Try Again
         </Button>
       </div>
@@ -83,7 +86,13 @@ export function PlansDisplay() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {plans.map((plan) => (
+        {plans.map((plan) => {
+          const descriptionHtml = pickLocalizedPlanDescriptionHtml(
+            plan,
+            i18n.language,
+          );
+
+          return (
           <Card
             key={plan.id}
             className={`relative ${
@@ -106,7 +115,15 @@ export function PlansDisplay() {
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-xl">{plan.title}</CardTitle>
               <CardDescription className="text-sm">
-                {plan.description || "No description available"}
+                {descriptionHtml ? (
+                  <div
+                    className="prose prose-sm dark:prose-invert max-w-none"
+                    dir={i18n.language.startsWith("ar") ? "rtl" : "ltr"}
+                    dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                  />
+                ) : (
+                  "No description available"
+                )}
               </CardDescription>
               <div className="mt-4">
                 <span className="text-4xl font-bold">
@@ -158,7 +175,8 @@ export function PlansDisplay() {
               </Button>
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

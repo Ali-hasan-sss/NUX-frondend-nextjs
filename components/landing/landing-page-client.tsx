@@ -2,6 +2,8 @@
 
 import { useAppSelector } from "@/app/hooks";
 import { Hero } from "@/components/landing/hero";
+import { OrderJourney } from "@/components/landing/order-journey";
+import { ServiceHighlights } from "@/components/landing/service-highlights";
 import { PlatformIntro } from "@/components/landing/platform-intro";
 import { Features } from "@/components/landing/features";
 import { FeatureSections } from "@/components/landing/feature-sections";
@@ -49,6 +51,8 @@ export function LandingPageClient() {
         <Header />
         <main>
           <Hero />
+          <OrderJourney />
+          <ServiceHighlights />
           <PlatformIntro />
           <Features />
           <FeatureSections />

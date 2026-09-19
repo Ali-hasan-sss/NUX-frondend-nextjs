@@ -19,12 +19,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { fetchPublicPlans } from "@/features/public/plans/publicPlansThunks";
+import { pickLocalizedPlanDescriptionHtml } from "@/features/public/plans/planDescription";
 import type { PublicPlan, PublicPlanPermission } from "@/features/public/plans/publicPlansTypes";
 import {
   SectionReveal,
   SectionRevealItem,
   SectionShell,
 } from "@/components/landing/section-motion";
+import { extraDisplayPermissionsFor, isStarterPlusPlan, ORDER_FEATURE_EXTRAS, shouldShowOrderFeatureExtras } from "@/lib/planDisplayExtras";
 
 type BillingCycle = "monthly" | "annual";
 
@@ -34,17 +36,6 @@ const LIMIT_PERMISSION_TYPES = new Set([
   "MAX_PACKAGES",
   "MAX_GROUP_MEMBERS",
 ]);
-
-const ORDER_FEATURE_EXTRAS = [
-  "staffApprovedOrdering",
-  "kitchenDisplay",
-  "orderReceiptConfirm",
-  "orderStatusFlow",
-  "floorStaffLiveTracking",
-  "callWaiter",
-  "useWithoutDownload",
-  "restaurantVisibility",
-] as const;
 
 function localeForLanguage(language: string): string {
   if (language === "de") return "de-DE";
@@ -60,48 +51,8 @@ function getPlanPrice(plan: PublicPlan, cycle: BillingCycle): number {
   return plan.monthlyPrice ?? plan.price;
 }
 
-function stripHtml(html: string | null | undefined): string {
-  if (!html) return "";
-  return html.replace(/<[^>]*>/g, "").trim();
-}
-
-function isMeaningfulDescription(text: string): boolean {
-  return Boolean(text) && !/^[.\u2022\-\s]+$/.test(text);
-}
-
-function localizedPlanDescription(plan: PublicPlan, language: string): string {
-  const lang = language.split("-")[0];
-  const byLang: Record<string, string | null | undefined> = {
-    en: plan.descriptionEn,
-    ar: plan.descriptionAr,
-    de: plan.descriptionDe,
-    tr: plan.descriptionTr,
-  };
-  const candidates = [
-    byLang[lang],
-    plan.descriptionEn,
-    plan.description,
-    plan.descriptionDe,
-    plan.descriptionAr,
-    plan.descriptionTr,
-  ];
-  for (const candidate of candidates) {
-    const text = stripHtml(candidate);
-    if (isMeaningfulDescription(text)) return text;
-  }
-  return "";
-}
-
-function isStarterPlusPlan(plan: PublicPlan): boolean {
-  return /starter\s*plus/i.test(plan.title);
-}
-
 function isPriceOnRequestPlan(plan: PublicPlan): boolean {
   return Boolean(plan.priceOnRequest) || /enterprise/i.test(plan.title);
-}
-
-function hasPermission(plan: PublicPlan, type: string): boolean {
-  return (plan.permissions || []).some((p) => p.type === type);
 }
 
 function plansGridClass(count: number): string {
@@ -136,9 +87,9 @@ export function Pricing() {
 
   useEffect(() => {
     if (mounted) {
-      dispatch(fetchPublicPlans());
+      dispatch(fetchPublicPlans(i18n.language));
     }
-  }, [mounted, dispatch]);
+  }, [mounted, dispatch, i18n.language]);
 
   const formatPrice = useCallback(
     (price: number | null | undefined, currency: string | null | undefined) => {
@@ -182,11 +133,15 @@ export function Pricing() {
     const features: string[] = [];
     for (const permission of plan.permissions || []) {
       features.push(getPermissionLabel(permission));
-      if (permission.type === "MANAGE_QR_CODES") {
-        features.push(t("landing.pricing.permissions.TABLE_FLOOR_PLAN"));
+      for (const extra of extraDisplayPermissionsFor(permission.type)) {
+        features.push(
+          t(`landing.pricing.permissions.${extra}`, {
+            defaultValue: extra.replace(/_/g, " "),
+          })
+        );
       }
     }
-    if (hasPermission(plan, "MANAGE_ORDERS")) {
+    if (shouldShowOrderFeatureExtras(plan)) {
       for (const extra of ORDER_FEATURE_EXTRAS) {
         features.push(t(`landing.pricing.featureExtras.${extra}`));
       }
@@ -284,7 +239,7 @@ export function Pricing() {
             </p>
             <Button
               variant="outline"
-              onClick={() => dispatch(fetchPublicPlans())}
+              onClick={() => dispatch(fetchPublicPlans(i18n.language))}
               className={isDark ? "border-purple-500/30 text-white" : ""}
             >
               {t("landing.pricing.retry")}
@@ -312,8 +267,11 @@ export function Pricing() {
               const priceOnRequest = isPriceOnRequestPlan(plan);
               const priceValue = getPlanPrice(plan, cycle);
               const isFree = !priceOnRequest && (!priceValue || priceValue <= 0);
-              const popular = isStarterPlusPlan(plan);
-              const description = localizedPlanDescription(plan, i18n.language);
+              const popular = isStarterPlusPlan(plan.title);
+              const description = pickLocalizedPlanDescriptionHtml(
+                plan,
+                i18n.language
+              );
               const features = getPlanFeatures(plan);
 
               return (
@@ -351,16 +309,20 @@ export function Pricing() {
                       >
                         {plan.title}
                       </CardTitle>
-                      {isMeaningfulDescription(description) && (
+                      {description ? (
                         <CardDescription
                           className={cn(
                             "text-sm",
                             isDark ? "text-white/70" : "text-gray-600"
                           )}
                         >
-                          {description}
+                          <div
+                            className="prose prose-sm dark:prose-invert max-w-none text-inherit [&_p]:my-1 [&_ul]:my-1.5 [&_ol]:my-1.5 [&_li]:my-0.5"
+                            dir={i18n.language.startsWith("ar") ? "rtl" : "ltr"}
+                            dangerouslySetInnerHTML={{ __html: description }}
+                          />
                         </CardDescription>
-                      )}
+                      ) : null}
 
                       {!priceOnRequest && (
                       <div

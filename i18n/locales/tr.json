@@ -771,10 +771,17 @@
       "subtitle": "Restoranlar, misafirler ve şirketler için uçtan uca çözümler",
       "qrCodes": {
         "title": "Dijital menüler ve QR kodlar",
-        "description": "Menüleri yayınlayın ve masa veya mekân QR kodlarına bağlayın.",
+        "description": "Menüleri ve misafirlerin tarayacağı QR kodlarını yayınlayın.",
         "benefit1": "Her akıllı telefonda temasız menü",
-        "benefit2": "Masa özel ve mekân geneli kodlar",
+        "benefit2": "Sadakat, ödeme ve menü QR kodları",
         "benefit3": "Uygulama kurmadan webde çalışır"
+      },
+      "tableFloorPlan": {
+        "title": "Masa ve Salon Planı Yönetimi",
+        "description": "Masaları ve salon planını QR kodlarından ayrı, bağımsız bir hizmet olarak yönetin.",
+        "benefit1": "Restoran masalarını oluşturun ve yönetin",
+        "benefit2": "Etkileşimli salon ve oda planı",
+        "benefit3": "Sipariş için masa oturumlarını açın ve kapatın"
       },
       "companyIntro": {
         "title": "Şirketler için: evrak işi olmadan yemek yan hakları",
@@ -797,10 +804,10 @@
       },
       "restaurantOps": {
         "title": "Restoran operasyon paneli",
-        "description": "Siparişleri, salon düzenini ve masa kodlarını tarayıcıdan yönetin.",
+        "description": "Canlı siparişleri ve günlük operasyonu tarayıcıdan yönetin.",
         "benefit1": "Canlı sipariş takibi",
-        "benefit2": "Etkileşimli salon planı",
-        "benefit3": "Masa QR yönetimi"
+        "benefit2": "Personel iş akışları",
+        "benefit3": "Mekân ayarları"
       },
       "walletPayments": {
         "title": "Cüzdan ve ödemeler",
@@ -1001,7 +1008,8 @@
     },
     "serviceCards": {
       "title": "Restoranların NUX ile yönettiği hizmetler",
-      "subtitle": "Salon, mutfak ve misafir deneyimi için net araçlar.",
+      "subtitle": "Salon, mutfak ve her misafir için net araçlar.",
+      "gastroPro": "Gastro Pro",
       "items": {
         "secureOrdering": {
           "title": "Güvenli Masa Siparişi",
@@ -1017,7 +1025,7 @@
         },
         "floorTable": {
           "title": "Masa ve Salon Planı Yönetimi",
-          "description": "Masaları, salon planını ve masa QR kodlarını tek panelden yönetin."
+          "description": "Masaları ve salon planını restoran panelinden yönetin."
         },
         "callWaiter": {
           "title": "Garson Çağır",
@@ -1026,6 +1034,24 @@
         "loyaltyVisibility": {
           "title": "Sadakat, Kampanyalar ve Görünürlük",
           "description": "Sadakat, fırsatlar ve restoranınız tüm uygulama ve site kullanıcılarına görünür."
+        },
+        "staffApprovedOrdering": {
+          "description": "Misafirler, personel oturumu onayladıktan sonra masadan sipariş verir."
+        },
+        "orderReceiptConfirm": {
+          "description": "Personel her siparişin alındığını onaylar."
+        },
+        "orderStatusFlow": {
+          "description": "Her siparişi izleyin: alındı, hazırlanıyor ve servise hazır."
+        },
+        "floorStaffLiveTracking": {
+          "description": "Salon personeli sipariş durumunu anlık takip eder."
+        },
+        "useWithoutDownload": {
+          "description": "NUX’i uygulama veya tarayıcıdan kullanın — ekstra indirme gerekmez."
+        },
+        "restaurantVisibility": {
+          "description": "Restoranınız ve kampanyalarınız tüm uygulama ve site kullanıcılarına görünür."
         }
       }
     }
@@ -1040,6 +1066,7 @@
       "settings": "Ayarlar",
       "qrAndPayments": "QR ve Ödemeler",
       "qrCodes": "QR Kodları",
+      "tableFloorPlan": "Masa ve Salon Planı Yönetimi",
       "tableCodes": "Masa Kodları",
       "floorPlan": "Mekan Planı",
       "qrScans": "QR Taramaları",

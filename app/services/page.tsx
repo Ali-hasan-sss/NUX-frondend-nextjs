@@ -12,6 +12,7 @@ import {
   Smartphone,
   QrCode,
   LayoutDashboard,
+  LayoutGrid,
   Wallet,
   Gift,
   BarChart3,
@@ -20,6 +21,7 @@ import {
   Shield,
   Globe,
   HeadphonesIcon,
+  Check,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -35,11 +37,13 @@ import {
   SectionRevealItem,
   type SectionEntrance,
 } from "@/components/landing/section-motion";
+import { ORDER_FEATURE_EXTRAS } from "@/lib/planDisplayExtras";
 
 type ServiceKey =
   | "companyAccounts"
   | "guestApp"
   | "qrCodes"
+  | "tableFloorPlan"
   | "restaurantOps"
   | "walletPayments"
   | "loyalty"
@@ -59,6 +63,7 @@ const SERVICES: {
   { key: "companyAccounts", icon: Building2, benefitCount: 4, featured: true },
   { key: "guestApp", icon: Smartphone, benefitCount: 3 },
   { key: "qrCodes", icon: QrCode, benefitCount: 3 },
+  { key: "tableFloorPlan", icon: LayoutGrid, benefitCount: 3 },
   { key: "restaurantOps", icon: LayoutDashboard, benefitCount: 3 },
   { key: "walletPayments", icon: Wallet, benefitCount: 3 },
   { key: "loyalty", icon: Gift, benefitCount: 3 },
@@ -179,7 +184,73 @@ function ServicesContent({ isDark }: { isDark: boolean }) {
         </Card>
       </PageSection>
 
-      <PageSection isDark={isDark} sectionIndex={1} bg="grid" className="py-8" containerClassName="max-w-7xl">
+      <PageSection isDark={isDark} sectionIndex={1} bg="mesh" entrance="fade-up" containerClassName="max-w-7xl">
+        <div className="text-center mb-10">
+          <span
+            className={cn(
+              "inline-flex items-center rounded-full px-4 py-1 text-sm font-medium mb-4",
+              isDark
+                ? "bg-cyan-500/20 text-cyan-300"
+                : "bg-cyan-100 text-cyan-700"
+            )}
+          >
+            {t("landing.serviceCards.gastroPro")}
+          </span>
+          <h2
+            className={cn(
+              "text-2xl md:text-3xl font-bold mb-3",
+              isDark ? "text-white" : "text-gray-900"
+            )}
+          >
+            {t("landing.serviceCards.title")}
+          </h2>
+          <p
+            className={cn(
+              "text-base max-w-2xl mx-auto",
+              isDark ? "text-gray-300" : "text-gray-600"
+            )}
+          >
+            {t("landing.serviceCards.subtitle")}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {ORDER_FEATURE_EXTRAS.map((key, index) => (
+            <SectionRevealItem
+              key={key}
+              entrance={SERVICE_ENTRANCES[index % SERVICE_ENTRANCES.length]}
+              index={index % 6}
+            >
+              <Card
+                className={cn(
+                  "h-full",
+                  isDark
+                    ? "bg-[#1A1F3A] border-cyan-500/20"
+                    : "bg-white border-gray-200"
+                )}
+              >
+                <CardHeader className="pb-2">
+                  <CardTitle
+                    className={cn(
+                      "text-base leading-snug flex items-start gap-2",
+                      isDark ? "text-white" : "text-gray-900"
+                    )}
+                  >
+                    <Check
+                      className={cn(
+                        "h-4 w-4 mt-0.5 flex-shrink-0",
+                        isDark ? "text-cyan-400" : "text-cyan-600"
+                      )}
+                    />
+                    {t(`landing.pricing.featureExtras.${key}`)}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            </SectionRevealItem>
+          ))}
+        </div>
+      </PageSection>
+
+      <PageSection isDark={isDark} sectionIndex={2} bg="grid" className="py-8" containerClassName="max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {SERVICES.map((service, index) => {
             const Icon = service.icon;

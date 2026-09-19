@@ -417,6 +417,12 @@ export function PlanForm({
                       {PERMISSION_LABELS[
                         type as keyof typeof PERMISSION_LABELS
                       ] || type}
+                      {type === PERMISSION_TYPES.MANAGE_QR_CODES && (
+                        <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                          Shown to customers as a separate service: Table &
+                          Floor-Plan Management
+                        </span>
+                      )}
                     </Label>
                     {isPermissionSelected(type) && (
                       <Badge variant="secondary" className="text-xs">

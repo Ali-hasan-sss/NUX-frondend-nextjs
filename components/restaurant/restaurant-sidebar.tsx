@@ -101,11 +101,6 @@ export function RestaurantSidebar({
           icon: QrCode,
         },
         {
-          name: t("dashboard.sidebar.tableCodes"),
-          href: "/dashboard/table-codes",
-          icon: Table2,
-        },
-        {
           name: t("dashboard.sidebar.qrScans"),
           href: "/dashboard/qr-scans",
           icon: ScanLine,
@@ -123,14 +118,25 @@ export function RestaurantSidebar({
       ],
     },
     {
-      groupName: t("dashboard.sidebar.restaurant"),
-      groupIcon: Store,
+      groupName: t("dashboard.sidebar.tableFloorPlan"),
+      groupIcon: LayoutGrid,
       items: [
+        {
+          name: t("dashboard.sidebar.tableCodes"),
+          href: "/dashboard/table-codes",
+          icon: Table2,
+        },
         {
           name: t("dashboard.sidebar.floorPlan"),
           href: "/dashboard/floor-plan",
           icon: LayoutGrid,
         },
+      ],
+    },
+    {
+      groupName: t("dashboard.sidebar.restaurant"),
+      groupIcon: Store,
+      items: [
         {
           name: t("dashboard.sidebar.menu"),
           href: "/dashboard/menu",
